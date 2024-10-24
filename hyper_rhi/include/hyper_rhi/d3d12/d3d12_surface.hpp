@@ -15,7 +15,7 @@ namespace hyper_rhi
     class D3D12Surface final : public Surface
     {
     public:
-        D3D12Surface(D3D12GraphicsDevice &graphics_device, const SurfaceDescriptor &descriptor);
+        D3D12Surface(D3D12GraphicsDevice &graphics_device, const hyper_platform::Window &window);
 
     protected:
         void resize(uint32_t width, uint32_t height) override;

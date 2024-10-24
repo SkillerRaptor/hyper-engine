@@ -22,7 +22,7 @@ namespace hyper_rhi
         [[nodiscard]] ComPtr<ID3D12CommandQueue> command_queue() const;
 
     protected:
-        SurfaceHandle create_surface(const SurfaceDescriptor &descriptor) override;
+        SurfaceHandle create_surface(const hyper_platform::Window &window) override;
 
         BufferHandle create_buffer(const BufferDescriptor &descriptor) override;
         CommandListHandle create_command_list() override;

@@ -41,7 +41,7 @@ namespace hyper_rhi
         static std::shared_ptr<GraphicsDevice> create(const GraphicsDeviceDescriptor &descriptor);
         virtual ~GraphicsDevice() = default;
 
-        [[nodiscard]] virtual SurfaceHandle create_surface(const SurfaceDescriptor &descriptor) = 0;
+        [[nodiscard]] virtual SurfaceHandle create_surface(const hyper_platform::Window &window) = 0;
 
         [[nodiscard]] virtual BufferHandle create_buffer(const BufferDescriptor &descriptor) = 0;
         [[nodiscard]] virtual CommandListHandle create_command_list() = 0;

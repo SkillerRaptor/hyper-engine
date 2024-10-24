@@ -7,12 +7,13 @@
 #pragma once
 
 #include "hyper_rhi/command_list.hpp"
+#include "hyper_rhi/vulkan/vulkan_common.hpp"
 
 namespace hyper_rhi
 {
     class VulkanGraphicsDevice;
 
-    class VulkanCommandList : public CommandList
+    class VulkanCommandList final : public CommandList
     {
     public:
         explicit VulkanCommandList(VulkanGraphicsDevice &graphics_device);

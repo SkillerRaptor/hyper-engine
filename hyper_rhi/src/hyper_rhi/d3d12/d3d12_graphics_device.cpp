@@ -44,9 +44,9 @@ namespace hyper_rhi
         return m_command_queue;
     }
 
-    SurfaceHandle D3D12GraphicsDevice::create_surface(const SurfaceDescriptor &descriptor)
+    SurfaceHandle D3D12GraphicsDevice::create_surface(const hyper_platform::Window &window)
     {
-        return std::make_shared<D3D12Surface>(*this, descriptor);
+        return std::make_shared<D3D12Surface>(*this, window);
     }
 
     BufferHandle D3D12GraphicsDevice::create_buffer(const BufferDescriptor &descriptor)

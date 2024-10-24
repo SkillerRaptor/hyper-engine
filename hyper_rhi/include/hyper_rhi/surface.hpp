@@ -14,11 +14,6 @@
 
 namespace hyper_rhi
 {
-    struct SurfaceDescriptor
-    {
-        hyper_platform::Window &window;
-    };
-
     class Surface
     {
     public:

@@ -12,16 +12,16 @@
 
 namespace hyper_rhi
 {
-    VulkanSurface::VulkanSurface(VulkanGraphicsDevice &graphics_device, const SurfaceDescriptor &descriptor)
+    VulkanSurface::VulkanSurface(VulkanGraphicsDevice &graphics_device, const hyper_platform::Window &window)
         : m_graphics_device(graphics_device)
         , m_surface(VK_NULL_HANDLE)
         , m_swapchain(VK_NULL_HANDLE)
         , m_current_texture_index(0)
         , m_resized(false)
-        , m_width(descriptor.window.width())
-        , m_height(descriptor.window.height())
+        , m_width(window.width())
+        , m_height(window.height())
     {
-        this->create_surface(descriptor.window);
+        this->create_surface(window);
         this->create_swapchain();
 
         // TODO: Retrieve swapchain images

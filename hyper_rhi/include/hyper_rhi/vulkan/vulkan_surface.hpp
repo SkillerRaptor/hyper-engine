@@ -15,7 +15,7 @@ namespace hyper_rhi
     class VulkanSurface final : public Surface
     {
     public:
-        VulkanSurface(VulkanGraphicsDevice &graphics_device, const SurfaceDescriptor &descriptor);
+        VulkanSurface(VulkanGraphicsDevice &graphics_device, const hyper_platform::Window &window);
         ~VulkanSurface() override;
 
         void rebuild();

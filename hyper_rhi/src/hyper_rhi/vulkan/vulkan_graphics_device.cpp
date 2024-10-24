@@ -121,9 +121,9 @@ namespace hyper_rhi
         return m_frames[m_current_frame_index % GraphicsDevice::s_frame_count];
     }
 
-    SurfaceHandle VulkanGraphicsDevice::create_surface(const SurfaceDescriptor &descriptor)
+    SurfaceHandle VulkanGraphicsDevice::create_surface(const hyper_platform::Window &window)
     {
-        return std::make_shared<VulkanSurface>(*this, descriptor);
+        return std::make_shared<VulkanSurface>(*this, window);
     }
 
     BufferHandle VulkanGraphicsDevice::create_buffer(const BufferDescriptor &descriptor)

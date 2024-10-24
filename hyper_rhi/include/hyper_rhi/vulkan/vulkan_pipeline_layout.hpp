@@ -7,7 +7,6 @@
 #pragma once
 
 #include "hyper_rhi/pipeline_layout.hpp"
-
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
 namespace hyper_rhi
