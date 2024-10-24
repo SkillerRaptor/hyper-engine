@@ -38,7 +38,9 @@ namespace hyper_rhi
         [[nodiscard]] VkPhysicalDevice physical_device() const;
         [[nodiscard]] VkDevice device() const;
 
-        const FrameData &current_frame() const;
+        [[nodiscard]] const VulkanDescriptorManager &descriptor_manager() const;
+
+        [[nodiscard]] const FrameData &current_frame() const;
 
     protected:
         SurfaceHandle create_surface(const SurfaceDescriptor &descriptor) override;

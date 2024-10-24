@@ -29,6 +29,8 @@ namespace hyper_rhi
         explicit VulkanDescriptorManager(VulkanGraphicsDevice &graphics_device);
         ~VulkanDescriptorManager();
 
+        const std::array<VkDescriptorSetLayout, s_descriptor_types.size()> &descriptor_set_layouts() const;
+
     private:
         void find_descriptor_counts();
         void create_descriptor_pool();

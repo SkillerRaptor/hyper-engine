@@ -19,6 +19,7 @@
 #include <hyper_core/prerequisites.hpp>
 
 #include "hyper_rhi/vulkan/vulkan_command_list.hpp"
+#include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
 #include "hyper_rhi/vulkan/vulkan_surface.hpp"
 
 namespace hyper_rhi
@@ -110,6 +111,11 @@ namespace hyper_rhi
         return m_device;
     }
 
+    const VulkanDescriptorManager &VulkanGraphicsDevice::descriptor_manager() const
+    {
+        return *m_descriptor_manager;
+    }
+
     const VulkanGraphicsDevice::FrameData &VulkanGraphicsDevice::current_frame() const
     {
         return m_frames[m_current_frame_index % GraphicsDevice::s_frame_count];
@@ -148,9 +154,7 @@ namespace hyper_rhi
 
     PipelineLayoutHandle VulkanGraphicsDevice::create_pipeline_layout(const PipelineLayoutDescriptor &descriptor)
     {
-        HE_UNUSED(descriptor);
-
-        HE_UNREACHABLE();
+        return std::make_shared<VulkanPipelineLayout>(*this, descriptor);
     }
 
     ShaderModuleHandle VulkanGraphicsDevice::create_shader_module(const ShaderModuleDescriptor &descriptor)

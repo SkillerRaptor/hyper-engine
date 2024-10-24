@@ -9,6 +9,7 @@ set(SOURCES
         src/hyper_rhi/vulkan/vulkan_command_list.cpp
         src/hyper_rhi/vulkan/vulkan_descriptor_manager.cpp
         src/hyper_rhi/vulkan/vulkan_graphics_device.cpp
+        src/hyper_rhi/vulkan/vulkan_pipeline_layout.cpp
         src/hyper_rhi/vulkan/vulkan_surface.cpp)
 
 set(HEADERS
@@ -27,6 +28,7 @@ set(HEADERS
         include/hyper_rhi/vulkan/vulkan_common.hpp
         include/hyper_rhi/vulkan/vulkan_descriptor_manager.hpp
         include/hyper_rhi/vulkan/vulkan_graphics_device.hpp
+        include/hyper_rhi/vulkan/vulkan_pipeline_layout.hpp
         include/hyper_rhi/vulkan/vulkan_surface.hpp)
 
 if (WIN32)

@@ -35,6 +35,12 @@ namespace hyper_rhi
         vkDestroyDescriptorPool(m_graphics_device.device(), m_descriptor_pool, nullptr);
     }
 
+    const std::array<VkDescriptorSetLayout, VulkanDescriptorManager::s_descriptor_types.size()> &
+        VulkanDescriptorManager::descriptor_set_layouts() const
+    {
+        return m_descriptor_set_layouts;
+    }
+
     void VulkanDescriptorManager::find_descriptor_counts()
     {
         VkPhysicalDeviceProperties properties = {};
