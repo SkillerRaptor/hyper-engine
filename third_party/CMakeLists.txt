@@ -146,7 +146,7 @@ FetchContent_Declare(
         libassert
         SYSTEM
         GIT_REPOSITORY https://github.com/jeremy-rifkin/libassert.git
-        GIT_TAG v2.1.1)
+        GIT_TAG v2.1.2)
 
 FetchContent_MakeAvailable(libassert)
 
@@ -168,7 +168,7 @@ FetchContent_Declare(
         meshoptimizer
         SYSTEM
         GIT_REPOSITORY https://github.com/zeux/meshoptimizer.git
-        GIT_TAG v0.21)
+        GIT_TAG v0.22)
 
 set(MESHOPT_BUILD_DEMO OFF CACHE INTERNAL "")
 set(MESHOPT_BUILD_GLTFPACK OFF CACHE INTERNAL "")
