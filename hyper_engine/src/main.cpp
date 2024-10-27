@@ -16,7 +16,7 @@
 
 int main(int argc, char **argv)
 {
-    hyper_core::logger::initialize();
+    hyper_core::Logger::initialize();
 
     argparse::ArgumentParser program("HyperEngine");
 
@@ -50,27 +50,27 @@ int main(int argc, char **argv)
 
     if (log_level == "trace")
     {
-        hyper_core::logger::set_level(spdlog::level::trace);
+        hyper_core::Logger::set_level(spdlog::level::trace);
     }
     else if (log_level == "debug")
     {
-        hyper_core::logger::set_level(spdlog::level::debug);
+        hyper_core::Logger::set_level(spdlog::level::debug);
     }
     else if (log_level == "info")
     {
-        hyper_core::logger::set_level(spdlog::level::info);
+        hyper_core::Logger::set_level(spdlog::level::info);
     }
     else if (log_level == "warning")
     {
-        hyper_core::logger::set_level(spdlog::level::warn);
+        hyper_core::Logger::set_level(spdlog::level::warn);
     }
     else if (log_level == "error")
     {
-        hyper_core::logger::set_level(spdlog::level::err);
+        hyper_core::Logger::set_level(spdlog::level::err);
     }
     else if (log_level == "critical")
     {
-        hyper_core::logger::set_level(spdlog::level::critical);
+        hyper_core::Logger::set_level(spdlog::level::critical);
     }
 
     const hyper_rhi::GraphicsApi graphics_api = renderer == "d3d12" ? hyper_rhi::GraphicsApi::D3D12 : hyper_rhi::GraphicsApi::Vulkan;
