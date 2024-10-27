@@ -11,9 +11,11 @@
 #include <spdlog/sinks/ansicolor_sink-inl.h>
 #include <spdlog/fmt/bundled/color.h>
 
-namespace hyper_core::logger
+namespace hyper_core
 {
-    void initialize()
+    std::shared_ptr<spdlog::logger> Logger::s_internal_logger = nullptr;
+
+    void Logger::initialize()
     {
         const std::shared_ptr<spdlog::sinks::ansicolor_stdout_sink_mt> stdout_sink = std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>();
         stdout_sink->set_color(spdlog::level::info, "\033[38;2;0;128;0m");
@@ -34,17 +36,18 @@ namespace hyper_core::logger
             file_sink,
         };
 
-        const std::shared_ptr<spdlog::logger> internal_logger =
-            std::make_shared<spdlog::logger>("HyperEngine", log_sinks.begin(), log_sinks.end());
-        internal_logger->set_level(spdlog::level::trace);
-        internal_logger->flush_on(spdlog::level::trace);
-
-        spdlog::set_default_logger(internal_logger);
-        spdlog::set_level(spdlog::level::info);
+        s_internal_logger = std::make_shared<spdlog::logger>("HyperEngine", log_sinks.begin(), log_sinks.end());
+        s_internal_logger->set_level(spdlog::level::info);
+        s_internal_logger->flush_on(spdlog::level::info);
     }
 
-    void set_level(const spdlog::level::level_enum level)
+    void Logger::set_level(const spdlog::level::level_enum level)
     {
-        spdlog::set_level(level);
+        s_internal_logger->set_level(level);
     }
-} // namespace hyper_core::logger
+
+    std::shared_ptr<spdlog::logger> &Logger::internal_logger()
+    {
+        return s_internal_logger;
+    }
+} // namespace hyper_core

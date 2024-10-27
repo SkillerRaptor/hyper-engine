@@ -6,19 +6,28 @@
 
 #pragma once
 
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
-#include <spdlog/spdlog.h>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
 
-namespace hyper_core::logger
+namespace hyper_core
 {
-    void initialize();
+    class Logger
+    {
+    public:
+        static void initialize();
 
-    void set_level(spdlog::level::level_enum level);
-} // namespace hyper_core::logger
+        static void set_level(spdlog::level::level_enum level);
 
-#define HE_INFO(...) SPDLOG_INFO(__VA_ARGS__)
-#define HE_WARN(...) SPDLOG_WARN(__VA_ARGS__)
-#define HE_ERROR(...) SPDLOG_ERROR(__VA_ARGS__)
-#define HE_CRITICAL(...) SPDLOG_CRITICAL(__VA_ARGS__)
-#define HE_DEBUG(...) SPDLOG_DEBUG(__VA_ARGS__)
-#define HE_TRACE(...) SPDLOG_TRACE(__VA_ARGS__)
+        static std::shared_ptr<spdlog::logger> &internal_logger();
+
+    private:
+        static std::shared_ptr<spdlog::logger> s_internal_logger;
+    };
+} // namespace hyper_core
+
+#define HE_INFO(...) ::hyper_core::Logger::internal_logger()->info(__VA_ARGS__)
+#define HE_WARN(...) ::hyper_core::Logger::internal_logger()->warn(__VA_ARGS__)
+#define HE_ERROR(...) ::hyper_core::Logger::internal_logger()->error(__VA_ARGS__)
+#define HE_CRITICAL(...) ::hyper_core::Logger::internal_logger()->critical(__VA_ARGS__)
+#define HE_DEBUG(...) ::hyper_core::Logger::internal_logger()->debug(__VA_ARGS__)
+#define HE_TRACE(...) ::hyper_core::Logger::internal_logger()->trace(__VA_ARGS__)
