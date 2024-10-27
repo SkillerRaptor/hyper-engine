@@ -69,32 +69,6 @@ set_target_properties(
         FOLDER "third_party")
 
 #-------------------------------------------------------------------------------------------
-# fmt
-#-------------------------------------------------------------------------------------------
-FetchContent_Declare(
-        fmt
-        SYSTEM
-        GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-        GIT_TAG 11.0.2)
-
-set(FMT_DOC OFF CACHE INTERNAL "")
-set(FMT_INSTALL OFF CACHE INTERNAL "")
-set(FMT_TEST OFF CACHE INTERNAL "")
-set(FMT_FUZZ OFF CACHE INTERNAL "")
-set(FMT_CUDA_TEST OFF CACHE INTERNAL "")
-set(FMT_OS ON CACHE INTERNAL "")
-set(FMT_MODULE OFF CACHE INTERNAL "")
-set(FMT_SYSTEM_HEADERS OFF CACHE INTERNAL "")
-set(FMT_UNICODE ON CACHE INTERNAL "")
-
-FetchContent_MakeAvailable(fmt)
-
-set_target_properties(
-        fmt
-        PROPERTIES
-        FOLDER "third_party")
-
-#-------------------------------------------------------------------------------------------
 # glfw
 #-------------------------------------------------------------------------------------------
 FetchContent_Declare(
@@ -179,6 +153,45 @@ FetchContent_MakeAvailable(meshoptimizer)
 
 set_target_properties(
         meshoptimizer
+        PROPERTIES
+        FOLDER "third_party")
+
+#-------------------------------------------------------------------------------------------
+# spdlog
+#-------------------------------------------------------------------------------------------
+FetchContent_Declare(
+        spdlog
+        SYSTEM
+        GIT_REPOSITORY https://github.com/gabime/spdlog.git
+        GIT_TAG v1.14.1)
+
+set(SPDLOG_BUILD_ALL OFF CACHE INTERNAL "")
+set(SPDLOG_BUILD_SHARED OFF CACHE INTERNAL "")
+set(SPDLOG_ENABLE_PCH OFF CACHE INTERNAL "")
+set(SPDLOG_BUILD_PIC OFF CACHE INTERNAL "")
+set(SPDLOG_BUILD_EXAMPLE OFF CACHE INTERNAL "")
+set(SPDLOG_BUILD_EXAMPLE_HO OFF CACHE INTERNAL "")
+set(SPDLOG_BUILD_TESTS OFF CACHE INTERNAL "")
+set(SPDLOG_BUILD_TESTS_HO OFF CACHE INTERNAL "")
+set(SPDLOG_BUILD_BENCH OFF CACHE INTERNAL "")
+set(SPDLOG_SANITIZE_ADDRESS OFF CACHE INTERNAL "")
+set(SPDLOG_BUILD_WARNINGS OFF CACHE INTERNAL "")
+set(SPDLOG_SYSTEM_INCLUDES OFF CACHE INTERNAL "")
+set(SPDLOG_INSTALL OFF CACHE INTERNAL "")
+set(SPDLOG_USE_STD_FORMAT OFF CACHE INTERNAL "")
+set(SPDLOG_FMT_EXTERNAL OFF CACHE INTERNAL "")
+set(SPDLOG_FMT_EXTERNAL_HO OFF CACHE INTERNAL "")
+set(SPDLOG_NO_EXCEPTIONS OFF CACHE INTERNAL "")
+set(SPDLOG_PREVENT_CHILD_FD OFF CACHE INTERNAL "")
+set(SPDLOG_NO_THREAD_ID OFF CACHE INTERNAL "")
+set(SPDLOG_NO_TLS OFF CACHE INTERNAL "")
+set(SPDLOG_NO_ATOMIC_LEVELS OFF CACHE INTERNAL "")
+set(SPDLOG_DISABLE_DEFAULT_LOGGER OFF CACHE INTERNAL "")
+
+FetchContent_MakeAvailable(spdlog)
+
+set_target_properties(
+        spdlog
         PROPERTIES
         FOLDER "third_party")
 

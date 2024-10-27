@@ -6,103 +6,45 @@
 
 #include "hyper_core/logger.hpp"
 
-#include <fmt/chrono.h>
-#include <fmt/color.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/ansicolor_sink.h>
+#include <spdlog/sinks/ansicolor_sink-inl.h>
+#include <spdlog/fmt/bundled/color.h>
 
-#include "hyper_core/assertion.hpp"
-#include "hyper_core/string.hpp"
-
-namespace hyper_core
+namespace hyper_core::logger
 {
-    void Logger::internal_log(Logger::Level level, const std::source_location &source_location, std::string_view string)
+    void initialize()
     {
-        const fmt::color level_color = [&level]()
-        {
-            switch (level)
-            {
-            case Logger::Level::Info:
-                return fmt::color::green;
-            case Logger::Level::Warning:
-                return fmt::color::gold;
-            case Logger::Level::Error:
-                return fmt::color::red;
-            case Logger::Level::Fatal:
-                return fmt::color::crimson;
-            case Logger::Level::Debug:
-                return fmt::color::blue;
-            case Logger::Level::Trace:
-                return fmt::color::purple;
-            default:
-                return fmt::color::white;
-            }
-        }();
+        const std::shared_ptr<spdlog::sinks::ansicolor_stdout_sink_mt> stdout_sink = std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>();
+        stdout_sink->set_color(spdlog::level::info, "\033[38;2;0;128;0m");
+        stdout_sink->set_color(spdlog::level::warn, "\033[38;2;255;215;0m");
+        stdout_sink->set_color(spdlog::level::err, "\033[38;2;255;0;0m");
+        stdout_sink->set_color(spdlog::level::critical, "\033[38;2;220;20;60m");
+        stdout_sink->set_color(spdlog::level::debug, "\033[38;2;0;0;255m");
+        stdout_sink->set_color(spdlog::level::trace, "\033[38;2;128;0;128m");
 
-        const std::string_view level_name = [&level]()
-        {
-            switch (level)
-            {
-            case Logger::Level::Info:
-                return " INFO";
-            case Logger::Level::Warning:
-                return " WARN";
-            case Logger::Level::Error:
-                return "ERROR";
-            case Logger::Level::Fatal:
-                return "FATAL";
-            case Logger::Level::Debug:
-                return "DEBUG";
-            case Logger::Level::Trace:
-                return "TRACE";
-            default:
-                return "Undefined";
-            }
-        }();
+        stdout_sink->set_pattern("\033[38;2;169;169;169m%Y-%m-%dT%H:%M:%S.%f %^%l%$ \033[38;2;211;211;211m%v");
 
-        const std::chrono::time_zone *time_zone = std::chrono::current_zone();
-        const std::chrono::system_clock::time_point time_point = std::chrono::system_clock::now();
-        const auto local_time = time_zone->to_local(time_point);
+        const std::shared_ptr<spdlog::sinks::basic_file_sink_mt> file_sink =
+            std::make_shared<spdlog::sinks::basic_file_sink_mt>("latest.log", true);
+        file_sink->set_pattern("%Y-%m-%d%H:%M:%S.%f %l: %v");
 
-        const std::string time = fmt::format(fg(fmt::color::dark_gray), "{:%FT%TZ}", local_time);
+        const spdlog::sinks_init_list log_sinks = {
+            stdout_sink,
+            file_sink,
+        };
 
-        const std::string level_string = fmt::format(fg(level_color), "{}", level_name);
+        const std::shared_ptr<spdlog::logger> internal_logger =
+            std::make_shared<spdlog::logger>("HyperEngine", log_sinks.begin(), log_sinks.end());
+        internal_logger->set_level(spdlog::level::trace);
+        internal_logger->flush_on(spdlog::level::trace);
 
-        const std::string module = [&source_location]()
-        {
-            const std::string file_name = source_location.file_name();
-            const size_t file_name_length = file_name.size() - file_name.find_last_of("/\\");
-
-            auto extract_path = [&](const std::string_view keyword, const size_t offset) -> std::string
-            {
-                const size_t position = file_name.rfind(keyword);
-                if (position == std::string::npos)
-                {
-                    return {};
-                }
-
-                const size_t start = position + offset;
-                if (start + file_name_length < file_name.size())
-                {
-                    return file_name.substr(start, file_name.size() - start - file_name_length);
-                }
-
-                const size_t last_folder_position = file_name.substr(0, position).find_last_of("/\\");
-                return file_name.substr(last_folder_position + 1, position - last_folder_position - 1);
-            };
-
-            std::string module_path = extract_path("src", 4);
-            if (module_path.empty())
-            {
-                module_path = extract_path("include", 8);
-            }
-
-            module_path = string::replace_all(module_path, "/", "::");
-            module_path = string::replace_all(module_path, "\\", "::");
-
-            return module_path;
-        }();
-
-        const std::string module_string = fmt::format(fg(fmt::color::gray), "{}", module);
-
-        fmt::print(fg(fmt::color::light_gray), "{} {} {} {}\n", time, level_string, module_string, string);
+        spdlog::set_default_logger(internal_logger);
+        spdlog::set_level(spdlog::level::info);
     }
-} // namespace hyper_core
+
+    void set_level(const spdlog::level::level_enum level)
+    {
+        spdlog::set_level(level);
+    }
+} // namespace hyper_core::logger

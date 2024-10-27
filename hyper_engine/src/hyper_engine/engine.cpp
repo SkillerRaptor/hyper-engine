@@ -27,9 +27,7 @@ namespace hyper_engine
               .graphics_api = descriptor.graphics_api,
               .debug_mode = descriptor.debug,
           }))
-        , m_surface(m_graphics_device->create_surface({
-              .window = m_window,
-          }))
+        , m_surface(m_graphics_device->create_surface(m_window))
         , m_renderer({
               .graphics_device = m_graphics_device,
               .surface = m_surface,
