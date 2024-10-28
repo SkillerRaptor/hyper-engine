@@ -61,9 +61,12 @@ namespace hyper_rhi
             m_handle = m_graphics_device.descriptor_manager().allocate_buffer_handle(m_buffer);
         }
 
-        m_graphics_device.set_object_name(m_buffer, VK_OBJECT_TYPE_BUFFER, m_label);
+        if (!m_label.empty())
+        {
+            m_graphics_device.set_object_name(m_buffer, VK_OBJECT_TYPE_BUFFER, m_label);
+        }
 
-        HE_TRACE("Created Buffer '{}' with {} bytes", m_label, descriptor.byte_size);
+        HE_TRACE("Created Buffer {} with {} bytes", m_label.empty() ? "" : fmt::format("'{}'", m_label), descriptor.byte_size);
     }
 
     VulkanBuffer::~VulkanBuffer()

@@ -68,6 +68,7 @@ target_link_libraries(
         hyper_core
         hyper_platform
         DirectXShaderCompiler
+        fmt
         glfw
         volk
         VulkanMemoryAllocator)

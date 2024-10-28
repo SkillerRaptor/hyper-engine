@@ -202,14 +202,55 @@ namespace hyper_rhi
             vkCreateGraphicsPipelines(m_graphics_device.device(), VK_NULL_HANDLE, 1, &graphics_pipeline_create_info, nullptr, &m_pipeline));
         HE_ASSERT(m_pipeline != VK_NULL_HANDLE);
 
-        m_graphics_device.set_object_name(m_pipeline, VK_OBJECT_TYPE_PIPELINE, m_label);
+        if (!m_label.empty())
+        {
+            m_graphics_device.set_object_name(m_pipeline, VK_OBJECT_TYPE_PIPELINE, m_label);
+        }
 
-        HE_TRACE(
-            "Created Graphics Pipeline '{}' with '{}' layout and '{}' vertex shader & '{}' fragment shader",
-            m_label,
-            descriptor.layout->label(),
-            descriptor.vertex_shader->label(),
-            descriptor.fragment_shader->label());
+        if (descriptor.layout->label().empty() && descriptor.vertex_shader->label().empty() && descriptor.fragment_shader->label().empty())
+        {
+            HE_TRACE("Created Graphics Pipeline {}", m_label.empty() ? "" : fmt::format("'{}'", m_label));
+        }
+        else
+        {
+            std::string message;
+
+            size_t index = 0;
+            std::array<std::string, 3> parts = {};
+            if (!descriptor.layout->label().empty())
+            {
+                parts[index] = fmt::format("'{}' layout", descriptor.layout->label());
+                ++index;
+            }
+
+            if (!descriptor.vertex_shader->label().empty())
+            {
+                parts[index] = fmt::format("'{}' vertex shader", descriptor.vertex_shader->label());
+                ++index;
+            }
+
+            if (!descriptor.fragment_shader->label().empty())
+            {
+                parts[index] = fmt::format("'{}' fragment shader", descriptor.fragment_shader->label());
+            }
+
+            switch (index)
+            {
+            case 0:
+                message += parts[0];
+                break;
+            case 1:
+                message += fmt::format("{} and {}", parts[0], parts[1]);
+                break;
+            case 2:
+                message += fmt::format("{}, {} and {}", parts[0], parts[1], parts[2]);
+                break;
+            default:
+                HE_UNREACHABLE();
+            }
+
+            HE_TRACE("Created Graphics Pipeline {} with {}", m_label.empty() ? "" : fmt::format("'{}'", m_label), message);
+        }
     }
 
     VulkanGraphicsPipeline::~VulkanGraphicsPipeline()

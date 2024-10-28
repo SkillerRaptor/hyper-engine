@@ -19,5 +19,6 @@ hyperengine_define_library(hyper_core)
 target_link_libraries(
         hyper_core
         PUBLIC
+        fmt
         libassert::assert
         spdlog)

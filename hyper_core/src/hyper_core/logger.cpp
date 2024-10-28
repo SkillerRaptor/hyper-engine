@@ -6,10 +6,11 @@
 
 #include "hyper_core/logger.hpp"
 
+#include <fmt/color.h>
+
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/ansicolor_sink.h>
 #include <spdlog/sinks/ansicolor_sink-inl.h>
-#include <spdlog/fmt/bundled/color.h>
 
 namespace hyper_core
 {

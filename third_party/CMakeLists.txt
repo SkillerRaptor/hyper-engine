@@ -71,6 +71,32 @@ set_target_properties(
 hyperengine_deploy_files(${CMAKE_CURRENT_LIST_DIR}/DirectXShaderCompiler/bin/x64/ hyper_engine/)
 
 #-------------------------------------------------------------------------------------------
+# fmt
+#-------------------------------------------------------------------------------------------
+FetchContent_Declare(
+        fmt
+        SYSTEM
+        GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+        GIT_TAG 11.0.2)
+
+set(FMT_DOC OFF CACHE INTERNAL "")
+set(FMT_INSTALL OFF CACHE INTERNAL "")
+set(FMT_TEST OFF CACHE INTERNAL "")
+set(FMT_FUZZ OFF CACHE INTERNAL "")
+set(FMT_CUDA_TEST OFF CACHE INTERNAL "")
+set(FMT_OS ON CACHE INTERNAL "")
+set(FMT_MODULE OFF CACHE INTERNAL "")
+set(FMT_SYSTEM_HEADERS OFF CACHE INTERNAL "")
+set(FMT_UNICODE ON CACHE INTERNAL "")
+
+FetchContent_MakeAvailable(fmt)
+
+set_target_properties(
+        fmt
+        PROPERTIES
+        FOLDER "third_party")
+
+#-------------------------------------------------------------------------------------------
 # glfw
 #-------------------------------------------------------------------------------------------
 FetchContent_Declare(
@@ -181,7 +207,7 @@ set(SPDLOG_BUILD_WARNINGS OFF CACHE INTERNAL "")
 set(SPDLOG_SYSTEM_INCLUDES OFF CACHE INTERNAL "")
 set(SPDLOG_INSTALL OFF CACHE INTERNAL "")
 set(SPDLOG_USE_STD_FORMAT OFF CACHE INTERNAL "")
-set(SPDLOG_FMT_EXTERNAL OFF CACHE INTERNAL "")
+set(SPDLOG_FMT_EXTERNAL ON CACHE INTERNAL "")
 set(SPDLOG_FMT_EXTERNAL_HO OFF CACHE INTERNAL "")
 set(SPDLOG_NO_EXCEPTIONS OFF CACHE INTERNAL "")
 set(SPDLOG_PREVENT_CHILD_FD OFF CACHE INTERNAL "")
