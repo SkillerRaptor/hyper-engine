@@ -35,8 +35,7 @@ namespace hyper_rhi
 
     VulkanShaderModule::~VulkanShaderModule()
     {
-        // TODO: Queue it
-        vkDestroyShaderModule(m_graphics_device.device(), m_shader_module, nullptr);
+        m_graphics_device.resource_queue().shader_modules.emplace_back(m_shader_module);
     }
 
     VkShaderModule VulkanShaderModule::shader_module() const

@@ -68,8 +68,6 @@ namespace hyper_rhi
 
     VulkanBuffer::~VulkanBuffer()
     {
-        // TODO: Queue it
-        m_graphics_device.descriptor_manager().retire_handle(m_handle);
-        vmaDestroyBuffer(m_graphics_device.allocator(), m_buffer, m_allocation);
+        m_graphics_device.resource_queue().buffers.emplace_back(m_buffer, m_allocation, m_handle);
     }
 } // namespace hyper_rhi

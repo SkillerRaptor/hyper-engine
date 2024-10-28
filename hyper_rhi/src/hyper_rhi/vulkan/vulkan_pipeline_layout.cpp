@@ -42,8 +42,7 @@ namespace hyper_rhi
 
     VulkanPipelineLayout::~VulkanPipelineLayout()
     {
-        // TODO: Queue it
-        vkDestroyPipelineLayout(m_graphics_device.device(), m_pipeline_layout, nullptr);
+        m_graphics_device.resource_queue().pipeline_layouts.emplace_back(m_pipeline_layout);
     }
 
     VkPipelineLayout VulkanPipelineLayout::pipeline_layout() const

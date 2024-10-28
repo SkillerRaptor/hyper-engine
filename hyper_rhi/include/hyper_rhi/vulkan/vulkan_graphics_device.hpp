@@ -18,18 +18,34 @@
 
 namespace hyper_rhi
 {
+    struct BufferEntry
+    {
+        VkBuffer buffer;
+        VmaAllocation allocation;
+        ResourceHandle handle;
+    };
+
+    struct ResourceQueue
+    {
+        std::vector<BufferEntry> buffers;
+        std::vector<VkPipeline> compute_pipelines;
+        std::vector<VkPipeline> graphics_pipelines;
+        std::vector<VkPipelineLayout> pipeline_layouts;
+        std::vector<VkShaderModule> shader_modules;
+        // TODO: Add textures
+    };
+
+    struct FrameData
+    {
+        VkCommandPool command_pool;
+        VkCommandBuffer command_buffer;
+
+        VkSemaphore render_semaphore;
+        VkSemaphore present_semaphore;
+    };
+
     class VulkanGraphicsDevice final : public GraphicsDevice
     {
-    public:
-        struct FrameData
-        {
-            VkCommandPool command_pool;
-            VkCommandBuffer command_buffer;
-
-            VkSemaphore render_semaphore;
-            VkSemaphore present_semaphore;
-        };
-
     public:
         explicit VulkanGraphicsDevice(const GraphicsDeviceDescriptor &descriptor);
         ~VulkanGraphicsDevice() override;
@@ -45,6 +61,7 @@ namespace hyper_rhi
         TextureHandle create_texture(const TextureDescriptor &descriptor) override;
 
         void set_object_name(const void *handle, VkObjectType type, std::string_view name) const;
+        void destroy_resources();
 
         void begin_frame(SurfaceHandle surface_handle, uint32_t frame_index) override;
         void end_frame() const override;
@@ -57,6 +74,7 @@ namespace hyper_rhi
         [[nodiscard]] VkDevice device() const;
         [[nodiscard]] VmaAllocator allocator() const;
         [[nodiscard]] VulkanDescriptorManager &descriptor_manager() const;
+        [[nodiscard]] ResourceQueue &resource_queue();
 
         [[nodiscard]] const FrameData &current_frame() const;
 
@@ -98,5 +116,7 @@ namespace hyper_rhi
         std::array<FrameData, GraphicsDevice::s_frame_count> m_frames;
 
         uint32_t m_current_frame_index;
+
+        ResourceQueue m_resource_queue;
     };
 } // namespace hyper_rhi

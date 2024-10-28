@@ -214,7 +214,6 @@ namespace hyper_rhi
 
     VulkanGraphicsPipeline::~VulkanGraphicsPipeline()
     {
-        // TODO: Queue it
-        vkDestroyPipeline(m_graphics_device.device(), m_pipeline, nullptr);
+        m_graphics_device.resource_queue().graphics_pipelines.emplace_back(m_pipeline);
     }
 } // namespace hyper_rhi

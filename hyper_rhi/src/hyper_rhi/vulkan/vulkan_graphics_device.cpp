@@ -47,6 +47,7 @@ namespace hyper_rhi
         , m_submit_semaphore(VK_NULL_HANDLE)
         , m_frames({})
         , m_current_frame_index(0)
+        , m_resource_queue()
     {
         volkInitialize();
 
@@ -78,6 +79,10 @@ namespace hyper_rhi
 
     VulkanGraphicsDevice::~VulkanGraphicsDevice()
     {
+        this->wait_for_idle();
+
+        this->destroy_resources();
+
         for (const FrameData &frame : m_frames)
         {
             vkDestroySemaphore(m_device, frame.present_semaphore, nullptr);
@@ -159,6 +164,41 @@ namespace hyper_rhi
         }
     }
 
+    void VulkanGraphicsDevice::destroy_resources()
+    {
+        for (const BufferEntry &buffer_entry : m_resource_queue.buffers)
+        {
+            m_descriptor_manager->retire_handle(buffer_entry.handle);
+            vmaDestroyBuffer(m_allocator, buffer_entry.buffer, buffer_entry.allocation);
+        }
+
+        for (const VkPipeline &compute_pipeline : m_resource_queue.compute_pipelines)
+        {
+            vkDestroyPipeline(m_device, compute_pipeline, nullptr);
+        }
+
+        for (const VkPipeline &graphics_pipeline : m_resource_queue.graphics_pipelines)
+        {
+            vkDestroyPipeline(m_device, graphics_pipeline, nullptr);
+        }
+
+        for (const VkPipelineLayout &pipeline_layout : m_resource_queue.pipeline_layouts)
+        {
+            vkDestroyPipelineLayout(m_device, pipeline_layout, nullptr);
+        }
+
+        for (const VkShaderModule &shader_module : m_resource_queue.shader_modules)
+        {
+            vkDestroyShaderModule(m_device, shader_module, nullptr);
+        }
+
+        m_resource_queue.buffers.clear();
+        m_resource_queue.compute_pipelines.clear();
+        m_resource_queue.graphics_pipelines.clear();
+        m_resource_queue.pipeline_layouts.clear();
+        m_resource_queue.shader_modules.clear();
+    }
+
     void VulkanGraphicsDevice::begin_frame(const SurfaceHandle surface_handle, const uint32_t frame_index)
     {
         const std::shared_ptr<VulkanSurface> surface = std::dynamic_pointer_cast<VulkanSurface>(surface_handle);
@@ -176,7 +216,7 @@ namespace hyper_rhi
         };
         HE_VK_CHECK(vkWaitSemaphores(m_device, &semaphore_wait_info, std::numeric_limits<uint64_t>::max()));
 
-        // TODO: Add resource cleanup
+        this->destroy_resources();
 
         if (surface->resized())
         {
@@ -307,7 +347,12 @@ namespace hyper_rhi
         return *m_descriptor_manager;
     }
 
-    const VulkanGraphicsDevice::FrameData &VulkanGraphicsDevice::current_frame() const
+    ResourceQueue &VulkanGraphicsDevice::resource_queue()
+    {
+        return m_resource_queue;
+    }
+
+    const FrameData &VulkanGraphicsDevice::current_frame() const
     {
         return m_frames[m_current_frame_index % GraphicsDevice::s_frame_count];
     }
