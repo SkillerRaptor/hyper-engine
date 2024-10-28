@@ -106,9 +106,9 @@ namespace hyper_rhi
             const uint32_t descriptor_count = limit > GraphicsDevice::s_descriptor_limit ? GraphicsDevice::s_descriptor_limit : limit;
 
             m_descriptor_counts[index] = descriptor_count;
-        }
 
-        // TODO: Log descriptor count
+            HE_TRACE("Found descriptor count for {} of {}", HE_VK_TYPE_TO_STRING(VkDescriptorType, descriptor_type), descriptor_count);
+        }
     }
 
     void VulkanDescriptorManager::create_descriptor_pool()
@@ -139,9 +139,7 @@ namespace hyper_rhi
         HE_VK_CHECK(vkCreateDescriptorPool(m_graphics_device.device(), &descriptor_pool_create_info, nullptr, &m_descriptor_pool));
         HE_ASSERT(m_descriptor_pool != VK_NULL_HANDLE);
 
-        // TODO: Log configuration of descriptor pool
-
-        HE_TRACE("Created Descriptor Pool");
+        HE_TRACE("Created Descriptor Pool with {} sets", s_descriptor_types.size());
     }
 
     void VulkanDescriptorManager::create_descriptor_set_layouts()
@@ -182,9 +180,7 @@ namespace hyper_rhi
                 m_graphics_device.device(), &descriptor_set_layout_create_info, nullptr, &m_descriptor_set_layouts[index]));
             HE_ASSERT(m_descriptor_set_layouts[index] != VK_NULL_HANDLE);
 
-            // TODO: Log configuration of descriptor set layout
-
-            HE_TRACE("Created Descriptor Set Layout #{}", index);
+            HE_TRACE("Created Descriptor Set Layout #{} for {}", index, HE_VK_TYPE_TO_STRING(VkDescriptorType, descriptor_type));
         }
     }
 
@@ -193,6 +189,7 @@ namespace hyper_rhi
         for (size_t index = 0; index != m_descriptor_set_layouts.size(); ++index)
         {
             const VkDescriptorSetLayout &descriptor_set_layout = m_descriptor_set_layouts[index];
+            const VkDescriptorType &descriptor_type = s_descriptor_types[index];
             const uint32_t descriptor_count = m_descriptor_counts[index];
 
             VkDescriptorSetVariableDescriptorCountAllocateInfo descriptor_set_variable_descriptor_count_info = {
@@ -213,9 +210,7 @@ namespace hyper_rhi
             HE_VK_CHECK(vkAllocateDescriptorSets(m_graphics_device.device(), &descriptor_set_allocate_info, &m_descriptor_sets[index]));
             HE_ASSERT(m_descriptor_sets[index] != VK_NULL_HANDLE);
 
-            // TODO: Log configuration of descriptor set
-
-            HE_TRACE("Allocated Descriptor Set #{}", index);
+            HE_TRACE("Allocated Descriptor Set #{} for {}", index, HE_VK_TYPE_TO_STRING(VkDescriptorType, descriptor_type));
         }
     }
 

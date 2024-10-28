@@ -34,16 +34,6 @@ namespace hyper_rhi
         explicit VulkanGraphicsDevice(const GraphicsDeviceDescriptor &descriptor);
         ~VulkanGraphicsDevice() override;
 
-        [[nodiscard]] VkInstance instance() const;
-        [[nodiscard]] VkPhysicalDevice physical_device() const;
-        [[nodiscard]] VkDevice device() const;
-        [[nodiscard]] VmaAllocator allocator() const;
-
-        [[nodiscard]] VulkanDescriptorManager &descriptor_manager();
-
-        [[nodiscard]] const FrameData &current_frame() const;
-
-    protected:
         SurfaceHandle create_surface(const hyper_platform::Window &window) override;
 
         BufferHandle create_buffer(const BufferDescriptor &descriptor) override;
@@ -54,11 +44,21 @@ namespace hyper_rhi
         ShaderModuleHandle create_shader_module(const ShaderModuleDescriptor &descriptor) override;
         TextureHandle create_texture(const TextureDescriptor &descriptor) override;
 
+        void set_object_name(const void *handle, VkObjectType type, std::string_view name) const;
+
         void begin_frame(SurfaceHandle surface_handle, uint32_t frame_index) override;
         void end_frame() const override;
         void execute() const override;
         void present(SurfaceHandle surface_handle) const override;
         void wait_for_idle() const override;
+
+        [[nodiscard]] VkInstance instance() const;
+        [[nodiscard]] VkPhysicalDevice physical_device() const;
+        [[nodiscard]] VkDevice device() const;
+        [[nodiscard]] VmaAllocator allocator() const;
+        [[nodiscard]] VulkanDescriptorManager &descriptor_manager() const;
+
+        [[nodiscard]] const FrameData &current_frame() const;
 
     private:
         static bool check_validation_layer_support();

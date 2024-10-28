@@ -21,15 +21,10 @@ namespace hyper_rhi
         VulkanBuffer(VulkanGraphicsDevice &graphics_device, const BufferDescriptor &descriptor);
         ~VulkanBuffer() override;
 
-    protected:
-        ResourceHandle handle() const override;
-
     private:
         VulkanGraphicsDevice &m_graphics_device;
 
         VkBuffer m_buffer;
         VmaAllocation m_allocation;
-
-        ResourceHandle m_handle;
     };
 } // namespace hyper_rhi

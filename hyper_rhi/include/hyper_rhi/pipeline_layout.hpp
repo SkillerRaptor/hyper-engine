@@ -9,6 +9,8 @@
 #include <memory>
 #include <string>
 
+#include "hyper_rhi/resource.hpp"
+
 namespace hyper_rhi
 {
     struct PipelineLayoutDescriptor
@@ -18,10 +20,13 @@ namespace hyper_rhi
         uint32_t push_constant_size;
     };
 
-    class PipelineLayout
+    class PipelineLayout : public Resource
     {
     public:
         virtual ~PipelineLayout() = default;
+
+    protected:
+        explicit PipelineLayout(std::string label);
     };
 
     using PipelineLayoutHandle = std::shared_ptr<PipelineLayout>;

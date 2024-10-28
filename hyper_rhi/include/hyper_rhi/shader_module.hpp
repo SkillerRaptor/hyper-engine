@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#include "hyper_rhi/resource.hpp"
+
 namespace hyper_rhi
 {
     enum class ShaderType
@@ -29,10 +31,13 @@ namespace hyper_rhi
         std::vector<uint8_t> bytes = {};
     };
 
-    class ShaderModule
+    class ShaderModule : public Resource
     {
     public:
         virtual ~ShaderModule() = default;
+
+    protected:
+        explicit ShaderModule(std::string label);
     };
 
     using ShaderModuleHandle = std::shared_ptr<ShaderModule>;

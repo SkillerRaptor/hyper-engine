@@ -36,6 +36,13 @@ namespace hyper_rhi
         vkDestroySurfaceKHR(m_graphics_device.instance(), m_surface, nullptr);
     }
 
+    void VulkanSurface::resize(const uint32_t width, const uint32_t height)
+    {
+        m_resized = true;
+        m_width = width;
+        m_height = height;
+    }
+
     void VulkanSurface::rebuild()
     {
         this->destroy();
@@ -65,13 +72,6 @@ namespace hyper_rhi
     bool VulkanSurface::resized() const
     {
         return m_resized;
-    }
-
-    void VulkanSurface::resize(const uint32_t width, const uint32_t height)
-    {
-        m_resized = true;
-        m_width = width;
-        m_height = height;
     }
 
     TextureHandle VulkanSurface::current_texture() const
@@ -141,9 +141,12 @@ namespace hyper_rhi
         HE_VK_CHECK(vkCreateSwapchainKHR(m_graphics_device.device(), &swapchain_create_info, nullptr, &m_swapchain));
         HE_ASSERT(m_swapchain != VK_NULL_HANDLE);
 
-        // TODO: Log chosen values
-
-        HE_TRACE("Created Swapchain");
+        HE_TRACE(
+            "Created Swapchain with an extent of {}x{}, a surface format of {} and a present mode of {}",
+            surface_extent.width,
+            surface_extent.height,
+            HE_VK_TYPE_TO_STRING(VkFormat, surface_format.format),
+            HE_VK_TYPE_TO_STRING(VkPresentModeKHR, surface_present_mode));
     }
 
     VkExtent2D VulkanSurface::choose_extent(const uint32_t width, const uint32_t height, const VkSurfaceCapabilitiesKHR &capabilities)

@@ -10,6 +10,7 @@
 #include <string>
 
 #include "hyper_rhi/pipeline_layout.hpp"
+#include "hyper_rhi/resource.hpp"
 #include "hyper_rhi/shader_module.hpp"
 
 namespace hyper_rhi
@@ -23,10 +24,13 @@ namespace hyper_rhi
         ShaderModuleHandle fragment_shader = nullptr;
     };
 
-    class GraphicsPipeline
+    class GraphicsPipeline : public Resource
     {
     public:
         virtual ~GraphicsPipeline() = default;
+
+    protected:
+        explicit GraphicsPipeline(std::string label);
     };
 
     using GraphicsPipelineHandle = std::shared_ptr<GraphicsPipeline>;

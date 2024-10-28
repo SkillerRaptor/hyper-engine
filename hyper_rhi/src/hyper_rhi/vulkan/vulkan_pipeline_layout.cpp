@@ -11,7 +11,8 @@
 namespace hyper_rhi
 {
     VulkanPipelineLayout::VulkanPipelineLayout(VulkanGraphicsDevice &graphics_device, const PipelineLayoutDescriptor &descriptor)
-        : m_graphics_device(graphics_device)
+        : PipelineLayout(descriptor.label)
+        , m_graphics_device(graphics_device)
         , m_pipeline_layout(VK_NULL_HANDLE)
         , m_push_constant_size(descriptor.push_constant_size)
     {
@@ -34,9 +35,9 @@ namespace hyper_rhi
         HE_VK_CHECK(vkCreatePipelineLayout(m_graphics_device.device(), &pipeline_layout_create_info, nullptr, &m_pipeline_layout));
         HE_ASSERT(m_pipeline_layout != VK_NULL_HANDLE);
 
-        // TODO: Log debug name
+        m_graphics_device.set_object_name(m_pipeline_layout, VK_OBJECT_TYPE_PIPELINE_LAYOUT, m_label);
 
-        HE_TRACE("Created Pipeline Layout");
+        HE_TRACE("Created Pipeline Layout '{}' with a push constant size of {} bytes", m_label, descriptor.push_constant_size);
     }
 
     VulkanPipelineLayout::~VulkanPipelineLayout()

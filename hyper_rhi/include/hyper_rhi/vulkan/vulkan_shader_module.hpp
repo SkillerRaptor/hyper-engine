@@ -19,8 +19,8 @@ namespace hyper_rhi
         VulkanShaderModule(VulkanGraphicsDevice &graphics_device, const ShaderModuleDescriptor &descriptor);
         ~VulkanShaderModule() override;
 
-        VkShaderModule shader_module() const;
-        std::string_view entry_point() const;
+        [[nodiscard]] VkShaderModule shader_module() const;
+        [[nodiscard]] std::string_view entry_point() const;
 
     private:
         VulkanGraphicsDevice &m_graphics_device;

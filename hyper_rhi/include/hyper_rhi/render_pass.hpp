@@ -9,6 +9,7 @@
 #include <memory>
 #include <string>
 
+#include "hyper_rhi/resource.hpp"
 #include "hyper_rhi/texture.hpp"
 
 namespace hyper_rhi
@@ -20,9 +21,12 @@ namespace hyper_rhi
         std::shared_ptr<Texture> color_attachment = nullptr;
     };
 
-    class RenderPass
+    class RenderPass : public Resource
     {
     public:
         virtual ~RenderPass() = default;
+
+    protected:
+        explicit RenderPass(std::string label);
     };
 } // namespace hyper_rhi

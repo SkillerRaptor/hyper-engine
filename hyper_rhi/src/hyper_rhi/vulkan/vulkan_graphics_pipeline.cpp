@@ -13,7 +13,8 @@
 namespace hyper_rhi
 {
     VulkanGraphicsPipeline::VulkanGraphicsPipeline(VulkanGraphicsDevice &graphics_device, const GraphicsPipelineDescriptor &descriptor)
-        : m_graphics_device(graphics_device)
+        : GraphicsPipeline(descriptor.label)
+        , m_graphics_device(graphics_device)
         , m_pipeline(VK_NULL_HANDLE)
     {
         constexpr std::array<VkFormat, 1> color_attachment_formats = {
@@ -201,9 +202,14 @@ namespace hyper_rhi
             vkCreateGraphicsPipelines(m_graphics_device.device(), VK_NULL_HANDLE, 1, &graphics_pipeline_create_info, nullptr, &m_pipeline));
         HE_ASSERT(m_pipeline != VK_NULL_HANDLE);
 
-        // TODO: Log debug name
+        m_graphics_device.set_object_name(m_pipeline, VK_OBJECT_TYPE_PIPELINE, m_label);
 
-        HE_TRACE("Created Graphics Pipeline");
+        HE_TRACE(
+            "Created Graphics Pipeline '{}' with '{}' layout and '{}' vertex shader & '{}' fragment shader",
+            m_label,
+            descriptor.layout->label(),
+            descriptor.vertex_shader->label(),
+            descriptor.fragment_shader->label());
     }
 
     VulkanGraphicsPipeline::~VulkanGraphicsPipeline()

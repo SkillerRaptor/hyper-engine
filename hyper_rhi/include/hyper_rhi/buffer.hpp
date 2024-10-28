@@ -9,6 +9,7 @@
 #include <memory>
 #include <string>
 
+#include "hyper_rhi/resource.hpp"
 #include "hyper_rhi/resource_handle.hpp"
 
 namespace hyper_rhi
@@ -25,12 +26,18 @@ namespace hyper_rhi
         // TODO: Add volatile buffers
     };
 
-    class Buffer
+    class Buffer : public Resource
     {
     public:
         virtual ~Buffer() = default;
 
-        [[nodiscard]] virtual ResourceHandle handle() const = 0;
+        [[nodiscard]] ResourceHandle handle() const;
+
+    protected:
+        explicit Buffer(std::string label);
+
+    protected:
+        ResourceHandle m_handle;
     };
 
     using BufferHandle = std::shared_ptr<Buffer>;

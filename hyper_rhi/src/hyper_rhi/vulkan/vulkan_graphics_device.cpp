@@ -50,7 +50,6 @@ namespace hyper_rhi
     {
         volkInitialize();
 
-        // TODO: Add debug naming
         if (descriptor.debug_mode)
         {
             if (VulkanGraphicsDevice::check_validation_layer_support())
@@ -100,36 +99,6 @@ namespace hyper_rhi
         vkDestroyInstance(m_instance, nullptr);
     }
 
-    VkInstance VulkanGraphicsDevice::instance() const
-    {
-        return m_instance;
-    }
-
-    VkPhysicalDevice VulkanGraphicsDevice::physical_device() const
-    {
-        return m_physical_device;
-    }
-
-    VkDevice VulkanGraphicsDevice::device() const
-    {
-        return m_device;
-    }
-
-    VmaAllocator VulkanGraphicsDevice::allocator() const
-    {
-        return m_allocator;
-    }
-
-    VulkanDescriptorManager &VulkanGraphicsDevice::descriptor_manager()
-    {
-        return *m_descriptor_manager;
-    }
-
-    const VulkanGraphicsDevice::FrameData &VulkanGraphicsDevice::current_frame() const
-    {
-        return m_frames[m_current_frame_index % GraphicsDevice::s_frame_count];
-    }
-
     SurfaceHandle VulkanGraphicsDevice::create_surface(const hyper_platform::Window &window)
     {
         return std::make_shared<VulkanSurface>(*this, window);
@@ -172,6 +141,22 @@ namespace hyper_rhi
         HE_UNUSED(descriptor);
 
         HE_UNREACHABLE();
+    }
+
+    void VulkanGraphicsDevice::set_object_name(const void *handle, const VkObjectType type, std::string_view name) const
+    {
+        if (m_validation_layers_enabled)
+        {
+            const VkDebugUtilsObjectNameInfoEXT debug_marker_object_name_info = {
+                .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+                .pNext = nullptr,
+                .objectType = type,
+                .objectHandle = reinterpret_cast<uint64_t>(handle),
+                .pObjectName = name.data(),
+            };
+
+            HE_VK_CHECK(vkSetDebugUtilsObjectNameEXT(m_device, &debug_marker_object_name_info));
+        }
     }
 
     void VulkanGraphicsDevice::begin_frame(const SurfaceHandle surface_handle, const uint32_t frame_index)
@@ -295,6 +280,36 @@ namespace hyper_rhi
     void VulkanGraphicsDevice::wait_for_idle() const
     {
         HE_VK_CHECK(vkDeviceWaitIdle(m_device));
+    }
+
+    VkInstance VulkanGraphicsDevice::instance() const
+    {
+        return m_instance;
+    }
+
+    VkPhysicalDevice VulkanGraphicsDevice::physical_device() const
+    {
+        return m_physical_device;
+    }
+
+    VkDevice VulkanGraphicsDevice::device() const
+    {
+        return m_device;
+    }
+
+    VmaAllocator VulkanGraphicsDevice::allocator() const
+    {
+        return m_allocator;
+    }
+
+    VulkanDescriptorManager &VulkanGraphicsDevice::descriptor_manager() const
+    {
+        return *m_descriptor_manager;
+    }
+
+    const VulkanGraphicsDevice::FrameData &VulkanGraphicsDevice::current_frame() const
+    {
+        return m_frames[m_current_frame_index % GraphicsDevice::s_frame_count];
     }
 
     bool VulkanGraphicsDevice::check_validation_layer_support()
@@ -448,18 +463,19 @@ namespace hyper_rhi
             }
         }();
 
-        // TODO: Log rating and queues, extensions and features
+        // TODO: Log queues, extensions and features
+        // TODO: Log missing criteria if no device was found
 
-        HE_TRACE("Selected Physical Device");
+        HE_TRACE("Selected Physical Device with the score of {}", possible_physical_devices.rbegin()->first);
 
         HE_INFO("Physical Device Info:");
-        HE_INFO("\tName: {}", properties.deviceName);
+        HE_INFO("  Name: {}", properties.deviceName);
         HE_INFO(
-            "\tAPI Version: {}.{}.{}",
+            "  API Version: {}.{}.{}",
             VK_VERSION_MAJOR(properties.apiVersion),
             VK_VERSION_MINOR(properties.apiVersion),
             VK_VERSION_PATCH(properties.apiVersion));
-        HE_INFO("\tType: {}", device_type);
+        HE_INFO("  Type: {}", device_type);
     }
 
     uint32_t VulkanGraphicsDevice::rate_physical_device(const VkPhysicalDevice &physical_device) const
@@ -674,6 +690,14 @@ namespace hyper_rhi
             .features = {},
         };
 
+        size_t feature_count = 0;
+        const auto *current = static_cast<const VkBaseInStructure *>(device_features.pNext);
+        while (current)
+        {
+            current = current->pNext;
+            feature_count += 1;
+        }
+
         const std::optional<uint32_t> queue_family = VulkanGraphicsDevice::find_queue_family(m_physical_device);
 
         constexpr float queue_priority = 1.0f;
@@ -709,9 +733,7 @@ namespace hyper_rhi
 
         vkGetDeviceQueue(m_device, queue_family.value(), 0, &m_queue);
 
-        // TODO: Log enabled features
-
-        HE_TRACE("Created Logical Device");
+        HE_TRACE("Created Logical Device with {} features enabled", feature_count);
     }
 
     void VulkanGraphicsDevice::create_allocator()

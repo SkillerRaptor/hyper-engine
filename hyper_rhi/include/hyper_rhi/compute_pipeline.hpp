@@ -10,6 +10,7 @@
 #include <string>
 
 #include "hyper_rhi/pipeline_layout.hpp"
+#include "hyper_rhi/resource.hpp"
 #include "hyper_rhi/shader_module.hpp"
 
 namespace hyper_rhi
@@ -22,10 +23,13 @@ namespace hyper_rhi
         ShaderModuleHandle shader = nullptr;
     };
 
-    class ComputePipeline
+    class ComputePipeline : public Resource
     {
     public:
         virtual ~ComputePipeline() = default;
+
+    protected:
+        explicit ComputePipeline(std::string label);
     };
 
     using ComputePipelineHandle = std::shared_ptr<ComputePipeline>;

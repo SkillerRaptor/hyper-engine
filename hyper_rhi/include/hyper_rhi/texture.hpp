@@ -9,6 +9,9 @@
 #include <memory>
 #include <string>
 
+#include "hyper_rhi/resource.hpp"
+#include "hyper_rhi/resource_handle.hpp"
+
 namespace hyper_rhi
 {
     enum class TextureFormat
@@ -42,10 +45,18 @@ namespace hyper_rhi
         TextureDimension dimension = TextureDimension::Unknown;
     };
 
-    class Texture
+    class Texture : public Resource
     {
     public:
         virtual ~Texture() = default;
+
+        [[nodiscard]] ResourceHandle handle() const;
+
+    protected:
+        explicit Texture(std::string label);
+
+    protected:
+        ResourceHandle m_handle;
     };
 
     using TextureHandle = std::shared_ptr<Texture>;

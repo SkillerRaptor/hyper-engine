@@ -11,10 +11,10 @@
 namespace hyper_rhi
 {
     VulkanBuffer::VulkanBuffer(VulkanGraphicsDevice &graphics_device, const BufferDescriptor &descriptor)
-        : m_graphics_device(graphics_device)
+        : Buffer(descriptor.label)
+        , m_graphics_device(graphics_device)
         , m_buffer(VK_NULL_HANDLE)
         , m_allocation(VK_NULL_HANDLE)
-        , m_handle(0xffffffff)
     {
         VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
         if (descriptor.is_constant_buffer)
@@ -61,9 +61,9 @@ namespace hyper_rhi
             m_handle = m_graphics_device.descriptor_manager().allocate_buffer_handle(m_buffer);
         }
 
-        // TODO: Log debug name
+        m_graphics_device.set_object_name(m_buffer, VK_OBJECT_TYPE_BUFFER, m_label);
 
-        HE_TRACE("Created Buffer");
+        HE_TRACE("Created Buffer '{}' with {} bytes", m_label, descriptor.byte_size);
     }
 
     VulkanBuffer::~VulkanBuffer()
@@ -71,10 +71,5 @@ namespace hyper_rhi
         // TODO: Queue it
         m_graphics_device.descriptor_manager().retire_handle(m_handle);
         vmaDestroyBuffer(m_graphics_device.allocator(), m_buffer, m_allocation);
-    }
-
-    ResourceHandle VulkanBuffer::handle() const
-    {
-        return m_handle;
     }
 } // namespace hyper_rhi

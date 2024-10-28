@@ -18,17 +18,13 @@ namespace hyper_rhi
         VulkanSurface(VulkanGraphicsDevice &graphics_device, const hyper_platform::Window &window);
         ~VulkanSurface() override;
 
+        void resize(uint32_t width, uint32_t height) override;
         void rebuild();
 
         [[nodiscard]] VkSwapchainKHR swapchain() const;
-
         void set_current_texture_index(uint32_t current_texture_index);
         [[nodiscard]] uint32_t current_texture_index() const;
-
         [[nodiscard]] bool resized() const;
-
-    protected:
-        void resize(uint32_t width, uint32_t height) override;
 
         [[nodiscard]] TextureHandle current_texture() const override;
 

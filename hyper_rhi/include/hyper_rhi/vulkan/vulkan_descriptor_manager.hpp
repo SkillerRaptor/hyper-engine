@@ -29,7 +29,7 @@ namespace hyper_rhi
         explicit VulkanDescriptorManager(VulkanGraphicsDevice &graphics_device);
         ~VulkanDescriptorManager();
 
-        ResourceHandle allocate_buffer_handle(VkBuffer buffer);
+        [[nodiscard]] ResourceHandle allocate_buffer_handle(VkBuffer buffer);
         void retire_handle(ResourceHandle handle);
 
         [[nodiscard]] const std::array<VkDescriptorSetLayout, s_descriptor_types.size()> &descriptor_set_layouts() const;

@@ -18,7 +18,6 @@ namespace hyper_rhi
     public:
         explicit VulkanCommandList(VulkanGraphicsDevice &graphics_device);
 
-    protected:
         void begin() const override;
         void end() const override;
 
