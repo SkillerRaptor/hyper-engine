@@ -7,6 +7,8 @@
 #ifndef HE_GLOBALS_HLSLI
 #define HE_GLOBALS_HLSLI
 
+#include "shader_interop.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 // Bindless
 ////////////////////////////////////////////////////////////////////////////////
@@ -367,10 +369,6 @@ struct ObjectPushConstants {
 // Globals
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef DESCRIPTOR_SET_SLOT_FRAME
-    #define DESCRIPTOR_SET_SLOT_FRAME 0xffffffff
-#endif
-
 struct Frame {
     float time;
     float delta_time;
@@ -387,25 +385,17 @@ struct Frame {
 };
 
 inline Frame get_frame() {
-    SimpleBuffer buffer = (SimpleBuffer) DESCRIPTOR_SET_SLOT_FRAME;
+    SimpleBuffer buffer = (SimpleBuffer) HE_DESCRIPTOR_SET_SLOT_FRAME;
     return buffer.load<Frame>();
 }
-
-#undef DESCRIPTOR_SET_SLOT_FRAME
 
 struct Camera {
     float4x4 view_projection;
 };
 
-#ifndef DESCRIPTOR_SET_SLOT_CAMERA
-    #define DESCRIPTOR_SET_SLOT_CAMERA 0xffffffff
-#endif
-
 inline Camera get_camera() {
-    SimpleBuffer buffer = (SimpleBuffer) DESCRIPTOR_SET_SLOT_CAMERA;
+    SimpleBuffer buffer = (SimpleBuffer) HE_DESCRIPTOR_SET_SLOT_CAMERA;
     return buffer.load<Camera>();
 }
 
-#undef DESCRIPTOR_SET_SLOT_CAMERA
-
-#endif
+#endif // HE_GLOBALS_HLSLI

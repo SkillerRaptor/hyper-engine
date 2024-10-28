@@ -37,8 +37,9 @@ namespace hyper_rhi
         [[nodiscard]] VkInstance instance() const;
         [[nodiscard]] VkPhysicalDevice physical_device() const;
         [[nodiscard]] VkDevice device() const;
+        [[nodiscard]] VmaAllocator allocator() const;
 
-        [[nodiscard]] const VulkanDescriptorManager &descriptor_manager() const;
+        [[nodiscard]] VulkanDescriptorManager &descriptor_manager();
 
         [[nodiscard]] const FrameData &current_frame() const;
 

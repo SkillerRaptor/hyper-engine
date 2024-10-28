@@ -35,6 +35,44 @@ namespace hyper_rhi
         vkDestroyDescriptorPool(m_graphics_device.device(), m_descriptor_pool, nullptr);
     }
 
+    ResourceHandle VulkanDescriptorManager::allocate_buffer_handle(const VkBuffer buffer)
+    {
+        const ResourceHandle handle = this->fetch_handle();
+
+        const VkDescriptorBufferInfo buffer_info = {
+            .buffer = buffer,
+            .offset = 0,
+            .range = VK_WHOLE_SIZE,
+        };
+
+        const VkWriteDescriptorSet descriptor_write = {
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .pNext = nullptr,
+            .dstSet = m_descriptor_sets[0],
+            .dstBinding = 0,
+            .dstArrayElement = handle.handle(),
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+            .pImageInfo = nullptr,
+            .pBufferInfo = &buffer_info,
+            .pTexelBufferView = nullptr,
+        };
+
+        vkUpdateDescriptorSets(m_graphics_device.device(), 1, &descriptor_write, 0, nullptr);
+
+        return handle;
+    }
+
+    void VulkanDescriptorManager::retire_handle(const ResourceHandle handle)
+    {
+        if (handle.handle() == std::numeric_limits<uint32_t>::max())
+        {
+            return;
+        }
+
+        m_recycled_descriptors.push(handle);
+    }
+
     const std::array<VkDescriptorSetLayout, VulkanDescriptorManager::s_descriptor_types.size()> &
         VulkanDescriptorManager::descriptor_set_layouts() const
     {
@@ -179,5 +217,17 @@ namespace hyper_rhi
 
             HE_TRACE("Allocated Descriptor Set #{}", index);
         }
+    }
+
+    ResourceHandle VulkanDescriptorManager::fetch_handle()
+    {
+        if (m_recycled_descriptors.empty())
+        {
+            return ResourceHandle(m_current_index++);
+        }
+
+        const ResourceHandle handle = m_recycled_descriptors.top();
+        m_recycled_descriptors.pop();
+        return handle;
     }
 } // namespace hyper_rhi

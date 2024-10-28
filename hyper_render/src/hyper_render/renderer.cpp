@@ -20,16 +20,16 @@ struct Material
 
 struct Mesh
 {
-    uint32_t positions;
-    uint32_t normals;
+    hyper_rhi::ResourceHandle positions;
+    hyper_rhi::ResourceHandle normals;
     uint32_t padding_0;
     uint32_t padding_1;
 };
 
 struct ObjectPushConstants
 {
-    uint32_t mesh;
-    uint32_t material;
+    hyper_rhi::ResourceHandle mesh;
+    hyper_rhi::ResourceHandle material;
     uint32_t padding_0;
     uint32_t padding_1;
 };
@@ -104,33 +104,52 @@ namespace hyper_render
               .byte_size = sizeof(s_materials),
               .is_index_buffer = false,
               .is_constant_buffer = true,
+              .has_index = false,
           }))
         , m_positions_buffer(m_graphics_device->create_buffer({
               .label = "Positions Buffer",
               .byte_size = sizeof(s_positions),
               .is_index_buffer = false,
               .is_constant_buffer = true,
+              .has_index = false,
           }))
         , m_normals_buffer(m_graphics_device->create_buffer({
               .label = "Normals Buffer",
               .byte_size = sizeof(s_normals),
               .is_index_buffer = false,
               .is_constant_buffer = true,
+              .has_index = false,
           }))
         , m_mesh_buffer(m_graphics_device->create_buffer({
               .label = "Mesh Buffer",
               .byte_size = sizeof(Mesh) * 1,
               .is_index_buffer = false,
               .is_constant_buffer = true,
+              .has_index = false,
           }))
         , m_indices_buffer(m_graphics_device->create_buffer({
               .label = "Indices Buffer",
               .byte_size = sizeof(s_indices),
               .is_index_buffer = true,
               .is_constant_buffer = false,
+              .has_index = false,
           }))
         , m_frame_index(1)
     {
+        m_command_list->write_buffer(m_material_buffer, s_materials.data(), sizeof(s_materials));
+        m_command_list->write_buffer(m_positions_buffer, s_positions.data(), sizeof(s_positions));
+        m_command_list->write_buffer(m_normals_buffer, s_normals.data(), sizeof(s_normals));
+
+        const Mesh mesh = {
+            .positions = m_positions_buffer->handle(),
+            .normals = m_normals_buffer->handle(),
+            .padding_0 = 0,
+            .padding_1 = 0,
+        };
+
+        m_command_list->write_buffer(m_mesh_buffer, &mesh, sizeof(Mesh));
+        m_command_list->write_buffer(m_indices_buffer, s_indices.data(), sizeof(s_indices));
+
         m_graphics_device->wait_for_idle();
 
         HE_INFO("Created Renderer");

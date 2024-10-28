@@ -22,6 +22,8 @@ namespace hyper_rhi
         void begin() const override;
         void end() const override;
 
+        void write_buffer(BufferHandle buffer, const void *data, size_t size) override;
+
     private:
         VulkanGraphicsDevice &m_graphics_device;
     };

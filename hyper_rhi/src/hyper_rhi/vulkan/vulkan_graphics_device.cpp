@@ -12,12 +12,13 @@
 #include <vector>
 
 #include <GLFW/glfw3.h>
-#define VMA_IMPLEMENTATION
 
+#define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>
 
 #include <hyper_core/prerequisites.hpp>
 
+#include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 #include "hyper_rhi/vulkan/vulkan_command_list.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_pipeline.hpp"
 #include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
@@ -49,6 +50,7 @@ namespace hyper_rhi
     {
         volkInitialize();
 
+        // TODO: Add debug naming
         if (descriptor.debug_mode)
         {
             if (VulkanGraphicsDevice::check_validation_layer_support())
@@ -113,7 +115,12 @@ namespace hyper_rhi
         return m_device;
     }
 
-    const VulkanDescriptorManager &VulkanGraphicsDevice::descriptor_manager() const
+    VmaAllocator VulkanGraphicsDevice::allocator() const
+    {
+        return m_allocator;
+    }
+
+    VulkanDescriptorManager &VulkanGraphicsDevice::descriptor_manager()
     {
         return *m_descriptor_manager;
     }
@@ -130,9 +137,7 @@ namespace hyper_rhi
 
     BufferHandle VulkanGraphicsDevice::create_buffer(const BufferDescriptor &descriptor)
     {
-        HE_UNUSED(descriptor);
-
-        HE_UNREACHABLE();
+        return std::make_shared<VulkanBuffer>(*this, descriptor);
     }
 
     CommandListHandle VulkanGraphicsDevice::create_command_list()
@@ -699,6 +704,8 @@ namespace hyper_rhi
 
         HE_VK_CHECK(vkCreateDevice(m_physical_device, &device_create_info, nullptr, &m_device));
         HE_ASSERT(m_device != VK_NULL_HANDLE);
+
+        volkLoadDevice(m_device);
 
         vkGetDeviceQueue(m_device, queue_family.value(), 0, &m_queue);
 

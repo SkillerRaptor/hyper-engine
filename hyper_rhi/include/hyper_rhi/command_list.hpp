@@ -8,6 +8,8 @@
 
 #include <memory>
 
+#include "hyper_rhi/buffer.hpp"
+
 namespace hyper_rhi
 {
     class CommandList
@@ -17,6 +19,8 @@ namespace hyper_rhi
 
         virtual void begin() const = 0;
         virtual void end() const = 0;
+
+        virtual void write_buffer(BufferHandle buffer, const void *data, size_t size) = 0;
     };
 
     using CommandListHandle = std::shared_ptr<CommandList>;
