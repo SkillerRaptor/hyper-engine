@@ -31,7 +31,7 @@ namespace hyper_rhi
         this->create_command_queue();
         this->create_allocator();
 
-        HE_TRACE("Created D3D12 Graphics Device with debug layers {}", m_debug_layers_enabled ? "enabled" : "disabled");
+        HE_INFO("Created D3D12 Graphics Device");
     }
 
     ComPtr<IDXGIFactory7> D3D12GraphicsDevice::factory() const
@@ -133,6 +133,12 @@ namespace hyper_rhi
         {
             debug_controller->EnableDebugLayer();
             m_debug_layers_enabled = true;
+
+            HE_TRACE("Enabled Debug Layers");
+        }
+        else
+        {
+            HE_WARN("Failed to enable requested Debug Layers");
         }
     }
 
@@ -141,6 +147,8 @@ namespace hyper_rhi
         const UINT factory_flags = m_debug_layers_enabled ? DXGI_CREATE_FACTORY_DEBUG : 0;
         HE_DX_CHECK(CreateDXGIFactory2(factory_flags, IID_PPV_ARGS(&m_factory)));
         HE_ASSERT(m_factory != nullptr);
+
+        HE_TRACE("Created Factory");
     }
 
     void D3D12GraphicsDevice::choose_adapter()
@@ -160,6 +168,7 @@ namespace hyper_rhi
 
             if (SUCCEEDED(D3D12CreateDevice(m_adapter.Get(), D3D_FEATURE_LEVEL_12_0, __uuidof(ID3D12Device), nullptr)))
             {
+                HE_TRACE("Selected Adapter");
                 break;
             }
 
@@ -171,6 +180,8 @@ namespace hyper_rhi
     {
         HE_DX_CHECK(D3D12CreateDevice(m_adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_device)));
         HE_ASSERT(m_device != nullptr);
+
+        HE_TRACE("Created Device");
     }
 
     void D3D12GraphicsDevice::create_command_queue()
@@ -184,6 +195,8 @@ namespace hyper_rhi
 
         HE_DX_CHECK(m_device->CreateCommandQueue(&command_queue_descriptor, IID_PPV_ARGS(&m_command_queue)));
         HE_ASSERT(m_command_queue != nullptr);
+
+        HE_TRACE("Created Command Queue");
     }
 
     void D3D12GraphicsDevice::create_allocator()
@@ -198,5 +211,7 @@ namespace hyper_rhi
 
         HE_DX_CHECK(D3D12MA::CreateAllocator(&allocator_descriptor, &m_allocator));
         HE_ASSERT(m_allocator != nullptr);
+
+        HE_TRACE("Created Allocator");
     }
 } // namespace hyper_rhi

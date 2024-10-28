@@ -25,6 +25,8 @@ namespace hyper_rhi
         this->create_swapchain();
 
         // TODO: Retrieve swapchain images
+
+        HE_INFO("Created Vulkan Surface");
     }
 
     VulkanSurface::~VulkanSurface()
@@ -81,6 +83,8 @@ namespace hyper_rhi
     {
         HE_VK_CHECK(glfwCreateWindowSurface(m_graphics_device.instance(), window.native_window(), nullptr, &m_surface));
         HE_ASSERT(m_surface != VK_NULL_HANDLE);
+
+        HE_TRACE("Created Surface");
     }
 
     void VulkanSurface::create_swapchain()
@@ -136,6 +140,10 @@ namespace hyper_rhi
 
         HE_VK_CHECK(vkCreateSwapchainKHR(m_graphics_device.device(), &swapchain_create_info, nullptr, &m_swapchain));
         HE_ASSERT(m_swapchain != VK_NULL_HANDLE);
+
+        // TODO: Log chosen values
+
+        HE_TRACE("Created Swapchain");
     }
 
     VkExtent2D VulkanSurface::choose_extent(const uint32_t width, const uint32_t height, const VkSurfaceCapabilitiesKHR &capabilities)

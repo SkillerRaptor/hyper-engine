@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     }
     catch (const std::exception &error)
     {
-        HE_ERROR("{}", error.what());
+        HE_CRITICAL("Failed to parse arguments: {}", error.what());
         return 1;
     }
 

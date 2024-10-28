@@ -6,8 +6,7 @@
 
 #pragma once
 
-#include <spdlog/common.h>
-#include <spdlog/logger.h>
+#include <spdlog/spdlog.h>
 
 namespace hyper_core
 {
@@ -25,9 +24,9 @@ namespace hyper_core
     };
 } // namespace hyper_core
 
-#define HE_INFO(...) ::hyper_core::Logger::internal_logger()->info(__VA_ARGS__)
-#define HE_WARN(...) ::hyper_core::Logger::internal_logger()->warn(__VA_ARGS__)
-#define HE_ERROR(...) ::hyper_core::Logger::internal_logger()->error(__VA_ARGS__)
-#define HE_CRITICAL(...) ::hyper_core::Logger::internal_logger()->critical(__VA_ARGS__)
-#define HE_DEBUG(...) ::hyper_core::Logger::internal_logger()->debug(__VA_ARGS__)
-#define HE_TRACE(...) ::hyper_core::Logger::internal_logger()->trace(__VA_ARGS__)
+#define HE_INFO(...) SPDLOG_LOGGER_CALL(::hyper_core::Logger::internal_logger(), spdlog::level::info, __VA_ARGS__)
+#define HE_WARN(...) SPDLOG_LOGGER_CALL(::hyper_core::Logger::internal_logger(), spdlog::level::warn, __VA_ARGS__)
+#define HE_ERROR(...) SPDLOG_LOGGER_CALL(::hyper_core::Logger::internal_logger(), spdlog::level::err, __VA_ARGS__)
+#define HE_CRITICAL(...) SPDLOG_LOGGER_CALL(::hyper_core::Logger::internal_logger(), spdlog::level::critical, __VA_ARGS__)
+#define HE_DEBUG(...) SPDLOG_LOGGER_CALL(::hyper_core::Logger::internal_logger(), spdlog::level::debug, __VA_ARGS__)
+#define HE_TRACE(...) SPDLOG_LOGGER_CALL(::hyper_core::Logger::internal_logger(), spdlog::level::trace, __VA_ARGS__)

@@ -52,11 +52,11 @@ namespace hyper_rhi
             if (VulkanGraphicsDevice::check_validation_layer_support())
             {
                 m_validation_layers_enabled = true;
+                HE_TRACE("Enabled Validation Layers");
             }
             else
             {
-                HE_WARN("Validation layers were requested, but not available!");
-                m_validation_layers_enabled = false;
+                HE_WARN("Failed to enable requested Validation Layers");
             }
         }
 
@@ -70,7 +70,7 @@ namespace hyper_rhi
 
         this->create_frames();
 
-        HE_DEBUG("Created Vulkan Graphics Device with validations layers {}", m_validation_layers_enabled ? "enabled" : "disabled");
+        HE_INFO("Created Vulkan Graphics Device");
     }
 
     VulkanGraphicsDevice::~VulkanGraphicsDevice()
@@ -376,6 +376,8 @@ namespace hyper_rhi
         HE_ASSERT(m_instance != VK_NULL_HANDLE);
 
         volkLoadInstance(m_instance);
+
+        HE_TRACE("Created Instance");
     }
 
     void VulkanGraphicsDevice::create_debug_messenger()
@@ -398,6 +400,8 @@ namespace hyper_rhi
 
         HE_VK_CHECK(vkCreateDebugUtilsMessengerEXT(m_instance, &debug_create_info, nullptr, &m_debug_messenger));
         HE_ASSERT(m_debug_messenger != VK_NULL_HANDLE);
+
+        HE_TRACE("Created Debug Messenger");
     }
 
     void VulkanGraphicsDevice::choose_physical_device()
@@ -441,7 +445,11 @@ namespace hyper_rhi
             }
         }();
 
-        HE_INFO("Device Info:");
+        // TODO: Log rating and queues, extensions and features
+
+        HE_TRACE("Selected Physical Device");
+
+        HE_INFO("Physical Device Info:");
         HE_INFO("\tName: {}", properties.deviceName);
         HE_INFO(
             "\tAPI Version: {}.{}.{}",
@@ -695,6 +703,10 @@ namespace hyper_rhi
         HE_ASSERT(m_device != VK_NULL_HANDLE);
 
         vkGetDeviceQueue(m_device, queue_family.value(), 0, &m_queue);
+
+        // TODO: Log enabled features
+
+        HE_TRACE("Created Logical Device");
     }
 
     void VulkanGraphicsDevice::create_allocator()
@@ -744,6 +756,8 @@ namespace hyper_rhi
 
         HE_VK_CHECK(vmaCreateAllocator(&allocator_create_info, &m_allocator));
         HE_ASSERT(m_allocator != VK_NULL_HANDLE);
+
+        HE_TRACE("Created Allocator");
     }
 
     void VulkanGraphicsDevice::create_frames()
@@ -764,6 +778,8 @@ namespace hyper_rhi
         HE_VK_CHECK(vkCreateSemaphore(m_device, &submit_semaphore_create_info, nullptr, &m_submit_semaphore));
         HE_ASSERT(m_submit_semaphore != VK_NULL_HANDLE);
 
+        HE_TRACE("Created Submit Semaphore");
+
         const std::optional<uint32_t> queue_family = VulkanGraphicsDevice::find_queue_family(m_physical_device);
 
         for (size_t index = 0; index < GraphicsDevice::s_frame_count; ++index)
@@ -778,6 +794,8 @@ namespace hyper_rhi
             HE_VK_CHECK(vkCreateCommandPool(m_device, &command_pool_create_info, nullptr, &m_frames[index].command_pool));
             HE_ASSERT(m_submit_semaphore != VK_NULL_HANDLE);
 
+            HE_TRACE("Created Frame Command Pool #{}", index);
+
             const VkCommandBufferAllocateInfo command_buffer_allocate_info = {
                 .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
                 .pNext = nullptr,
@@ -789,6 +807,8 @@ namespace hyper_rhi
             HE_VK_CHECK(vkAllocateCommandBuffers(m_device, &command_buffer_allocate_info, &m_frames[index].command_buffer));
             HE_ASSERT(m_frames[index].command_buffer != VK_NULL_HANDLE);
 
+            HE_TRACE("Allocated Frame Command Buffer #{}", index);
+
             constexpr VkSemaphoreCreateInfo semaphore_create_info = {
                 .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
                 .pNext = nullptr,
@@ -798,8 +818,12 @@ namespace hyper_rhi
             HE_VK_CHECK(vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_frames[index].render_semaphore));
             HE_ASSERT(m_frames[index].render_semaphore != VK_NULL_HANDLE);
 
+            HE_TRACE("Created Frame Render Semaphore #{}", index);
+
             HE_VK_CHECK(vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_frames[index].present_semaphore));
             HE_ASSERT(m_frames[index].present_semaphore != VK_NULL_HANDLE);
+
+            HE_TRACE("Created Frame Present Semaphore #{}", index);
         }
     }
 

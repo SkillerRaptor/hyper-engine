@@ -120,7 +120,7 @@ namespace hyper_render
     {
         m_graphics_device->wait_for_idle();
 
-        HE_DEBUG("Created Renderer");
+        HE_INFO("Created Renderer");
     }
 
     void Renderer::render()

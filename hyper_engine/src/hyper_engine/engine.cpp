@@ -33,8 +33,6 @@ namespace hyper_engine
               .surface = m_surface,
           })
     {
-        HE_ASSERT(m_graphics_device);
-
         m_event_bus.subscribe<hyper_platform::WindowCloseEvent>(HE_BIND_FUNCTION(Engine::on_close));
         m_event_bus.subscribe<hyper_platform::WindowResizeEvent>(HE_BIND_FUNCTION(Engine::on_resize));
 
@@ -86,6 +84,6 @@ namespace hyper_engine
 
     void Engine::on_resize(const hyper_platform::WindowResizeEvent &event)
     {
-        HE_DEBUG("{}, {}", event.width(), event.height());
+        m_surface->resize(event.width(), event.height());
     }
 } // namespace hyper_engine

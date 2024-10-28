@@ -33,6 +33,10 @@ namespace hyper_rhi
 
         HE_VK_CHECK(vkCreatePipelineLayout(m_graphics_device.device(), &pipeline_layout_create_info, nullptr, &m_pipeline_layout));
         HE_ASSERT(m_pipeline_layout != VK_NULL_HANDLE);
+
+        // TODO: Log debug name
+
+        HE_TRACE("Created Pipeline Layout");
     }
 
     VulkanPipelineLayout::~VulkanPipelineLayout()

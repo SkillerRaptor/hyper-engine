@@ -21,6 +21,8 @@ namespace hyper_rhi
         this->create_swapchain(window);
 
         // TODO: Add RTV handles
+
+        HE_INFO("Created D3D12 Surface");
     }
 
     void D3D12Surface::resize(const uint32_t width, const uint32_t height)
@@ -68,5 +70,7 @@ namespace hyper_rhi
 
         HE_DX_CHECK(swapchain.As(&m_swapchain));
         HE_ASSERT(m_swapchain);
+
+        HE_TRACE("Created Swapchain");
     }
 } // namespace hyper_rhi

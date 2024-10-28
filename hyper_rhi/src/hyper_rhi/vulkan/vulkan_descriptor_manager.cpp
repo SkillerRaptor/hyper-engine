@@ -69,6 +69,8 @@ namespace hyper_rhi
 
             m_descriptor_counts[index] = descriptor_count;
         }
+
+        // TODO: Log descriptor count
     }
 
     void VulkanDescriptorManager::create_descriptor_pool()
@@ -98,6 +100,10 @@ namespace hyper_rhi
 
         HE_VK_CHECK(vkCreateDescriptorPool(m_graphics_device.device(), &descriptor_pool_create_info, nullptr, &m_descriptor_pool));
         HE_ASSERT(m_descriptor_pool != VK_NULL_HANDLE);
+
+        // TODO: Log configuration of descriptor pool
+
+        HE_TRACE("Created Descriptor Pool");
     }
 
     void VulkanDescriptorManager::create_descriptor_set_layouts()
@@ -137,6 +143,10 @@ namespace hyper_rhi
             HE_VK_CHECK(vkCreateDescriptorSetLayout(
                 m_graphics_device.device(), &descriptor_set_layout_create_info, nullptr, &m_descriptor_set_layouts[index]));
             HE_ASSERT(m_descriptor_set_layouts[index] != VK_NULL_HANDLE);
+
+            // TODO: Log configuration of descriptor set layout
+
+            HE_TRACE("Created Descriptor Set Layout #{}", index);
         }
     }
 
@@ -164,6 +174,10 @@ namespace hyper_rhi
 
             HE_VK_CHECK(vkAllocateDescriptorSets(m_graphics_device.device(), &descriptor_set_allocate_info, &m_descriptor_sets[index]));
             HE_ASSERT(m_descriptor_sets[index] != VK_NULL_HANDLE);
+
+            // TODO: Log configuration of descriptor set
+
+            HE_TRACE("Allocated Descriptor Set #{}", index);
         }
     }
 } // namespace hyper_rhi
