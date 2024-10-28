@@ -15,6 +15,9 @@ project(HyperEngine LANGUAGES C CXX)
 #-------------------------------------------------------------------------------------------
 include(cmake/StandardProjectSettings.cmake)
 include(cmake/PreventInSourceBuilds.cmake)
+include(cmake/Doxygen.cmake)
+
+enable_doxygen()
 
 #-------------------------------------------------------------------------------------------
 # Project Libraries
