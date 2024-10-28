@@ -44,4 +44,9 @@ namespace hyper_rhi
         // TODO: Queue it
         vkDestroyPipelineLayout(m_graphics_device.device(), m_pipeline_layout, nullptr);
     }
+
+    VkPipelineLayout VulkanPipelineLayout::pipeline_layout() const
+    {
+        return m_pipeline_layout;
+    }
 } // namespace hyper_rhi

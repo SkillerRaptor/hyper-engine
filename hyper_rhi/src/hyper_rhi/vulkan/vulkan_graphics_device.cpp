@@ -19,6 +19,7 @@
 #include <hyper_core/prerequisites.hpp>
 
 #include "hyper_rhi/vulkan/vulkan_command_list.hpp"
+#include "hyper_rhi/vulkan/vulkan_graphics_pipeline.hpp"
 #include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
 #include "hyper_rhi/vulkan/vulkan_shader_module.hpp"
 #include "hyper_rhi/vulkan/vulkan_surface.hpp"
@@ -148,9 +149,7 @@ namespace hyper_rhi
 
     GraphicsPipelineHandle VulkanGraphicsDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor &descriptor)
     {
-        HE_UNUSED(descriptor);
-
-        HE_UNREACHABLE();
+        return std::make_shared<VulkanGraphicsPipeline>(*this, descriptor);
     }
 
     PipelineLayoutHandle VulkanGraphicsDevice::create_pipeline_layout(const PipelineLayoutDescriptor &descriptor)

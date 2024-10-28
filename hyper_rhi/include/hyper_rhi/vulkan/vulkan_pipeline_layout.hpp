@@ -19,6 +19,8 @@ namespace hyper_rhi
         VulkanPipelineLayout(VulkanGraphicsDevice &graphics_device, const PipelineLayoutDescriptor &descriptor);
         ~VulkanPipelineLayout() override;
 
+        VkPipelineLayout pipeline_layout() const;
+
     private:
         VulkanGraphicsDevice &m_graphics_device;
 

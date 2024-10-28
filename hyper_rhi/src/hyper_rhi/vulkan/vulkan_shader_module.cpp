@@ -37,4 +37,14 @@ namespace hyper_rhi
         // TODO: Queue it
         vkDestroyShaderModule(m_graphics_device.device(), m_shader_module, nullptr);
     }
+
+    VkShaderModule VulkanShaderModule::shader_module() const
+    {
+        return m_shader_module;
+    }
+
+    std::string_view VulkanShaderModule::entry_point() const
+    {
+        return m_entry_point;
+    }
 } // namespace hyper_rhi
