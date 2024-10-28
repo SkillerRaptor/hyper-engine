@@ -24,7 +24,13 @@ macro(hyperengine_define_executable target)
     target_include_directories(${target} PUBLIC include)
 
     if (WIN32)
-        target_compile_definitions(${target} PUBLIC HE_WINDOWS=1)
+        target_compile_definitions(
+                ${target}
+                PUBLIC
+                HE_WINDOWS=1
+                _CRT_SECURE_NO_WARNINGS
+                NOMINMAX
+                WIN32_LEAN_AND_MEAN)
     else ()
         target_compile_definitions(${target} PUBLIC HE_LINUX=1)
     endif ()
@@ -41,7 +47,13 @@ macro(hyperengine_define_library target)
     target_include_directories(${target} PUBLIC include)
 
     if (WIN32)
-        target_compile_definitions(${target} PUBLIC HE_WINDOWS=1)
+        target_compile_definitions(
+                ${target}
+                PUBLIC
+                HE_WINDOWS=1
+                _CRT_SECURE_NO_WARNINGS
+                NOMINMAX
+                WIN32_LEAN_AND_MEAN)
     else ()
         target_compile_definitions(${target} PUBLIC HE_LINUX=1)
     endif ()
@@ -67,4 +79,11 @@ function(hyperengine_download_and_extract URL DESTINATION FOLDER_NAME)
     else ()
         message(STATUS "${CMAKE_BINARY_DIR}/download/${FOLDER_NAME}.zip is already extracted to ${DESTINATION}/${FOLDER_NAME}.")
     endif ()
+endfunction()
+
+
+function(hyperengine_deploy_files SOURCE DESTINATION)
+    set(DEPLOY_FILES_DESTINATION ${CMAKE_BINARY_DIR}/${DESTINATION})
+    message(STATUS "Copying ${SOURCE} to ${DEPLOY_FILES_DESTINATION}")
+    file(COPY ${SOURCE} DESTINATION ${DEPLOY_FILES_DESTINATION})
 endfunction()

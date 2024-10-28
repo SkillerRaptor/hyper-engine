@@ -68,6 +68,8 @@ set_target_properties(
         PROPERTIES
         FOLDER "third_party")
 
+hyperengine_deploy_files(${CMAKE_CURRENT_LIST_DIR}/DirectXShaderCompiler/bin/x64/ hyper_engine/)
+
 #-------------------------------------------------------------------------------------------
 # glfw
 #-------------------------------------------------------------------------------------------

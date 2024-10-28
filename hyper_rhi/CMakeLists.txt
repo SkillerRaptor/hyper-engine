@@ -6,10 +6,12 @@
 set(SOURCES
         src/hyper_rhi/graphics_device.cpp
         src/hyper_rhi/resource_handle.cpp
+        src/hyper_rhi/shader_compiler.cpp
         src/hyper_rhi/vulkan/vulkan_command_list.cpp
         src/hyper_rhi/vulkan/vulkan_descriptor_manager.cpp
         src/hyper_rhi/vulkan/vulkan_graphics_device.cpp
         src/hyper_rhi/vulkan/vulkan_pipeline_layout.cpp
+        src/hyper_rhi/vulkan/vulkan_shader_module.cpp
         src/hyper_rhi/vulkan/vulkan_surface.cpp)
 
 set(HEADERS
@@ -22,6 +24,7 @@ set(HEADERS
         include/hyper_rhi/render_pass.hpp
         include/hyper_rhi/resource_handle.hpp
         include/hyper_rhi/shader_module.hpp
+        include/hyper_rhi/shader_compiler.hpp
         include/hyper_rhi/surface.hpp
         include/hyper_rhi/texture.hpp
         include/hyper_rhi/vulkan/vulkan_command_list.hpp
@@ -29,6 +32,7 @@ set(HEADERS
         include/hyper_rhi/vulkan/vulkan_descriptor_manager.hpp
         include/hyper_rhi/vulkan/vulkan_graphics_device.hpp
         include/hyper_rhi/vulkan/vulkan_pipeline_layout.hpp
+        include/hyper_rhi/vulkan/vulkan_shader_module.hpp
         include/hyper_rhi/vulkan/vulkan_surface.hpp)
 
 if (WIN32)
@@ -62,9 +66,4 @@ if (WIN32)
             d3d12.lib
             dxgi.lib
             D3D12MemoryAllocator)
-    target_compile_definitions(
-            hyper_rhi
-            PUBLIC
-            NOMINMAX
-            WIN32_LEAN_AND_MEAN)
 endif ()

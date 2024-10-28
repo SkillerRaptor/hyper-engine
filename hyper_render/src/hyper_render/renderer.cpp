@@ -63,6 +63,7 @@ namespace hyper_render
     Renderer::Renderer(const RendererDescriptor &descriptor)
         : m_graphics_device(descriptor.graphics_device)
         , m_surface(descriptor.surface)
+        , m_shader_compiler()
         , m_command_list(m_graphics_device->create_command_list())
         , m_pipeline_layout(m_graphics_device->create_pipeline_layout({
               .label = "Opaque Pipeline Layout",
@@ -72,13 +73,25 @@ namespace hyper_render
               .label = "Opaque Vertex Shader",
               .type = hyper_rhi::ShaderType::Vertex,
               .entry_name = "vs_main",
-              .bytes = hyper_core::filesystem::read_file("./assets/shaders/opaque_shaders.hlsl"),
+              .bytes = m_shader_compiler
+                           .compile({
+                               .type = hyper_rhi::ShaderType::Vertex,
+                               .entry_name = "vs_main",
+                               .data = hyper_core::filesystem::read_file("./assets/shaders/opaque_shader.hlsl"),
+                           })
+                           .spirv,
           }))
         , m_fragment_shader(m_graphics_device->create_shader_module({
               .label = "Opaque Fragment Shader",
               .type = hyper_rhi::ShaderType::Fragment,
               .entry_name = "fs_main",
-              .bytes = hyper_core::filesystem::read_file("./assets/shaders/opaque_shaders.hlsl"),
+              .bytes = m_shader_compiler
+                           .compile({
+                               .type = hyper_rhi::ShaderType::Fragment,
+                               .entry_name = "fs_main",
+                               .data = hyper_core::filesystem::read_file("./assets/shaders/opaque_shader.hlsl"),
+                           })
+                           .spirv,
           }))
         , m_pipeline(m_graphics_device->create_graphics_pipeline({
               .label = "Opaque Pipeline",

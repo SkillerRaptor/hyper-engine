@@ -26,7 +26,7 @@ namespace hyper_rhi
 
         ShaderType type = ShaderType::None;
         std::string entry_name = "main";
-        std::vector<uint8_t> bytes;
+        std::vector<uint8_t> bytes = {};
     };
 
     class ShaderModule

@@ -20,6 +20,7 @@
 
 #include "hyper_rhi/vulkan/vulkan_command_list.hpp"
 #include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
+#include "hyper_rhi/vulkan/vulkan_shader_module.hpp"
 #include "hyper_rhi/vulkan/vulkan_surface.hpp"
 
 namespace hyper_rhi
@@ -159,9 +160,7 @@ namespace hyper_rhi
 
     ShaderModuleHandle VulkanGraphicsDevice::create_shader_module(const ShaderModuleDescriptor &descriptor)
     {
-        HE_UNUSED(descriptor);
-
-        HE_UNREACHABLE();
+        return std::make_shared<VulkanShaderModule>(*this, descriptor);
     }
 
     TextureHandle VulkanGraphicsDevice::create_texture(const TextureDescriptor &descriptor)
