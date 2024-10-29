@@ -29,7 +29,7 @@ namespace hyper_core
         stdout_sink->set_pattern("\033[38;2;69;69;69m%Y-%m-%dT%H:%M:%S.%f %^%l%$ \033[38;2;120;120;120m%s:%#: \033[38;2;211;211;211m%v");
 
         const auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("latest.log", true);
-        file_sink->set_pattern("%Y-%m-%d%H:%M:%S.%f %l: %v");
+        file_sink->set_pattern("%Y-%m-%d%H:%M:%S.%f %l %s:%#: %v");
 
         const spdlog::sinks_init_list log_sinks = {
             stdout_sink,
