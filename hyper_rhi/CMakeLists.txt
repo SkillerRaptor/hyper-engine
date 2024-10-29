@@ -9,6 +9,7 @@ set(SOURCES
         src/hyper_rhi/graphics_device.cpp
         src/hyper_rhi/graphics_pipeline.cpp
         src/hyper_rhi/pipeline_layout.cpp
+        src/hyper_rhi/queue.cpp
         src/hyper_rhi/render_pass.cpp
         src/hyper_rhi/resource.cpp
         src/hyper_rhi/resource_handle.cpp
@@ -21,8 +22,10 @@ set(SOURCES
         src/hyper_rhi/vulkan/vulkan_graphics_device.cpp
         src/hyper_rhi/vulkan/vulkan_graphics_pipeline.cpp
         src/hyper_rhi/vulkan/vulkan_pipeline_layout.cpp
+        src/hyper_rhi/vulkan/vulkan_queue.cpp
         src/hyper_rhi/vulkan/vulkan_shader_module.cpp
-        src/hyper_rhi/vulkan/vulkan_surface.cpp)
+        src/hyper_rhi/vulkan/vulkan_surface.cpp
+        src/hyper_rhi/vulkan/vulkan_upload_manager.cpp)
 
 set(HEADERS
         include/hyper_rhi/buffer.hpp
@@ -31,6 +34,7 @@ set(HEADERS
         include/hyper_rhi/graphics_device.hpp
         include/hyper_rhi/graphics_pipeline.hpp
         include/hyper_rhi/pipeline_layout.hpp
+        include/hyper_rhi/queue.hpp
         include/hyper_rhi/render_pass.hpp
         include/hyper_rhi/resource.hpp
         include/hyper_rhi/resource_handle.hpp
@@ -45,8 +49,10 @@ set(HEADERS
         include/hyper_rhi/vulkan/vulkan_graphics_device.hpp
         include/hyper_rhi/vulkan/vulkan_graphics_pipeline.hpp
         include/hyper_rhi/vulkan/vulkan_pipeline_layout.hpp
+        include/hyper_rhi/vulkan/vulkan_queue.hpp
         include/hyper_rhi/vulkan/vulkan_shader_module.hpp
-        include/hyper_rhi/vulkan/vulkan_surface.hpp)
+        include/hyper_rhi/vulkan/vulkan_surface.hpp
+        include/hyper_rhi/vulkan/vulkan_upload_manager.hpp)
 
 if (WIN32)
     set(SOURCES

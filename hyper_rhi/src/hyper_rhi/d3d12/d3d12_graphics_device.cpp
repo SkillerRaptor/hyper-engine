@@ -34,19 +34,14 @@ namespace hyper_rhi
         HE_INFO("Created D3D12 Graphics Device");
     }
 
-    ComPtr<IDXGIFactory7> D3D12GraphicsDevice::factory() const
-    {
-        return m_factory;
-    }
-
-    ComPtr<ID3D12CommandQueue> D3D12GraphicsDevice::command_queue() const
-    {
-        return m_command_queue;
-    }
-
     SurfaceHandle D3D12GraphicsDevice::create_surface(const hyper_platform::Window &window)
     {
         return std::make_shared<D3D12Surface>(*this, window);
+    }
+
+    QueueHandle D3D12GraphicsDevice::queue()
+    {
+        HE_UNREACHABLE();
     }
 
     BufferHandle D3D12GraphicsDevice::create_buffer(const BufferDescriptor &descriptor)
@@ -109,11 +104,6 @@ namespace hyper_rhi
         HE_UNREACHABLE();
     }
 
-    void D3D12GraphicsDevice::execute() const
-    {
-        HE_UNREACHABLE();
-    }
-
     void D3D12GraphicsDevice::present(SurfaceHandle surface_handle) const
     {
         HE_UNUSED(surface_handle);
@@ -124,6 +114,16 @@ namespace hyper_rhi
     void D3D12GraphicsDevice::wait_for_idle() const
     {
         HE_UNREACHABLE();
+    }
+
+    ComPtr<IDXGIFactory7> D3D12GraphicsDevice::factory() const
+    {
+        return m_factory;
+    }
+
+    ComPtr<ID3D12CommandQueue> D3D12GraphicsDevice::command_queue() const
+    {
+        return m_command_queue;
     }
 
     void D3D12GraphicsDevice::enable_debug_layers()

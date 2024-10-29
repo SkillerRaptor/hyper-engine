@@ -6,26 +6,28 @@
 
 #pragma once
 
-#include "hyper_rhi/command_list.hpp"
+#include "hyper_rhi/queue.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
 namespace hyper_rhi
 {
     class VulkanGraphicsDevice;
 
-    class VulkanCommandList final : public CommandList
+    class VulkanUploadManager
     {
     public:
-        explicit VulkanCommandList(VulkanGraphicsDevice &graphics_device);
+        explicit VulkanUploadManager(VulkanGraphicsDevice &graphics_device);
+        ~VulkanUploadManager();
 
-        void begin() override;
-        void end() override;
-
-        [[nodiscard]] VkCommandBuffer command_buffer() const;
+        void upload(const std::vector<BufferWrite> &buffer_writes);
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
 
+        VkCommandPool m_command_pool;
         VkCommandBuffer m_command_buffer;
+
+        VkSemaphore m_semaphore;
+        uint64_t m_value;
     };
 } // namespace hyper_rhi

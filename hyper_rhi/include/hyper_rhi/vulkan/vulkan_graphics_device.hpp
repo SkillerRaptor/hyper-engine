@@ -13,6 +13,8 @@
 #include "hyper_rhi/graphics_device.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 #include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
+#include "hyper_rhi/vulkan/vulkan_queue.hpp"
+#include "hyper_rhi/vulkan/vulkan_upload_manager.hpp"
 
 #include <vk_mem_alloc.h>
 
@@ -51,6 +53,7 @@ namespace hyper_rhi
         ~VulkanGraphicsDevice() override;
 
         SurfaceHandle create_surface(const hyper_platform::Window &window) override;
+        QueueHandle queue() override;
 
         BufferHandle create_buffer(const BufferDescriptor &descriptor) override;
         CommandListHandle create_command_list() override;
@@ -65,7 +68,6 @@ namespace hyper_rhi
 
         void begin_frame(SurfaceHandle surface_handle, uint32_t frame_index) override;
         void end_frame() const override;
-        void execute() const override;
         void present(SurfaceHandle surface_handle) const override;
         void wait_for_idle() const override;
 
@@ -74,9 +76,11 @@ namespace hyper_rhi
         [[nodiscard]] VkDevice device() const;
         [[nodiscard]] VmaAllocator allocator() const;
         [[nodiscard]] VulkanDescriptorManager &descriptor_manager() const;
+        [[nodiscard]] VulkanUploadManager &upload_manager() const;
         [[nodiscard]] ResourceQueue &resource_queue();
 
         [[nodiscard]] const FrameData &current_frame() const;
+        [[nodiscard]] uint32_t current_frame_index() const;
 
     private:
         static bool check_validation_layer_support();
@@ -106,15 +110,14 @@ namespace hyper_rhi
         VkDebugUtilsMessengerEXT m_debug_messenger;
         VkPhysicalDevice m_physical_device;
         VkDevice m_device;
-        VkQueue m_queue;
+        std::shared_ptr<VulkanQueue> m_queue;
         VmaAllocator m_allocator;
 
         // NOTE: Using raw pointer to guarantee order of destruction
         VulkanDescriptorManager *m_descriptor_manager;
+        VulkanUploadManager *m_upload_manager;
 
-        VkSemaphore m_submit_semaphore;
         std::array<FrameData, GraphicsDevice::s_frame_count> m_frames;
-
         uint32_t m_current_frame_index;
 
         ResourceQueue m_resource_queue;

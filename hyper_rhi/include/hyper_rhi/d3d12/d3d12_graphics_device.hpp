@@ -18,11 +18,8 @@ namespace hyper_rhi
     public:
         explicit D3D12GraphicsDevice(const GraphicsDeviceDescriptor &descriptor);
 
-        [[nodiscard]] ComPtr<IDXGIFactory7> factory() const;
-        [[nodiscard]] ComPtr<ID3D12CommandQueue> command_queue() const;
-
-    protected:
         SurfaceHandle create_surface(const hyper_platform::Window &window) override;
+        QueueHandle queue() override;
 
         BufferHandle create_buffer(const BufferDescriptor &descriptor) override;
         CommandListHandle create_command_list() override;
@@ -34,10 +31,12 @@ namespace hyper_rhi
 
         void begin_frame(SurfaceHandle surface_handle, uint32_t frame_index) override;
         void end_frame() const override;
-        void execute() const override;
         void present(SurfaceHandle surface_handle) const override;
 
         void wait_for_idle() const override;
+
+        [[nodiscard]] ComPtr<IDXGIFactory7> factory() const;
+        [[nodiscard]] ComPtr<ID3D12CommandQueue> command_queue() const;
 
     private:
         void enable_debug_layers();

@@ -31,12 +31,15 @@ namespace hyper_rhi
     public:
         virtual ~Buffer() = default;
 
+        [[nodiscard]] uint64_t byte_size() const;
+
         [[nodiscard]] ResourceHandle handle() const;
 
     protected:
-        explicit Buffer(std::string label);
+        explicit Buffer(const BufferDescriptor& descriptor);
 
     protected:
+        uint64_t m_byte_size;
         ResourceHandle m_handle;
     };
 

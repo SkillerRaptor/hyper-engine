@@ -64,6 +64,7 @@ namespace hyper_render
         : m_graphics_device(descriptor.graphics_device)
         , m_surface(descriptor.surface)
         , m_shader_compiler()
+        , m_queue(m_graphics_device->queue())
         , m_command_list(m_graphics_device->create_command_list())
         , m_pipeline_layout(m_graphics_device->create_pipeline_layout({
               .label = "Opaque Pipeline Layout",
@@ -136,9 +137,9 @@ namespace hyper_render
           }))
         , m_frame_index(1)
     {
-        m_command_list->write_buffer(m_material_buffer, s_materials.data(), sizeof(s_materials));
-        m_command_list->write_buffer(m_positions_buffer, s_positions.data(), sizeof(s_positions));
-        m_command_list->write_buffer(m_normals_buffer, s_normals.data(), sizeof(s_normals));
+        m_queue->write_buffer(m_material_buffer, s_materials.data(), sizeof(s_materials));
+        m_queue->write_buffer(m_positions_buffer, s_positions.data(), sizeof(s_positions));
+        m_queue->write_buffer(m_normals_buffer, s_normals.data(), sizeof(s_normals));
 
         const Mesh mesh = {
             .positions = m_positions_buffer->handle(),
@@ -147,10 +148,10 @@ namespace hyper_render
             .padding_1 = 0,
         };
 
-        m_command_list->write_buffer(m_mesh_buffer, &mesh, sizeof(Mesh));
-        m_command_list->write_buffer(m_indices_buffer, s_indices.data(), sizeof(s_indices));
+        m_queue->write_buffer(m_mesh_buffer, &mesh, sizeof(Mesh));
+        m_queue->write_buffer(m_indices_buffer, s_indices.data(), sizeof(s_indices));
 
-        m_graphics_device->wait_for_idle();
+        m_queue->submit(nullptr);
 
         HE_INFO("Created Renderer");
     }
@@ -165,7 +166,7 @@ namespace hyper_render
 
         m_graphics_device->end_frame();
 
-        m_graphics_device->execute();
+        m_queue->submit(m_command_list);
         m_graphics_device->present(m_surface);
 
         m_frame_index += 1;

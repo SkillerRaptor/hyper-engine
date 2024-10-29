@@ -17,10 +17,8 @@ namespace hyper_rhi
     public:
         virtual ~CommandList() = default;
 
-        virtual void begin() const = 0;
-        virtual void end() const = 0;
-
-        virtual void write_buffer(BufferHandle buffer, const void *data, size_t size) = 0;
+        virtual void begin() = 0;
+        virtual void end() = 0;
     };
 
     using CommandListHandle = std::shared_ptr<CommandList>;

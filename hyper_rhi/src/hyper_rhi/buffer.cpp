@@ -6,14 +6,18 @@
 
 #include "hyper_rhi/buffer.hpp"
 
-#include <utility>
-
 namespace hyper_rhi
 {
-    Buffer::Buffer(std::string label)
-        : Resource(std::move(label))
+    Buffer::Buffer(const BufferDescriptor &descriptor)
+        : Resource(descriptor.label)
+        , m_byte_size(descriptor.byte_size)
         , m_handle(ResourceHandle(0xffffffff))
     {
+    }
+
+    uint64_t Buffer::byte_size() const
+    {
+        return m_byte_size;
     }
 
     ResourceHandle Buffer::handle() const

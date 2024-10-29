@@ -11,12 +11,12 @@
 namespace hyper_rhi
 {
     VulkanBuffer::VulkanBuffer(VulkanGraphicsDevice &graphics_device, const BufferDescriptor &descriptor)
-        : Buffer(descriptor.label)
+        : Buffer(descriptor)
         , m_graphics_device(graphics_device)
         , m_buffer(VK_NULL_HANDLE)
         , m_allocation(VK_NULL_HANDLE)
     {
-        VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
         if (descriptor.is_constant_buffer)
         {
             usage_flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
@@ -25,6 +25,13 @@ namespace hyper_rhi
         if (descriptor.is_index_buffer)
         {
             usage_flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+        }
+
+        uint64_t size = descriptor.byte_size;
+        if (size < 65536)
+        {
+            // NOTE: Make buffer larger to be a multiple of 4 if the size is less than 64kb
+            size = (size + 3) & ~3ull;
         }
 
         // TODO: Make the size aligned for small uploads
@@ -72,5 +79,10 @@ namespace hyper_rhi
     VulkanBuffer::~VulkanBuffer()
     {
         m_graphics_device.resource_queue().buffers.emplace_back(m_buffer, m_allocation, m_handle);
+    }
+
+    VkBuffer VulkanBuffer::buffer() const
+    {
+        return m_buffer;
     }
 } // namespace hyper_rhi

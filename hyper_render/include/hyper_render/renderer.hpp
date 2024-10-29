@@ -29,6 +29,7 @@ namespace hyper_render
         hyper_rhi::GraphicsDeviceHandle m_graphics_device;
         hyper_rhi::SurfaceHandle m_surface;
         hyper_rhi::ShaderCompiler m_shader_compiler;
+        hyper_rhi::QueueHandle m_queue;
         hyper_rhi::CommandListHandle m_command_list;
         hyper_rhi::PipelineLayoutHandle m_pipeline_layout;
         hyper_rhi::ShaderModuleHandle m_vertex_shader;

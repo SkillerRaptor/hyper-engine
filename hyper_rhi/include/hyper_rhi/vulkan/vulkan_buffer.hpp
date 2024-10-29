@@ -21,6 +21,8 @@ namespace hyper_rhi
         VulkanBuffer(VulkanGraphicsDevice &graphics_device, const BufferDescriptor &descriptor);
         ~VulkanBuffer() override;
 
+        [[nodiscard]] VkBuffer buffer() const;
+
     private:
         VulkanGraphicsDevice &m_graphics_device;
 

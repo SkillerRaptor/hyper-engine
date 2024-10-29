@@ -16,6 +16,7 @@
 #include "hyper_rhi/shader_module.hpp"
 #include "hyper_rhi/surface.hpp"
 #include "hyper_rhi/texture.hpp"
+#include "hyper_rhi/queue.hpp"
 
 namespace hyper_rhi
 {
@@ -42,6 +43,8 @@ namespace hyper_rhi
         virtual ~GraphicsDevice() = default;
 
         [[nodiscard]] virtual SurfaceHandle create_surface(const hyper_platform::Window &window) = 0;
+        // TODO: Add more queue types
+        [[nodiscard]] virtual QueueHandle queue() = 0;
 
         [[nodiscard]] virtual BufferHandle create_buffer(const BufferDescriptor &descriptor) = 0;
         [[nodiscard]] virtual CommandListHandle create_command_list() = 0;
@@ -53,7 +56,6 @@ namespace hyper_rhi
 
         virtual void begin_frame(SurfaceHandle surface_handle, uint32_t frame_index) = 0;
         virtual void end_frame() const = 0;
-        virtual void execute() const = 0;
         virtual void present(SurfaceHandle surface_handle) const = 0;
 
         virtual void wait_for_idle() const = 0;
