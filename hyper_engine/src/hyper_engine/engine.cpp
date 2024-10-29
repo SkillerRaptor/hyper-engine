@@ -34,7 +34,7 @@ namespace hyper_engine
           })
     {
         m_event_bus.subscribe<hyper_platform::WindowCloseEvent>(HE_BIND_FUNCTION(Engine::on_close));
-        m_event_bus.subscribe<hyper_platform::WindowResizeEvent>(HE_BIND_FUNCTION(Engine::on_resize));
+        m_event_bus.subscribe<hyper_platform::WindowFramebufferResizeEvent>(HE_BIND_FUNCTION(Engine::on_resize));
 
         m_running = true;
 
@@ -62,6 +62,11 @@ namespace hyper_engine
 
             hyper_platform::Window::poll_events();
 
+            while (m_window.width() == 0 || m_window.height() == 0)
+            {
+                hyper_platform::Window::wait_events();
+            }
+
             while (accumulator >= delta_time)
             {
                 // Fixed Update
@@ -82,7 +87,7 @@ namespace hyper_engine
         m_running = false;
     }
 
-    void Engine::on_resize(const hyper_platform::WindowResizeEvent &event)
+    void Engine::on_resize(const hyper_platform::WindowFramebufferResizeEvent &event)
     {
         m_surface->resize(event.width(), event.height());
     }

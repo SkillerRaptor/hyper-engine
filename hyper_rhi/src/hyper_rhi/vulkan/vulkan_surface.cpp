@@ -41,6 +41,11 @@ namespace hyper_rhi
 
     void VulkanSurface::resize(const uint32_t width, const uint32_t height)
     {
+        if (m_width == width || m_height == height)
+        {
+            return;
+        }
+
         m_resized = true;
         m_width = width;
         m_height = height;

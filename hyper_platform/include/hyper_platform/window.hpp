@@ -33,6 +33,7 @@ namespace hyper_platform
         [[nodiscard]] GLFWwindow *native_window() const;
 
         static void poll_events();
+        static void wait_events();
 
     private:
         GLFWwindow *m_native_window;

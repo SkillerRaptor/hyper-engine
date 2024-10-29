@@ -34,7 +34,7 @@ namespace hyper_engine
 
     private:
         void on_close(const hyper_platform::WindowCloseEvent &event);
-        void on_resize(const hyper_platform::WindowResizeEvent &event);
+        void on_resize(const hyper_platform::WindowFramebufferResizeEvent &event);
 
     private:
         std::chrono::steady_clock::time_point m_start_time;

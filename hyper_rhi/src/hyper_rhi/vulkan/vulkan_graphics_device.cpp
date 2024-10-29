@@ -180,26 +180,31 @@ namespace hyper_rhi
             vmaDestroyBuffer(m_allocator, buffer_entry.buffer, buffer_entry.allocation);
             m_descriptor_manager->retire_handle(buffer_entry.handle);
         }
+        m_resource_queue.buffers.clear();
 
         for (const VkPipeline &compute_pipeline : m_resource_queue.compute_pipelines)
         {
             vkDestroyPipeline(m_device, compute_pipeline, nullptr);
         }
+        m_resource_queue.compute_pipelines.clear();
 
         for (const VkPipeline &graphics_pipeline : m_resource_queue.graphics_pipelines)
         {
             vkDestroyPipeline(m_device, graphics_pipeline, nullptr);
         }
+        m_resource_queue.graphics_pipelines.clear();
 
         for (const VkPipelineLayout &pipeline_layout : m_resource_queue.pipeline_layouts)
         {
             vkDestroyPipelineLayout(m_device, pipeline_layout, nullptr);
         }
+        m_resource_queue.pipeline_layouts.clear();
 
         for (const VkShaderModule &shader_module : m_resource_queue.shader_modules)
         {
             vkDestroyShaderModule(m_device, shader_module, nullptr);
         }
+        m_resource_queue.shader_modules.clear();
 
         for (const TextureEntry &texture_entry : m_resource_queue.textures)
         {
@@ -211,12 +216,7 @@ namespace hyper_rhi
             vkDestroyImageView(m_device, texture_entry.view, nullptr);
             m_descriptor_manager->retire_handle(texture_entry.handle);
         }
-
-        m_resource_queue.buffers.clear();
-        m_resource_queue.compute_pipelines.clear();
-        m_resource_queue.graphics_pipelines.clear();
-        m_resource_queue.pipeline_layouts.clear();
-        m_resource_queue.shader_modules.clear();
+        m_resource_queue.textures.clear();
     }
 
     void VulkanGraphicsDevice::begin_frame(const SurfaceHandle surface_handle, const uint32_t frame_index)

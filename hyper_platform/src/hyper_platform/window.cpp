@@ -141,4 +141,9 @@ namespace hyper_platform
     {
         glfwPollEvents();
     }
+
+    void Window::wait_events()
+    {
+        glfwWaitEvents();
+    }
 } // namespace hyper_platform
