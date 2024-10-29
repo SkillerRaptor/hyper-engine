@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <glm/glm.hpp>
+#include <hyper_core/math.hpp>
 
 #include "hyper_platform/key_codes.hpp"
 #include "hyper_platform/mouse_codes.hpp"
@@ -19,10 +19,10 @@ namespace hyper_platform
     public:
         explicit Input(Window &window);
 
-        bool is_key_pressed(KeyCode key_code) const;
-        bool is_mouse_button_pressed(MouseCode mouse_code) const;
+        [[nodiscard]] bool is_key_pressed(KeyCode key_code) const;
+        [[nodiscard]] bool is_mouse_button_pressed(MouseCode mouse_code) const;
 
-        glm::vec2 mouse_position() const;
+        [[nodiscard]] glm::vec2 mouse_position() const;
 
     private:
         Window &m_window;

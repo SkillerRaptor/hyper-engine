@@ -12,6 +12,7 @@ set(HEADERS
         include/hyper_core/assertion.hpp
         include/hyper_core/filesystem.hpp
         include/hyper_core/logger.hpp
+        include/hyper_core/math.hpp
         include/hyper_core/prerequisites.hpp
         include/hyper_core/string.hpp)
 
@@ -20,5 +21,6 @@ target_link_libraries(
         hyper_core
         PUBLIC
         fmt
+        glm
         libassert::assert
         spdlog)

@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <glm/glm.hpp>
+#include <hyper_core/math.hpp>
 
 namespace hyper_render
 {
