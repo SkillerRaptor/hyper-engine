@@ -100,6 +100,8 @@ namespace hyper_rhi
         HE_VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_graphics_device.physical_device(), m_surface, &surface_capabilities));
 
         const VkExtent2D surface_extent = VulkanSurface::choose_extent(m_width, m_height, surface_capabilities);
+        m_width = surface_extent.width;
+        m_height = surface_extent.height;
 
         uint32_t format_count = 0;
         HE_VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_graphics_device.physical_device(), m_surface, &format_count, nullptr));
