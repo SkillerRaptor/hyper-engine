@@ -17,21 +17,26 @@ namespace hyper_engine
     Engine::Engine(const EngineDescriptor &descriptor)
         : m_start_time(std::chrono::steady_clock::now())
         , m_running(false)
+        , m_event_bus()
         , m_window({
               .title = "HyperEngine",
               .width = descriptor.width,
               .height = descriptor.height,
               .event_bus = m_event_bus,
           })
+        , m_input(m_window)
         , m_graphics_device(hyper_rhi::GraphicsDevice::create({
               .graphics_api = descriptor.graphics_api,
               .debug_mode = descriptor.debug,
           }))
         , m_surface(m_graphics_device->create_surface(m_window))
-        , m_renderer({
-              .graphics_device = m_graphics_device,
-              .surface = m_surface,
-          })
+        , m_renderer(
+              m_event_bus,
+              m_input,
+              {
+                  .graphics_device = m_graphics_device,
+                  .surface = m_surface,
+              })
     {
         m_event_bus.subscribe<hyper_platform::WindowCloseEvent>(HE_BIND_FUNCTION(Engine::on_close));
         m_event_bus.subscribe<hyper_platform::WindowResizeEvent>(HE_BIND_FUNCTION(Engine::on_resize));
@@ -76,6 +81,7 @@ namespace hyper_engine
             }
 
             // Update
+            m_renderer.update(delta_time);
 
             // Render
             m_renderer.render();

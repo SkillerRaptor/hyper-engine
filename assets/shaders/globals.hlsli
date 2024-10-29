@@ -7,8 +7,6 @@
 #ifndef HE_GLOBALS_HLSLI
 #define HE_GLOBALS_HLSLI
 
-#include "shader_interop.h"
-
 ////////////////////////////////////////////////////////////////////////////////
 // Bindless
 ////////////////////////////////////////////////////////////////////////////////
@@ -310,92 +308,5 @@ struct RwTexture {
 };
 
 #undef DESCRIPTOR_HEAP
-
-////////////////////////////////////////////////////////////////////////////////
-// Shader Interop
-////////////////////////////////////////////////////////////////////////////////
-
-struct Mesh {
-    ArrayBuffer positions;
-    ArrayBuffer normals;
-    uint padding_0;
-    uint padding_1;
-
-    inline float4 get_position(uint index) {
-        return positions.load<float4>(index);
-    }
-
-    inline float4 get_normal(uint index) {
-        return normals.load<float4>(index);
-    }
-};
-
-struct Material {
-    float4 base_color;
-
-    // TODO: Add textures
-};
-
-////////////////////////////////////////////////////////////////////////////////
-// Push Constants
-////////////////////////////////////////////////////////////////////////////////
-
-#ifdef HE_VULKAN
-    #define HE_PUSH_CONSTANT(value_type, name) [[vk::push_constant]] value_type name
-#else
-    #define HE_PUSH_CONSTANT(value_type, name) ConstantBuffer<value_type> name : register(b0, space0)
-#endif
-
-struct ObjectPushConstants {
-    uint mesh;
-    uint material;
-    uint padding_0;
-    uint padding_1;
-
-    inline Mesh get_mesh() {
-        ResourceHandle mesh_handle = (ResourceHandle) mesh;
-        SimpleBuffer buffer = (SimpleBuffer) mesh_handle.read_index();
-        return buffer.load<Mesh>();
-    }
-
-    inline Material get_material() {
-        ResourceHandle material_handle = (ResourceHandle) material;
-        SimpleBuffer buffer = (SimpleBuffer) material_handle.read_index();
-        return buffer.load<Material>();
-    }
-};
-
-////////////////////////////////////////////////////////////////////////////////
-// Globals
-////////////////////////////////////////////////////////////////////////////////
-
-struct Frame {
-    float time;
-    float delta_time;
-    float unused_0;
-    float unused_1;
-
-    uint frame_count;
-    uint unused_2;
-    uint unused_3;
-    uint unused_4;
-
-    float2 screen_size;
-    float2 unused_5;
-};
-
-inline Frame get_frame() {
-    SimpleBuffer buffer = (SimpleBuffer) HE_DESCRIPTOR_SET_SLOT_FRAME;
-    return buffer.load<Frame>();
-}
-
-struct Camera {
-    float4x4 view_projection;
-};
-
-inline Camera get_camera() {
-    SimpleBuffer buffer = (SimpleBuffer) HE_DESCRIPTOR_SET_SLOT_CAMERA;
-    return buffer.load<Camera>();
-}
 
 #endif // HE_GLOBALS_HLSLI

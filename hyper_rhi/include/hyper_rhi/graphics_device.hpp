@@ -58,6 +58,8 @@ namespace hyper_rhi
         virtual void end_frame() const = 0;
         virtual void present(SurfaceHandle surface_handle) const = 0;
 
+        virtual void set_dynamic_buffer(const BufferHandle &buffer_handle, uint32_t slot) const = 0;
+
         virtual void wait_for_idle() const = 0;
     };
 

@@ -4,12 +4,14 @@
 # SPDX-License-Identifier: MIT
 #-------------------------------------------------------------------------------------------
 set(SOURCES
+        src/hyper_platform/input.cpp
         src/hyper_platform/key_events.cpp
         src/hyper_platform/mouse_events.cpp
         src/hyper_platform/window_events.cpp
         src/hyper_platform/window.cpp)
 
 set(HEADERS
+        include/hyper_platform/input.hpp
         include/hyper_platform/key_codes.hpp
         include/hyper_platform/key_events.hpp
         include/hyper_platform/mouse_codes.hpp
@@ -23,5 +25,6 @@ target_link_libraries(
         PUBLIC
         hyper_core
         hyper_event
-        glfw)
+        glfw
+        glm)
 

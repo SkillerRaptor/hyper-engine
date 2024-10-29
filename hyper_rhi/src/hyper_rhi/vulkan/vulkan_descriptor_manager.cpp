@@ -6,6 +6,7 @@
 
 #include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
 
+#include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 
 namespace hyper_rhi
@@ -33,6 +34,34 @@ namespace hyper_rhi
         }
 
         vkDestroyDescriptorPool(m_graphics_device.device(), m_descriptor_pool, nullptr);
+    }
+
+    void VulkanDescriptorManager::set_dynamic_buffer(const BufferHandle& buffer_handle, const uint32_t slot)
+    {
+        HE_ASSERT(slot > m_current_index);
+
+        const std::shared_ptr<VulkanBuffer> buffer = std::dynamic_pointer_cast<VulkanBuffer>(buffer_handle);
+
+        const VkDescriptorBufferInfo buffer_info = {
+            .buffer = buffer->buffer(),
+            .offset = 0,
+            .range = VK_WHOLE_SIZE,
+        };
+
+        const VkWriteDescriptorSet descriptor_write = {
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .pNext = nullptr,
+            .dstSet = m_descriptor_sets[0],
+            .dstBinding = 0,
+            .dstArrayElement = slot,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+            .pImageInfo = nullptr,
+            .pBufferInfo = &buffer_info,
+            .pTexelBufferView = nullptr,
+        };
+
+        vkUpdateDescriptorSets(m_graphics_device.device(), 1, &descriptor_write, 0, nullptr);
     }
 
     ResourceHandle VulkanDescriptorManager::allocate_buffer_handle(const VkBuffer buffer)

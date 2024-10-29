@@ -17,7 +17,7 @@ namespace hyper_rhi
     {
     public:
         VulkanRenderPass(VulkanGraphicsDevice &graphics_device, VkCommandBuffer command_buffer, const RenderPassDescriptor &descriptor);
-        ~VulkanRenderPass();
+        ~VulkanRenderPass() override;
 
         void set_pipeline(const GraphicsPipelineHandle &pipeline_handle) override;
         void set_index_buffer(BufferHandle buffer_handle) const override;

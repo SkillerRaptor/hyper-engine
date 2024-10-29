@@ -282,6 +282,11 @@ namespace hyper_rhi
         HE_VK_CHECK(vkQueuePresentKHR(m_queue->queue(), &present_info));
     }
 
+    void VulkanGraphicsDevice::set_dynamic_buffer(const BufferHandle &buffer_handle, const uint32_t slot) const
+    {
+        m_descriptor_manager->set_dynamic_buffer(buffer_handle, slot);
+    }
+
     void VulkanGraphicsDevice::wait_for_idle() const
     {
         HE_VK_CHECK(vkDeviceWaitIdle(m_device));

@@ -10,6 +10,7 @@
 #include <memory>
 
 #include <hyper_event/event_bus.hpp>
+#include <hyper_platform/input.hpp>
 #include <hyper_platform/window_events.hpp>
 #include <hyper_platform/window.hpp>
 #include <hyper_rhi/graphics_device.hpp>
@@ -42,6 +43,7 @@ namespace hyper_engine
         bool m_running;
         hyper_event::EventBus m_event_bus;
         hyper_platform::Window m_window;
+        hyper_platform::Input m_input;
         hyper_rhi::GraphicsDeviceHandle m_graphics_device;
         hyper_rhi::SurfaceHandle m_surface;
         hyper_render::Renderer m_renderer;

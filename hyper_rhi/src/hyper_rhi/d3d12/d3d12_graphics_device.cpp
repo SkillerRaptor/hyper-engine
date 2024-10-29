@@ -111,6 +111,14 @@ namespace hyper_rhi
         HE_UNREACHABLE();
     }
 
+    void D3D12GraphicsDevice::set_dynamic_buffer(const BufferHandle &buffer_handle, uint32_t slot) const
+    {
+        HE_UNUSED(buffer_handle);
+        HE_UNUSED(slot);
+
+        HE_UNREACHABLE();
+    }
+
     void D3D12GraphicsDevice::wait_for_idle() const
     {
         HE_UNREACHABLE();

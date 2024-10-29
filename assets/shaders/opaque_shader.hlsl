@@ -5,6 +5,7 @@
  */
 
 #include "globals.hlsli"
+#include "shader_interop.h"
 
 HE_PUSH_CONSTANT(ObjectPushConstants, g_push);
 
@@ -18,13 +19,16 @@ VertexOutput vs_main(
 ) {
     const Mesh mesh = g_push.get_mesh();
     const float4 position = mesh.get_position(vertex_id);
+    const float4 color = mesh.get_color(vertex_id);
 
     const Material material = g_push.get_material();
     const float4 base_color = material.base_color;
 
+    const Camera camera = get_camera();
+
     VertexOutput output = (VertexOutput) 0;
-    output.position = float4(position.xyz, 1.0);
-    output.color = float4(base_color.xyz, 1.0);
+    output.position = mul(camera.view_projection, position);
+    output.color = float4(color.xyz, 1.0);
     return output;
 }
 

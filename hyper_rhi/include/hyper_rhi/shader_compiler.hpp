@@ -36,11 +36,14 @@ namespace hyper_rhi
         static constexpr std::array<const wchar_t *, 4> s_compiler_args = {
             L"-HV",
             L"2021",
-            L"-Zpr",
+            L"-Zpc",
             L"-O3",
         };
-        static constexpr std::array<const wchar_t *, 5> s_spirv_args = {
-            L"-D", L"HE_VULKAN=1", L"-spirv", L"-fvk-use-dx-position-w", L"-fspv-use-legacy-buffer-matrix-order",
+        static constexpr std::array<const wchar_t *, 4> s_spirv_args = {
+            L"-D",
+            L"HE_VULKAN=1",
+            L"-spirv",
+            L"-fvk-use-dx-position-w",
         };
 
     public:
