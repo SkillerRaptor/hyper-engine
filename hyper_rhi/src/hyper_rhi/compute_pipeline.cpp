@@ -6,12 +6,11 @@
 
 #include "hyper_rhi/compute_pipeline.hpp"
 
-#include <utility>
-
 namespace hyper_rhi
 {
-    ComputePipeline::ComputePipeline(std::string label)
-        : Resource(std::move(label))
+    ComputePipeline::ComputePipeline(const ComputePipelineDescriptor &descriptor)
+        : Resource(descriptor.label)
+        , m_layout(descriptor.layout)
     {
     }
 } // namespace hyper_rhi

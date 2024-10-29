@@ -23,8 +23,10 @@ set(SOURCES
         src/hyper_rhi/vulkan/vulkan_graphics_pipeline.cpp
         src/hyper_rhi/vulkan/vulkan_pipeline_layout.cpp
         src/hyper_rhi/vulkan/vulkan_queue.cpp
+        src/hyper_rhi/vulkan/vulkan_render_pass.cpp
         src/hyper_rhi/vulkan/vulkan_shader_module.cpp
         src/hyper_rhi/vulkan/vulkan_surface.cpp
+        src/hyper_rhi/vulkan/vulkan_texture.cpp
         src/hyper_rhi/vulkan/vulkan_upload_manager.cpp)
 
 set(HEADERS
@@ -50,8 +52,10 @@ set(HEADERS
         include/hyper_rhi/vulkan/vulkan_graphics_pipeline.hpp
         include/hyper_rhi/vulkan/vulkan_pipeline_layout.hpp
         include/hyper_rhi/vulkan/vulkan_queue.hpp
+        include/hyper_rhi/vulkan/vulkan_render_pass.hpp
         include/hyper_rhi/vulkan/vulkan_shader_module.hpp
         include/hyper_rhi/vulkan/vulkan_surface.hpp
+        include/hyper_rhi/vulkan/vulkan_texture.hpp
         include/hyper_rhi/vulkan/vulkan_upload_manager.hpp)
 
 if (WIN32)

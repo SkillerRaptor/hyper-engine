@@ -27,6 +27,14 @@ namespace hyper_rhi
         ResourceHandle handle;
     };
 
+    struct TextureEntry
+    {
+        VkImage image;
+        VmaAllocation allocation;
+        VkImageView view;
+        ResourceHandle handle;
+    };
+
     struct ResourceQueue
     {
         std::vector<BufferEntry> buffers;
@@ -34,7 +42,7 @@ namespace hyper_rhi
         std::vector<VkPipeline> graphics_pipelines;
         std::vector<VkPipelineLayout> pipeline_layouts;
         std::vector<VkShaderModule> shader_modules;
-        // TODO: Add textures
+        std::vector<TextureEntry> textures;
     };
 
     struct FrameData

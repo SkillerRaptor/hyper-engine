@@ -28,8 +28,13 @@ namespace hyper_rhi
     public:
         virtual ~ComputePipeline() = default;
 
+        [[nodiscard]] PipelineLayoutHandle layout() const;
+
     protected:
-        explicit ComputePipeline(std::string label);
+        explicit ComputePipeline(const ComputePipelineDescriptor &descriptor);
+
+    protected:
+        PipelineLayoutHandle m_layout;
     };
 
     using ComputePipelineHandle = std::shared_ptr<ComputePipeline>;

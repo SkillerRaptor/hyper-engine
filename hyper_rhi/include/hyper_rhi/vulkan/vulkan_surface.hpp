@@ -36,6 +36,8 @@ namespace hyper_rhi
         static VkSurfaceFormatKHR choose_format(const std::vector<VkSurfaceFormatKHR> &formats);
         static VkPresentModeKHR choose_present_mode(const std::vector<VkPresentModeKHR> &present_modes);
 
+        void create_textures();
+
         void destroy();
 
     private:
@@ -44,6 +46,9 @@ namespace hyper_rhi
         VkSurfaceKHR m_surface;
         VkSwapchainKHR m_swapchain;
 
+        VkFormat m_format;
+
+        std::vector<TextureHandle> m_textures;
         uint32_t m_current_texture_index;
 
         bool m_resized;

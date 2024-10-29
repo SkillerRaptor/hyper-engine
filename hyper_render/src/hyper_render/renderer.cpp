@@ -6,6 +6,8 @@
 
 #include "hyper_render/renderer.hpp"
 
+#include "hyper_rhi/render_pass.hpp"
+
 #include <array>
 
 #include <glm/glm.hpp>
@@ -160,7 +162,35 @@ namespace hyper_render
     {
         m_graphics_device->begin_frame(m_surface, m_frame_index);
 
+        const hyper_rhi::TextureHandle swapchain_texture = m_surface->current_texture();
+
         m_command_list->begin();
+
+        {
+            const hyper_rhi::RenderPassHandle render_pass = m_command_list->begin_render_pass({
+                .label = "Opaque Render Pass",
+                .color_attachment = swapchain_texture,
+            });
+
+            render_pass->set_pipeline(m_pipeline);
+            render_pass->set_index_buffer(m_indices_buffer);
+
+            const ObjectPushConstants push_constants = {
+                .mesh = m_mesh_buffer->handle(),
+                .material = m_material_buffer->handle(),
+                .padding_0 = 0,
+                .padding_1 = 0,
+            };
+            render_pass->set_push_constants(&push_constants, sizeof(ObjectPushConstants));
+
+            render_pass->draw_indexed({
+                .index_count = 6,
+                .instance_count = 1,
+                .first_index = 0,
+                .vertex_offset = 0,
+                .first_instance = 0,
+            });
+        }
 
         m_command_list->end();
 

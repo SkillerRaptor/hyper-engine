@@ -6,14 +6,24 @@
 
 #include "hyper_rhi/texture.hpp"
 
-#include <utility>
-
 namespace hyper_rhi
 {
-    Texture::Texture(std::string label)
-        : Resource(std::move(label))
+    Texture::Texture(const TextureDescriptor &descriptor)
+        : Resource(descriptor.label)
+        , m_width(descriptor.width)
+        , m_height(descriptor.height)
         , m_handle(ResourceHandle(0xffffffff))
     {
+    }
+
+    uint32_t Texture::width() const
+    {
+        return m_width;
+    }
+
+    uint32_t Texture::height() const
+    {
+        return m_height;
     }
 
     ResourceHandle Texture::handle() const

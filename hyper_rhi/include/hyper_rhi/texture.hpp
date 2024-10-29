@@ -17,7 +17,7 @@ namespace hyper_rhi
     enum class TextureFormat
     {
         Unknown,
-        // TODO: Add more texture formats
+        B8G8R8A8_Srgb,
     };
 
     enum class TextureDimension
@@ -50,12 +50,16 @@ namespace hyper_rhi
     public:
         virtual ~Texture() = default;
 
+        [[nodiscard]] uint32_t width() const;
+        [[nodiscard]] uint32_t height() const;
         [[nodiscard]] ResourceHandle handle() const;
 
     protected:
-        explicit Texture(std::string label);
+        explicit Texture(const TextureDescriptor &descriptor);
 
     protected:
+        uint32_t m_width;
+        uint32_t m_height;
         ResourceHandle m_handle;
     };
 

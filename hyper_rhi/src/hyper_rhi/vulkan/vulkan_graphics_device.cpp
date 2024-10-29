@@ -25,6 +25,7 @@
 #include "hyper_rhi/vulkan/vulkan_queue.hpp"
 #include "hyper_rhi/vulkan/vulkan_shader_module.hpp"
 #include "hyper_rhi/vulkan/vulkan_surface.hpp"
+#include "hyper_rhi/vulkan/vulkan_texture.hpp"
 
 namespace hyper_rhi
 {
@@ -94,6 +95,11 @@ namespace hyper_rhi
         delete m_upload_manager;
         delete m_descriptor_manager;
 
+        vmaDestroyAllocator(m_allocator);
+
+        // NOTE: What if the queue is not dropped before?
+        m_queue = nullptr;
+
         vkDestroyDevice(m_device, nullptr);
 
         if (m_validation_layers_enabled)
@@ -148,9 +154,7 @@ namespace hyper_rhi
 
     TextureHandle VulkanGraphicsDevice::create_texture(const TextureDescriptor &descriptor)
     {
-        HE_UNUSED(descriptor);
-
-        HE_UNREACHABLE();
+        return std::make_shared<VulkanTexture>(*this, descriptor);
     }
 
     void VulkanGraphicsDevice::set_object_name(const void *handle, const VkObjectType type, std::string_view name) const
@@ -173,8 +177,8 @@ namespace hyper_rhi
     {
         for (const BufferEntry &buffer_entry : m_resource_queue.buffers)
         {
-            m_descriptor_manager->retire_handle(buffer_entry.handle);
             vmaDestroyBuffer(m_allocator, buffer_entry.buffer, buffer_entry.allocation);
+            m_descriptor_manager->retire_handle(buffer_entry.handle);
         }
 
         for (const VkPipeline &compute_pipeline : m_resource_queue.compute_pipelines)
@@ -195,6 +199,17 @@ namespace hyper_rhi
         for (const VkShaderModule &shader_module : m_resource_queue.shader_modules)
         {
             vkDestroyShaderModule(m_device, shader_module, nullptr);
+        }
+
+        for (const TextureEntry &texture_entry : m_resource_queue.textures)
+        {
+            if (texture_entry.allocation != VK_NULL_HANDLE)
+            {
+                vmaDestroyImage(m_allocator, texture_entry.image, texture_entry.allocation);
+            }
+
+            vkDestroyImageView(m_device, texture_entry.view, nullptr);
+            m_descriptor_manager->retire_handle(texture_entry.handle);
         }
 
         m_resource_queue.buffers.clear();

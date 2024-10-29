@@ -29,8 +29,13 @@ namespace hyper_rhi
     public:
         virtual ~GraphicsPipeline() = default;
 
+        [[nodiscard]] PipelineLayoutHandle layout() const;
+
     protected:
-        explicit GraphicsPipeline(std::string label);
+        explicit GraphicsPipeline(const GraphicsPipelineDescriptor &descriptor);
+
+    protected:
+        PipelineLayoutHandle m_layout;
     };
 
     using GraphicsPipelineHandle = std::shared_ptr<GraphicsPipeline>;

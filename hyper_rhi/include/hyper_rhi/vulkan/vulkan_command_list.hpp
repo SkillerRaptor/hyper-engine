@@ -21,6 +21,8 @@ namespace hyper_rhi
         void begin() override;
         void end() override;
 
+        RenderPassHandle begin_render_pass(const RenderPassDescriptor &descriptor) const override;
+
         [[nodiscard]] VkCommandBuffer command_buffer() const;
 
     private:

@@ -33,6 +33,7 @@ namespace hyper_rhi
         void retire_handle(ResourceHandle handle);
 
         [[nodiscard]] const std::array<VkDescriptorSetLayout, s_descriptor_types.size()> &descriptor_set_layouts() const;
+        [[nodiscard]] const std::array<VkDescriptorSet, s_descriptor_types.size()> &descriptor_sets() const;
 
     private:
         void find_descriptor_counts();

@@ -19,6 +19,8 @@ namespace hyper_rhi
         VulkanGraphicsPipeline(VulkanGraphicsDevice &graphics_device, const GraphicsPipelineDescriptor &descriptor);
         ~VulkanGraphicsPipeline() override;
 
+        [[nodiscard]] VkPipeline pipeline() const;
+
     private:
         VulkanGraphicsDevice &m_graphics_device;
 

@@ -79,6 +79,11 @@ namespace hyper_rhi
         return m_descriptor_set_layouts;
     }
 
+    const std::array<VkDescriptorSet, VulkanDescriptorManager::s_descriptor_types.size()> &VulkanDescriptorManager::descriptor_sets() const
+    {
+        return m_descriptor_sets;
+    }
+
     void VulkanDescriptorManager::find_descriptor_counts()
     {
         VkPhysicalDeviceProperties properties = {};

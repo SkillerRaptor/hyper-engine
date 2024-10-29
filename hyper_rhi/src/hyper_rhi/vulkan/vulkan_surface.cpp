@@ -6,6 +6,8 @@
 
 #include "hyper_rhi/vulkan/vulkan_surface.hpp"
 
+#include "hyper_rhi/vulkan/vulkan_texture.hpp"
+
 #include <algorithm>
 
 #include <GLFW/glfw3.h>
@@ -16,6 +18,8 @@ namespace hyper_rhi
         : m_graphics_device(graphics_device)
         , m_surface(VK_NULL_HANDLE)
         , m_swapchain(VK_NULL_HANDLE)
+        , m_format(VK_FORMAT_UNDEFINED)
+        , m_textures({})
         , m_current_texture_index(0)
         , m_resized(false)
         , m_width(window.width())
@@ -23,8 +27,7 @@ namespace hyper_rhi
     {
         this->create_surface(window);
         this->create_swapchain();
-
-        // TODO: Retrieve swapchain images
+        this->create_textures();
 
         HE_INFO("Created Vulkan Surface");
     }
@@ -48,8 +51,7 @@ namespace hyper_rhi
         this->destroy();
 
         this->create_swapchain();
-
-        // TODO: Retrieve swapchain images
+        this->create_textures();
 
         m_resized = false;
     }
@@ -76,7 +78,7 @@ namespace hyper_rhi
 
     TextureHandle VulkanSurface::current_texture() const
     {
-        HE_UNREACHABLE();
+        return m_textures[m_current_texture_index];
     }
 
     void VulkanSurface::create_surface(const hyper_platform::Window &window)
@@ -101,6 +103,7 @@ namespace hyper_rhi
         HE_VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_graphics_device.physical_device(), m_surface, &format_count, formats.data()));
 
         const VkSurfaceFormatKHR surface_format = VulkanSurface::choose_format(formats);
+        m_format = surface_format.format;
 
         uint32_t present_mode_count = 0;
         HE_VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_graphics_device.physical_device(), m_surface, &present_mode_count, nullptr));
@@ -123,7 +126,7 @@ namespace hyper_rhi
             .flags = 0,
             .surface = m_surface,
             .minImageCount = image_count,
-            .imageFormat = surface_format.format,
+            .imageFormat = m_format,
             .imageColorSpace = surface_format.colorSpace,
             .imageExtent = surface_extent,
             .imageArrayLayers = 1,
@@ -191,8 +194,40 @@ namespace hyper_rhi
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 
+    void VulkanSurface::create_textures()
+    {
+        uint32_t image_count = 0;
+        vkGetSwapchainImagesKHR(m_graphics_device.device(), m_swapchain, &image_count, nullptr);
+
+        std::vector<VkImage> images(image_count);
+        vkGetSwapchainImagesKHR(m_graphics_device.device(), m_swapchain, &image_count, images.data());
+
+        uint32_t index = 0;
+        for (const VkImage &image : images)
+        {
+            m_textures.push_back(std::make_shared<VulkanTexture>(
+                m_graphics_device,
+                image,
+                TextureDescriptor{
+                    .label = fmt::format("Swapchain Texture #{}", index),
+                    .width = m_width,
+                    .height = m_height,
+                    .depth = 1,
+                    .array_size = 1,
+                    .mip_levels = 1,
+                    .sample_count = 1,
+                    .sample_quality = 0,
+                    .format = VulkanTexture::format_to_texture_format(m_format),
+                    .dimension = TextureDimension::Texture2D,
+                }));
+
+            ++index;
+        }
+    }
+
     void VulkanSurface::destroy()
     {
+        m_textures.clear();
         vkDestroySwapchainKHR(m_graphics_device.device(), m_swapchain, nullptr);
     }
 } // namespace hyper_rhi

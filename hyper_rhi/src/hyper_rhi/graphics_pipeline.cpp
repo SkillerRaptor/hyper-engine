@@ -6,12 +6,16 @@
 
 #include "hyper_rhi/graphics_pipeline.hpp"
 
-#include <utility>
-
 namespace hyper_rhi
 {
-    GraphicsPipeline::GraphicsPipeline(std::string label)
-        : Resource(std::move(label))
+    GraphicsPipeline::GraphicsPipeline(const GraphicsPipelineDescriptor &descriptor)
+        : Resource(descriptor.label)
+        , m_layout(descriptor.layout)
     {
+    }
+
+    PipelineLayoutHandle GraphicsPipeline::layout() const
+    {
+        return m_layout;
     }
 } // namespace hyper_rhi

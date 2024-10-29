@@ -7,6 +7,7 @@
 #include "hyper_rhi/vulkan/vulkan_command_list.hpp"
 
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
+#include "hyper_rhi/vulkan/vulkan_render_pass.hpp"
 
 namespace hyper_rhi
 {
@@ -34,6 +35,11 @@ namespace hyper_rhi
     void VulkanCommandList::end()
     {
         vkEndCommandBuffer(m_command_buffer);
+    }
+
+    RenderPassHandle VulkanCommandList::begin_render_pass(const RenderPassDescriptor &descriptor) const
+    {
+        return std::make_shared<VulkanRenderPass>(m_graphics_device, m_command_buffer, descriptor);
     }
 
     VkCommandBuffer VulkanCommandList::command_buffer() const
