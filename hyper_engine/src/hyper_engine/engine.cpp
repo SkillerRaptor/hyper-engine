@@ -27,7 +27,9 @@ namespace hyper_engine
         , m_input(m_window)
         , m_graphics_device(hyper_rhi::GraphicsDevice::create({
               .graphics_api = descriptor.graphics_api,
-              .debug_mode = descriptor.debug,
+              .debug_validation = descriptor.debug_validation,
+              .debug_label = descriptor.debug_label,
+              .debug_marker = descriptor.debug_marker,
           }))
         , m_surface(m_graphics_device->create_surface(m_window))
         , m_renderer(

@@ -10,8 +10,9 @@
 
 namespace hyper_rhi
 {
-    RenderPass::RenderPass(std::string label)
-        : Resource(std::move(label))
+    RenderPass::RenderPass(const RenderPassDescriptor &descriptor)
+        : Resource(descriptor.label)
+        , m_label_color(descriptor.label_color)
     {
     }
 } // namespace hyper_rhi

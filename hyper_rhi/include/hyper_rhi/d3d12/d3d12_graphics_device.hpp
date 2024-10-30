@@ -47,7 +47,6 @@ namespace hyper_rhi
         void create_allocator();
 
     private:
-        bool m_debug_layers_enabled;
         ComPtr<IDXGIFactory7> m_factory;
         ComPtr<IDXGIAdapter4> m_adapter;
         ComPtr<ID3D12Device> m_device;

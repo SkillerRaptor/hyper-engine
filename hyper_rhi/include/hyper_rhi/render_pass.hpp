@@ -51,9 +51,17 @@ namespace hyper_rhi
         StoreOperation store_operation = StoreOperation::Store;
     };
 
+    struct LabelColor
+    {
+        uint8_t red;
+        uint8_t green;
+        uint8_t blue;
+    };
+
     struct RenderPassDescriptor
     {
         std::string label;
+        LabelColor label_color;
 
         TextureHandle color_attachment = nullptr;
         Operations color_operation;
@@ -74,7 +82,10 @@ namespace hyper_rhi
         virtual void draw_indexed(const DrawIndexedArguments &arguments) const = 0;
 
     protected:
-        explicit RenderPass(std::string label);
+        explicit RenderPass(const RenderPassDescriptor &descriptor);
+
+    protected:
+        LabelColor m_label_color;
     };
 
     using RenderPassHandle = std::shared_ptr<RenderPass>;

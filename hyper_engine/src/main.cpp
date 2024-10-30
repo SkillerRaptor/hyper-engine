@@ -35,8 +35,14 @@ int main(int argc, char **argv)
     std::string renderer = "vulkan";
     program.add_argument("--renderer").default_value("vulkan").choices("d3d12", "vulkan").store_into(renderer);
 
-    bool debug = false;
-    program.add_argument("--debug").default_value(false).implicit_value(true).store_into(debug);
+    bool debug_validation = false;
+    program.add_argument("--debug-validation").default_value(false).implicit_value(true).store_into(debug_validation);
+
+    bool debug_label = false;
+    program.add_argument("--debug-label").default_value(false).implicit_value(true).store_into(debug_label);
+
+    bool debug_marker = false;
+    program.add_argument("--debug-marker").default_value(false).implicit_value(true).store_into(debug_marker);
 
     try
     {
@@ -79,7 +85,9 @@ int main(int argc, char **argv)
         .width = width,
         .height = height,
         .graphics_api = graphics_api,
-        .debug = debug,
+        .debug_validation = debug_validation,
+        .debug_label = debug_label,
+        .debug_marker = debug_marker,
     });
     engine.run();
 

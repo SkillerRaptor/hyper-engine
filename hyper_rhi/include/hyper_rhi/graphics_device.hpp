@@ -29,7 +29,9 @@ namespace hyper_rhi
     struct GraphicsDeviceDescriptor
     {
         GraphicsApi graphics_api = GraphicsApi::Vulkan;
-        bool debug_mode = false;
+        bool debug_validation = false;
+        bool debug_label = false;
+        bool debug_marker = false;
     };
 
     class GraphicsDevice
@@ -39,8 +41,10 @@ namespace hyper_rhi
         static constexpr size_t s_descriptor_limit = 1000 * 1000;
 
     public:
-        static std::shared_ptr<GraphicsDevice> create(const GraphicsDeviceDescriptor &descriptor);
+        explicit GraphicsDevice(const GraphicsDeviceDescriptor &descriptor);
         virtual ~GraphicsDevice() = default;
+
+        static std::shared_ptr<GraphicsDevice> create(const GraphicsDeviceDescriptor &descriptor);
 
         [[nodiscard]] virtual SurfaceHandle create_surface(const hyper_platform::Window &window) = 0;
         // TODO: Add more queue types
@@ -59,6 +63,17 @@ namespace hyper_rhi
         virtual void present(SurfaceHandle surface_handle) const = 0;
 
         virtual void wait_for_idle() const = 0;
+
+        [[nodiscard]] GraphicsApi graphics_api() const;
+        [[nodiscard]] bool debug_validation() const;
+        [[nodiscard]] bool debug_label() const;
+        [[nodiscard]] bool debug_marker() const;
+
+    protected:
+        GraphicsApi m_graphics_api;
+        bool m_debug_validation;
+        bool m_debug_label;
+        bool m_debug_marker;
     };
 
     using GraphicsDeviceHandle = std::shared_ptr<GraphicsDevice>;

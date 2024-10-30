@@ -30,6 +30,8 @@ namespace hyper_rhi
         HE_VK_CHECK(vkCreateCommandPool(m_graphics_device.device(), &command_pool_create_info, nullptr, &m_command_pool));
         HE_ASSERT(m_command_pool != VK_NULL_HANDLE);
 
+        m_graphics_device.set_object_name(m_command_pool, ObjectType::CommandPool, "Upload");
+
         HE_TRACE("Created Upload Command Pool");
 
         const VkCommandBufferAllocateInfo command_buffer_allocate_info = {
@@ -61,6 +63,8 @@ namespace hyper_rhi
         HE_VK_CHECK(vkCreateSemaphore(m_graphics_device.device(), &semaphore_create_info, nullptr, &m_semaphore));
         HE_ASSERT(m_semaphore != VK_NULL_HANDLE);
 
+        m_graphics_device.set_object_name(m_semaphore, ObjectType::Semaphore, "Upload");
+
         HE_TRACE("Created Upload Semaphore");
     }
 
@@ -75,6 +79,8 @@ namespace hyper_rhi
         const std::shared_ptr<VulkanQueue> queue = std::dynamic_pointer_cast<VulkanQueue>(m_graphics_device.queue());
 
         // TODO: Add texture uploads
+
+        HE_VK_CHECK(vkResetCommandBuffer(m_command_buffer, 0));
 
         constexpr VkCommandBufferBeginInfo command_buffer_begin_info = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -160,7 +166,5 @@ namespace hyper_rhi
         };
 
         HE_VK_CHECK(vkWaitSemaphores(m_graphics_device.device(), &wait_info, std::numeric_limits<uint64_t>::max()));
-
-        HE_VK_CHECK(vkResetCommandBuffer(m_command_buffer, 0));
     }
 } // namespace hyper_rhi

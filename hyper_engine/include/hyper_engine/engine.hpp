@@ -23,7 +23,9 @@ namespace hyper_engine
         uint32_t width;
         uint32_t height;
         hyper_rhi::GraphicsApi graphics_api;
-        bool debug;
+        bool debug_validation;
+        bool debug_label;
+        bool debug_marker;
     };
 
     class Engine

@@ -38,7 +38,7 @@ namespace hyper_rhi
     };
 
     VulkanGraphicsDevice::VulkanGraphicsDevice(const GraphicsDeviceDescriptor &descriptor)
-        : m_validation_layers_enabled(false)
+        : GraphicsDevice(descriptor)
         , m_instance(VK_NULL_HANDLE)
         , m_debug_messenger(VK_NULL_HANDLE)
         , m_physical_device(VK_NULL_HANDLE)
@@ -52,17 +52,24 @@ namespace hyper_rhi
     {
         volkInitialize();
 
-        if (descriptor.debug_mode)
+        if (m_debug_validation)
         {
             if (VulkanGraphicsDevice::check_validation_layer_support())
             {
-                m_validation_layers_enabled = true;
+                m_debug_validation = true;
+
                 HE_TRACE("Enabled Validation Layers");
             }
             else
             {
                 HE_WARN("Failed to enable requested Validation Layers");
             }
+        }
+
+        if (!m_debug_validation)
+        {
+            m_debug_marker = false;
+            m_debug_label = false;
         }
 
         this->create_instance();
@@ -102,7 +109,7 @@ namespace hyper_rhi
 
         vkDestroyDevice(m_device, nullptr);
 
-        if (m_validation_layers_enabled)
+        if (m_debug_validation)
         {
             vkDestroyDebugUtilsMessengerEXT(m_instance, m_debug_messenger, nullptr);
         }
@@ -157,16 +164,136 @@ namespace hyper_rhi
         return std::make_shared<VulkanTexture>(*this, descriptor);
     }
 
-    void VulkanGraphicsDevice::set_object_name(const void *handle, const VkObjectType type, std::string_view name) const
+    void VulkanGraphicsDevice::begin_marker(
+        const VkCommandBuffer command_buffer,
+        const MarkerType type,
+        const std::string_view name,
+        const LabelColor color) const
     {
-        if (m_validation_layers_enabled)
+        HE_ASSERT(command_buffer != VK_NULL_HANDLE);
+
+        if (m_debug_marker && !name.empty())
         {
+            const std::string_view suffix = [&type]()
+            {
+                switch (type)
+                {
+                case MarkerType::ComputePass:
+                    return "Compute Pass";
+                case MarkerType::RenderPass:
+                    return "Render Pass";
+                default:
+                    HE_UNREACHABLE();
+                }
+            }();
+
+            const std::string label = fmt::format("{} {}", name, suffix);
+
+            const float r = static_cast<float>(color.red) / 255.0f;
+            const float g = static_cast<float>(color.green) / 255.0f;
+            const float b = static_cast<float>(color.blue) / 255.0f;
+
+            const VkDebugUtilsLabelEXT debug_label = {
+                .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT,
+                .pNext = nullptr,
+                .pLabelName = label.c_str(),
+                .color = {
+                    r,
+                    g,
+                    b,
+                    1.0f,
+                },
+            };
+
+            vkCmdBeginDebugUtilsLabelEXT(command_buffer, &debug_label);
+        }
+    }
+
+    void VulkanGraphicsDevice::end_marker(const VkCommandBuffer command_buffer) const
+    {
+        HE_ASSERT(command_buffer != VK_NULL_HANDLE);
+
+        if (m_debug_marker)
+        {
+            vkCmdEndDebugUtilsLabelEXT(command_buffer);
+        }
+    }
+
+    void VulkanGraphicsDevice::set_object_name(const void *handle, const ObjectType type, std::string_view name) const
+    {
+        if (m_debug_label && handle != nullptr && !name.empty())
+        {
+            const VkObjectType object_type = [&type]()
+            {
+                switch (type)
+                {
+                case ObjectType::Buffer:
+                    return VK_OBJECT_TYPE_BUFFER;
+                case ObjectType::CommandPool:
+                    return VK_OBJECT_TYPE_COMMAND_POOL;
+                case ObjectType::ComputePipeline:
+                case ObjectType::GraphicsPipeline:
+                    return VK_OBJECT_TYPE_PIPELINE;
+                case ObjectType::ComputeShaderModule:
+                case ObjectType::FragmentShaderModule:
+                case ObjectType::VertexShaderModule:
+                    return VK_OBJECT_TYPE_SHADER_MODULE;
+                case ObjectType::Image:
+                    return VK_OBJECT_TYPE_IMAGE;
+                case ObjectType::ImageView:
+                    return VK_OBJECT_TYPE_IMAGE_VIEW;
+                case ObjectType::PipelineLayout:
+                    return VK_OBJECT_TYPE_PIPELINE_LAYOUT;
+                case ObjectType::Queue:
+                    return VK_OBJECT_TYPE_QUEUE;
+                case ObjectType::Semaphore:
+                    return VK_OBJECT_TYPE_SEMAPHORE;
+                default:
+                    HE_UNREACHABLE();
+                }
+            }();
+
+            const std::string_view suffix = [&type]()
+            {
+                switch (type)
+                {
+                case ObjectType::Buffer:
+                    return "Buffer";
+                case ObjectType::CommandPool:
+                    return "Command Pool";
+                case ObjectType::ComputePipeline:
+                    return "Compute Pipeline";
+                case ObjectType::ComputeShaderModule:
+                    return "Compute Shader Module";
+                case ObjectType::FragmentShaderModule:
+                    return "Fragment Shader Module";
+                case ObjectType::GraphicsPipeline:
+                    return "Graphics Pipeline";
+                case ObjectType::Image:
+                    return "Image";
+                case ObjectType::ImageView:
+                    return "Image View";
+                case ObjectType::PipelineLayout:
+                    return "Pipeline Layout";
+                case ObjectType::Queue:
+                    return "Queue";
+                case ObjectType::Semaphore:
+                    return "Semaphore";
+                case ObjectType::VertexShaderModule:
+                    return "Vertex Shader Module";
+                default:
+                    HE_UNREACHABLE();
+                }
+            }();
+
+            const std::string object_name = fmt::format("{} {}", name, suffix);
+
             const VkDebugUtilsObjectNameInfoEXT debug_marker_object_name_info = {
                 .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
                 .pNext = nullptr,
-                .objectType = type,
+                .objectType = object_type,
                 .objectHandle = reinterpret_cast<uint64_t>(handle),
-                .pObjectName = name.data(),
+                .pObjectName = object_name.c_str(),
             };
 
             HE_VK_CHECK(vkSetDebugUtilsObjectNameEXT(m_device, &debug_marker_object_name_info));
@@ -375,7 +502,7 @@ namespace hyper_rhi
             .pUserData = nullptr,
         };
 
-        const void *next = m_validation_layers_enabled ? &debug_create_info : nullptr;
+        const void *next = m_debug_validation ? &debug_create_info : nullptr;
 
         constexpr VkApplicationInfo application_info = {
             .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
@@ -387,14 +514,14 @@ namespace hyper_rhi
             .apiVersion = VK_API_VERSION_1_3,
         };
 
-        const uint32_t layer_count = m_validation_layers_enabled ? static_cast<uint32_t>(g_validation_layers.size()) : 0;
-        const char *const *layers = m_validation_layers_enabled ? g_validation_layers.data() : nullptr;
+        const uint32_t layer_count = m_debug_validation ? static_cast<uint32_t>(g_validation_layers.size()) : 0;
+        const char *const *layers = m_debug_validation ? g_validation_layers.data() : nullptr;
 
         uint32_t required_extension_count = 0;
         const char *const *required_extensions = glfwGetRequiredInstanceExtensions(&required_extension_count);
 
         std::vector<const char *> extensions(required_extensions, required_extensions + required_extension_count);
-        if (m_validation_layers_enabled)
+        if (m_debug_validation)
         {
             extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         }
@@ -420,7 +547,7 @@ namespace hyper_rhi
 
     void VulkanGraphicsDevice::create_debug_messenger()
     {
-        if (!m_validation_layers_enabled)
+        if (!m_debug_validation)
         {
             return;
         }
@@ -730,8 +857,8 @@ namespace hyper_rhi
             .pQueuePriorities = &queue_priority,
         };
 
-        const uint32_t layer_count = m_validation_layers_enabled ? static_cast<uint32_t>(g_validation_layers.size()) : 0;
-        const char *const *layers = m_validation_layers_enabled ? g_validation_layers.data() : nullptr;
+        const uint32_t layer_count = m_debug_validation ? static_cast<uint32_t>(g_validation_layers.size()) : 0;
+        const char *const *layers = m_debug_validation ? g_validation_layers.data() : nullptr;
 
         const VkDeviceCreateInfo device_create_info = {
             .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -826,6 +953,8 @@ namespace hyper_rhi
             HE_VK_CHECK(vkCreateCommandPool(m_device, &command_pool_create_info, nullptr, &m_frames[index].command_pool));
             HE_ASSERT(m_frames[index].command_pool != VK_NULL_HANDLE);
 
+            this->set_object_name(m_frames[index].command_pool, ObjectType::CommandPool, fmt::format("Frame #{}", index));
+
             HE_TRACE("Created Frame Command Pool #{}", index);
 
             const VkCommandBufferAllocateInfo command_buffer_allocate_info = {
@@ -850,10 +979,14 @@ namespace hyper_rhi
             HE_VK_CHECK(vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_frames[index].render_semaphore));
             HE_ASSERT(m_frames[index].render_semaphore != VK_NULL_HANDLE);
 
+            this->set_object_name(m_frames[index].render_semaphore, ObjectType::Semaphore, fmt::format("Frame Render #{}", index));
+
             HE_TRACE("Created Frame Render Semaphore #{}", index);
 
             HE_VK_CHECK(vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_frames[index].present_semaphore));
             HE_ASSERT(m_frames[index].present_semaphore != VK_NULL_HANDLE);
+
+            this->set_object_name(m_frames[index].present_semaphore, ObjectType::Semaphore, fmt::format("Frame Present #{}", index));
 
             HE_TRACE("Created Frame Present Semaphore #{}", index);
         }

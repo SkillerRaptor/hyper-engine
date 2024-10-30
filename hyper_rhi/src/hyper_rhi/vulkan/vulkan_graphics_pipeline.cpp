@@ -209,10 +209,7 @@ namespace hyper_rhi
             vkCreateGraphicsPipelines(m_graphics_device.device(), VK_NULL_HANDLE, 1, &graphics_pipeline_create_info, nullptr, &m_pipeline));
         HE_ASSERT(m_pipeline != VK_NULL_HANDLE);
 
-        if (!m_label.empty())
-        {
-            m_graphics_device.set_object_name(m_pipeline, VK_OBJECT_TYPE_PIPELINE, m_label);
-        }
+        m_graphics_device.set_object_name(m_pipeline, ObjectType::GraphicsPipeline, m_label);
 
         if (descriptor.layout->label().empty() && descriptor.vertex_shader->label().empty() && descriptor.fragment_shader->label().empty())
         {

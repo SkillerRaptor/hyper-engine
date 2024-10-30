@@ -62,11 +62,6 @@ namespace hyper_rhi
             HE_ASSERT(m_image != VK_NULL_HANDLE);
             HE_ASSERT(m_allocation != VK_NULL_HANDLE);
 
-            if (!m_label.empty())
-            {
-                m_graphics_device.set_object_name(m_image, VK_OBJECT_TYPE_IMAGE, m_label);
-            }
-
             HE_TRACE("Created Image {}", m_label.empty() ? "" : fmt::format("'{}'", m_label));
         }
 
@@ -111,6 +106,9 @@ namespace hyper_rhi
             {
             }
         }
+
+        m_graphics_device.set_object_name(m_image, ObjectType::Image, m_label);
+        m_graphics_device.set_object_name(m_view, ObjectType::ImageView, m_label);
 
         HE_TRACE("Created Image View {} with a size of {}x{}", m_label.empty() ? "" : fmt::format("'{}'", m_label), m_width, m_height);
     }

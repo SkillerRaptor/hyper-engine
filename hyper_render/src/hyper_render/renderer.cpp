@@ -162,7 +162,7 @@ namespace hyper_render
         , m_graphics_device(descriptor.graphics_device)
         , m_surface(descriptor.surface)
         , m_depth_texture(m_graphics_device->create_texture({
-              .label = "Swapchain Depth Texture",
+              .label = "Swapchain Depth",
               .width = m_surface->width(),
               .height = m_surface->height(),
               .depth = 1,
@@ -178,11 +178,11 @@ namespace hyper_render
         , m_queue(m_graphics_device->queue())
         , m_command_list(m_graphics_device->create_command_list())
         , m_pipeline_layout(m_graphics_device->create_pipeline_layout({
-              .label = "Opaque Pipeline Layout",
+              .label = "Opaque",
               .push_constant_size = sizeof(ObjectPushConstants),
           }))
         , m_vertex_shader(m_graphics_device->create_shader_module({
-              .label = "Opaque Vertex Shader",
+              .label = "Opaque",
               .type = hyper_rhi::ShaderType::Vertex,
               .entry_name = "vs_main",
               .bytes = m_shader_compiler
@@ -194,7 +194,7 @@ namespace hyper_render
                            .spirv,
           }))
         , m_fragment_shader(m_graphics_device->create_shader_module({
-              .label = "Opaque Fragment Shader",
+              .label = "Opaque",
               .type = hyper_rhi::ShaderType::Fragment,
               .entry_name = "fs_main",
               .bytes = m_shader_compiler
@@ -206,7 +206,7 @@ namespace hyper_render
                            .spirv,
           }))
         , m_pipeline(m_graphics_device->create_graphics_pipeline({
-              .label = "Opaque Pipeline",
+              .label = "Opaque",
               .layout = m_pipeline_layout,
               .vertex_shader = m_vertex_shader,
               .fragment_shader = m_fragment_shader,
@@ -216,48 +216,48 @@ namespace hyper_render
               },
           }))
         , m_material_buffer(m_graphics_device->create_buffer({
-              .label = "Material Buffer",
+              .label = "Material",
               .byte_size = sizeof(s_materials),
               .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
           }))
         , m_positions_buffer(m_graphics_device->create_buffer({
-              .label = "Positions Buffer",
+              .label = "Positions",
               .byte_size = sizeof(s_positions),
               .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
           }))
         , m_normals_buffer(m_graphics_device->create_buffer({
-              .label = "Normals Buffer",
+              .label = "Normals",
               .byte_size = sizeof(s_normals),
               .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
           }))
         , m_colors_buffer(m_graphics_device->create_buffer({
-              .label = "Colors Buffer",
+              .label = "Colors",
               .byte_size = sizeof(s_colors),
               .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
           }))
         , m_mesh_buffer(m_graphics_device->create_buffer({
-              .label = "Mesh Buffer",
+              .label = "Mesh",
               .byte_size = sizeof(Mesh),
               .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
           }))
         , m_indices_buffer(m_graphics_device->create_buffer({
-              .label = "Indices Buffer",
+              .label = "Indices",
               .byte_size = sizeof(s_indices),
               .usage = hyper_rhi::BufferUsageFlags::IndexBuffer,
           }))
         , m_camera_buffer(m_graphics_device->create_buffer({
-              .label = "Camera Buffer",
+              .label = "Camera",
               .byte_size = sizeof(::Camera),
               .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
               .handle = hyper_rhi::ResourceHandle(HE_DESCRIPTOR_SET_SLOT_CAMERA),
           }))
         , m_grid_pipeline_layout(m_graphics_device->create_pipeline_layout({
-              .label = "Grid Pipeline Layout",
+              .label = "Grid",
               // TODO: Test if size is 0
               .push_constant_size = 4,
           }))
         , m_grid_vertex_shader(m_graphics_device->create_shader_module({
-              .label = "Grid Vertex Shader",
+              .label = "Grid",
               .type = hyper_rhi::ShaderType::Vertex,
               .entry_name = "vs_main",
               .bytes = m_shader_compiler
@@ -269,7 +269,7 @@ namespace hyper_render
                            .spirv,
           }))
         , m_grid_fragment_shader(m_graphics_device->create_shader_module({
-              .label = "Grid Fragment Shader",
+              .label = "Grid",
               .type = hyper_rhi::ShaderType::Fragment,
               .entry_name = "fs_main",
               .bytes = m_shader_compiler
@@ -281,7 +281,7 @@ namespace hyper_render
                            .spirv,
           }))
         , m_grid_pipeline(m_graphics_device->create_graphics_pipeline({
-              .label = "Grid Pipeline",
+              .label = "Grid",
               .layout = m_pipeline_layout,
               .vertex_shader = m_grid_vertex_shader,
               .fragment_shader = m_grid_fragment_shader,
@@ -369,7 +369,12 @@ namespace hyper_render
 
         {
             const hyper_rhi::RenderPassHandle render_pass = m_command_list->begin_render_pass({
-                .label = "Opaque Render Pass",
+                .label = "Opaque",
+                .label_color = {
+                    .red = 254,
+                    .green = 17,
+                    .blue = 85,
+                },
                 .color_attachment = swapchain_texture,
                 .color_operation = {
                     .load_operation = hyper_rhi::LoadOperation::Clear,
@@ -404,7 +409,12 @@ namespace hyper_render
 
         {
             const hyper_rhi::RenderPassHandle render_pass = m_command_list->begin_render_pass({
-                .label = "Grid Render Pass",
+                .label = "Grid",
+                .label_color = {
+                    .red = 51,
+                    .green = 187,
+                    .blue = 255,
+                },
                 .color_attachment = swapchain_texture,
                 .color_operation = {
                     .load_operation = hyper_rhi::LoadOperation::Load,
@@ -442,7 +452,7 @@ namespace hyper_render
         m_editor_camera.set_aspect_ratio(static_cast<float>(event.width()) / static_cast<float>(event.height()));
 
         m_depth_texture = m_graphics_device->create_texture({
-            .label = "Swapchain Depth Texture",
+            .label = "Swapchain Depth",
             .width = event.width(),
             .height = event.height(),
             .depth = 1,

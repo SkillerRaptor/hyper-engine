@@ -18,13 +18,15 @@ namespace hyper_rhi
         VulkanGraphicsDevice &graphics_device,
         const VkCommandBuffer command_buffer,
         const RenderPassDescriptor &descriptor)
-        : RenderPass(descriptor.label)
+        : RenderPass(descriptor)
         , m_graphics_device(graphics_device)
         , m_command_buffer(command_buffer)
         , m_color_attachment(descriptor.color_attachment)
         , m_depth_attachment(descriptor.depth_attachment)
         , m_graphics_pipeline(nullptr)
     {
+        m_graphics_device.begin_marker(m_command_buffer, MarkerType::RenderPass, descriptor.label, descriptor.label_color);
+
         const std::shared_ptr<VulkanTexture> texture = std::dynamic_pointer_cast<VulkanTexture>(m_color_attachment);
         const std::shared_ptr<VulkanTexture> depth_texture = std::dynamic_pointer_cast<VulkanTexture>(m_depth_attachment);
 
@@ -278,6 +280,8 @@ namespace hyper_rhi
         };
 
         vkCmdPipelineBarrier2(m_command_buffer, &depth_dependency_info);
+
+        m_graphics_device.end_marker(m_command_buffer);
     }
 
     void VulkanRenderPass::set_pipeline(const GraphicsPipelineHandle &pipeline_handle)

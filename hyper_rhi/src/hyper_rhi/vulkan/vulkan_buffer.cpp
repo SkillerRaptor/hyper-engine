@@ -54,10 +54,7 @@ namespace hyper_rhi
         HE_ASSERT(m_buffer != VK_NULL_HANDLE);
         HE_ASSERT(m_allocation != VK_NULL_HANDLE);
 
-        if (!m_label.empty())
-        {
-            m_graphics_device.set_object_name(m_buffer, VK_OBJECT_TYPE_BUFFER, m_label);
-        }
+        m_graphics_device.set_object_name(m_buffer, ObjectType::Buffer, m_label);
 
         if ((descriptor.usage & BufferUsageFlags::ShaderResource) == BufferUsageFlags::ShaderResource)
         {

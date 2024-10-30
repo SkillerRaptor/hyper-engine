@@ -20,6 +20,28 @@
 
 namespace hyper_rhi
 {
+    enum class ObjectType
+    {
+        Buffer,
+        CommandPool,
+        ComputePipeline,
+        ComputeShaderModule,
+        FragmentShaderModule,
+        GraphicsPipeline,
+        Image,
+        ImageView,
+        PipelineLayout,
+        Queue,
+        Semaphore,
+        VertexShaderModule,
+    };
+
+    enum class MarkerType
+    {
+        ComputePass,
+        RenderPass
+    };
+
     struct BufferEntry
     {
         VkBuffer buffer;
@@ -71,7 +93,10 @@ namespace hyper_rhi
         ShaderModuleHandle create_shader_module(const ShaderModuleDescriptor &descriptor) override;
         TextureHandle create_texture(const TextureDescriptor &descriptor) override;
 
-        void set_object_name(const void *handle, VkObjectType type, std::string_view name) const;
+        void begin_marker(VkCommandBuffer command_buffer, MarkerType type, std::string_view name, LabelColor color) const;
+        void end_marker(VkCommandBuffer command_buffer) const;
+
+        void set_object_name(const void *handle, ObjectType type, std::string_view name) const;
         void destroy_resources();
 
         void begin_frame(SurfaceHandle surface_handle, uint32_t frame_index) override;
@@ -114,7 +139,6 @@ namespace hyper_rhi
             void *);
 
     private:
-        bool m_validation_layers_enabled;
         VkInstance m_instance;
         VkDebugUtilsMessengerEXT m_debug_messenger;
         VkPhysicalDevice m_physical_device;

@@ -13,16 +13,22 @@
 namespace hyper_rhi
 {
     D3D12GraphicsDevice::D3D12GraphicsDevice(const GraphicsDeviceDescriptor &descriptor)
-        : m_debug_layers_enabled(false)
+        : GraphicsDevice(descriptor)
         , m_factory(nullptr)
         , m_adapter(nullptr)
         , m_device(nullptr)
         , m_command_queue(nullptr)
         , m_allocator(nullptr)
     {
-        if (descriptor.debug_mode)
+        if (m_debug_validation)
         {
             this->enable_debug_layers();
+        }
+
+        if (!m_debug_validation)
+        {
+            m_debug_label = false;
+            m_debug_marker = false;
         }
 
         this->create_factory();
@@ -132,7 +138,7 @@ namespace hyper_rhi
         if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug_controller))))
         {
             debug_controller->EnableDebugLayer();
-            m_debug_layers_enabled = true;
+            m_debug_validation = true;
 
             HE_TRACE("Enabled Debug Layers");
         }
@@ -144,7 +150,7 @@ namespace hyper_rhi
 
     void D3D12GraphicsDevice::create_factory()
     {
-        const UINT factory_flags = m_debug_layers_enabled ? DXGI_CREATE_FACTORY_DEBUG : 0;
+        const UINT factory_flags = m_debug_validation ? DXGI_CREATE_FACTORY_DEBUG : 0;
         HE_DX_CHECK(CreateDXGIFactory2(factory_flags, IID_PPV_ARGS(&m_factory)));
         HE_ASSERT(m_factory != nullptr);
 

@@ -201,7 +201,7 @@ namespace hyper_rhi
             m_textures.push_back(std::make_shared<VulkanTexture>(
                 m_graphics_device,
                 TextureDescriptor{
-                    .label = fmt::format("Swapchain Texture #{}", index),
+                    .label = fmt::format("Swapchain #{}", index),
                     .width = m_width,
                     .height = m_height,
                     .depth = 1,

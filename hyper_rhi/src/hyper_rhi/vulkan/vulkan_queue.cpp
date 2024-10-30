@@ -17,6 +17,9 @@ namespace hyper_rhi
         , m_queue(queue)
         , m_submit_semaphore(VK_NULL_HANDLE)
     {
+        // TODO: Retrieve queue type
+        m_graphics_device.set_object_name(m_queue, ObjectType::Queue, "Graphics");
+
         HE_TRACE("Retrieved queue from the family #{}", m_queue_family);
 
         VkSemaphoreTypeCreateInfo submit_semaphore_type_create_info = {
@@ -34,6 +37,9 @@ namespace hyper_rhi
 
         HE_VK_CHECK(vkCreateSemaphore(m_graphics_device.device(), &submit_semaphore_create_info, nullptr, &m_submit_semaphore));
         HE_ASSERT(m_submit_semaphore != VK_NULL_HANDLE);
+
+        // TODO: Retrieve queue type
+        m_graphics_device.set_object_name(m_submit_semaphore, ObjectType::Semaphore, "Graphics Submit");
 
         HE_TRACE("Created Submit Semaphore for queue family #{}", m_queue_family);
     }

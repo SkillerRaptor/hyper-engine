@@ -35,10 +35,7 @@ namespace hyper_rhi
         HE_VK_CHECK(vkCreatePipelineLayout(m_graphics_device.device(), &pipeline_layout_create_info, nullptr, &m_pipeline_layout));
         HE_ASSERT(m_pipeline_layout != VK_NULL_HANDLE);
 
-        if (!m_label.empty())
-        {
-            m_graphics_device.set_object_name(m_pipeline_layout, VK_OBJECT_TYPE_PIPELINE_LAYOUT, m_label);
-        }
+        m_graphics_device.set_object_name(m_pipeline_layout, ObjectType::PipelineLayout, m_label);
 
         HE_TRACE(
             "Created Pipeline Layout {} with a push constant size of {} bytes",

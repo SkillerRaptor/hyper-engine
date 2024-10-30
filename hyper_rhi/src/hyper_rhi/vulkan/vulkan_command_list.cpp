@@ -21,7 +21,7 @@ namespace hyper_rhi
     {
         m_command_buffer = m_graphics_device.current_frame().command_buffer;
 
-        vkResetCommandBuffer(m_command_buffer, 0);
+        HE_VK_CHECK(vkResetCommandBuffer(m_command_buffer, 0));
 
         constexpr VkCommandBufferBeginInfo command_buffer_begin_info = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -29,12 +29,13 @@ namespace hyper_rhi
             .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
             .pInheritanceInfo = nullptr,
         };
-        vkBeginCommandBuffer(m_command_buffer, &command_buffer_begin_info);
+
+        HE_VK_CHECK(vkBeginCommandBuffer(m_command_buffer, &command_buffer_begin_info));
     }
 
     void VulkanCommandList::end()
     {
-        vkEndCommandBuffer(m_command_buffer);
+        HE_VK_CHECK(vkEndCommandBuffer(m_command_buffer));
     }
 
     RenderPassHandle VulkanCommandList::begin_render_pass(const RenderPassDescriptor &descriptor) const
