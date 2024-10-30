@@ -251,8 +251,6 @@ namespace hyper_render
               .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
               .handle = hyper_rhi::ResourceHandle(HE_DESCRIPTOR_SET_SLOT_CAMERA),
           }))
-        , m_editor_camera(glm::vec3(0.0, 0.0, 0.0), -90.0, 0.0)
-        , m_frame_index(1)
         , m_grid_pipeline_layout(m_graphics_device->create_pipeline_layout({
               .label = "Grid Pipeline Layout",
               // TODO: Test if size is 0
@@ -292,6 +290,8 @@ namespace hyper_render
                   .compare_operation = hyper_rhi::CompareOperation::Less,
               },
           }))
+        , m_editor_camera(glm::vec3(0.0, 0.0, 0.0), -90.0, 0.0)
+        , m_frame_index(1)
     {
         event_bus.subscribe<hyper_platform::WindowResizeEvent>(HE_BIND_FUNCTION(Renderer::on_resize));
         event_bus.subscribe<hyper_platform::MouseMovedEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_moved));
@@ -400,8 +400,23 @@ namespace hyper_render
                 .vertex_offset = 0,
                 .first_instance = 0,
             });
+        }
 
-            // TODO: Move this to own render pass
+        {
+            const hyper_rhi::RenderPassHandle render_pass = m_command_list->begin_render_pass({
+                .label = "Grid Render Pass",
+                .color_attachment = swapchain_texture,
+                .color_operation = {
+                    .load_operation = hyper_rhi::LoadOperation::Load,
+                    .store_operation = hyper_rhi::StoreOperation::Store,
+                },
+                .depth_attachment = m_depth_texture,
+                .depth_operation = {
+                    .load_operation = hyper_rhi::LoadOperation::Load,
+                    .store_operation = hyper_rhi::StoreOperation::Store,
+                },
+            });
+
             render_pass->set_pipeline(m_grid_pipeline);
 
             render_pass->draw({
