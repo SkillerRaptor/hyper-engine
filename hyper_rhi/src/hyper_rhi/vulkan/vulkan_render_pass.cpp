@@ -136,8 +136,8 @@ namespace hyper_rhi
             .resolveMode = VK_RESOLVE_MODE_NONE,
             .resolveImageView = VK_NULL_HANDLE,
             .resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-            .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-            .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+            .loadOp = VulkanRenderPass::get_load_operation(descriptor.color_operation.load_operation),
+            .storeOp = VulkanRenderPass::get_store_operation(descriptor.color_operation.store_operation),
             .clearValue = clear_value,
         };
 
@@ -156,8 +156,8 @@ namespace hyper_rhi
             .resolveMode = VK_RESOLVE_MODE_NONE,
             .resolveImageView = VK_NULL_HANDLE,
             .resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-            .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-            .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+            .loadOp = VulkanRenderPass::get_load_operation(descriptor.depth_operation.load_operation),
+            .storeOp = VulkanRenderPass::get_store_operation(descriptor.depth_operation.store_operation),
             .clearValue = depth_clear_value,
         };
 
@@ -241,6 +241,43 @@ namespace hyper_rhi
         };
 
         vkCmdPipelineBarrier2(m_command_buffer, &dependency_info);
+
+        constexpr VkImageSubresourceRange depth_subresource_range = {
+            .aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1,
+        };
+
+        const VkImageMemoryBarrier2 depth_image_memory_barrier = {
+            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
+            .pNext = nullptr,
+            .srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+            .srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT,
+            .dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+            .dstAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT,
+            .oldLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
+            .newLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
+            .srcQueueFamilyIndex = 0,
+            .dstQueueFamilyIndex = 0,
+            .image = depth_texture->image(),
+            .subresourceRange = depth_subresource_range,
+        };
+
+        const VkDependencyInfo depth_dependency_info = {
+            .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+            .pNext = nullptr,
+            .dependencyFlags = 0,
+            .memoryBarrierCount = 0,
+            .pMemoryBarriers = nullptr,
+            .bufferMemoryBarrierCount = 0,
+            .pBufferMemoryBarriers = nullptr,
+            .imageMemoryBarrierCount = 1,
+            .pImageMemoryBarriers = &depth_image_memory_barrier,
+        };
+
+        vkCmdPipelineBarrier2(m_command_buffer, &depth_dependency_info);
     }
 
     void VulkanRenderPass::set_pipeline(const GraphicsPipelineHandle &pipeline_handle)
@@ -277,6 +314,11 @@ namespace hyper_rhi
         vkCmdPushConstants(m_command_buffer, layout->pipeline_layout(), VK_SHADER_STAGE_ALL, 0, static_cast<uint32_t>(data_size), data);
     }
 
+    void VulkanRenderPass::draw(const DrawArguments &arguments) const
+    {
+        vkCmdDraw(m_command_buffer, arguments.vertex_count, arguments.instance_count, arguments.first_vertex, arguments.first_instance);
+    }
+
     void VulkanRenderPass::draw_indexed(const DrawIndexedArguments &arguments) const
     {
         vkCmdDrawIndexed(
@@ -286,5 +328,31 @@ namespace hyper_rhi
             arguments.first_index,
             arguments.vertex_offset,
             arguments.first_instance);
+    }
+
+    VkAttachmentLoadOp VulkanRenderPass::get_load_operation(const LoadOperation load_operation)
+    {
+        switch (load_operation)
+        {
+        case Clear:
+            return VK_ATTACHMENT_LOAD_OP_CLEAR;
+        case Load:
+            return VK_ATTACHMENT_LOAD_OP_LOAD;
+        default:
+            HE_UNREACHABLE();
+        }
+    }
+
+    VkAttachmentStoreOp VulkanRenderPass::get_store_operation(const StoreOperation store_operation)
+    {
+        switch (store_operation)
+        {
+        case Store:
+            return VK_ATTACHMENT_STORE_OP_STORE;
+        case Discard:
+            return VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        default:
+            HE_UNREACHABLE();
+        }
     }
 } // namespace hyper_rhi

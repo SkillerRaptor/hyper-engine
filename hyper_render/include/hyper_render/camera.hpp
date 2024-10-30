@@ -31,6 +31,10 @@ namespace hyper_render
         void set_aspect_ratio(float aspect_ratio);
 
         [[nodiscard]] glm::vec3 position() const;
+
+        [[nodiscard]] float near_plane() const;
+        [[nodiscard]] float far_plane() const;
+
         [[nodiscard]] glm::mat4 projection_matrix() const;
         [[nodiscard]] glm::mat4 view_matrix() const;
 

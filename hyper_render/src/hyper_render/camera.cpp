@@ -20,8 +20,8 @@ namespace hyper_render
         , m_movement_speed(2.5f)
         , m_mouse_sensitivity(0.1f)
         , m_fov(90.0f)
-        , m_near(0.1f)
-        , m_far(1000.0f)
+        , m_near(0.01f)
+        , m_far(100.0f)
         , m_aspect_ratio(1280.0f / 720.0f)
         , m_first_mouse(true)
         , m_last_x(0.0)
@@ -104,6 +104,16 @@ namespace hyper_render
     glm::vec3 Camera::position() const
     {
         return m_position;
+    }
+
+    float Camera::near_plane() const
+    {
+        return m_near;
+    }
+
+    float Camera::far_plane() const
+    {
+        return m_far;
     }
 
     glm::mat4 Camera::projection_matrix() const

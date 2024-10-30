@@ -23,7 +23,12 @@ namespace hyper_rhi
         void set_index_buffer(BufferHandle buffer_handle) const override;
         void set_push_constants(const void *data, size_t data_size) const override;
 
+        void draw(const DrawArguments &arguments) const override;
         void draw_indexed(const DrawIndexedArguments &arguments) const override;
+
+    private:
+        [[nodiscard]] static VkAttachmentLoadOp get_load_operation(LoadOperation load_operation);
+        [[nodiscard]] static VkAttachmentStoreOp get_store_operation(StoreOperation store_operation);
 
     private:
         VulkanGraphicsDevice &m_graphics_device;

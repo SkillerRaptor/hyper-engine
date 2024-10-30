@@ -253,6 +253,45 @@ namespace hyper_render
           }))
         , m_editor_camera(glm::vec3(0.0, 0.0, 0.0), -90.0, 0.0)
         , m_frame_index(1)
+        , m_grid_pipeline_layout(m_graphics_device->create_pipeline_layout({
+              .label = "Grid Pipeline Layout",
+              // TODO: Test if size is 0
+              .push_constant_size = 4,
+          }))
+        , m_grid_vertex_shader(m_graphics_device->create_shader_module({
+              .label = "Grid Vertex Shader",
+              .type = hyper_rhi::ShaderType::Vertex,
+              .entry_name = "vs_main",
+              .bytes = m_shader_compiler
+                           .compile({
+                               .type = hyper_rhi::ShaderType::Vertex,
+                               .entry_name = "vs_main",
+                               .data = hyper_core::filesystem::read_file("./assets/shaders/grid_shader.hlsl"),
+                           })
+                           .spirv,
+          }))
+        , m_grid_fragment_shader(m_graphics_device->create_shader_module({
+              .label = "Grid Fragment Shader",
+              .type = hyper_rhi::ShaderType::Fragment,
+              .entry_name = "fs_main",
+              .bytes = m_shader_compiler
+                           .compile({
+                               .type = hyper_rhi::ShaderType::Fragment,
+                               .entry_name = "fs_main",
+                               .data = hyper_core::filesystem::read_file("./assets/shaders/grid_shader.hlsl"),
+                           })
+                           .spirv,
+          }))
+        , m_grid_pipeline(m_graphics_device->create_graphics_pipeline({
+              .label = "Grid Pipeline",
+              .layout = m_pipeline_layout,
+              .vertex_shader = m_grid_vertex_shader,
+              .fragment_shader = m_grid_fragment_shader,
+              .depth_state = {
+                  .depth_enabled = true,
+                  .compare_operation = hyper_rhi::CompareOperation::Less,
+              },
+          }))
     {
         event_bus.subscribe<hyper_platform::WindowResizeEvent>(HE_BIND_FUNCTION(Renderer::on_resize));
         event_bus.subscribe<hyper_platform::MouseMovedEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_moved));
@@ -308,9 +347,15 @@ namespace hyper_render
         const ::Camera camera = {
             .position = glm::vec4(m_editor_camera.position(), 1.0),
             .view = view_matrix,
+            .inverse_view = glm::inverse(view_matrix),
             .projection = projection_matrix,
+            .inverse_projection = glm::inverse(projection_matrix),
             .view_projection = view_projection,
             .inverse_view_projection = glm::inverse(view_projection),
+            .near_plane = m_editor_camera.near_plane(),
+            .far_plane = m_editor_camera.far_plane(),
+            .padding_0 = 0.0,
+            .padding_1 = 0.0,
         };
 
         m_queue->write_buffer(m_camera_buffer, &camera, sizeof(camera));
@@ -326,7 +371,15 @@ namespace hyper_render
             const hyper_rhi::RenderPassHandle render_pass = m_command_list->begin_render_pass({
                 .label = "Opaque Render Pass",
                 .color_attachment = swapchain_texture,
+                .color_operation = {
+                    .load_operation = hyper_rhi::LoadOperation::Clear,
+                    .store_operation = hyper_rhi::StoreOperation::Store,
+                },
                 .depth_attachment = m_depth_texture,
+                .depth_operation = {
+                    .load_operation = hyper_rhi::LoadOperation::Clear,
+                    .store_operation = hyper_rhi::StoreOperation::Store,
+                },
             });
 
             render_pass->set_pipeline(m_pipeline);
@@ -345,6 +398,16 @@ namespace hyper_render
                 .instance_count = 1,
                 .first_index = 0,
                 .vertex_offset = 0,
+                .first_instance = 0,
+            });
+
+            // TODO: Move this to own render pass
+            render_pass->set_pipeline(m_grid_pipeline);
+
+            render_pass->draw({
+                .vertex_count = 6,
+                .instance_count = 1,
+                .first_vertex = 0,
                 .first_instance = 0,
             });
         }

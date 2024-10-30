@@ -143,9 +143,16 @@ struct Camera
     float4 position;
 
     float4x4 view;
+    float4x4 inverse_view;
     float4x4 projection;
+    float4x4 inverse_projection;
     float4x4 view_projection;
     float4x4 inverse_view_projection;
+
+    float near_plane;
+    float far_plane;
+    float padding_0;
+    float padding_1;
 };
 
 #ifndef __cplusplus

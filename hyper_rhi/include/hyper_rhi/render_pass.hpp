@@ -16,6 +16,14 @@
 
 namespace hyper_rhi
 {
+    struct DrawArguments
+    {
+        uint32_t vertex_count;
+        uint32_t instance_count;
+        uint32_t first_vertex;
+        uint32_t first_instance;
+    };
+
     struct DrawIndexedArguments
     {
         uint32_t index_count;
@@ -25,12 +33,32 @@ namespace hyper_rhi
         uint32_t first_instance;
     };
 
+    enum LoadOperation
+    {
+        Clear,
+        Load,
+    };
+
+    enum StoreOperation
+    {
+        Store,
+        Discard,
+    };
+
+    struct Operations
+    {
+        LoadOperation load_operation = LoadOperation::Clear;
+        StoreOperation store_operation = StoreOperation::Store;
+    };
+
     struct RenderPassDescriptor
     {
         std::string label;
 
         TextureHandle color_attachment = nullptr;
+        Operations color_operation;
         TextureHandle depth_attachment = nullptr;
+        Operations depth_operation;
     };
 
     class RenderPass : public Resource
@@ -42,6 +70,7 @@ namespace hyper_rhi
         virtual void set_index_buffer(BufferHandle buffer_handle) const = 0;
         virtual void set_push_constants(const void *data, size_t data_size) const = 0;
 
+        virtual void draw(const DrawArguments &arguments) const = 0;
         virtual void draw_indexed(const DrawIndexedArguments &arguments) const = 0;
 
     protected:
