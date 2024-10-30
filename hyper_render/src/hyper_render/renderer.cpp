@@ -425,6 +425,20 @@ namespace hyper_render
     void Renderer::on_resize(const hyper_platform::WindowResizeEvent &event)
     {
         m_editor_camera.set_aspect_ratio(static_cast<float>(event.width()) / static_cast<float>(event.height()));
+
+        m_depth_texture = m_graphics_device->create_texture({
+            .label = "Swapchain Depth Texture",
+            .width = event.width(),
+            .height = event.height(),
+            .depth = 1,
+            .array_size = 1,
+            .mip_levels = 1,
+            .sample_count = 1,
+            .sample_quality = 0,
+            .format = hyper_rhi::TextureFormat::D32_SFloat,
+            .dimension = hyper_rhi::TextureDimension::Texture2D,
+            .usage = hyper_rhi::TextureUsageFlags::RenderTarget,
+        });
     }
 
     void Renderer::on_mouse_moved(const hyper_platform::MouseMovedEvent &event)
