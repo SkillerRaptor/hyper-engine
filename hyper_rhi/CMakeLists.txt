@@ -17,6 +17,7 @@ set(SOURCES
         src/hyper_rhi/shader_module.cpp
         src/hyper_rhi/surface.cpp
         src/hyper_rhi/texture.cpp
+        src/hyper_rhi/texture_view.cpp
         src/hyper_rhi/vulkan/vulkan_buffer.cpp
         src/hyper_rhi/vulkan/vulkan_command_list.cpp
         src/hyper_rhi/vulkan/vulkan_descriptor_manager.cpp
@@ -28,6 +29,7 @@ set(SOURCES
         src/hyper_rhi/vulkan/vulkan_shader_module.cpp
         src/hyper_rhi/vulkan/vulkan_surface.cpp
         src/hyper_rhi/vulkan/vulkan_texture.cpp
+        src/hyper_rhi/vulkan/vulkan_texture_view.cpp
         src/hyper_rhi/vulkan/vulkan_upload_manager.cpp)
 
 set(HEADERS
@@ -45,6 +47,7 @@ set(HEADERS
         include/hyper_rhi/shader_compiler.hpp
         include/hyper_rhi/surface.hpp
         include/hyper_rhi/texture.hpp
+        include/hyper_rhi/texture_view.hpp
         include/hyper_rhi/vulkan/vulkan_buffer.hpp
         include/hyper_rhi/vulkan/vulkan_command_list.hpp
         include/hyper_rhi/vulkan/vulkan_common.hpp
@@ -57,6 +60,7 @@ set(HEADERS
         include/hyper_rhi/vulkan/vulkan_shader_module.hpp
         include/hyper_rhi/vulkan/vulkan_surface.hpp
         include/hyper_rhi/vulkan/vulkan_texture.hpp
+        include/hyper_rhi/vulkan/vulkan_texture_view.hpp
         include/hyper_rhi/vulkan/vulkan_upload_manager.hpp)
 
 if (WIN32)

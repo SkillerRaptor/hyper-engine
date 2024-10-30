@@ -7,6 +7,7 @@
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
 
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
+#include "hyper_rhi/vulkan/vulkan_texture_view.hpp"
 
 namespace hyper_rhi
 {
@@ -15,13 +16,11 @@ namespace hyper_rhi
         , m_graphics_device(graphics_device)
         , m_image(image)
         , m_allocation(VK_NULL_HANDLE)
-        , m_view(VK_NULL_HANDLE)
     {
-        const VkFormat format = VulkanTexture::get_format(descriptor.format);
         if (m_image == VK_NULL_HANDLE)
         {
             const VkImageType image_type = VulkanTexture::get_image_type(descriptor.dimension);
-            const VkSampleCountFlagBits samples = VulkanTexture::get_sample_count_flags(descriptor.sample_count);
+            const VkFormat format = VulkanTexture::get_format(descriptor.format);
             const VkImageUsageFlags usage = VulkanTexture::get_image_usage_flags(descriptor.usage, descriptor.format);
 
             const VkImageCreateInfo image_create_info = {
@@ -37,7 +36,7 @@ namespace hyper_rhi
                 },
                 .mipLevels = descriptor.mip_levels,
                 .arrayLayers = descriptor.array_size,
-                .samples = samples,
+                .samples = VK_SAMPLE_COUNT_1_BIT,
                 .tiling = VK_IMAGE_TILING_OPTIMAL,
                 .usage = usage,
                 .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
@@ -62,60 +61,33 @@ namespace hyper_rhi
             HE_ASSERT(m_image != VK_NULL_HANDLE);
             HE_ASSERT(m_allocation != VK_NULL_HANDLE);
 
+            m_graphics_device.set_object_name(m_image, ObjectType::Image, m_label);
+
             HE_TRACE("Created Image {}", m_label.empty() ? "" : fmt::format("'{}'", m_label));
         }
 
-        constexpr VkComponentMapping component_mapping = {
-            .r = VK_COMPONENT_SWIZZLE_IDENTITY,
-            .g = VK_COMPONENT_SWIZZLE_IDENTITY,
-            .b = VK_COMPONENT_SWIZZLE_IDENTITY,
-            .a = VK_COMPONENT_SWIZZLE_IDENTITY,
-        };
-
-        const VkImageAspectFlags aspect_mask = VulkanTexture::get_image_aspect_flags(descriptor.format);
-        const VkImageSubresourceRange subresource_range = {
-            .aspectMask = aspect_mask,
-            .baseMipLevel = 0,
-            .levelCount = 1,
-            .baseArrayLayer = 0,
-            .layerCount = 1,
-        };
-
-        const VkImageViewType view_type = VulkanTexture::get_image_view_type(descriptor.dimension);
-        const VkImageViewCreateInfo image_view_create_info = {
-            .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = 0,
-            .image = m_image,
-            .viewType = view_type,
-            .format = format,
-            .components = component_mapping,
-            .subresourceRange = subresource_range,
-        };
-
-        HE_VK_CHECK(vkCreateImageView(m_graphics_device.device(), &image_view_create_info, nullptr, &m_view));
-        HE_ASSERT(m_view != VK_NULL_HANDLE);
-
-        if ((descriptor.usage & TextureUsageFlags::ShaderResource) == TextureUsageFlags::ShaderResource)
-        {
-            // TODO: Add resource handle
-            if (!m_handle.is_valid())
-            {
-            }
-            else
-            {
-            }
-        }
-
-        m_graphics_device.set_object_name(m_image, ObjectType::Image, m_label);
-        m_graphics_device.set_object_name(m_view, ObjectType::ImageView, m_label);
-
-        HE_TRACE("Created Image View {} with a size of {}x{}", m_label.empty() ? "" : fmt::format("'{}'", m_label), m_width, m_height);
+        m_view = m_graphics_device.create_texture_view({
+            .label = m_label,
+            .base_mip_level = 0,
+            .mip_level_count = 1,
+            .base_array_level = 0,
+            .array_layer_count = 1,
+            .component_mapping = {
+                .r = TextureComponentSwizzle::Identity,
+                .g = TextureComponentSwizzle::Identity,
+                .b = TextureComponentSwizzle::Identity,
+                .a = TextureComponentSwizzle::Identity,
+            },
+            .format = m_format,
+            .dimension = m_dimension,
+            .texture = *this,
+        });
     }
 
     VulkanTexture::~VulkanTexture()
     {
-        m_graphics_device.resource_queue().textures.emplace_back(m_image, m_allocation, m_view, m_handle);
+        const auto view = std::dynamic_pointer_cast<VulkanTextureView>(m_view);
+        m_graphics_device.resource_queue().textures.emplace_back(m_image, m_allocation, view->image_view());
     }
 
     VkImage VulkanTexture::image() const
@@ -123,9 +95,9 @@ namespace hyper_rhi
         return m_image;
     }
 
-    VkImageView VulkanTexture::view() const
+    VmaAllocation VulkanTexture::allocation() const
     {
-        return m_view;
+        return m_allocation;
     }
 
     TextureFormat VulkanTexture::format_to_texture_format(const VkFormat format)
@@ -174,58 +146,15 @@ namespace hyper_rhi
         }
     }
 
-    VkImageViewType VulkanTexture::get_image_view_type(const TextureDimension dimension)
-    {
-        switch (dimension)
-        {
-        case TextureDimension::Texture1D:
-            return VK_IMAGE_VIEW_TYPE_1D;
-        case TextureDimension::Texture1DArray:
-            return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
-        case TextureDimension::Texture2D:
-            return VK_IMAGE_VIEW_TYPE_2D;
-        case TextureDimension::Texture2DArray:
-            return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-        case TextureDimension::Texture3D:
-            return VK_IMAGE_VIEW_TYPE_3D;
-        case TextureDimension::Unknown:
-        default:
-            HE_UNREACHABLE();
-        }
-    }
-
-    VkSampleCountFlagBits VulkanTexture::get_sample_count_flags(const uint32_t sample_count)
-    {
-        switch (sample_count)
-        {
-        case 1:
-            return VK_SAMPLE_COUNT_1_BIT;
-        case 2:
-            return VK_SAMPLE_COUNT_2_BIT;
-        case 4:
-            return VK_SAMPLE_COUNT_4_BIT;
-        case 8:
-            return VK_SAMPLE_COUNT_8_BIT;
-        case 16:
-            return VK_SAMPLE_COUNT_16_BIT;
-        case 32:
-            return VK_SAMPLE_COUNT_32_BIT;
-        case 64:
-            return VK_SAMPLE_COUNT_64_BIT;
-        default:
-            HE_UNREACHABLE();
-        }
-    }
-
-    VkImageUsageFlags VulkanTexture::get_image_usage_flags(const TextureUsageFlags texture_usage_flags, const TextureFormat format)
+    VkImageUsageFlags VulkanTexture::get_image_usage_flags(const TextureUsage texture_usage_flags, const TextureFormat format)
     {
         VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-        if ((texture_usage_flags & TextureUsageFlags::ShaderResource) == TextureUsageFlags::ShaderResource)
+        if ((texture_usage_flags & TextureUsage::ShaderResource) == TextureUsage::ShaderResource)
         {
             usage |= VK_IMAGE_USAGE_STORAGE_BIT;
         }
 
-        if ((texture_usage_flags & TextureUsageFlags::RenderTarget) == TextureUsageFlags::RenderTarget)
+        if ((texture_usage_flags & TextureUsage::RenderTarget) == TextureUsage::RenderTarget)
         {
             switch (format)
             {
@@ -242,24 +171,5 @@ namespace hyper_rhi
         }
 
         return usage;
-    }
-
-    VkImageAspectFlags VulkanTexture::get_image_aspect_flags(TextureFormat format)
-    {
-        VkImageAspectFlags aspect_mask = VK_IMAGE_ASPECT_NONE;
-        switch (format)
-        {
-        case TextureFormat::B8G8R8A8_Srgb:
-            aspect_mask |= VK_IMAGE_ASPECT_COLOR_BIT;
-            break;
-        case TextureFormat::D32_SFloat:
-            aspect_mask |= VK_IMAGE_ASPECT_DEPTH_BIT;
-            break;
-        case TextureFormat::Unknown:
-        default:
-            HE_UNREACHABLE();
-        }
-
-        return aspect_mask;
     }
 } // namespace hyper_rhi

@@ -26,6 +26,7 @@
 #include "hyper_rhi/vulkan/vulkan_shader_module.hpp"
 #include "hyper_rhi/vulkan/vulkan_surface.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
+#include "hyper_rhi/vulkan/vulkan_texture_view.hpp"
 
 namespace hyper_rhi
 {
@@ -162,6 +163,11 @@ namespace hyper_rhi
     TextureHandle VulkanGraphicsDevice::create_texture(const TextureDescriptor &descriptor)
     {
         return std::make_shared<VulkanTexture>(*this, descriptor);
+    }
+
+    std::shared_ptr<TextureView> VulkanGraphicsDevice::create_texture_view(const TextureViewDescriptor &descriptor)
+    {
+        return std::make_shared<VulkanTextureView>(*this, descriptor);
     }
 
     void VulkanGraphicsDevice::begin_marker(

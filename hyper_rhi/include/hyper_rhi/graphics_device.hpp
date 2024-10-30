@@ -16,6 +16,7 @@
 #include "hyper_rhi/shader_module.hpp"
 #include "hyper_rhi/surface.hpp"
 #include "hyper_rhi/texture.hpp"
+#include "hyper_rhi/texture_view.hpp"
 #include "hyper_rhi/queue.hpp"
 
 namespace hyper_rhi
@@ -57,6 +58,7 @@ namespace hyper_rhi
         [[nodiscard]] virtual PipelineLayoutHandle create_pipeline_layout(const PipelineLayoutDescriptor &descriptor) = 0;
         [[nodiscard]] virtual ShaderModuleHandle create_shader_module(const ShaderModuleDescriptor &descriptor) = 0;
         [[nodiscard]] virtual TextureHandle create_texture(const TextureDescriptor &descriptor) = 0;
+        [[nodiscard]] virtual std::shared_ptr<TextureView> create_texture_view(const TextureViewDescriptor &descriptor) = 0;
 
         virtual void begin_frame(SurfaceHandle surface_handle, uint32_t frame_index) = 0;
         virtual void end_frame() const = 0;

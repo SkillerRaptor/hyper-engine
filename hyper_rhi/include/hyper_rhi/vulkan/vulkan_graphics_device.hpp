@@ -92,6 +92,7 @@ namespace hyper_rhi
         PipelineLayoutHandle create_pipeline_layout(const PipelineLayoutDescriptor &descriptor) override;
         ShaderModuleHandle create_shader_module(const ShaderModuleDescriptor &descriptor) override;
         TextureHandle create_texture(const TextureDescriptor &descriptor) override;
+        std::shared_ptr<TextureView> create_texture_view(const TextureViewDescriptor &descriptor) override;
 
         void begin_marker(VkCommandBuffer command_buffer, MarkerType type, std::string_view name, LabelColor color) const;
         void end_marker(VkCommandBuffer command_buffer) const;

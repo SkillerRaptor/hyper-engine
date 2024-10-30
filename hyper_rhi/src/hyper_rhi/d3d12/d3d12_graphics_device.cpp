@@ -97,6 +97,13 @@ namespace hyper_rhi
         HE_UNREACHABLE();
     }
 
+    std::shared_ptr<TextureView> D3D12GraphicsDevice::create_texture_view(const TextureViewDescriptor &descriptor)
+    {
+        HE_UNUSED(descriptor);
+
+        HE_UNREACHABLE();
+    }
+
     void D3D12GraphicsDevice::begin_frame(SurfaceHandle surface_handle, uint32_t frame_index)
     {
         HE_UNUSED(surface_handle);

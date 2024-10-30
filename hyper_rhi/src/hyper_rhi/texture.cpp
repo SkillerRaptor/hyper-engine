@@ -14,16 +14,22 @@ namespace hyper_rhi
         : Resource(descriptor.label)
         , m_width(descriptor.width)
         , m_height(descriptor.height)
-        , m_handle(descriptor.handle)
+        , m_depth(descriptor.depth)
+        , m_array_size(descriptor.array_size)
+        , m_mip_levels(descriptor.mip_levels)
+        , m_format(descriptor.format)
+        , m_dimension(descriptor.dimension)
+        , m_usage(descriptor.usage)
+        , m_view(nullptr)
     {
-        HE_ASSERT(descriptor.width > 0);
-        HE_ASSERT(descriptor.height > 0);
-        HE_ASSERT(descriptor.depth > 0);
-        HE_ASSERT(descriptor.array_size > 0);
-        HE_ASSERT(descriptor.mip_levels > 0);
-        HE_ASSERT(descriptor.sample_count > 0);
-        HE_ASSERT(descriptor.format != TextureFormat::Unknown);
-        HE_ASSERT(descriptor.dimension != TextureDimension::Unknown);
+        HE_ASSERT(m_width > 0);
+        HE_ASSERT(m_height > 0);
+        HE_ASSERT(m_depth > 0);
+        HE_ASSERT(m_array_size > 0);
+        HE_ASSERT(m_mip_levels > 0);
+        HE_ASSERT(m_format != TextureFormat::Unknown);
+        HE_ASSERT(m_dimension != TextureDimension::Unknown);
+        HE_ASSERT(m_usage != TextureUsage::None);
     }
 
     uint32_t Texture::width() const
@@ -36,8 +42,38 @@ namespace hyper_rhi
         return m_height;
     }
 
-    ResourceHandle Texture::handle() const
+    uint32_t Texture::depth() const
     {
-        return m_handle;
+        return m_depth;
+    }
+
+    uint32_t Texture::array_size() const
+    {
+        return m_array_size;
+    }
+
+    uint32_t Texture::mip_levels() const
+    {
+        return m_mip_levels;
+    }
+
+    TextureFormat Texture::format() const
+    {
+        return m_format;
+    }
+
+    TextureDimension Texture::dimension() const
+    {
+        return m_dimension;
+    }
+
+    TextureUsage Texture::usage() const
+    {
+        return m_usage;
+    }
+
+    std::shared_ptr<TextureView> Texture::view() const
+    {
+        return m_view;
     }
 } // namespace hyper_rhi

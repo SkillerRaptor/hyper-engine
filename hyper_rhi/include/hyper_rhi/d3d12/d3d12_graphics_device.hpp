@@ -28,6 +28,7 @@ namespace hyper_rhi
         PipelineLayoutHandle create_pipeline_layout(const PipelineLayoutDescriptor &descriptor) override;
         ShaderModuleHandle create_shader_module(const ShaderModuleDescriptor &descriptor) override;
         TextureHandle create_texture(const TextureDescriptor &descriptor) override;
+        std::shared_ptr<TextureView> create_texture_view(const TextureViewDescriptor &descriptor) override;
 
         void begin_frame(SurfaceHandle surface_handle, uint32_t frame_index) override;
         void end_frame() const override;

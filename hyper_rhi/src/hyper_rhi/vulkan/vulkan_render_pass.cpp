@@ -27,8 +27,8 @@ namespace hyper_rhi
     {
         m_graphics_device.begin_marker(m_command_buffer, MarkerType::RenderPass, descriptor.label, descriptor.label_color);
 
-        const std::shared_ptr<VulkanTexture> texture = std::dynamic_pointer_cast<VulkanTexture>(m_color_attachment);
-        const std::shared_ptr<VulkanTexture> depth_texture = std::dynamic_pointer_cast<VulkanTexture>(m_depth_attachment);
+        const auto color_attachment = std::dynamic_pointer_cast<VulkanTexture>(m_color_attachment);
+        const auto depth_attachment = std::dynamic_pointer_cast<VulkanTexture>(m_depth_attachment);
 
         constexpr VkImageSubresourceRange subresource_range = {
             .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
@@ -49,7 +49,7 @@ namespace hyper_rhi
             .newLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
             .srcQueueFamilyIndex = 0,
             .dstQueueFamilyIndex = 0,
-            .image = texture->image(),
+            .image = color_attachment->image(),
             .subresourceRange = subresource_range,
         };
 
@@ -86,7 +86,7 @@ namespace hyper_rhi
             .newLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
             .srcQueueFamilyIndex = 0,
             .dstQueueFamilyIndex = 0,
-            .image = depth_texture->image(),
+            .image = depth_attachment->image(),
             .subresourceRange = depth_subresource_range,
         };
 
@@ -105,8 +105,8 @@ namespace hyper_rhi
         vkCmdPipelineBarrier2(m_command_buffer, &depth_dependency_info);
 
         const VkExtent2D render_area_extent = {
-            .width = texture->width(),
-            .height = texture->height(),
+            .width = color_attachment->width(),
+            .height = color_attachment->height(),
         };
 
         constexpr VkOffset2D render_area_offset = {
@@ -130,10 +130,11 @@ namespace hyper_rhi
             },
         };
 
+        const auto color_attachment_view = std::dynamic_pointer_cast<VulkanTextureView>(color_attachment->view());
         const VkRenderingAttachmentInfo color_attachment_info = {
             .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
             .pNext = nullptr,
-            .imageView = texture->view(),
+            .imageView = color_attachment_view->image_view(),
             .imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
             .resolveMode = VK_RESOLVE_MODE_NONE,
             .resolveImageView = VK_NULL_HANDLE,
@@ -150,10 +151,11 @@ namespace hyper_rhi
             },
         };
 
+        const auto depth_attachment_view = std::dynamic_pointer_cast<VulkanTextureView>(depth_attachment->view());
         const VkRenderingAttachmentInfo depth_attachment_info = {
             .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
             .pNext = nullptr,
-            .imageView = depth_texture->view(),
+            .imageView = depth_attachment_view->image_view(),
             .imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
             .resolveMode = VK_RESOLVE_MODE_NONE,
             .resolveImageView = VK_NULL_HANDLE,

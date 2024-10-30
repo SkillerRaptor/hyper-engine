@@ -16,6 +16,8 @@
 
 namespace hyper_rhi
 {
+    class TextureView;
+
     enum class TextureFormat
     {
         Unknown,
@@ -33,14 +35,14 @@ namespace hyper_rhi
         Texture3D,
     };
 
-    enum class TextureUsageFlags : uint8_t
+    enum class TextureUsage : uint8_t
     {
         None = 0,
         ShaderResource = 1 << 0,
         RenderTarget = 1 << 1,
     };
 
-    HE_ENABLE_BITMASK_OPERATORS(TextureUsageFlags);
+    HE_ENABLE_BITMASK_OPERATORS(TextureUsage);
 
     struct TextureDescriptor
     {
@@ -51,14 +53,9 @@ namespace hyper_rhi
         uint32_t depth = 1;
         uint32_t array_size = 1;
         uint32_t mip_levels = 1;
-        uint32_t sample_count = 1;
-        uint32_t sample_quality = 0;
         TextureFormat format = TextureFormat::Unknown;
         TextureDimension dimension = TextureDimension::Unknown;
-
-        TextureUsageFlags usage = TextureUsageFlags::None;
-
-        ResourceHandle handle;
+        TextureUsage usage = TextureUsage::None;
     };
 
     class Texture : public Resource
@@ -68,7 +65,13 @@ namespace hyper_rhi
 
         [[nodiscard]] uint32_t width() const;
         [[nodiscard]] uint32_t height() const;
-        [[nodiscard]] ResourceHandle handle() const;
+        [[nodiscard]] uint32_t depth() const;
+        [[nodiscard]] uint32_t array_size() const;
+        [[nodiscard]] uint32_t mip_levels() const;
+        [[nodiscard]] TextureFormat format() const;
+        [[nodiscard]] TextureDimension dimension() const;
+        [[nodiscard]] TextureUsage usage() const;
+        [[nodiscard]] std::shared_ptr<TextureView> view() const;
 
     protected:
         explicit Texture(const TextureDescriptor &descriptor);
@@ -76,7 +79,13 @@ namespace hyper_rhi
     protected:
         uint32_t m_width;
         uint32_t m_height;
-        ResourceHandle m_handle;
+        uint32_t m_depth;
+        uint32_t m_array_size;
+        uint32_t m_mip_levels;
+        TextureFormat m_format;
+        TextureDimension m_dimension;
+        TextureUsage m_usage;
+        std::shared_ptr<TextureView> m_view;
     };
 
     using TextureHandle = std::shared_ptr<Texture>;

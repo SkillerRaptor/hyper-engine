@@ -207,10 +207,9 @@ namespace hyper_rhi
                     .depth = 1,
                     .array_size = 1,
                     .mip_levels = 1,
-                    .sample_count = 1,
-                    .sample_quality = 0,
                     .format = VulkanTexture::format_to_texture_format(m_format),
                     .dimension = TextureDimension::Texture2D,
+                    .usage = TextureUsage::RenderTarget,
                 },
                 image));
 

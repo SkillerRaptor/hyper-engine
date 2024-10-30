@@ -168,11 +168,9 @@ namespace hyper_render
               .depth = 1,
               .array_size = 1,
               .mip_levels = 1,
-              .sample_count = 1,
-              .sample_quality = 0,
               .format = hyper_rhi::TextureFormat::D32_SFloat,
               .dimension = hyper_rhi::TextureDimension::Texture2D,
-              .usage = hyper_rhi::TextureUsageFlags::RenderTarget,
+              .usage = hyper_rhi::TextureUsage::RenderTarget,
           }))
         , m_shader_compiler()
         , m_queue(m_graphics_device->queue())
@@ -458,11 +456,9 @@ namespace hyper_render
             .depth = 1,
             .array_size = 1,
             .mip_levels = 1,
-            .sample_count = 1,
-            .sample_quality = 0,
             .format = hyper_rhi::TextureFormat::D32_SFloat,
             .dimension = hyper_rhi::TextureDimension::Texture2D,
-            .usage = hyper_rhi::TextureUsageFlags::RenderTarget,
+            .usage = hyper_rhi::TextureUsage::RenderTarget,
         });
     }
 
