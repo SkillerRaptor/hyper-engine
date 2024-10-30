@@ -19,9 +19,19 @@ namespace hyper_rhi
     public:
         virtual ~Surface() = default;
 
-        virtual void resize(uint32_t width, uint32_t height) = 0;
+        void resize(uint32_t width, uint32_t height);
 
+        [[nodiscard]] uint32_t width() const;
+        [[nodiscard]] uint32_t height() const;
         [[nodiscard]] virtual TextureHandle current_texture() const = 0;
+
+    protected:
+        Surface(uint32_t width, uint32_t height);
+
+    protected:
+        bool m_resized;
+        uint32_t m_width;
+        uint32_t m_height;
     };
 
     using SurfaceHandle = std::shared_ptr<Surface>;

@@ -6,6 +6,8 @@
 
 #include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 
+#include <hyper_core/bitmask.hpp>
+
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 
 namespace hyper_rhi
@@ -16,30 +18,19 @@ namespace hyper_rhi
         , m_buffer(VK_NULL_HANDLE)
         , m_allocation(VK_NULL_HANDLE)
     {
-        VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-        if (descriptor.is_constant_buffer)
+        const VkBufferUsageFlags usage_flags = VulkanBuffer::get_buffer_usage_flags(descriptor.usage);
+
+        // NOTE: To be able to use vkCmdUpdateBuffer the buffer size needs to be a multiple of 4 if the size is less than 64kb
+        if (m_byte_size < 65536)
         {
-            usage_flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+            m_byte_size = (m_byte_size + 3) & ~3ull;
         }
 
-        if (descriptor.is_index_buffer)
-        {
-            usage_flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-        }
-
-        uint64_t size = descriptor.byte_size;
-        if (size < 65536)
-        {
-            // NOTE: Make buffer larger to be a multiple of 4 if the size is less than 64kb
-            size = (size + 3) & ~3ull;
-        }
-
-        // TODO: Make the size aligned for small uploads
         const VkBufferCreateInfo buffer_create_info = {
             .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
-            .size = descriptor.byte_size,
+            .size = m_byte_size,
             .usage = usage_flags,
             .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
             .queueFamilyIndexCount = 0,
@@ -63,14 +54,21 @@ namespace hyper_rhi
         HE_ASSERT(m_buffer != VK_NULL_HANDLE);
         HE_ASSERT(m_allocation != VK_NULL_HANDLE);
 
-        if (descriptor.is_constant_buffer && !descriptor.has_index)
-        {
-            m_handle = m_graphics_device.descriptor_manager().allocate_buffer_handle(m_buffer);
-        }
-
         if (!m_label.empty())
         {
             m_graphics_device.set_object_name(m_buffer, VK_OBJECT_TYPE_BUFFER, m_label);
+        }
+
+        if ((descriptor.usage & BufferUsageFlags::ShaderResource) == BufferUsageFlags::ShaderResource)
+        {
+            if (!m_handle.is_valid())
+            {
+                m_handle = m_graphics_device.descriptor_manager().allocate_buffer_handle(m_buffer);
+            }
+            else
+            {
+                m_graphics_device.descriptor_manager().set_dynamic_buffer(m_buffer, m_handle.handle());
+            }
         }
 
         HE_TRACE("Created Buffer {} with {} bytes", m_label.empty() ? "" : fmt::format("'{}'", m_label), descriptor.byte_size);
@@ -84,5 +82,21 @@ namespace hyper_rhi
     VkBuffer VulkanBuffer::buffer() const
     {
         return m_buffer;
+    }
+
+    VkBufferUsageFlags VulkanBuffer::get_buffer_usage_flags(const BufferUsageFlags buffer_usage_flags)
+    {
+        VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        if ((buffer_usage_flags & BufferUsageFlags::ShaderResource) == BufferUsageFlags::ShaderResource)
+        {
+            usage_flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+        }
+
+        if ((buffer_usage_flags & BufferUsageFlags::IndexBuffer) == BufferUsageFlags::IndexBuffer)
+        {
+            usage_flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+        }
+
+        return usage_flags;
     }
 } // namespace hyper_rhi

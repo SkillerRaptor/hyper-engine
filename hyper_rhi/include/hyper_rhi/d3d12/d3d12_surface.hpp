@@ -17,8 +17,6 @@ namespace hyper_rhi
     public:
         D3D12Surface(D3D12GraphicsDevice &graphics_device, const hyper_platform::Window &window);
 
-        void resize(uint32_t width, uint32_t height) override;
-
         [[nodiscard]] TextureHandle current_texture() const override;
 
     private:

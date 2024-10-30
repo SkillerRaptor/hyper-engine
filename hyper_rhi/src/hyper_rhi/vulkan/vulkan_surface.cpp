@@ -15,15 +15,13 @@
 namespace hyper_rhi
 {
     VulkanSurface::VulkanSurface(VulkanGraphicsDevice &graphics_device, const hyper_platform::Window &window)
-        : m_graphics_device(graphics_device)
+        : Surface(window.width(), window.height())
+        , m_graphics_device(graphics_device)
         , m_surface(VK_NULL_HANDLE)
         , m_swapchain(VK_NULL_HANDLE)
         , m_format(VK_FORMAT_UNDEFINED)
         , m_textures({})
         , m_current_texture_index(0)
-        , m_resized(false)
-        , m_width(window.width())
-        , m_height(window.height())
     {
         this->create_surface(window);
         this->create_swapchain();
@@ -37,18 +35,6 @@ namespace hyper_rhi
         this->destroy();
 
         vkDestroySurfaceKHR(m_graphics_device.instance(), m_surface, nullptr);
-    }
-
-    void VulkanSurface::resize(const uint32_t width, const uint32_t height)
-    {
-        if (m_width == width || m_height == height)
-        {
-            return;
-        }
-
-        m_resized = true;
-        m_width = width;
-        m_height = height;
     }
 
     void VulkanSurface::rebuild()
@@ -214,7 +200,6 @@ namespace hyper_rhi
         {
             m_textures.push_back(std::make_shared<VulkanTexture>(
                 m_graphics_device,
-                image,
                 TextureDescriptor{
                     .label = fmt::format("Swapchain Texture #{}", index),
                     .width = m_width,
@@ -226,7 +211,8 @@ namespace hyper_rhi
                     .sample_quality = 0,
                     .format = VulkanTexture::format_to_texture_format(m_format),
                     .dimension = TextureDimension::Texture2D,
-                }));
+                },
+                image));
 
             ++index;
         }

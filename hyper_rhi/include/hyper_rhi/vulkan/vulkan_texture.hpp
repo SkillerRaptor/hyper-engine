@@ -18,17 +18,21 @@ namespace hyper_rhi
     class VulkanTexture final : public Texture
     {
     public:
-        VulkanTexture(VulkanGraphicsDevice &graphics_device, const TextureDescriptor &descriptor);
-        VulkanTexture(VulkanGraphicsDevice &graphics_device, VkImage image, const TextureDescriptor &descriptor);
+        VulkanTexture(VulkanGraphicsDevice &graphics_device, const TextureDescriptor &descriptor, VkImage image = VK_NULL_HANDLE);
         ~VulkanTexture() override;
 
         [[nodiscard]] VkImage image() const;
         [[nodiscard]] VkImageView view() const;
 
         static TextureFormat format_to_texture_format(VkFormat format);
-        static VkFormat texture_format_to_format(TextureFormat format);
-        static VkImageType texture_dimension_to_image_type(TextureDimension dimension);
-        static VkImageViewType texture_dimension_to_image_view_type(TextureDimension dimension);
+
+    private:
+        static VkFormat get_format(TextureFormat format);
+        static VkImageType get_image_type(TextureDimension dimension);
+        static VkImageViewType get_image_view_type(TextureDimension dimension);
+        static VkSampleCountFlagBits get_sample_count_flags(uint32_t sample_count);
+        static VkImageUsageFlags get_image_usage_flags(TextureUsageFlags texture_usage_flags, TextureFormat format);
+        static VkImageAspectFlags get_image_aspect_flags(TextureFormat format);
 
     private:
         VulkanGraphicsDevice &m_graphics_device;

@@ -78,8 +78,6 @@ namespace hyper_rhi
         void end_frame() const override;
         void present(SurfaceHandle surface_handle) const override;
 
-        void set_dynamic_buffer(const BufferHandle &buffer_handle, uint32_t slot) const;
-
         void wait_for_idle() const override;
 
         [[nodiscard]] VkInstance instance() const;

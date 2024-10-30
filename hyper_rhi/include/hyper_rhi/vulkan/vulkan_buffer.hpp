@@ -24,6 +24,9 @@ namespace hyper_rhi
         [[nodiscard]] VkBuffer buffer() const;
 
     private:
+        static VkBufferUsageFlags get_buffer_usage_flags(BufferUsageFlags buffer_usage_flags);
+
+    private:
         VulkanGraphicsDevice &m_graphics_device;
 
         VkBuffer m_buffer;

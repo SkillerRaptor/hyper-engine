@@ -30,7 +30,7 @@ namespace hyper_rhi
         explicit VulkanDescriptorManager(VulkanGraphicsDevice &graphics_device);
         ~VulkanDescriptorManager();
 
-        void set_dynamic_buffer(const BufferHandle& buffer_handle, uint32_t slot);
+        void set_dynamic_buffer(VkBuffer buffer, uint32_t slot);
 
         [[nodiscard]] ResourceHandle allocate_buffer_handle(VkBuffer buffer);
         void retire_handle(ResourceHandle handle);

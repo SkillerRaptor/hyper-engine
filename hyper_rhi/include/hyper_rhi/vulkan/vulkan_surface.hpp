@@ -18,7 +18,6 @@ namespace hyper_rhi
         VulkanSurface(VulkanGraphicsDevice &graphics_device, const hyper_platform::Window &window);
         ~VulkanSurface() override;
 
-        void resize(uint32_t width, uint32_t height) override;
         void rebuild();
 
         [[nodiscard]] VkSwapchainKHR swapchain() const;
@@ -50,9 +49,5 @@ namespace hyper_rhi
 
         std::vector<TextureHandle> m_textures;
         uint32_t m_current_texture_index;
-
-        bool m_resized;
-        uint32_t m_width;
-        uint32_t m_height;
     };
 } // namespace hyper_rhi

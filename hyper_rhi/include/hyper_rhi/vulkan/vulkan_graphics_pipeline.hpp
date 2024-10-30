@@ -22,6 +22,9 @@ namespace hyper_rhi
         [[nodiscard]] VkPipeline pipeline() const;
 
     private:
+        static VkCompareOp get_compare_operation(CompareOperation compare_operation);
+
+    private:
         VulkanGraphicsDevice &m_graphics_device;
 
         VkPipeline m_pipeline;

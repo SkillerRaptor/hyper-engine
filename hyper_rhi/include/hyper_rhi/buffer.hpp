@@ -9,21 +9,31 @@
 #include <memory>
 #include <string>
 
+#include <hyper_core/bitmask.hpp>
+
 #include "hyper_rhi/resource.hpp"
 #include "hyper_rhi/resource_handle.hpp"
 
 namespace hyper_rhi
 {
+    enum class BufferUsageFlags : uint8_t
+    {
+        None = 0,
+        ShaderResource = 1 << 0,
+        IndexBuffer = 1 << 1,
+    };
+
+    HE_ENABLE_BITMASK_OPERATORS(BufferUsageFlags);
+
     struct BufferDescriptor
     {
         std::string label;
 
         uint64_t byte_size = 0;
-        bool is_index_buffer = false;
-        bool is_constant_buffer = false;
-        bool has_index = false;
 
-        // TODO: Add volatile buffers
+        BufferUsageFlags usage = BufferUsageFlags::None;
+
+        ResourceHandle handle;
     };
 
     class Buffer : public Resource
@@ -36,7 +46,7 @@ namespace hyper_rhi
         [[nodiscard]] ResourceHandle handle() const;
 
     protected:
-        explicit Buffer(const BufferDescriptor& descriptor);
+        explicit Buffer(const BufferDescriptor &descriptor);
 
     protected:
         uint64_t m_byte_size;

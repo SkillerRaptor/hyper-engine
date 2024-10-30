@@ -42,6 +42,7 @@ namespace hyper_render
         const hyper_platform::Input &m_input;
         hyper_rhi::GraphicsDeviceHandle m_graphics_device;
         hyper_rhi::SurfaceHandle m_surface;
+        hyper_rhi::TextureHandle m_depth_texture;
         hyper_rhi::ShaderCompiler m_shader_compiler;
         hyper_rhi::QueueHandle m_queue;
         hyper_rhi::CommandListHandle m_command_list;

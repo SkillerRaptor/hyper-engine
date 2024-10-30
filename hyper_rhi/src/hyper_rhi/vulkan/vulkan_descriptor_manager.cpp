@@ -36,14 +36,12 @@ namespace hyper_rhi
         vkDestroyDescriptorPool(m_graphics_device.device(), m_descriptor_pool, nullptr);
     }
 
-    void VulkanDescriptorManager::set_dynamic_buffer(const BufferHandle& buffer_handle, const uint32_t slot)
+    void VulkanDescriptorManager::set_dynamic_buffer(const VkBuffer buffer, const uint32_t slot)
     {
         HE_ASSERT(slot > m_current_index);
 
-        const std::shared_ptr<VulkanBuffer> buffer = std::dynamic_pointer_cast<VulkanBuffer>(buffer_handle);
-
         const VkDescriptorBufferInfo buffer_info = {
-            .buffer = buffer->buffer(),
+            .buffer = buffer,
             .offset = 0,
             .range = VK_WHOLE_SIZE,
         };

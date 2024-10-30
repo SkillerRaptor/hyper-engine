@@ -17,6 +17,11 @@ namespace hyper_rhi
         , m_graphics_device(graphics_device)
         , m_pipeline(VK_NULL_HANDLE)
     {
+        const auto vertex_shader_module = std::dynamic_pointer_cast<VulkanShaderModule>(descriptor.vertex_shader);
+        const auto fragment_shader_module = std::dynamic_pointer_cast<VulkanShaderModule>(descriptor.fragment_shader);
+        const auto layout = std::dynamic_pointer_cast<VulkanPipelineLayout>(descriptor.layout);
+
+        // TODO: Add to the descriptor a way to change that according to the images written to
         constexpr std::array<VkFormat, 1> color_attachment_formats = {
             VK_FORMAT_B8G8R8A8_SRGB,
         };
@@ -27,11 +32,10 @@ namespace hyper_rhi
             .viewMask = 0,
             .colorAttachmentCount = static_cast<uint32_t>(color_attachment_formats.size()),
             .pColorAttachmentFormats = color_attachment_formats.data(),
-            .depthAttachmentFormat = VK_FORMAT_UNDEFINED,
+            // TODO: Add to the descriptor a way to change that according to the depth image
+            .depthAttachmentFormat = VK_FORMAT_D32_SFLOAT,
             .stencilAttachmentFormat = VK_FORMAT_UNDEFINED,
         };
-
-        const std::shared_ptr<VulkanShaderModule> vertex_shader_module = std::dynamic_pointer_cast<VulkanShaderModule>(descriptor.vertex_shader);
 
         const VkPipelineShaderStageCreateInfo vertex_shader_stage_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
@@ -42,9 +46,6 @@ namespace hyper_rhi
             .pName = vertex_shader_module->entry_point().data(),
             .pSpecializationInfo = nullptr,
         };
-
-        const std::shared_ptr<VulkanShaderModule> fragment_shader_module =
-            std::dynamic_pointer_cast<VulkanShaderModule>(descriptor.fragment_shader);
 
         const VkPipelineShaderStageCreateInfo fragment_shader_stage_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
@@ -124,19 +125,22 @@ namespace hyper_rhi
             .alphaToOneEnable = false,
         };
 
-        constexpr VkPipelineDepthStencilStateCreateInfo depth_stencil_state_create_info = {
+        const bool depth_enabled = descriptor.depth_state.depth_enabled;
+        const VkCompareOp compare_operation = VulkanGraphicsPipeline::get_compare_operation(descriptor.depth_state.compare_operation);
+
+        const VkPipelineDepthStencilStateCreateInfo depth_stencil_state_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
-            .depthTestEnable = false,
-            .depthWriteEnable = false,
-            .depthCompareOp = VK_COMPARE_OP_NEVER,
+            .depthTestEnable = depth_enabled,
+            .depthWriteEnable = depth_enabled,
+            .depthCompareOp = compare_operation,
             .depthBoundsTestEnable = false,
             .stencilTestEnable = false,
             .front = {},
             .back = {},
             .minDepthBounds = 0.0,
-            .maxDepthBounds = 0.0,
+            .maxDepthBounds = 1.0,
         };
 
         constexpr VkPipelineColorBlendAttachmentState color_blend_attachment_state = {
@@ -158,7 +162,12 @@ namespace hyper_rhi
             .logicOp = VK_LOGIC_OP_NO_OP,
             .attachmentCount = 1,
             .pAttachments = &color_blend_attachment_state,
-            .blendConstants = { 0.0, 0.0, 0.0, 0.0 },
+            .blendConstants = {
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+            },
         };
 
         constexpr std::array<VkDynamicState, 2> dynamic_states = {
@@ -173,8 +182,6 @@ namespace hyper_rhi
             .dynamicStateCount = static_cast<uint32_t>(dynamic_states.size()),
             .pDynamicStates = dynamic_states.data(),
         };
-
-        const std::shared_ptr<VulkanPipelineLayout> layout = std::dynamic_pointer_cast<VulkanPipelineLayout>(descriptor.layout);
 
         const VkGraphicsPipelineCreateInfo graphics_pipeline_create_info = {
             .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -261,5 +268,31 @@ namespace hyper_rhi
     VkPipeline VulkanGraphicsPipeline::pipeline() const
     {
         return m_pipeline;
+    }
+
+    VkCompareOp VulkanGraphicsPipeline::get_compare_operation(const CompareOperation compare_operation)
+    {
+        switch (compare_operation)
+        {
+        case CompareOperation::Never:
+            return VK_COMPARE_OP_NEVER;
+        case CompareOperation::Less:
+            return VK_COMPARE_OP_LESS;
+        case CompareOperation::Equal:
+            return VK_COMPARE_OP_EQUAL;
+        case CompareOperation::LessEqual:
+            return VK_COMPARE_OP_LESS_OR_EQUAL;
+        case CompareOperation::Greater:
+            return VK_COMPARE_OP_GREATER;
+        case CompareOperation::NotEqual:
+            return VK_COMPARE_OP_NOT_EQUAL;
+        case CompareOperation::GreaterEqual:
+            return VK_COMPARE_OP_GREATER_OR_EQUAL;
+        case CompareOperation::Always:
+            return VK_COMPARE_OP_ALWAYS;
+        case CompareOperation::Undefined:
+        default:
+            HE_UNREACHABLE();
+        }
     }
 } // namespace hyper_rhi

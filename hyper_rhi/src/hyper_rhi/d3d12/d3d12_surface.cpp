@@ -16,21 +16,14 @@
 namespace hyper_rhi
 {
     D3D12Surface::D3D12Surface(D3D12GraphicsDevice &graphics_device, const hyper_platform::Window &window)
-        : m_graphics_device(graphics_device)
+        : Surface(window.width(), window.height())
+        , m_graphics_device(graphics_device)
     {
         this->create_swapchain(window);
 
         // TODO: Add RTV handles
 
         HE_INFO("Created D3D12 Surface");
-    }
-
-    void D3D12Surface::resize(const uint32_t width, const uint32_t height)
-    {
-        HE_UNUSED(width);
-        HE_UNUSED(height);
-
-        HE_UNREACHABLE();
     }
 
     TextureHandle D3D12Surface::current_texture() const

@@ -10,6 +10,7 @@ set(SOURCES
 
 set(HEADERS
         include/hyper_core/assertion.hpp
+        include/hyper_core/bitmask.hpp
         include/hyper_core/filesystem.hpp
         include/hyper_core/logger.hpp
         include/hyper_core/math.hpp

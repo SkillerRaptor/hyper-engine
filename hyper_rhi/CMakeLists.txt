@@ -15,6 +15,7 @@ set(SOURCES
         src/hyper_rhi/resource_handle.cpp
         src/hyper_rhi/shader_compiler.cpp
         src/hyper_rhi/shader_module.cpp
+        src/hyper_rhi/surface.cpp
         src/hyper_rhi/texture.cpp
         src/hyper_rhi/vulkan/vulkan_buffer.cpp
         src/hyper_rhi/vulkan/vulkan_command_list.cpp

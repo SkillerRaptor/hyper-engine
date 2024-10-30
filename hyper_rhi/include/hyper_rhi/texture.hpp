@@ -9,6 +9,8 @@
 #include <memory>
 #include <string>
 
+#include <hyper_core/bitmask.hpp>
+
 #include "hyper_rhi/resource.hpp"
 #include "hyper_rhi/resource_handle.hpp"
 
@@ -18,6 +20,7 @@ namespace hyper_rhi
     {
         Unknown,
         B8G8R8A8_Srgb,
+        D32_SFloat,
     };
 
     enum class TextureDimension
@@ -29,6 +32,15 @@ namespace hyper_rhi
         Texture2DArray,
         Texture3D,
     };
+
+    enum class TextureUsageFlags : uint8_t
+    {
+        None = 0,
+        ShaderResource = 1 << 0,
+        RenderTarget = 1 << 1,
+    };
+
+    HE_ENABLE_BITMASK_OPERATORS(TextureUsageFlags);
 
     struct TextureDescriptor
     {
@@ -43,6 +55,10 @@ namespace hyper_rhi
         uint32_t sample_quality = 0;
         TextureFormat format = TextureFormat::Unknown;
         TextureDimension dimension = TextureDimension::Unknown;
+
+        TextureUsageFlags usage = TextureUsageFlags::None;
+
+        ResourceHandle handle;
     };
 
     class Texture : public Resource

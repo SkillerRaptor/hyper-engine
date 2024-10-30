@@ -7,6 +7,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "hyper_rhi/pipeline_layout.hpp"
@@ -15,6 +16,25 @@
 
 namespace hyper_rhi
 {
+    enum class CompareOperation
+    {
+        Undefined,
+        Never,
+        Less,
+        Equal,
+        LessEqual,
+        Greater,
+        NotEqual,
+        GreaterEqual,
+        Always,
+    };
+
+    struct DepthState
+    {
+        bool depth_enabled = false;
+        CompareOperation compare_operation = CompareOperation::Undefined;
+    };
+
     struct GraphicsPipelineDescriptor
     {
         std::string label;
@@ -22,6 +42,7 @@ namespace hyper_rhi
         PipelineLayoutHandle layout = nullptr;
         ShaderModuleHandle vertex_shader = nullptr;
         ShaderModuleHandle fragment_shader = nullptr;
+        DepthState depth_state;
     };
 
     class GraphicsPipeline : public Resource

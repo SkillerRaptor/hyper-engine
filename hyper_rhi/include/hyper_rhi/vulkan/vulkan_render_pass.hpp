@@ -31,6 +31,7 @@ namespace hyper_rhi
         VkCommandBuffer m_command_buffer;
 
         TextureHandle m_color_attachment;
+        TextureHandle m_depth_attachment;
         GraphicsPipelineHandle m_graphics_pipeline;
     };
 } // namespace hyper_rhi

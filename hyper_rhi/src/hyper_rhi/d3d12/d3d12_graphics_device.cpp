@@ -111,14 +111,6 @@ namespace hyper_rhi
         HE_UNREACHABLE();
     }
 
-    void D3D12GraphicsDevice::set_dynamic_buffer(const BufferHandle &buffer_handle, uint32_t slot) const
-    {
-        HE_UNUSED(buffer_handle);
-        HE_UNUSED(slot);
-
-        HE_UNREACHABLE();
-    }
-
     void D3D12GraphicsDevice::wait_for_idle() const
     {
         HE_UNREACHABLE();
@@ -210,7 +202,8 @@ namespace hyper_rhi
     void D3D12GraphicsDevice::create_allocator()
     {
         const D3D12MA::ALLOCATOR_DESC allocator_descriptor = {
-            .Flags = D3D12MA::ALLOCATOR_FLAG_ALWAYS_COMMITTED | D3D12MA::ALLOCATOR_FLAG_DEFAULT_POOLS_NOT_ZEROED,
+            .Flags = static_cast<D3D12MA::ALLOCATOR_FLAGS>(
+                D3D12MA::ALLOCATOR_FLAG_ALWAYS_COMMITTED | D3D12MA::ALLOCATOR_FLAG_DEFAULT_POOLS_NOT_ZEROED),
             .pDevice = m_device.Get(),
             .PreferredBlockSize = 0,
             .pAllocationCallbacks = nullptr,

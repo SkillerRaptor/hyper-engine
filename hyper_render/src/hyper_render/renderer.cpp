@@ -161,6 +161,19 @@ namespace hyper_render
         : m_input(input)
         , m_graphics_device(descriptor.graphics_device)
         , m_surface(descriptor.surface)
+        , m_depth_texture(m_graphics_device->create_texture({
+              .label = "Swapchain Depth Texture",
+              .width = m_surface->width(),
+              .height = m_surface->height(),
+              .depth = 1,
+              .array_size = 1,
+              .mip_levels = 1,
+              .sample_count = 1,
+              .sample_quality = 0,
+              .format = hyper_rhi::TextureFormat::D32_SFloat,
+              .dimension = hyper_rhi::TextureDimension::Texture2D,
+              .usage = hyper_rhi::TextureUsageFlags::RenderTarget,
+          }))
         , m_shader_compiler()
         , m_queue(m_graphics_device->queue())
         , m_command_list(m_graphics_device->create_command_list())
@@ -197,55 +210,46 @@ namespace hyper_render
               .layout = m_pipeline_layout,
               .vertex_shader = m_vertex_shader,
               .fragment_shader = m_fragment_shader,
+              .depth_state = {
+                  .depth_enabled = true,
+                  .compare_operation = hyper_rhi::CompareOperation::Less,
+              },
           }))
         , m_material_buffer(m_graphics_device->create_buffer({
               .label = "Material Buffer",
               .byte_size = sizeof(s_materials),
-              .is_index_buffer = false,
-              .is_constant_buffer = true,
-              .has_index = false,
+              .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
           }))
         , m_positions_buffer(m_graphics_device->create_buffer({
               .label = "Positions Buffer",
               .byte_size = sizeof(s_positions),
-              .is_index_buffer = false,
-              .is_constant_buffer = true,
-              .has_index = false,
+              .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
           }))
         , m_normals_buffer(m_graphics_device->create_buffer({
               .label = "Normals Buffer",
               .byte_size = sizeof(s_normals),
-              .is_index_buffer = false,
-              .is_constant_buffer = true,
-              .has_index = false,
+              .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
           }))
         , m_colors_buffer(m_graphics_device->create_buffer({
               .label = "Colors Buffer",
               .byte_size = sizeof(s_colors),
-              .is_index_buffer = false,
-              .is_constant_buffer = true,
-              .has_index = false,
+              .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
           }))
         , m_mesh_buffer(m_graphics_device->create_buffer({
               .label = "Mesh Buffer",
-              .byte_size = sizeof(Mesh) * 1,
-              .is_index_buffer = false,
-              .is_constant_buffer = true,
-              .has_index = false,
+              .byte_size = sizeof(Mesh),
+              .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
           }))
         , m_indices_buffer(m_graphics_device->create_buffer({
               .label = "Indices Buffer",
               .byte_size = sizeof(s_indices),
-              .is_index_buffer = true,
-              .is_constant_buffer = false,
-              .has_index = false,
+              .usage = hyper_rhi::BufferUsageFlags::IndexBuffer,
           }))
         , m_camera_buffer(m_graphics_device->create_buffer({
               .label = "Camera Buffer",
               .byte_size = sizeof(::Camera),
-              .is_index_buffer = false,
-              .is_constant_buffer = true,
-              .has_index = true,
+              .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
+              .handle = hyper_rhi::ResourceHandle(HE_DESCRIPTOR_SET_SLOT_CAMERA),
           }))
         , m_editor_camera(glm::vec3(0.0, 0.0, 0.0), -90.0, 0.0)
         , m_frame_index(1)
@@ -269,8 +273,6 @@ namespace hyper_render
         m_queue->write_buffer(m_mesh_buffer, &mesh, sizeof(Mesh));
         m_queue->write_buffer(m_indices_buffer, s_indices.data(), sizeof(s_indices));
         m_queue->submit(nullptr);
-
-        m_graphics_device->set_dynamic_buffer(m_camera_buffer, HE_DESCRIPTOR_SET_SLOT_CAMERA);
 
         HE_INFO("Created Renderer");
     }
@@ -324,6 +326,7 @@ namespace hyper_render
             const hyper_rhi::RenderPassHandle render_pass = m_command_list->begin_render_pass({
                 .label = "Opaque Render Pass",
                 .color_attachment = swapchain_texture,
+                .depth_attachment = m_depth_texture,
             });
 
             render_pass->set_pipeline(m_pipeline);

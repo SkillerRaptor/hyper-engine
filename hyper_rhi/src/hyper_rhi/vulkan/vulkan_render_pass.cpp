@@ -22,9 +22,11 @@ namespace hyper_rhi
         , m_graphics_device(graphics_device)
         , m_command_buffer(command_buffer)
         , m_color_attachment(descriptor.color_attachment)
+        , m_depth_attachment(descriptor.depth_attachment)
         , m_graphics_pipeline(nullptr)
     {
         const std::shared_ptr<VulkanTexture> texture = std::dynamic_pointer_cast<VulkanTexture>(m_color_attachment);
+        const std::shared_ptr<VulkanTexture> depth_texture = std::dynamic_pointer_cast<VulkanTexture>(m_depth_attachment);
 
         constexpr VkImageSubresourceRange subresource_range = {
             .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
@@ -37,12 +39,12 @@ namespace hyper_rhi
         const VkImageMemoryBarrier2 image_memory_barrier = {
             .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
             .pNext = nullptr,
-            .srcStageMask = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT,
-            .srcAccessMask = VK_ACCESS_2_NONE,
-            .dstStageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
-            .dstAccessMask = VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT,
+            .srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+            .srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT,
+            .dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+            .dstAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT,
             .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-            .newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            .newLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
             .srcQueueFamilyIndex = 0,
             .dstQueueFamilyIndex = 0,
             .image = texture->image(),
@@ -63,6 +65,43 @@ namespace hyper_rhi
 
         vkCmdPipelineBarrier2(m_command_buffer, &dependency_info);
 
+        constexpr VkImageSubresourceRange depth_subresource_range = {
+            .aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1,
+        };
+
+        const VkImageMemoryBarrier2 depth_image_memory_barrier = {
+            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
+            .pNext = nullptr,
+            .srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+            .srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT,
+            .dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+            .dstAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT,
+            .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+            .newLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
+            .srcQueueFamilyIndex = 0,
+            .dstQueueFamilyIndex = 0,
+            .image = depth_texture->image(),
+            .subresourceRange = depth_subresource_range,
+        };
+
+        const VkDependencyInfo depth_dependency_info = {
+            .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+            .pNext = nullptr,
+            .dependencyFlags = 0,
+            .memoryBarrierCount = 0,
+            .pMemoryBarriers = nullptr,
+            .bufferMemoryBarrierCount = 0,
+            .pBufferMemoryBarriers = nullptr,
+            .imageMemoryBarrierCount = 1,
+            .pImageMemoryBarriers = &depth_image_memory_barrier,
+        };
+
+        vkCmdPipelineBarrier2(m_command_buffer, &depth_dependency_info);
+
         const VkExtent2D render_area_extent = {
             .width = texture->width(),
             .height = texture->height(),
@@ -81,10 +120,10 @@ namespace hyper_rhi
         constexpr VkClearValue clear_value = {
             .color = {
                 .float32 = {
-                    static_cast<float>(0.0),
-                    static_cast<float>(0.2),
-                    static_cast<float>(0.4),
-                    static_cast<float>(1.0),
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
                 },
             },
         };
@@ -102,6 +141,26 @@ namespace hyper_rhi
             .clearValue = clear_value,
         };
 
+        constexpr VkClearValue depth_clear_value = {
+            .depthStencil = {
+                .depth = 1.0,
+                .stencil = 0,
+            },
+        };
+
+        const VkRenderingAttachmentInfo depth_attachment_info = {
+            .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+            .pNext = nullptr,
+            .imageView = depth_texture->view(),
+            .imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
+            .resolveMode = VK_RESOLVE_MODE_NONE,
+            .resolveImageView = VK_NULL_HANDLE,
+            .resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+            .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+            .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+            .clearValue = depth_clear_value,
+        };
+
         const VkRenderingInfo rendering_info = {
             .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
             .pNext = nullptr,
@@ -111,7 +170,7 @@ namespace hyper_rhi
             .viewMask = 0,
             .colorAttachmentCount = 1,
             .pColorAttachments = &color_attachment_info,
-            .pDepthAttachment = nullptr,
+            .pDepthAttachment = &depth_attachment_info,
             .pStencilAttachment = nullptr,
         };
 
@@ -142,6 +201,7 @@ namespace hyper_rhi
     VulkanRenderPass::~VulkanRenderPass()
     {
         const std::shared_ptr<VulkanTexture> texture = std::dynamic_pointer_cast<VulkanTexture>(m_color_attachment);
+        const std::shared_ptr<VulkanTexture> depth_texture = std::dynamic_pointer_cast<VulkanTexture>(m_depth_attachment);
 
         vkCmdEndRendering(m_command_buffer);
 
@@ -156,11 +216,11 @@ namespace hyper_rhi
         const VkImageMemoryBarrier2 image_memory_barrier = {
             .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
             .pNext = nullptr,
-            .srcStageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
-            .srcAccessMask = VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT,
-            .dstStageMask = VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT,
-            .dstAccessMask = VK_ACCESS_2_NONE,
-            .oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            .srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+            .srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT,
+            .dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+            .dstAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT,
+            .oldLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
             .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
             .srcQueueFamilyIndex = 0,
             .dstQueueFamilyIndex = 0,

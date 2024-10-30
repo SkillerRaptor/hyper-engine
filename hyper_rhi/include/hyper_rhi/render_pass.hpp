@@ -30,6 +30,7 @@ namespace hyper_rhi
         std::string label;
 
         TextureHandle color_attachment = nullptr;
+        TextureHandle depth_attachment = nullptr;
     };
 
     class RenderPass : public Resource
