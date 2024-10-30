@@ -20,8 +20,8 @@ namespace hyper_render
 {
     struct RendererDescriptor
     {
-        hyper_rhi::GraphicsDeviceHandle graphics_device;
-        hyper_rhi::SurfaceHandle surface;
+        std::shared_ptr<hyper_rhi::GraphicsDevice> graphics_device;
+        std::shared_ptr<hyper_rhi::Surface> surface;
     };
 
     class Renderer
@@ -40,30 +40,30 @@ namespace hyper_render
 
     private:
         const hyper_platform::Input &m_input;
-        hyper_rhi::GraphicsDeviceHandle m_graphics_device;
-        hyper_rhi::SurfaceHandle m_surface;
-        hyper_rhi::TextureHandle m_depth_texture;
+        std::shared_ptr<hyper_rhi::GraphicsDevice> m_graphics_device;
+        std::shared_ptr<hyper_rhi::Surface> m_surface;
+        std::shared_ptr<hyper_rhi::Texture> m_depth_texture;
         hyper_rhi::ShaderCompiler m_shader_compiler;
-        hyper_rhi::QueueHandle m_queue;
-        hyper_rhi::CommandListHandle m_command_list;
+        std::shared_ptr<hyper_rhi::Queue> m_queue;
+        std::shared_ptr<hyper_rhi::CommandList> m_command_list;
 
-        hyper_rhi::PipelineLayoutHandle m_pipeline_layout;
-        hyper_rhi::ShaderModuleHandle m_vertex_shader;
-        hyper_rhi::ShaderModuleHandle m_fragment_shader;
-        hyper_rhi::GraphicsPipelineHandle m_pipeline;
+        std::shared_ptr<hyper_rhi::PipelineLayout> m_pipeline_layout;
+        std::shared_ptr<hyper_rhi::ShaderModule> m_vertex_shader;
+        std::shared_ptr<hyper_rhi::ShaderModule> m_fragment_shader;
+        std::shared_ptr<hyper_rhi::GraphicsPipeline> m_pipeline;
 
-        hyper_rhi::BufferHandle m_material_buffer;
-        hyper_rhi::BufferHandle m_positions_buffer;
-        hyper_rhi::BufferHandle m_normals_buffer;
-        hyper_rhi::BufferHandle m_colors_buffer;
-        hyper_rhi::BufferHandle m_mesh_buffer;
-        hyper_rhi::BufferHandle m_indices_buffer;
-        hyper_rhi::BufferHandle m_camera_buffer;
+        std::shared_ptr<hyper_rhi::Buffer> m_material_buffer;
+        std::shared_ptr<hyper_rhi::Buffer> m_positions_buffer;
+        std::shared_ptr<hyper_rhi::Buffer> m_normals_buffer;
+        std::shared_ptr<hyper_rhi::Buffer> m_colors_buffer;
+        std::shared_ptr<hyper_rhi::Buffer> m_mesh_buffer;
+        std::shared_ptr<hyper_rhi::Buffer> m_indices_buffer;
+        std::shared_ptr<hyper_rhi::Buffer> m_camera_buffer;
 
-        hyper_rhi::PipelineLayoutHandle m_grid_pipeline_layout;
-        hyper_rhi::ShaderModuleHandle m_grid_vertex_shader;
-        hyper_rhi::ShaderModuleHandle m_grid_fragment_shader;
-        hyper_rhi::GraphicsPipelineHandle m_grid_pipeline;
+        std::shared_ptr<hyper_rhi::PipelineLayout> m_grid_pipeline_layout;
+        std::shared_ptr<hyper_rhi::ShaderModule> m_grid_vertex_shader;
+        std::shared_ptr<hyper_rhi::ShaderModule> m_grid_fragment_shader;
+        std::shared_ptr<hyper_rhi::GraphicsPipeline> m_grid_pipeline;
 
         Camera m_editor_camera;
 

@@ -22,9 +22,10 @@ namespace hyper_rhi
         ~VulkanBuffer() override;
 
         [[nodiscard]] VkBuffer buffer() const;
+        [[nodiscard]] VmaAllocation allocation() const;
 
     private:
-        static VkBufferUsageFlags get_buffer_usage_flags(BufferUsageFlags buffer_usage_flags);
+        static VkBufferUsageFlags get_buffer_usage_flags(BufferUsage buffer_usage_flags);
 
     private:
         VulkanGraphicsDevice &m_graphics_device;

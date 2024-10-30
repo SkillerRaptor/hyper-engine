@@ -82,16 +82,16 @@ namespace hyper_rhi
         explicit VulkanGraphicsDevice(const GraphicsDeviceDescriptor &descriptor);
         ~VulkanGraphicsDevice() override;
 
-        SurfaceHandle create_surface(const hyper_platform::Window &window) override;
-        QueueHandle queue() override;
+        std::shared_ptr<Surface> create_surface(const hyper_platform::Window &window) override;
+        std::shared_ptr<Queue> queue() override;
 
-        BufferHandle create_buffer(const BufferDescriptor &descriptor) override;
-        CommandListHandle create_command_list() override;
-        ComputePipelineHandle create_compute_pipeline(const ComputePipelineDescriptor &descriptor) override;
-        GraphicsPipelineHandle create_graphics_pipeline(const GraphicsPipelineDescriptor &descriptor) override;
-        PipelineLayoutHandle create_pipeline_layout(const PipelineLayoutDescriptor &descriptor) override;
-        ShaderModuleHandle create_shader_module(const ShaderModuleDescriptor &descriptor) override;
-        TextureHandle create_texture(const TextureDescriptor &descriptor) override;
+        std::shared_ptr<Buffer> create_buffer(const BufferDescriptor &descriptor) override;
+        std::shared_ptr<CommandList> create_command_list() override;
+        std::shared_ptr<ComputePipeline> create_compute_pipeline(const ComputePipelineDescriptor &descriptor) override;
+        std::shared_ptr<GraphicsPipeline> create_graphics_pipeline(const GraphicsPipelineDescriptor &descriptor) override;
+        std::shared_ptr<PipelineLayout> create_pipeline_layout(const PipelineLayoutDescriptor &descriptor) override;
+        std::shared_ptr<ShaderModule> create_shader_module(const ShaderModuleDescriptor &descriptor) override;
+        std::shared_ptr<Texture> create_texture(const TextureDescriptor &descriptor) override;
         std::shared_ptr<TextureView> create_texture_view(const TextureViewDescriptor &descriptor) override;
 
         void begin_marker(VkCommandBuffer command_buffer, MarkerType type, std::string_view name, LabelColor color) const;
@@ -100,9 +100,9 @@ namespace hyper_rhi
         void set_object_name(const void *handle, ObjectType type, std::string_view name) const;
         void destroy_resources();
 
-        void begin_frame(SurfaceHandle surface_handle, uint32_t frame_index) override;
+        void begin_frame(const std::shared_ptr<Surface> &surface, uint32_t frame_index) override;
         void end_frame() const override;
-        void present(SurfaceHandle surface_handle) const override;
+        void present(const std::shared_ptr<Surface> &surface) const override;
 
         void wait_for_idle() const override;
 
@@ -123,8 +123,8 @@ namespace hyper_rhi
         void create_debug_messenger();
 
         void choose_physical_device();
-        uint32_t rate_physical_device(const VkPhysicalDevice &physical_device) const;
-        std::optional<uint32_t> find_queue_family(const VkPhysicalDevice &physical_device) const;
+        [[nodiscard]] uint32_t rate_physical_device(const VkPhysicalDevice &physical_device) const;
+        [[nodiscard]] std::optional<uint32_t> find_queue_family(const VkPhysicalDevice &physical_device) const;
         static bool check_extension_support(const VkPhysicalDevice &physical_device);
         static bool check_feature_support(const VkPhysicalDevice &physical_device);
 

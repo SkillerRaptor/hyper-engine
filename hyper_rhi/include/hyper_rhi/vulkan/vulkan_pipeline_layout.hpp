@@ -25,6 +25,5 @@ namespace hyper_rhi
         VulkanGraphicsDevice &m_graphics_device;
 
         VkPipelineLayout m_pipeline_layout;
-        uint32_t m_push_constant_size;
     };
 } // namespace hyper_rhi

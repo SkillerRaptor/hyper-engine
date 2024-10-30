@@ -35,6 +35,8 @@ namespace hyper_rhi
         [[nodiscard]] ResourceHandle allocate_buffer_handle(VkBuffer buffer);
         void retire_handle(ResourceHandle handle);
 
+        [[nodiscard]] const std::array<uint32_t, s_descriptor_types.size()> &descriptor_counts() const;
+        [[nodiscard]] VkDescriptorPool descriptor_pool() const;
         [[nodiscard]] const std::array<VkDescriptorSetLayout, s_descriptor_types.size()> &descriptor_set_layouts() const;
         [[nodiscard]] const std::array<VkDescriptorSet, s_descriptor_types.size()> &descriptor_sets() const;
 

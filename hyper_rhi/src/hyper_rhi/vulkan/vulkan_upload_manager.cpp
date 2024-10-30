@@ -93,7 +93,7 @@ namespace hyper_rhi
 
         for (const BufferWrite &buffer_write : buffer_writes)
         {
-            const std::shared_ptr<VulkanBuffer> buffer = std::dynamic_pointer_cast<VulkanBuffer>(buffer_write.handle);
+            const std::shared_ptr<VulkanBuffer> buffer = std::dynamic_pointer_cast<VulkanBuffer>(buffer_write.buffer);
             if (buffer->byte_size() <= 65535)
             {
                 vkCmdUpdateBuffer(m_command_buffer, buffer->buffer(), 0, buffer_write.bytes.size(), buffer_write.bytes.data());

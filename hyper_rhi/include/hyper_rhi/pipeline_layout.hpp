@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include <memory>
 #include <string>
 
 #include "hyper_rhi/resource.hpp"
@@ -17,7 +16,7 @@ namespace hyper_rhi
     {
         std::string label;
 
-        uint32_t push_constant_size;
+        uint32_t push_constant_size = 0;
     };
 
     class PipelineLayout : public Resource
@@ -25,9 +24,12 @@ namespace hyper_rhi
     public:
         virtual ~PipelineLayout() = default;
 
-    protected:
-        explicit PipelineLayout(std::string label);
-    };
+        [[nodiscard]] uint32_t push_constant_size() const;
 
-    using PipelineLayoutHandle = std::shared_ptr<PipelineLayout>;
+    protected:
+        explicit PipelineLayout(const PipelineLayoutDescriptor &descriptor);
+
+    protected:
+        uint32_t m_push_constant_size;
+    };
 } // namespace hyper_rhi

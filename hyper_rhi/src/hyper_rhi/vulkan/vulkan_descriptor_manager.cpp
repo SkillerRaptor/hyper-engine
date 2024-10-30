@@ -100,6 +100,16 @@ namespace hyper_rhi
         m_recycled_descriptors.push(handle);
     }
 
+    const std::array<uint32_t, VulkanDescriptorManager::s_descriptor_types.size()> &VulkanDescriptorManager::descriptor_counts() const
+    {
+        return m_descriptor_counts;
+    }
+
+    VkDescriptorPool VulkanDescriptorManager::descriptor_pool() const
+    {
+        return m_descriptor_pool;
+    }
+
     const std::array<VkDescriptorSetLayout, VulkanDescriptorManager::s_descriptor_types.size()> &
         VulkanDescriptorManager::descriptor_set_layouts() const
     {

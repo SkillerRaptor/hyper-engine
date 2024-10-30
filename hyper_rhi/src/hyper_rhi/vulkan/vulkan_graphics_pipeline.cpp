@@ -43,7 +43,7 @@ namespace hyper_rhi
             .flags = 0,
             .stage = VK_SHADER_STAGE_VERTEX_BIT,
             .module = vertex_shader_module->shader_module(),
-            .pName = vertex_shader_module->entry_point().data(),
+            .pName = vertex_shader_module->entry_name().data(),
             .pSpecializationInfo = nullptr,
         };
 
@@ -53,7 +53,7 @@ namespace hyper_rhi
             .flags = 0,
             .stage = VK_SHADER_STAGE_FRAGMENT_BIT,
             .module = fragment_shader_module->shader_module(),
-            .pName = fragment_shader_module->entry_point().data(),
+            .pName = fragment_shader_module->entry_name().data(),
             .pSpecializationInfo = nullptr,
         };
 

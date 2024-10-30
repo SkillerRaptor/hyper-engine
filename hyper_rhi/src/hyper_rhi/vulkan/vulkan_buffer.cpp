@@ -56,7 +56,7 @@ namespace hyper_rhi
 
         m_graphics_device.set_object_name(m_buffer, ObjectType::Buffer, m_label);
 
-        if ((descriptor.usage & BufferUsageFlags::ShaderResource) == BufferUsageFlags::ShaderResource)
+        if ((descriptor.usage & BufferUsage::ShaderResource) == BufferUsage::ShaderResource)
         {
             if (!m_handle.is_valid())
             {
@@ -81,15 +81,20 @@ namespace hyper_rhi
         return m_buffer;
     }
 
-    VkBufferUsageFlags VulkanBuffer::get_buffer_usage_flags(const BufferUsageFlags buffer_usage_flags)
+    VmaAllocation VulkanBuffer::allocation() const
+    {
+        return m_allocation;
+    }
+
+    VkBufferUsageFlags VulkanBuffer::get_buffer_usage_flags(const BufferUsage buffer_usage_flags)
     {
         VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-        if ((buffer_usage_flags & BufferUsageFlags::ShaderResource) == BufferUsageFlags::ShaderResource)
+        if ((buffer_usage_flags & BufferUsage::ShaderResource) == BufferUsage::ShaderResource)
         {
             usage_flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
         }
 
-        if ((buffer_usage_flags & BufferUsageFlags::IndexBuffer) == BufferUsageFlags::IndexBuffer)
+        if ((buffer_usage_flags & BufferUsage::IndexBuffer) == BufferUsage::IndexBuffer)
         {
             usage_flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
         }

@@ -19,8 +19,8 @@ namespace hyper_rhi
     {
         std::string label;
 
-        PipelineLayoutHandle layout = nullptr;
-        ShaderModuleHandle shader = nullptr;
+        std::shared_ptr<PipelineLayout> layout = nullptr;
+        std::shared_ptr<ShaderModule> shader = nullptr;
     };
 
     class ComputePipeline : public Resource
@@ -28,14 +28,14 @@ namespace hyper_rhi
     public:
         virtual ~ComputePipeline() = default;
 
-        [[nodiscard]] PipelineLayoutHandle layout() const;
+        [[nodiscard]] PipelineLayout &layout() const;
+        [[nodiscard]] ShaderModule &shader() const;
 
     protected:
         explicit ComputePipeline(const ComputePipelineDescriptor &descriptor);
 
     protected:
-        PipelineLayoutHandle m_layout;
+        std::shared_ptr<PipelineLayout> m_layout;
+        std::shared_ptr<ShaderModule> m_shader;
     };
-
-    using ComputePipelineHandle = std::shared_ptr<ComputePipeline>;
 } // namespace hyper_rhi

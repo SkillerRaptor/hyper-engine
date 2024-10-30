@@ -11,8 +11,6 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
-#include <hyper_core/prerequisites.hpp>
-
 namespace hyper_rhi
 {
     D3D12Surface::D3D12Surface(D3D12GraphicsDevice &graphics_device, const hyper_platform::Window &window)
@@ -26,7 +24,7 @@ namespace hyper_rhi
         HE_INFO("Created D3D12 Surface");
     }
 
-    TextureHandle D3D12Surface::current_texture() const
+    std::shared_ptr<Texture> D3D12Surface::current_texture() const
     {
         HE_UNREACHABLE();
     }

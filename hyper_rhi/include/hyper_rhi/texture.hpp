@@ -71,7 +71,7 @@ namespace hyper_rhi
         [[nodiscard]] TextureFormat format() const;
         [[nodiscard]] TextureDimension dimension() const;
         [[nodiscard]] TextureUsage usage() const;
-        [[nodiscard]] std::shared_ptr<TextureView> view() const;
+        [[nodiscard]] TextureView &view() const;
 
     protected:
         explicit Texture(const TextureDescriptor &descriptor);
@@ -87,6 +87,4 @@ namespace hyper_rhi
         TextureUsage m_usage;
         std::shared_ptr<TextureView> m_view;
     };
-
-    using TextureHandle = std::shared_ptr<Texture>;
 } // namespace hyper_rhi

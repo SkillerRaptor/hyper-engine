@@ -38,7 +38,7 @@ namespace hyper_rhi
         HE_VK_CHECK(vkEndCommandBuffer(m_command_buffer));
     }
 
-    RenderPassHandle VulkanCommandList::begin_render_pass(const RenderPassDescriptor &descriptor) const
+    std::shared_ptr<RenderPass> VulkanCommandList::begin_render_pass(const RenderPassDescriptor &descriptor) const
     {
         return std::make_shared<VulkanRenderPass>(m_graphics_device, m_command_buffer, descriptor);
     }

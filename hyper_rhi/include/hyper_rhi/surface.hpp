@@ -21,9 +21,10 @@ namespace hyper_rhi
 
         void resize(uint32_t width, uint32_t height);
 
+        [[nodiscard]] virtual std::shared_ptr<Texture> current_texture() const = 0;
+
         [[nodiscard]] uint32_t width() const;
         [[nodiscard]] uint32_t height() const;
-        [[nodiscard]] virtual TextureHandle current_texture() const = 0;
 
     protected:
         Surface(uint32_t width, uint32_t height);
@@ -33,6 +34,4 @@ namespace hyper_rhi
         uint32_t m_width;
         uint32_t m_height;
     };
-
-    using SurfaceHandle = std::shared_ptr<Surface>;
 } // namespace hyper_rhi

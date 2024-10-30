@@ -17,7 +17,7 @@ namespace hyper_rhi
     public:
         D3D12Surface(D3D12GraphicsDevice &graphics_device, const hyper_platform::Window &window);
 
-        [[nodiscard]] TextureHandle current_texture() const override;
+        [[nodiscard]] std::shared_ptr<Texture> current_texture() const override;
 
     private:
         void create_swapchain(const hyper_platform::Window &window);

@@ -216,37 +216,37 @@ namespace hyper_render
         , m_material_buffer(m_graphics_device->create_buffer({
               .label = "Material",
               .byte_size = sizeof(s_materials),
-              .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
+              .usage = hyper_rhi::BufferUsage::ShaderResource,
           }))
         , m_positions_buffer(m_graphics_device->create_buffer({
               .label = "Positions",
               .byte_size = sizeof(s_positions),
-              .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
+              .usage = hyper_rhi::BufferUsage::ShaderResource,
           }))
         , m_normals_buffer(m_graphics_device->create_buffer({
               .label = "Normals",
               .byte_size = sizeof(s_normals),
-              .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
+              .usage = hyper_rhi::BufferUsage::ShaderResource,
           }))
         , m_colors_buffer(m_graphics_device->create_buffer({
               .label = "Colors",
               .byte_size = sizeof(s_colors),
-              .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
+              .usage = hyper_rhi::BufferUsage::ShaderResource,
           }))
         , m_mesh_buffer(m_graphics_device->create_buffer({
               .label = "Mesh",
               .byte_size = sizeof(Mesh),
-              .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
+              .usage = hyper_rhi::BufferUsage::ShaderResource,
           }))
         , m_indices_buffer(m_graphics_device->create_buffer({
               .label = "Indices",
               .byte_size = sizeof(s_indices),
-              .usage = hyper_rhi::BufferUsageFlags::IndexBuffer,
+              .usage = hyper_rhi::BufferUsage::IndexBuffer,
           }))
         , m_camera_buffer(m_graphics_device->create_buffer({
               .label = "Camera",
               .byte_size = sizeof(::Camera),
-              .usage = hyper_rhi::BufferUsageFlags::ShaderResource,
+              .usage = hyper_rhi::BufferUsage::ShaderResource,
               .handle = hyper_rhi::ResourceHandle(HE_DESCRIPTOR_SET_SLOT_CAMERA),
           }))
         , m_grid_pipeline_layout(m_graphics_device->create_pipeline_layout({
@@ -361,27 +361,31 @@ namespace hyper_render
 
         m_graphics_device->begin_frame(m_surface, m_frame_index);
 
-        const hyper_rhi::TextureHandle swapchain_texture = m_surface->current_texture();
+        const std::shared_ptr<hyper_rhi::Texture> swapchain_texture = m_surface->current_texture();
 
         m_command_list->begin();
 
         {
-            const hyper_rhi::RenderPassHandle render_pass = m_command_list->begin_render_pass({
+            const std::shared_ptr<hyper_rhi::RenderPass> render_pass = m_command_list->begin_render_pass({
                 .label = "Opaque",
                 .label_color = {
                     .red = 254,
                     .green = 17,
                     .blue = 85,
                 },
-                .color_attachment = swapchain_texture,
-                .color_operation = {
-                    .load_operation = hyper_rhi::LoadOperation::Clear,
-                    .store_operation = hyper_rhi::StoreOperation::Store,
+                .color_attachment = {
+                    .attachment = swapchain_texture,
+                    .operation = {
+                        .load_operation = hyper_rhi::LoadOperation::Clear,
+                        .store_operation = hyper_rhi::StoreOperation::Store,
+                    },
                 },
-                .depth_attachment = m_depth_texture,
-                .depth_operation = {
-                    .load_operation = hyper_rhi::LoadOperation::Clear,
-                    .store_operation = hyper_rhi::StoreOperation::Store,
+                .depth_attachment = {
+                    .attachment = m_depth_texture,
+                    .operation = {
+                        .load_operation = hyper_rhi::LoadOperation::Clear,
+                        .store_operation = hyper_rhi::StoreOperation::Store,
+                    },
                 },
             });
 
@@ -406,22 +410,26 @@ namespace hyper_render
         }
 
         {
-            const hyper_rhi::RenderPassHandle render_pass = m_command_list->begin_render_pass({
+            const std::shared_ptr<hyper_rhi::RenderPass> render_pass = m_command_list->begin_render_pass({
                 .label = "Grid",
                 .label_color = {
                     .red = 51,
                     .green = 187,
                     .blue = 255,
                 },
-                .color_attachment = swapchain_texture,
-                .color_operation = {
-                    .load_operation = hyper_rhi::LoadOperation::Load,
-                    .store_operation = hyper_rhi::StoreOperation::Store,
+                .color_attachment = {
+                    .attachment = swapchain_texture,
+                    .operation = {
+                        .load_operation = hyper_rhi::LoadOperation::Load,
+                        .store_operation = hyper_rhi::StoreOperation::Store,
+                    },
                 },
-                .depth_attachment = m_depth_texture,
-                .depth_operation = {
-                    .load_operation = hyper_rhi::LoadOperation::Load,
-                    .store_operation = hyper_rhi::StoreOperation::Store,
+                .depth_attachment = {
+                    .attachment = m_depth_texture,
+                    .operation = {
+                        .load_operation = hyper_rhi::LoadOperation::Load,
+                        .store_operation = hyper_rhi::StoreOperation::Store,
+                    },
                 },
             });
 

@@ -7,7 +7,6 @@
 #pragma once
 
 #include <memory>
-#include <optional>
 #include <string>
 
 #include "hyper_rhi/pipeline_layout.hpp"
@@ -39,9 +38,9 @@ namespace hyper_rhi
     {
         std::string label;
 
-        PipelineLayoutHandle layout = nullptr;
-        ShaderModuleHandle vertex_shader = nullptr;
-        ShaderModuleHandle fragment_shader = nullptr;
+        std::shared_ptr<PipelineLayout> layout = nullptr;
+        std::shared_ptr<ShaderModule> vertex_shader = nullptr;
+        std::shared_ptr<ShaderModule> fragment_shader = nullptr;
         DepthState depth_state;
     };
 
@@ -50,14 +49,18 @@ namespace hyper_rhi
     public:
         virtual ~GraphicsPipeline() = default;
 
-        [[nodiscard]] PipelineLayoutHandle layout() const;
+        [[nodiscard]] PipelineLayout &layout() const;
+        [[nodiscard]] ShaderModule &vertex_shader() const;
+        [[nodiscard]] ShaderModule &fragment_shader() const;
+        [[nodiscard]] DepthState depth_state() const;
 
     protected:
         explicit GraphicsPipeline(const GraphicsPipelineDescriptor &descriptor);
 
     protected:
-        PipelineLayoutHandle m_layout;
+        std::shared_ptr<PipelineLayout> m_layout;
+        std::shared_ptr<ShaderModule> m_vertex_shader;
+        std::shared_ptr<ShaderModule> m_fragment_shader;
+        DepthState m_depth_state;
     };
-
-    using GraphicsPipelineHandle = std::shared_ptr<GraphicsPipeline>;
 } // namespace hyper_rhi

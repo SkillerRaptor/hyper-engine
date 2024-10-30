@@ -72,8 +72,8 @@ namespace hyper_rhi
         return m_usage;
     }
 
-    std::shared_ptr<TextureView> Texture::view() const
+    TextureView &Texture::view() const
     {
-        return m_view;
+        return *m_view;
     }
 } // namespace hyper_rhi

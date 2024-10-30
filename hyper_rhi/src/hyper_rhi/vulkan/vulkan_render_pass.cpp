@@ -21,14 +21,12 @@ namespace hyper_rhi
         : RenderPass(descriptor)
         , m_graphics_device(graphics_device)
         , m_command_buffer(command_buffer)
-        , m_color_attachment(descriptor.color_attachment)
-        , m_depth_attachment(descriptor.depth_attachment)
         , m_graphics_pipeline(nullptr)
     {
-        m_graphics_device.begin_marker(m_command_buffer, MarkerType::RenderPass, descriptor.label, descriptor.label_color);
+        m_graphics_device.begin_marker(m_command_buffer, MarkerType::RenderPass, m_label, m_label_color);
 
-        const auto color_attachment = std::dynamic_pointer_cast<VulkanTexture>(m_color_attachment);
-        const auto depth_attachment = std::dynamic_pointer_cast<VulkanTexture>(m_depth_attachment);
+        const auto color_attachment = std::dynamic_pointer_cast<VulkanTexture>(m_color_attachment.attachment);
+        const auto depth_attachment = std::dynamic_pointer_cast<VulkanTexture>(m_depth_attachment.attachment);
 
         constexpr VkImageSubresourceRange subresource_range = {
             .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
@@ -130,17 +128,17 @@ namespace hyper_rhi
             },
         };
 
-        const auto color_attachment_view = std::dynamic_pointer_cast<VulkanTextureView>(color_attachment->view());
+        const auto &color_attachment_view = dynamic_cast<VulkanTextureView &>(color_attachment->view());
         const VkRenderingAttachmentInfo color_attachment_info = {
             .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
             .pNext = nullptr,
-            .imageView = color_attachment_view->image_view(),
+            .imageView = color_attachment_view.image_view(),
             .imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
             .resolveMode = VK_RESOLVE_MODE_NONE,
             .resolveImageView = VK_NULL_HANDLE,
             .resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-            .loadOp = VulkanRenderPass::get_load_operation(descriptor.color_operation.load_operation),
-            .storeOp = VulkanRenderPass::get_store_operation(descriptor.color_operation.store_operation),
+            .loadOp = VulkanRenderPass::get_load_operation(descriptor.color_attachment.operation.load_operation),
+            .storeOp = VulkanRenderPass::get_store_operation(descriptor.color_attachment.operation.store_operation),
             .clearValue = clear_value,
         };
 
@@ -151,17 +149,17 @@ namespace hyper_rhi
             },
         };
 
-        const auto depth_attachment_view = std::dynamic_pointer_cast<VulkanTextureView>(depth_attachment->view());
+        const auto &depth_attachment_view = dynamic_cast<VulkanTextureView &>(depth_attachment->view());
         const VkRenderingAttachmentInfo depth_attachment_info = {
             .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
             .pNext = nullptr,
-            .imageView = depth_attachment_view->image_view(),
+            .imageView = depth_attachment_view.image_view(),
             .imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
             .resolveMode = VK_RESOLVE_MODE_NONE,
             .resolveImageView = VK_NULL_HANDLE,
             .resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-            .loadOp = VulkanRenderPass::get_load_operation(descriptor.depth_operation.load_operation),
-            .storeOp = VulkanRenderPass::get_store_operation(descriptor.depth_operation.store_operation),
+            .loadOp = VulkanRenderPass::get_load_operation(descriptor.depth_attachment.operation.load_operation),
+            .storeOp = VulkanRenderPass::get_store_operation(descriptor.depth_attachment.operation.store_operation),
             .clearValue = depth_clear_value,
         };
 
@@ -204,8 +202,8 @@ namespace hyper_rhi
 
     VulkanRenderPass::~VulkanRenderPass()
     {
-        const std::shared_ptr<VulkanTexture> texture = std::dynamic_pointer_cast<VulkanTexture>(m_color_attachment);
-        const std::shared_ptr<VulkanTexture> depth_texture = std::dynamic_pointer_cast<VulkanTexture>(m_depth_attachment);
+        const auto color_attachment = std::dynamic_pointer_cast<VulkanTexture>(m_color_attachment.attachment);
+        const auto depth_attachment = std::dynamic_pointer_cast<VulkanTexture>(m_depth_attachment.attachment);
 
         vkCmdEndRendering(m_command_buffer);
 
@@ -228,7 +226,7 @@ namespace hyper_rhi
             .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
             .srcQueueFamilyIndex = 0,
             .dstQueueFamilyIndex = 0,
-            .image = texture->image(),
+            .image = color_attachment->image(),
             .subresourceRange = subresource_range,
         };
 
@@ -265,7 +263,7 @@ namespace hyper_rhi
             .newLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
             .srcQueueFamilyIndex = 0,
             .dstQueueFamilyIndex = 0,
-            .image = depth_texture->image(),
+            .image = depth_attachment->image(),
             .subresourceRange = depth_subresource_range,
         };
 
@@ -286,38 +284,38 @@ namespace hyper_rhi
         m_graphics_device.end_marker(m_command_buffer);
     }
 
-    void VulkanRenderPass::set_pipeline(const GraphicsPipelineHandle &pipeline_handle)
+    void VulkanRenderPass::set_pipeline(const std::shared_ptr<GraphicsPipeline> &pipeline)
     {
-        m_graphics_pipeline = pipeline_handle;
+        m_graphics_pipeline = pipeline;
 
-        const std::shared_ptr<VulkanGraphicsPipeline> pipeline = std::dynamic_pointer_cast<VulkanGraphicsPipeline>(m_graphics_pipeline);
-        const std::shared_ptr<VulkanPipelineLayout> layout = std::dynamic_pointer_cast<VulkanPipelineLayout>(m_graphics_pipeline->layout());
+        const std::shared_ptr<VulkanGraphicsPipeline> vulkan_pipeline = std::dynamic_pointer_cast<VulkanGraphicsPipeline>(m_graphics_pipeline);
+        const auto &layout = dynamic_cast<VulkanPipelineLayout &>(m_graphics_pipeline->layout());
 
         vkCmdBindDescriptorSets(
             m_command_buffer,
             VK_PIPELINE_BIND_POINT_GRAPHICS,
-            layout->pipeline_layout(),
+            layout.pipeline_layout(),
             0,
             static_cast<uint32_t>(m_graphics_device.descriptor_manager().descriptor_sets().size()),
             m_graphics_device.descriptor_manager().descriptor_sets().data(),
             0,
             nullptr);
 
-        vkCmdBindPipeline(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->pipeline());
+        vkCmdBindPipeline(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkan_pipeline->pipeline());
     }
 
-    void VulkanRenderPass::set_index_buffer(const BufferHandle buffer_handle) const
+    void VulkanRenderPass::set_index_buffer(const std::shared_ptr<Buffer> &buffer) const
     {
-        const std::shared_ptr<VulkanBuffer> buffer = std::dynamic_pointer_cast<VulkanBuffer>(buffer_handle);
+        const auto vulkan_buffer = std::dynamic_pointer_cast<VulkanBuffer>(buffer);
 
-        vkCmdBindIndexBuffer(m_command_buffer, buffer->buffer(), 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(m_command_buffer, vulkan_buffer->buffer(), 0, VK_INDEX_TYPE_UINT32);
     }
 
     void VulkanRenderPass::set_push_constants(const void *data, const size_t data_size) const
     {
-        const std::shared_ptr<VulkanPipelineLayout> layout = std::dynamic_pointer_cast<VulkanPipelineLayout>(m_graphics_pipeline->layout());
+        const auto &layout = dynamic_cast<VulkanPipelineLayout &>(m_graphics_pipeline->layout());
 
-        vkCmdPushConstants(m_command_buffer, layout->pipeline_layout(), VK_SHADER_STAGE_ALL, 0, static_cast<uint32_t>(data_size), data);
+        vkCmdPushConstants(m_command_buffer, layout.pipeline_layout(), VK_SHADER_STAGE_ALL, 0, static_cast<uint32_t>(data_size), data);
     }
 
     void VulkanRenderPass::draw(const DrawArguments &arguments) const

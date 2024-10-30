@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include <memory>
 #include <string>
 
 #include <hyper_core/bitmask.hpp>
@@ -16,22 +15,21 @@
 
 namespace hyper_rhi
 {
-    enum class BufferUsageFlags : uint8_t
+    enum class BufferUsage : uint8_t
     {
         None = 0,
         ShaderResource = 1 << 0,
         IndexBuffer = 1 << 1,
     };
 
-    HE_ENABLE_BITMASK_OPERATORS(BufferUsageFlags);
+    HE_ENABLE_BITMASK_OPERATORS(BufferUsage);
 
     struct BufferDescriptor
     {
         std::string label;
 
         uint64_t byte_size = 0;
-
-        BufferUsageFlags usage = BufferUsageFlags::None;
+        BufferUsage usage = BufferUsage::None;
 
         ResourceHandle handle;
     };
@@ -42,6 +40,7 @@ namespace hyper_rhi
         virtual ~Buffer() = default;
 
         [[nodiscard]] uint64_t byte_size() const;
+        [[nodiscard]] BufferUsage usage() const;
 
         [[nodiscard]] ResourceHandle handle() const;
 
@@ -50,8 +49,7 @@ namespace hyper_rhi
 
     protected:
         uint64_t m_byte_size;
+        BufferUsage m_usage;
         ResourceHandle m_handle;
     };
-
-    using BufferHandle = std::shared_ptr<Buffer>;
 } // namespace hyper_rhi

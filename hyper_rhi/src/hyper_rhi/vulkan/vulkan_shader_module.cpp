@@ -11,11 +11,9 @@
 namespace hyper_rhi
 {
     VulkanShaderModule::VulkanShaderModule(VulkanGraphicsDevice &graphics_device, const ShaderModuleDescriptor &descriptor)
-        : ShaderModule(descriptor.label)
+        : ShaderModule(descriptor)
         , m_graphics_device(graphics_device)
         , m_shader_module(VK_NULL_HANDLE)
-        , m_shader_type(descriptor.type)
-        , m_entry_point(descriptor.entry_name)
     {
         const VkShaderModuleCreateInfo shader_module_create_info = {
             .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
@@ -30,7 +28,7 @@ namespace hyper_rhi
 
         const ObjectType object_type = [this]()
         {
-            switch (m_shader_type)
+            switch (m_type)
             {
             case ShaderType::Compute:
                 return ObjectType::ComputeShaderModule;
@@ -57,10 +55,5 @@ namespace hyper_rhi
     VkShaderModule VulkanShaderModule::shader_module() const
     {
         return m_shader_module;
-    }
-
-    std::string_view VulkanShaderModule::entry_point() const
-    {
-        return m_entry_point;
     }
 } // namespace hyper_rhi

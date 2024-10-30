@@ -21,11 +21,13 @@ namespace hyper_rhi
         void rebuild();
 
         [[nodiscard]] VkSwapchainKHR swapchain() const;
+
         void set_current_texture_index(uint32_t current_texture_index);
         [[nodiscard]] uint32_t current_texture_index() const;
+
         [[nodiscard]] bool resized() const;
 
-        [[nodiscard]] TextureHandle current_texture() const override;
+        [[nodiscard]] std::shared_ptr<Texture> current_texture() const override;
 
     private:
         void create_surface(const hyper_platform::Window &window);
@@ -47,7 +49,7 @@ namespace hyper_rhi
 
         VkFormat m_format;
 
-        std::vector<TextureHandle> m_textures;
+        std::vector<std::shared_ptr<Texture>> m_textures;
         uint32_t m_current_texture_index;
     };
 } // namespace hyper_rhi

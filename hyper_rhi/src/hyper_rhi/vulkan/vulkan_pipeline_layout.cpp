@@ -11,10 +11,9 @@
 namespace hyper_rhi
 {
     VulkanPipelineLayout::VulkanPipelineLayout(VulkanGraphicsDevice &graphics_device, const PipelineLayoutDescriptor &descriptor)
-        : PipelineLayout(descriptor.label)
+        : PipelineLayout(descriptor)
         , m_graphics_device(graphics_device)
         , m_pipeline_layout(VK_NULL_HANDLE)
-        , m_push_constant_size(descriptor.push_constant_size)
     {
         const VkPushConstantRange push_constant_range = {
             .stageFlags = VK_SHADER_STAGE_ALL,

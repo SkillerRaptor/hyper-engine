@@ -19,7 +19,7 @@ namespace hyper_rhi
         explicit VulkanQueue(VulkanGraphicsDevice &graphics_device, uint32_t queue_family, VkQueue queue);
         ~VulkanQueue() override;
 
-        void submit(CommandListHandle command_list_handle) override;
+        void submit(const std::shared_ptr<CommandList> &command_list) override;
 
         [[nodiscard]] uint32_t queue_family() const;
         [[nodiscard]] VkQueue queue() const;

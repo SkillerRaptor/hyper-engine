@@ -6,12 +6,16 @@
 
 #include "hyper_rhi/pipeline_layout.hpp"
 
-#include <utility>
-
 namespace hyper_rhi
 {
-    PipelineLayout::PipelineLayout(std::string label)
-        : Resource(std::move(label))
+    PipelineLayout::PipelineLayout(const PipelineLayoutDescriptor &descriptor)
+        : Resource(descriptor.label)
+        , m_push_constant_size(descriptor.push_constant_size)
     {
+    }
+
+    uint32_t PipelineLayout::push_constant_size() const
+    {
+        return m_push_constant_size;
     }
 } // namespace hyper_rhi

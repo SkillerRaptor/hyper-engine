@@ -23,8 +23,6 @@ namespace hyper_rhi
         VulkanTexture(VulkanGraphicsDevice &graphics_device, const TextureDescriptor &descriptor, VkImage image = VK_NULL_HANDLE);
         ~VulkanTexture() override;
 
-        void set_view(TextureView &view);
-
         [[nodiscard]] VkImage image() const;
         [[nodiscard]] VmaAllocation allocation() const;
 

@@ -40,57 +40,57 @@ namespace hyper_rhi
         HE_INFO("Created D3D12 Graphics Device");
     }
 
-    SurfaceHandle D3D12GraphicsDevice::create_surface(const hyper_platform::Window &window)
+    std::shared_ptr<Surface> D3D12GraphicsDevice::create_surface(const hyper_platform::Window &window)
     {
         return std::make_shared<D3D12Surface>(*this, window);
     }
 
-    QueueHandle D3D12GraphicsDevice::queue()
+    std::shared_ptr<Queue> D3D12GraphicsDevice::queue()
     {
         HE_UNREACHABLE();
     }
 
-    BufferHandle D3D12GraphicsDevice::create_buffer(const BufferDescriptor &descriptor)
-    {
-        HE_UNUSED(descriptor);
-
-        HE_UNREACHABLE();
-    }
-
-    CommandListHandle D3D12GraphicsDevice::create_command_list()
-    {
-        HE_UNREACHABLE();
-    }
-
-    ComputePipelineHandle D3D12GraphicsDevice::create_compute_pipeline(const ComputePipelineDescriptor &descriptor)
+    std::shared_ptr<Buffer> D3D12GraphicsDevice::create_buffer(const BufferDescriptor &descriptor)
     {
         HE_UNUSED(descriptor);
 
         HE_UNREACHABLE();
     }
 
-    GraphicsPipelineHandle D3D12GraphicsDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor &descriptor)
+    std::shared_ptr<CommandList> D3D12GraphicsDevice::create_command_list()
+    {
+        HE_UNREACHABLE();
+    }
+
+    std::shared_ptr<ComputePipeline> D3D12GraphicsDevice::create_compute_pipeline(const ComputePipelineDescriptor &descriptor)
     {
         HE_UNUSED(descriptor);
 
         HE_UNREACHABLE();
     }
 
-    PipelineLayoutHandle D3D12GraphicsDevice::create_pipeline_layout(const PipelineLayoutDescriptor &descriptor)
+    std::shared_ptr<GraphicsPipeline> D3D12GraphicsDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor &descriptor)
     {
         HE_UNUSED(descriptor);
 
         HE_UNREACHABLE();
     }
 
-    ShaderModuleHandle D3D12GraphicsDevice::create_shader_module(const ShaderModuleDescriptor &descriptor)
+    std::shared_ptr<PipelineLayout> D3D12GraphicsDevice::create_pipeline_layout(const PipelineLayoutDescriptor &descriptor)
     {
         HE_UNUSED(descriptor);
 
         HE_UNREACHABLE();
     }
 
-    TextureHandle D3D12GraphicsDevice::create_texture(const TextureDescriptor &descriptor)
+    std::shared_ptr<ShaderModule> D3D12GraphicsDevice::create_shader_module(const ShaderModuleDescriptor &descriptor)
+    {
+        HE_UNUSED(descriptor);
+
+        HE_UNREACHABLE();
+    }
+
+    std::shared_ptr<Texture> D3D12GraphicsDevice::create_texture(const TextureDescriptor &descriptor)
     {
         HE_UNUSED(descriptor);
 
@@ -104,9 +104,9 @@ namespace hyper_rhi
         HE_UNREACHABLE();
     }
 
-    void D3D12GraphicsDevice::begin_frame(SurfaceHandle surface_handle, uint32_t frame_index)
+    void D3D12GraphicsDevice::begin_frame(const std::shared_ptr<Surface> &surface, const uint32_t frame_index)
     {
-        HE_UNUSED(surface_handle);
+        HE_UNUSED(surface);
         HE_UNUSED(frame_index);
 
         HE_UNREACHABLE();
@@ -117,9 +117,9 @@ namespace hyper_rhi
         HE_UNREACHABLE();
     }
 
-    void D3D12GraphicsDevice::present(SurfaceHandle surface_handle) const
+    void D3D12GraphicsDevice::present(const std::shared_ptr<Surface> &surface) const
     {
-        HE_UNUSED(surface_handle);
+        HE_UNUSED(surface);
 
         HE_UNREACHABLE();
     }

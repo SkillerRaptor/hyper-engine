@@ -8,7 +8,6 @@
 
 #include <memory>
 
-#include "hyper_rhi/buffer.hpp"
 #include "hyper_rhi/render_pass.hpp"
 
 namespace hyper_rhi
@@ -21,8 +20,6 @@ namespace hyper_rhi
         virtual void begin() = 0;
         virtual void end() = 0;
 
-        [[nodiscard]] virtual RenderPassHandle begin_render_pass(const RenderPassDescriptor &descriptor) const = 0;
+        [[nodiscard]] virtual std::shared_ptr<RenderPass> begin_render_pass(const RenderPassDescriptor &descriptor) const = 0;
     };
-
-    using CommandListHandle = std::shared_ptr<CommandList>;
 } // namespace hyper_rhi

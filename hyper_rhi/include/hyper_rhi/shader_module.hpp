@@ -36,9 +36,16 @@ namespace hyper_rhi
     public:
         virtual ~ShaderModule() = default;
 
-    protected:
-        explicit ShaderModule(std::string label);
-    };
+        [[nodiscard]] ShaderType type() const;
+        [[nodiscard]] std::string_view entry_name() const;
+        [[nodiscard]] const std::vector<uint8_t> &bytes() const;
 
-    using ShaderModuleHandle = std::shared_ptr<ShaderModule>;
+    protected:
+        explicit ShaderModule(const ShaderModuleDescriptor &descriptor);
+
+    protected:
+        ShaderType m_type;
+        std::string m_entry_name;
+        std::vector<uint8_t> m_bytes;
+    };
 } // namespace hyper_rhi

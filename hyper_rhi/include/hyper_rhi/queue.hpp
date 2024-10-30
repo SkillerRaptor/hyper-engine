@@ -15,7 +15,7 @@ namespace hyper_rhi
 {
     struct BufferWrite
     {
-        BufferHandle handle;
+        std::shared_ptr<Buffer> buffer;
         std::vector<uint8_t> bytes;
     };
 
@@ -24,13 +24,11 @@ namespace hyper_rhi
     public:
         virtual ~Queue() = default;
 
-        void write_buffer(const BufferHandle &buffer, const void *data, size_t size);
+        void write_buffer(const std::shared_ptr<Buffer> &buffer, const void *data, size_t size);
 
-        virtual void submit(CommandListHandle command_list_handle) = 0;
+        virtual void submit(const std::shared_ptr<CommandList> &command_list) = 0;
 
     protected:
         std::vector<BufferWrite> m_buffer_writes;
     };
-
-    using QueueHandle = std::shared_ptr<Queue>;
 } // namespace hyper_rhi

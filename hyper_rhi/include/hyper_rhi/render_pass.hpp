@@ -53,9 +53,21 @@ namespace hyper_rhi
 
     struct LabelColor
     {
-        uint8_t red;
-        uint8_t green;
-        uint8_t blue;
+        uint8_t red = 255;
+        uint8_t green = 255;
+        uint8_t blue = 255;
+    };
+
+    struct ColorAttachment
+    {
+        std::shared_ptr<Texture> attachment = nullptr;
+        Operations operation;
+    };
+
+    struct DepthAttachment
+    {
+        std::shared_ptr<Texture> attachment = nullptr;
+        Operations operation;
     };
 
     struct RenderPassDescriptor
@@ -63,10 +75,8 @@ namespace hyper_rhi
         std::string label;
         LabelColor label_color;
 
-        TextureHandle color_attachment = nullptr;
-        Operations color_operation;
-        TextureHandle depth_attachment = nullptr;
-        Operations depth_operation;
+        ColorAttachment color_attachment;
+        DepthAttachment depth_attachment;
     };
 
     class RenderPass : public Resource
@@ -74,19 +84,23 @@ namespace hyper_rhi
     public:
         virtual ~RenderPass() = default;
 
-        virtual void set_pipeline(const GraphicsPipelineHandle &pipeline_handle) = 0;
-        virtual void set_index_buffer(BufferHandle buffer_handle) const = 0;
+        virtual void set_pipeline(const std::shared_ptr<GraphicsPipeline> &pipeline) = 0;
+        virtual void set_index_buffer(const std::shared_ptr<Buffer> &buffer) const = 0;
         virtual void set_push_constants(const void *data, size_t data_size) const = 0;
 
         virtual void draw(const DrawArguments &arguments) const = 0;
         virtual void draw_indexed(const DrawIndexedArguments &arguments) const = 0;
+
+        [[nodiscard]] LabelColor label_color() const;
+        [[nodiscard]] ColorAttachment color_attachment() const;
+        [[nodiscard]] DepthAttachment depth_attachment() const;
 
     protected:
         explicit RenderPass(const RenderPassDescriptor &descriptor);
 
     protected:
         LabelColor m_label_color;
+        ColorAttachment m_color_attachment;
+        DepthAttachment m_depth_attachment;
     };
-
-    using RenderPassHandle = std::shared_ptr<RenderPass>;
 } // namespace hyper_rhi

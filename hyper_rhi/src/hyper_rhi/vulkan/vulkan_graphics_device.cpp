@@ -118,49 +118,49 @@ namespace hyper_rhi
         vkDestroyInstance(m_instance, nullptr);
     }
 
-    SurfaceHandle VulkanGraphicsDevice::create_surface(const hyper_platform::Window &window)
+    std::shared_ptr<Surface> VulkanGraphicsDevice::create_surface(const hyper_platform::Window &window)
     {
         return std::make_shared<VulkanSurface>(*this, window);
     }
 
-    QueueHandle VulkanGraphicsDevice::queue()
+    std::shared_ptr<Queue> VulkanGraphicsDevice::queue()
     {
         return m_queue;
     }
 
-    BufferHandle VulkanGraphicsDevice::create_buffer(const BufferDescriptor &descriptor)
+    std::shared_ptr<Buffer> VulkanGraphicsDevice::create_buffer(const BufferDescriptor &descriptor)
     {
         return std::make_shared<VulkanBuffer>(*this, descriptor);
     }
 
-    CommandListHandle VulkanGraphicsDevice::create_command_list()
+    std::shared_ptr<CommandList> VulkanGraphicsDevice::create_command_list()
     {
         return std::make_shared<VulkanCommandList>(*this);
     }
 
-    ComputePipelineHandle VulkanGraphicsDevice::create_compute_pipeline(const ComputePipelineDescriptor &descriptor)
+    std::shared_ptr<ComputePipeline> VulkanGraphicsDevice::create_compute_pipeline(const ComputePipelineDescriptor &descriptor)
     {
         HE_UNUSED(descriptor);
 
         HE_UNREACHABLE();
     }
 
-    GraphicsPipelineHandle VulkanGraphicsDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor &descriptor)
+    std::shared_ptr<GraphicsPipeline> VulkanGraphicsDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor &descriptor)
     {
         return std::make_shared<VulkanGraphicsPipeline>(*this, descriptor);
     }
 
-    PipelineLayoutHandle VulkanGraphicsDevice::create_pipeline_layout(const PipelineLayoutDescriptor &descriptor)
+    std::shared_ptr<PipelineLayout> VulkanGraphicsDevice::create_pipeline_layout(const PipelineLayoutDescriptor &descriptor)
     {
         return std::make_shared<VulkanPipelineLayout>(*this, descriptor);
     }
 
-    ShaderModuleHandle VulkanGraphicsDevice::create_shader_module(const ShaderModuleDescriptor &descriptor)
+    std::shared_ptr<ShaderModule> VulkanGraphicsDevice::create_shader_module(const ShaderModuleDescriptor &descriptor)
     {
         return std::make_shared<VulkanShaderModule>(*this, descriptor);
     }
 
-    TextureHandle VulkanGraphicsDevice::create_texture(const TextureDescriptor &descriptor)
+    std::shared_ptr<Texture> VulkanGraphicsDevice::create_texture(const TextureDescriptor &descriptor)
     {
         return std::make_shared<VulkanTexture>(*this, descriptor);
     }
@@ -352,9 +352,9 @@ namespace hyper_rhi
         m_resource_queue.textures.clear();
     }
 
-    void VulkanGraphicsDevice::begin_frame(const SurfaceHandle surface_handle, const uint32_t frame_index)
+    void VulkanGraphicsDevice::begin_frame(const std::shared_ptr<Surface> &surface, const uint32_t frame_index)
     {
-        const std::shared_ptr<VulkanSurface> surface = std::dynamic_pointer_cast<VulkanSurface>(surface_handle);
+        const auto vulkan_surface = std::dynamic_pointer_cast<VulkanSurface>(surface);
 
         m_current_frame_index = frame_index;
 
@@ -372,21 +372,21 @@ namespace hyper_rhi
 
         this->destroy_resources();
 
-        if (surface->resized())
+        if (vulkan_surface->resized())
         {
-            surface->rebuild();
+            vulkan_surface->rebuild();
         }
 
         uint32_t image_index = 0;
         HE_VK_CHECK(vkAcquireNextImageKHR(
             m_device,
-            surface->swapchain(),
+            vulkan_surface->swapchain(),
             std::numeric_limits<uint64_t>::max(),
             this->current_frame().present_semaphore,
             VK_NULL_HANDLE,
             &image_index));
 
-        surface->set_current_texture_index(image_index);
+        vulkan_surface->set_current_texture_index(image_index);
     }
 
     void VulkanGraphicsDevice::end_frame() const
@@ -394,12 +394,12 @@ namespace hyper_rhi
         // NOTE: Do nothing for now
     }
 
-    void VulkanGraphicsDevice::present(const SurfaceHandle surface_handle) const
+    void VulkanGraphicsDevice::present(const std::shared_ptr<Surface> &surface) const
     {
-        const std::shared_ptr<VulkanSurface> surface = std::dynamic_pointer_cast<VulkanSurface>(surface_handle);
+        const auto vulkan_surface = std::dynamic_pointer_cast<VulkanSurface>(surface);
 
-        const VkSwapchainKHR swapchain = surface->swapchain();
-        const uint32_t current_texture_index = surface->current_texture_index();
+        const VkSwapchainKHR swapchain = vulkan_surface->swapchain();
+        const uint32_t current_texture_index = vulkan_surface->current_texture_index();
 
         const VkPresentInfoKHR present_info = {
             .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,

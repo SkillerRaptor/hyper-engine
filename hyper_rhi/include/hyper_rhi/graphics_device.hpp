@@ -47,22 +47,22 @@ namespace hyper_rhi
 
         static std::shared_ptr<GraphicsDevice> create(const GraphicsDeviceDescriptor &descriptor);
 
-        [[nodiscard]] virtual SurfaceHandle create_surface(const hyper_platform::Window &window) = 0;
+        [[nodiscard]] virtual std::shared_ptr<Surface> create_surface(const hyper_platform::Window &window) = 0;
         // TODO: Add more queue types
-        [[nodiscard]] virtual QueueHandle queue() = 0;
+        [[nodiscard]] virtual std::shared_ptr<Queue> queue() = 0;
 
-        [[nodiscard]] virtual BufferHandle create_buffer(const BufferDescriptor &descriptor) = 0;
-        [[nodiscard]] virtual CommandListHandle create_command_list() = 0;
-        [[nodiscard]] virtual ComputePipelineHandle create_compute_pipeline(const ComputePipelineDescriptor &descriptor) = 0;
-        [[nodiscard]] virtual GraphicsPipelineHandle create_graphics_pipeline(const GraphicsPipelineDescriptor &descriptor) = 0;
-        [[nodiscard]] virtual PipelineLayoutHandle create_pipeline_layout(const PipelineLayoutDescriptor &descriptor) = 0;
-        [[nodiscard]] virtual ShaderModuleHandle create_shader_module(const ShaderModuleDescriptor &descriptor) = 0;
-        [[nodiscard]] virtual TextureHandle create_texture(const TextureDescriptor &descriptor) = 0;
+        [[nodiscard]] virtual std::shared_ptr<Buffer> create_buffer(const BufferDescriptor &descriptor) = 0;
+        [[nodiscard]] virtual std::shared_ptr<CommandList> create_command_list() = 0;
+        [[nodiscard]] virtual std::shared_ptr<ComputePipeline> create_compute_pipeline(const ComputePipelineDescriptor &descriptor) = 0;
+        [[nodiscard]] virtual std::shared_ptr<GraphicsPipeline> create_graphics_pipeline(const GraphicsPipelineDescriptor &descriptor) = 0;
+        [[nodiscard]] virtual std::shared_ptr<PipelineLayout> create_pipeline_layout(const PipelineLayoutDescriptor &descriptor) = 0;
+        [[nodiscard]] virtual std::shared_ptr<ShaderModule> create_shader_module(const ShaderModuleDescriptor &descriptor) = 0;
+        [[nodiscard]] virtual std::shared_ptr<Texture> create_texture(const TextureDescriptor &descriptor) = 0;
         [[nodiscard]] virtual std::shared_ptr<TextureView> create_texture_view(const TextureViewDescriptor &descriptor) = 0;
 
-        virtual void begin_frame(SurfaceHandle surface_handle, uint32_t frame_index) = 0;
+        virtual void begin_frame(const std::shared_ptr<Surface> &surface, uint32_t frame_index) = 0;
         virtual void end_frame() const = 0;
-        virtual void present(SurfaceHandle surface_handle) const = 0;
+        virtual void present(const std::shared_ptr<Surface> &surface) const = 0;
 
         virtual void wait_for_idle() const = 0;
 
@@ -77,6 +77,4 @@ namespace hyper_rhi
         bool m_debug_label;
         bool m_debug_marker;
     };
-
-    using GraphicsDeviceHandle = std::shared_ptr<GraphicsDevice>;
 } // namespace hyper_rhi

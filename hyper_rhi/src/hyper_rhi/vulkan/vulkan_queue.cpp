@@ -11,7 +11,7 @@
 
 namespace hyper_rhi
 {
-    VulkanQueue::VulkanQueue(VulkanGraphicsDevice &graphics_device, uint32_t queue_family, const VkQueue queue)
+    VulkanQueue::VulkanQueue(VulkanGraphicsDevice &graphics_device, const uint32_t queue_family, const VkQueue queue)
         : m_graphics_device(graphics_device)
         , m_queue_family(queue_family)
         , m_queue(queue)
@@ -49,16 +49,16 @@ namespace hyper_rhi
         vkDestroySemaphore(m_graphics_device.device(), m_submit_semaphore, nullptr);
     }
 
-    void VulkanQueue::submit(const CommandListHandle command_list_handle)
+    void VulkanQueue::submit(const std::shared_ptr<CommandList> &command_list)
     {
         if (!m_buffer_writes.empty())
         {
             m_graphics_device.upload_manager().upload(std::exchange(m_buffer_writes, {}));
         }
 
-        if (command_list_handle)
+        if (command_list)
         {
-            const std::shared_ptr<VulkanCommandList> command_list = std::dynamic_pointer_cast<VulkanCommandList>(command_list_handle);
+            const std::shared_ptr<VulkanCommandList> vulkan_command_list = std::dynamic_pointer_cast<VulkanCommandList>(command_list);
 
             const VkSemaphoreSubmitInfo semaphore_submit_info = {
                 .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
@@ -72,7 +72,7 @@ namespace hyper_rhi
             const VkCommandBufferSubmitInfo command_buffer_submit_info = {
                 .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
                 .pNext = nullptr,
-                .commandBuffer = command_list->command_buffer(),
+                .commandBuffer = vulkan_command_list->command_buffer(),
                 .deviceMask = 0,
             };
 

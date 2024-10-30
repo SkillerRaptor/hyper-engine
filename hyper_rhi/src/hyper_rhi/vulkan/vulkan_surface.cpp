@@ -67,7 +67,7 @@ namespace hyper_rhi
         return m_resized;
     }
 
-    TextureHandle VulkanSurface::current_texture() const
+    std::shared_ptr<Texture> VulkanSurface::current_texture() const
     {
         return m_textures[m_current_texture_index];
     }

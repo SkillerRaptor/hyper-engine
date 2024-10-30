@@ -20,13 +20,10 @@ namespace hyper_rhi
         ~VulkanShaderModule() override;
 
         [[nodiscard]] VkShaderModule shader_module() const;
-        [[nodiscard]] std::string_view entry_point() const;
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
 
         VkShaderModule m_shader_module;
-        ShaderType m_shader_type;
-        std::string m_entry_point;
     };
 } // namespace hyper_rhi
