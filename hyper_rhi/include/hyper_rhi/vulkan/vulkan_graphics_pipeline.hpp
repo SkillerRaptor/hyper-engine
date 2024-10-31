@@ -22,6 +22,7 @@ namespace hyper_rhi
         [[nodiscard]] VkPipeline pipeline() const;
 
     private:
+        static VkCullModeFlags get_cull_mode(Face face);
         static VkCompareOp get_compare_operation(CompareOperation compare_operation);
 
     private:

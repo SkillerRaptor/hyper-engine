@@ -23,6 +23,7 @@ target_link_libraries(
         hyper_event
         hyper_rhi
         hyper_platform
+        fastgltf
         glm
         meshoptimizer)
 

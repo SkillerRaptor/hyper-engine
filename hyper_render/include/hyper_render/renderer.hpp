@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <hyper_event/event_bus.hpp>
 #include <hyper_platform/input.hpp>
 #include <hyper_platform/mouse_events.hpp>
@@ -18,6 +20,23 @@
 
 namespace hyper_render
 {
+    struct GeometrySurface
+    {
+        uint32_t start_index;
+        uint32_t count;
+    };
+
+    struct MeshAsset
+    {
+        std::string name;
+        std::vector<GeometrySurface> surfaces;
+        std::shared_ptr<hyper_rhi::Buffer> positions;
+        std::shared_ptr<hyper_rhi::Buffer> normals;
+        std::shared_ptr<hyper_rhi::Buffer> colors;
+        std::shared_ptr<hyper_rhi::Buffer> mesh;
+        std::shared_ptr<hyper_rhi::Buffer> indices;
+    };
+
     struct RendererDescriptor
     {
         std::shared_ptr<hyper_rhi::GraphicsDevice> graphics_device;
@@ -32,6 +51,8 @@ namespace hyper_render
         // NOTE: This shouldn't be in the renderer
         void update(float delta_time);
         void render();
+
+        [[nodiscard]] std::optional<std::vector<std::shared_ptr<MeshAsset>>> load_model(const std::string &path) const;
 
     private:
         void on_resize(const hyper_platform::WindowResizeEvent &event);
@@ -64,6 +85,8 @@ namespace hyper_render
         std::shared_ptr<hyper_rhi::ShaderModule> m_grid_vertex_shader;
         std::shared_ptr<hyper_rhi::ShaderModule> m_grid_fragment_shader;
         std::shared_ptr<hyper_rhi::GraphicsPipeline> m_grid_pipeline;
+
+        std::vector<std::shared_ptr<MeshAsset>> m_meshes;
 
         Camera m_editor_camera;
 

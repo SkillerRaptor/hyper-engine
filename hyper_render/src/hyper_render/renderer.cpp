@@ -8,9 +8,9 @@
 
 #include <array>
 
-#include <glm/mat4x4.hpp>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
+#include <fastgltf/core.hpp>
+#include <fastgltf/glm_element_traits.hpp>
+#include <fastgltf/tools.hpp>
 
 #include <hyper_core/filesystem.hpp>
 #include <hyper_core/logger.hpp>
@@ -207,8 +207,11 @@ namespace hyper_render
               .label = "Opaque",
               .layout = m_pipeline_layout,
               .vertex_shader = m_vertex_shader,
-              .fragment_shader = m_fragment_shader,
-              .depth_state = {
+                .fragment_shader = m_fragment_shader,
+                .primitive_state = {
+                    .cull_mode = hyper_rhi::Face::Back,
+                },
+              .depth_stencil_state = {
                   .depth_enabled = true,
                   .compare_operation = hyper_rhi::CompareOperation::Less,
               },
@@ -283,13 +286,17 @@ namespace hyper_render
               .layout = m_pipeline_layout,
               .vertex_shader = m_grid_vertex_shader,
               .fragment_shader = m_grid_fragment_shader,
-              .depth_state = {
+              .primitive_state = {
+                  .cull_mode = hyper_rhi::Face::None,
+              },
+              .depth_stencil_state = {
                   .depth_enabled = true,
                   .compare_operation = hyper_rhi::CompareOperation::Less,
               },
           }))
         , m_editor_camera(glm::vec3(0.0, 0.0, 0.0), -90.0, 0.0)
         , m_frame_index(1)
+        , m_meshes()
     {
         event_bus.subscribe<hyper_platform::WindowResizeEvent>(HE_BIND_FUNCTION(Renderer::on_resize));
         event_bus.subscribe<hyper_platform::MouseMovedEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_moved));
@@ -310,6 +317,11 @@ namespace hyper_render
         m_queue->write_buffer(m_mesh_buffer, &mesh, sizeof(Mesh));
         m_queue->write_buffer(m_indices_buffer, s_indices.data(), sizeof(s_indices));
         m_queue->submit(nullptr);
+
+        if (std::optional<std::vector<std::shared_ptr<MeshAsset>>> model = this->load_model("./assets/models/sponza/Sponza.gltf"))
+        {
+            m_meshes.insert(m_meshes.end(), model.value().begin(), model.value().end());
+        }
 
         HE_INFO("Created Renderer");
     }
@@ -427,6 +439,8 @@ namespace hyper_render
             });
 
             render_pass->set_pipeline(m_pipeline);
+
+            /*
             render_pass->set_index_buffer(m_indices_buffer);
 
             const ObjectPushConstants push_constants = {
@@ -444,6 +458,31 @@ namespace hyper_render
                 .vertex_offset = 0,
                 .first_instance = 0,
             });
+            */
+
+            for (const std::shared_ptr<MeshAsset> &mesh : m_meshes)
+            {
+                render_pass->set_index_buffer(mesh->indices);
+
+                const ObjectPushConstants mesh_push_constants = {
+                    .mesh = mesh->mesh->handle(),
+                    .material = m_material_buffer->handle(),
+                    .padding_0 = 0,
+                    .padding_1 = 0,
+                };
+                render_pass->set_push_constants(&mesh_push_constants, sizeof(ObjectPushConstants));
+
+                for (const GeometrySurface &surface : mesh->surfaces)
+                {
+                    render_pass->draw_indexed({
+                        .index_count = surface.count,
+                        .instance_count = 1,
+                        .first_index = surface.start_index,
+                        .vertex_offset = 0,
+                        .first_instance = 0,
+                    });
+                }
+            }
         }
 
         m_command_list->insert_barriers({
@@ -532,6 +571,176 @@ namespace hyper_render
         m_graphics_device->present(m_surface);
 
         m_frame_index += 1;
+    }
+
+    std::optional<std::vector<std::shared_ptr<MeshAsset>>> Renderer::load_model(const std::string &path) const
+    {
+        HE_INFO("Loading model: {}", path);
+
+        const std::filesystem::path file_path(path);
+
+        fastgltf::Parser parser;
+
+        auto data = fastgltf::GltfDataBuffer::FromPath(file_path);
+        if (data.error() != fastgltf::Error::None)
+        {
+            return std::nullopt;
+        }
+
+        auto asset = parser.loadGltf(data.get(), file_path.parent_path(), fastgltf::Options::LoadExternalBuffers);
+        if (asset.error() != fastgltf::Error::None)
+        {
+            return std::nullopt;
+        }
+
+        std::vector<std::shared_ptr<MeshAsset>> meshes;
+
+        struct Vertex
+        {
+            glm::vec3 position;
+            glm::vec3 normal;
+            glm::vec4 color;
+        };
+
+        std::vector<Vertex> vertices;
+        std::vector<uint32_t> indices;
+        for (const fastgltf::Mesh &mesh : asset->meshes)
+        {
+            MeshAsset mesh_asset;
+            mesh_asset.name = mesh.name;
+
+            vertices.clear();
+            indices.clear();
+
+            for (const fastgltf::Primitive &primitive : mesh.primitives)
+            {
+                GeometrySurface surface;
+                surface.start_index = static_cast<uint32_t>(indices.size());
+                surface.count = static_cast<uint32_t>(asset->accessors[primitive.indicesAccessor.value()].count);
+
+                const auto initial_vertex = static_cast<uint32_t>(vertices.size());
+
+                {
+                    fastgltf::Accessor &accessor = asset->accessors[primitive.indicesAccessor.value()];
+
+                    fastgltf::iterateAccessor<uint32_t>(
+                        asset.get(),
+                        accessor,
+                        [&](const uint32_t index)
+                        {
+                            indices.push_back(index + initial_vertex);
+                        });
+                }
+
+                {
+                    fastgltf::Accessor &accessor = asset->accessors[primitive.findAttribute("POSITION")->accessorIndex];
+                    vertices.resize(vertices.size() + accessor.count);
+
+                    fastgltf::iterateAccessorWithIndex<glm::vec3>(
+                        asset.get(),
+                        accessor,
+                        [&](const glm::vec3 value, const size_t index)
+                        {
+                            const Vertex vertex = {
+                                .position = value,
+                                .normal = glm::vec3(1.0, 1.0, 1.0),
+                                .color = glm::vec4(1.0, 1.0, 1.0, 1.0),
+                            };
+
+                            vertices[initial_vertex + index] = vertex;
+                        });
+                }
+
+                const fastgltf::Attribute *normals = primitive.findAttribute("NORMAL");
+                if (normals != primitive.attributes.end())
+                {
+                    fastgltf::iterateAccessorWithIndex<glm::vec3>(
+                        asset.get(),
+                        asset->accessors[normals->accessorIndex],
+                        [&](const glm::vec3 value, const size_t index)
+                        {
+                            vertices[initial_vertex + index].normal = value;
+                        });
+                }
+
+                const fastgltf::Attribute *colors = primitive.findAttribute("COLOR_0");
+                if (colors != primitive.attributes.end())
+                {
+                    fastgltf::iterateAccessorWithIndex<glm::vec4>(
+                        asset.get(),
+                        asset->accessors[normals->accessorIndex],
+                        [&](const glm::vec4 value, const size_t index)
+                        {
+                            vertices[initial_vertex + index].color = value;
+                        });
+                }
+
+                mesh_asset.surfaces.push_back(surface);
+            }
+
+            float scale_size = 0.01f;
+            glm::mat4 scale = glm::scale(glm::mat4(1.0), glm::vec3(scale_size, scale_size, scale_size));
+
+            std::vector<glm::vec4> positions;
+            std::vector<glm::vec4> normals;
+            std::vector<glm::vec4> colors;
+            for (const Vertex &vertex : vertices)
+            {
+                glm::vec4 position = glm::vec4(vertex.position.x, vertex.position.z, vertex.position.y, 1.0);
+                position = scale * position;
+
+                positions.emplace_back(position.x, position.y, position.z, 1.0);
+                normals.emplace_back(vertex.normal.x, vertex.normal.z, vertex.normal.y, 1.0);
+                colors.emplace_back(vertex.color);
+            }
+
+            mesh_asset.positions = m_graphics_device->create_buffer({
+                .label = fmt::format("{} Positions", mesh_asset.name),
+                .byte_size = positions.size() * sizeof(glm::vec4),
+                .usage = hyper_rhi::BufferUsage::ShaderResource,
+            });
+            m_queue->write_buffer(mesh_asset.positions, positions.data(), positions.size() * sizeof(glm::vec4));
+
+            mesh_asset.normals = m_graphics_device->create_buffer({
+                .label = fmt::format("{} Normals", mesh_asset.name),
+                .byte_size = normals.size() * sizeof(glm::vec4),
+                .usage = hyper_rhi::BufferUsage::ShaderResource,
+            });
+            m_queue->write_buffer(mesh_asset.normals, normals.data(), normals.size() * sizeof(glm::vec4));
+
+            mesh_asset.colors = m_graphics_device->create_buffer({
+                .label = fmt::format("{} Colors", mesh_asset.name),
+                .byte_size = colors.size() * sizeof(glm::vec4),
+                .usage = hyper_rhi::BufferUsage::ShaderResource,
+            });
+            m_queue->write_buffer(mesh_asset.colors, colors.data(), colors.size() * sizeof(glm::vec4));
+
+            const Mesh mesh_data = {
+                .positions = mesh_asset.positions->handle(),
+                .normals = mesh_asset.normals->handle(),
+                .colors = mesh_asset.colors->handle(),
+                .padding_1 = 0,
+            };
+            mesh_asset.mesh = m_graphics_device->create_buffer({
+                .label = fmt::format("{} Mesh Data", mesh_asset.name),
+                .byte_size = sizeof(Mesh),
+                .usage = hyper_rhi::BufferUsage::ShaderResource,
+            });
+            m_queue->write_buffer(mesh_asset.mesh, &mesh_data, sizeof(Mesh));
+
+            mesh_asset.indices = m_graphics_device->create_buffer({
+                .label = fmt::format("{} Indices", mesh_asset.name),
+                .byte_size = indices.size() * sizeof(uint32_t),
+                .usage = hyper_rhi::BufferUsage::IndexBuffer,
+            });
+            m_queue->write_buffer(mesh_asset.indices, indices.data(), indices.size() * sizeof(uint32_t));
+
+            meshes.push_back(std::make_shared<MeshAsset>(std::move(mesh_asset)));
+        }
+
+        m_queue->submit(nullptr);
+
+        return meshes;
     }
 
     void Renderer::on_resize(const hyper_platform::WindowResizeEvent &event)

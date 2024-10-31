@@ -20,6 +20,7 @@ namespace hyper_rhi
         None = 0,
         ShaderResource = 1 << 0,
         IndexBuffer = 1 << 1,
+        Staging = 1 << 2,
     };
 
     HE_ENABLE_BITMASK_OPERATORS(BufferUsage);

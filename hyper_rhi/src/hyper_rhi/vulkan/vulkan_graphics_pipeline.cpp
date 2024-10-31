@@ -97,14 +97,14 @@ namespace hyper_rhi
             .pScissors = nullptr,
         };
 
-        constexpr VkPipelineRasterizationStateCreateInfo rasterization_state_create_info = {
+        const VkPipelineRasterizationStateCreateInfo rasterization_state_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
             .depthClampEnable = false,
             .rasterizerDiscardEnable = false,
             .polygonMode = VK_POLYGON_MODE_FILL,
-            .cullMode = VK_CULL_MODE_NONE,
+            .cullMode = VulkanGraphicsPipeline::get_cull_mode(descriptor.primitive_state.cull_mode),
             .frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
             .depthBiasEnable = false,
             .depthBiasConstantFactor = 0.0,
@@ -125,16 +125,13 @@ namespace hyper_rhi
             .alphaToOneEnable = false,
         };
 
-        const bool depth_enabled = descriptor.depth_state.depth_enabled;
-        const VkCompareOp compare_operation = VulkanGraphicsPipeline::get_compare_operation(descriptor.depth_state.compare_operation);
-
         const VkPipelineDepthStencilStateCreateInfo depth_stencil_state_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
-            .depthTestEnable = depth_enabled,
-            .depthWriteEnable = depth_enabled,
-            .depthCompareOp = compare_operation,
+            .depthTestEnable = descriptor.depth_stencil_state.depth_enabled,
+            .depthWriteEnable = descriptor.depth_stencil_state.depth_enabled,
+            .depthCompareOp = VulkanGraphicsPipeline::get_compare_operation(descriptor.depth_stencil_state.compare_operation),
             .depthBoundsTestEnable = false,
             .stencilTestEnable = false,
             .front = {},
@@ -265,6 +262,21 @@ namespace hyper_rhi
     VkPipeline VulkanGraphicsPipeline::pipeline() const
     {
         return m_pipeline;
+    }
+
+    VkCullModeFlags VulkanGraphicsPipeline::get_cull_mode(const Face face)
+    {
+        switch (face)
+        {
+        case Face::None:
+            return VK_CULL_MODE_NONE;
+        case Face::Front:
+            return VK_CULL_MODE_FRONT_BIT;
+        case Face::Back:
+            return VK_CULL_MODE_BACK_BIT;
+        default:
+            HE_UNREACHABLE();
+        }
     }
 
     VkCompareOp VulkanGraphicsPipeline::get_compare_operation(const CompareOperation compare_operation)

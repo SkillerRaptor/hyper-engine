@@ -38,8 +38,15 @@ namespace hyper_rhi
         };
 
         // TODO: Add more explicit allocation
-        constexpr VmaAllocationCreateInfo allocation_create_info = {
-            .flags = 0,
+        VmaAllocationCreateFlags allocation_flags = 0;
+        if ((descriptor.usage & BufferUsage::Staging) == BufferUsage::Staging)
+        {
+            allocation_flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+            allocation_flags |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
+        }
+
+        const VmaAllocationCreateInfo allocation_create_info = {
+            .flags = allocation_flags,
             .usage = VMA_MEMORY_USAGE_AUTO,
             .requiredFlags = 0,
             .preferredFlags = 0,

@@ -104,9 +104,28 @@ namespace hyper_rhi
             }
             else
             {
-                // TODO: Staging Buffer
-                HE_WARN(
-                    "Tried to upload {} bytes to {} buffer, but staging buffers are not implemented",
+                const std::shared_ptr<Buffer> staging_buffer = m_graphics_device.create_buffer({
+                    .label = fmt::format("{} Staging", buffer->label()),
+                    .byte_size = static_cast<uint64_t>(buffer_write.bytes.size()),
+                    .usage = BufferUsage::Staging,
+                });
+                const std::shared_ptr<VulkanBuffer> vulkan_staging_buffer = std::dynamic_pointer_cast<VulkanBuffer>(staging_buffer);
+
+                void *mapped_ptr = nullptr;
+                vmaMapMemory(m_graphics_device.allocator(), vulkan_staging_buffer->allocation(), &mapped_ptr);
+                memcpy(mapped_ptr, buffer_write.bytes.data(), buffer_write.bytes.size());
+                vmaUnmapMemory(m_graphics_device.allocator(), vulkan_staging_buffer->allocation());
+
+                const VkBufferCopy buffer_copy_info = {
+                    .srcOffset = 0,
+                    .dstOffset = 0,
+                    .size = static_cast<uint64_t>(buffer_write.bytes.size()),
+                };
+
+                vkCmdCopyBuffer(m_command_buffer, vulkan_staging_buffer->buffer(), buffer->buffer(), 1, &buffer_copy_info);
+
+                HE_TRACE(
+                    "Uploading with a staging buffer {} bytes to {} buffer",
                     buffer_write.bytes.size(),
                     buffer->label().empty() ? "a" : fmt::format("the '{}'", buffer->label()));
             }

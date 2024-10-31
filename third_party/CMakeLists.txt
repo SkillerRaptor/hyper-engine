@@ -71,6 +71,35 @@ set_target_properties(
 hyperengine_deploy_files(${CMAKE_CURRENT_LIST_DIR}/DirectXShaderCompiler/bin/x64/ hyper_engine/)
 
 #-------------------------------------------------------------------------------------------
+# fastgltf
+#-------------------------------------------------------------------------------------------
+FetchContent_Declare(
+        fastgltf
+        SYSTEM
+        GIT_REPOSITORY https://github.com/spnda/fastgltf.git
+        GIT_TAG v0.8.0)
+
+set(FASTGLTF_USE_CUSTOM_SMALLVECTOR ON CACHE INTERNAL "")
+set(FASTGLTF_ENABLE_TESTS OFF CACHE INTERNAL "")
+set(FASTGLTF_ENABLE_EXAMPLES OFF CACHE INTERNAL "")
+set(FASTGLTF_ENABLE_DOCS OFF CACHE INTERNAL "")
+set(FASTGLTF_ENABLE_GLTF_RS OFF CACHE INTERNAL "")
+set(FASTGLTF_ENABLE_ASSIMP OFF CACHE INTERNAL "")
+set(FASTGLTF_ENABLE_DEPRECATED_EXT OFF CACHE INTERNAL "")
+set(FASTGLTF_DISABLE_CUSTOM_MEMORY_POOL OFF CACHE INTERNAL "")
+set(FASTGLTF_USE_64BIT_FLOAT OFF CACHE INTERNAL "")
+set(FASTGLTF_COMPILE_AS_CPP20 ON CACHE INTERNAL "")
+set(FASTGLTF_ENABLE_CPP_MODULES OFF CACHE INTERNAL "")
+set(FASTGLTF_USE_STD_MODULE OFF CACHE INTERNAL "")
+
+FetchContent_MakeAvailable(fastgltf)
+
+set_target_properties(
+        fastgltf
+        PROPERTIES
+        FOLDER "third_party")
+
+#-------------------------------------------------------------------------------------------
 # fmt
 #-------------------------------------------------------------------------------------------
 FetchContent_Declare(

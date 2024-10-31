@@ -15,6 +15,18 @@
 
 namespace hyper_rhi
 {
+    enum class Face
+    {
+        None,
+        Front,
+        Back
+    };
+
+    struct PrimitiveState
+    {
+        Face cull_mode;
+    };
+
     enum class CompareOperation
     {
         Undefined,
@@ -28,7 +40,7 @@ namespace hyper_rhi
         Always,
     };
 
-    struct DepthState
+    struct DepthStencilState
     {
         bool depth_enabled = false;
         CompareOperation compare_operation = CompareOperation::Undefined;
@@ -41,7 +53,8 @@ namespace hyper_rhi
         std::shared_ptr<PipelineLayout> layout = nullptr;
         std::shared_ptr<ShaderModule> vertex_shader = nullptr;
         std::shared_ptr<ShaderModule> fragment_shader = nullptr;
-        DepthState depth_state;
+        PrimitiveState primitive_state;
+        DepthStencilState depth_stencil_state;
     };
 
     class GraphicsPipeline : public Resource
@@ -52,7 +65,8 @@ namespace hyper_rhi
         [[nodiscard]] PipelineLayout &layout() const;
         [[nodiscard]] ShaderModule &vertex_shader() const;
         [[nodiscard]] ShaderModule &fragment_shader() const;
-        [[nodiscard]] DepthState depth_state() const;
+        [[nodiscard]] PrimitiveState primitive_state() const;
+        [[nodiscard]] DepthStencilState depth_stencil_state() const;
 
     protected:
         explicit GraphicsPipeline(const GraphicsPipelineDescriptor &descriptor);
@@ -61,6 +75,7 @@ namespace hyper_rhi
         std::shared_ptr<PipelineLayout> m_layout;
         std::shared_ptr<ShaderModule> m_vertex_shader;
         std::shared_ptr<ShaderModule> m_fragment_shader;
-        DepthState m_depth_state;
+        PrimitiveState m_primitive_state;
+        DepthStencilState m_depth_stencil_state;
     };
 } // namespace hyper_rhi

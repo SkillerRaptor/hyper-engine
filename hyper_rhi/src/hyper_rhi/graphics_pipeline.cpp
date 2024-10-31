@@ -13,7 +13,8 @@ namespace hyper_rhi
         , m_layout(descriptor.layout)
         , m_vertex_shader(descriptor.vertex_shader)
         , m_fragment_shader(descriptor.fragment_shader)
-        , m_depth_state(descriptor.depth_state)
+        , m_primitive_state(descriptor.primitive_state)
+        , m_depth_stencil_state(descriptor.depth_stencil_state)
     {
     }
 
@@ -32,8 +33,13 @@ namespace hyper_rhi
         return *m_fragment_shader;
     }
 
-    DepthState GraphicsPipeline::depth_state() const
+    PrimitiveState GraphicsPipeline::primitive_state() const
     {
-        return m_depth_state;
+        return m_primitive_state;
+    }
+
+    DepthStencilState GraphicsPipeline::depth_stencil_state() const
+    {
+        return m_depth_stencil_state;
     }
 } // namespace hyper_rhi
