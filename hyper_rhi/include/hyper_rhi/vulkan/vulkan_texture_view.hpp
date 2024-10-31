@@ -21,9 +21,10 @@ namespace hyper_rhi
 
         [[nodiscard]] VkImageView image_view() const;
 
+        [[nodiscard]] static VkImageAspectFlags get_image_aspect_flags(TextureFormat format);
+
     private:
-        static VkImageAspectFlags get_image_aspect_flags(TextureFormat format);
-        static VkImageViewType get_image_view_type(TextureDimension dimension);
+        [[nodiscard]] static VkImageViewType get_image_view_type(TextureDimension dimension);
 
     private:
         VulkanGraphicsDevice &m_graphics_device;

@@ -365,6 +365,43 @@ namespace hyper_render
 
         m_command_list->begin();
 
+        m_command_list->insert_barriers({
+            .memory_barriers = {},
+            .buffer_memory_barriers = {},
+            .texture_memory_barriers = {
+                hyper_rhi::TextureMemoryBarrier {
+                    .stage_before = hyper_rhi::BarrierPipelineStage::AllCommands,
+                    .stage_after = hyper_rhi::BarrierPipelineStage::ColorAttachmentOutput,
+                    .access_before = hyper_rhi::BarrierAccess::None,
+                    .access_after = hyper_rhi::BarrierAccess::ColorAttachmentWrite,
+                    .layout_before = hyper_rhi::BarrierTextureLayout::Undefined,
+                    .layout_after = hyper_rhi::BarrierTextureLayout::ColorAttachment,
+                    .texture = swapchain_texture,
+                    .subresource_range = {
+                        .base_mip_level = 0,
+                        .mip_level_count = 1,
+                        .base_array_level = 0,
+                        .array_layer_count = 1,
+                    },
+                },
+                hyper_rhi::TextureMemoryBarrier {
+                    .stage_before = hyper_rhi::BarrierPipelineStage::AllCommands,
+                    .stage_after = hyper_rhi::BarrierPipelineStage::LateFragmentTests,
+                    .access_before = hyper_rhi::BarrierAccess::None,
+                    .access_after = hyper_rhi::BarrierAccess::DepthStencilAttachmentWrite ,
+                    .layout_before = hyper_rhi::BarrierTextureLayout::Undefined,
+                    .layout_after = hyper_rhi::BarrierTextureLayout::DepthStencilAttachment,
+                    .texture = m_depth_texture,
+                    .subresource_range = {
+                        .base_mip_level = 0,
+                        .mip_level_count = 1,
+                        .base_array_level = 0,
+                        .array_layer_count = 1,
+                    },
+                },
+            },
+        });
+
         {
             const std::shared_ptr<hyper_rhi::RenderPass> render_pass = m_command_list->begin_render_pass({
                 .label = "Opaque",
@@ -409,6 +446,28 @@ namespace hyper_render
             });
         }
 
+        m_command_list->insert_barriers({
+            .memory_barriers = {},
+            .buffer_memory_barriers = {},
+            .texture_memory_barriers = {
+                hyper_rhi::TextureMemoryBarrier {
+                    .stage_before = hyper_rhi::BarrierPipelineStage::LateFragmentTests,
+                    .stage_after = hyper_rhi::BarrierPipelineStage::EarlyFragmentTests,
+                    .access_before = hyper_rhi::BarrierAccess::DepthStencilAttachmentWrite,
+                    .access_after = hyper_rhi::BarrierAccess::DepthStencilAttachmentWrite,
+                    .layout_before = hyper_rhi::BarrierTextureLayout::DepthStencilAttachment,
+                    .layout_after = hyper_rhi::BarrierTextureLayout::DepthStencilAttachment,
+                    .texture = m_depth_texture,
+                    .subresource_range = {
+                        .base_mip_level = 0,
+                        .mip_level_count = 1,
+                        .base_array_level = 0,
+                        .array_layer_count = 1,
+                    },
+                },
+            },
+        });
+
         {
             const std::shared_ptr<hyper_rhi::RenderPass> render_pass = m_command_list->begin_render_pass({
                 .label = "Grid",
@@ -442,6 +501,28 @@ namespace hyper_render
                 .first_instance = 0,
             });
         }
+
+        m_command_list->insert_barriers({
+            .memory_barriers = {},
+            .buffer_memory_barriers = {},
+            .texture_memory_barriers = {
+                hyper_rhi::TextureMemoryBarrier {
+                    .stage_before = hyper_rhi::BarrierPipelineStage::ColorAttachmentOutput,
+                    .stage_after = hyper_rhi::BarrierPipelineStage::AllCommands,
+                    .access_before = hyper_rhi::BarrierAccess::ColorAttachmentWrite,
+                    .access_after = hyper_rhi::BarrierAccess::None,
+                    .layout_before = hyper_rhi::BarrierTextureLayout::ColorAttachment,
+                    .layout_after = hyper_rhi::BarrierTextureLayout::Present,
+                    .texture = swapchain_texture,
+                    .subresource_range = {
+                        .base_mip_level = 0,
+                        .mip_level_count = 1,
+                        .base_array_level = 0,
+                        .array_layer_count = 1,
+                    },
+                },
+            },
+        });
 
         m_command_list->end();
 

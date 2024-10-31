@@ -26,12 +26,12 @@ namespace hyper_rhi
         [[nodiscard]] VkImage image() const;
         [[nodiscard]] VmaAllocation allocation() const;
 
-        static TextureFormat format_to_texture_format(VkFormat format);
-        static VkFormat get_format(TextureFormat format);
+        [[nodiscard]] static TextureFormat format_to_texture_format(VkFormat format);
+        [[nodiscard]] static VkFormat get_format(TextureFormat format);
 
     private:
-        static VkImageType get_image_type(TextureDimension dimension);
-        static VkImageUsageFlags get_image_usage_flags(TextureUsage texture_usage_flags, TextureFormat format);
+        [[nodiscard]] static VkImageType get_image_type(TextureDimension dimension);
+        [[nodiscard]] static VkImageUsageFlags get_image_usage_flags(TextureUsage texture_usage_flags, TextureFormat format);
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
