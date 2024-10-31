@@ -686,11 +686,11 @@ namespace hyper_render
             std::vector<glm::vec4> colors;
             for (const Vertex &vertex : vertices)
             {
-                glm::vec4 position = glm::vec4(vertex.position.x, vertex.position.z, vertex.position.y, 1.0);
+                glm::vec4 position = glm::vec4(-vertex.position.x, vertex.position.z, vertex.position.y, 1.0);
                 position = scale * position;
 
                 positions.emplace_back(position.x, position.y, position.z, 1.0);
-                normals.emplace_back(vertex.normal.x, vertex.normal.z, vertex.normal.y, 1.0);
+                normals.emplace_back(-vertex.normal.x, vertex.normal.z, vertex.normal.y, 1.0);
                 colors.emplace_back(vertex.color);
             }
 
@@ -727,6 +727,11 @@ namespace hyper_render
                 .usage = hyper_rhi::BufferUsage::ShaderResource,
             });
             m_queue->write_buffer(mesh_asset.mesh, &mesh_data, sizeof(Mesh));
+
+            for (size_t index = 0; index < indices.size(); index += 3)
+            {
+                std::swap(indices[index], indices[index + 2]);
+            }
 
             mesh_asset.indices = m_graphics_device->create_buffer({
                 .label = fmt::format("{} Indices", mesh_asset.name),
