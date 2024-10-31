@@ -17,15 +17,15 @@ struct VertexOutput {
 VertexOutput vs_main(
   uint vertex_id : SV_VertexID
 ) {
-    const Mesh mesh = g_push.get_mesh();
+    const ShaderMesh mesh = g_push.get_mesh();
     const float4 position = mesh.get_position(vertex_id) + float4(0.0, 0.0, 1.0, 0.0);
     const float4 normal = mesh.get_normal(vertex_id);
     const float4 color = mesh.get_color(vertex_id);
 
-    const Material material = g_push.get_material();
-    const float4 base_color = material.base_color;
+    // const ShaderMaterial material = g_push.get_material();
+    // const float4 base_color = material.base_color;
 
-    const Camera camera = get_camera();
+    const ShaderCamera camera = get_camera();
 
     VertexOutput output = (VertexOutput) 0;
     output.position = mul(camera.view_projection, position);

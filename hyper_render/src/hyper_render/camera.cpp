@@ -21,7 +21,7 @@ namespace hyper_render
         , m_mouse_sensitivity(0.1f)
         , m_fov(90.0f)
         , m_near(0.01f)
-        , m_far(1000.0f)
+        , m_far(100.0f)
         , m_aspect_ratio(1280.0f / 720.0f)
         , m_first_mouse(true)
         , m_last_x(0.0)

@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include <optional>
-
 #include <hyper_event/event_bus.hpp>
 #include <hyper_platform/input.hpp>
 #include <hyper_platform/mouse_events.hpp>
@@ -17,26 +15,12 @@
 #include <hyper_rhi/surface.hpp>
 
 #include "hyper_render/camera.hpp"
+#include "hyper_render/mesh.hpp"
+#include "hyper_render/render_passes/grid_pass.hpp"
+#include "hyper_render/render_passes/opaque_pass.hpp"
 
 namespace hyper_render
 {
-    struct GeometrySurface
-    {
-        uint32_t start_index;
-        uint32_t count;
-    };
-
-    struct MeshAsset
-    {
-        std::string name;
-        std::vector<GeometrySurface> surfaces;
-        std::shared_ptr<hyper_rhi::Buffer> positions;
-        std::shared_ptr<hyper_rhi::Buffer> normals;
-        std::shared_ptr<hyper_rhi::Buffer> colors;
-        std::shared_ptr<hyper_rhi::Buffer> mesh;
-        std::shared_ptr<hyper_rhi::Buffer> indices;
-    };
-
     struct RendererDescriptor
     {
         std::shared_ptr<hyper_rhi::GraphicsDevice> graphics_device;
@@ -52,8 +36,6 @@ namespace hyper_render
         void update(float delta_time);
         void render();
 
-        [[nodiscard]] std::optional<std::vector<std::shared_ptr<MeshAsset>>> load_model(const std::string &path) const;
-
     private:
         void on_resize(const hyper_platform::WindowResizeEvent &event);
         void on_mouse_moved(const hyper_platform::MouseMovedEvent &event);
@@ -68,27 +50,13 @@ namespace hyper_render
         std::shared_ptr<hyper_rhi::Queue> m_queue;
         std::shared_ptr<hyper_rhi::CommandList> m_command_list;
 
-        std::shared_ptr<hyper_rhi::PipelineLayout> m_pipeline_layout;
-        std::shared_ptr<hyper_rhi::ShaderModule> m_vertex_shader;
-        std::shared_ptr<hyper_rhi::ShaderModule> m_fragment_shader;
-        std::shared_ptr<hyper_rhi::GraphicsPipeline> m_pipeline;
-
-        std::shared_ptr<hyper_rhi::Buffer> m_material_buffer;
-        std::shared_ptr<hyper_rhi::Buffer> m_positions_buffer;
-        std::shared_ptr<hyper_rhi::Buffer> m_normals_buffer;
-        std::shared_ptr<hyper_rhi::Buffer> m_colors_buffer;
-        std::shared_ptr<hyper_rhi::Buffer> m_mesh_buffer;
-        std::shared_ptr<hyper_rhi::Buffer> m_indices_buffer;
+        Camera m_editor_camera;
         std::shared_ptr<hyper_rhi::Buffer> m_camera_buffer;
 
-        std::shared_ptr<hyper_rhi::PipelineLayout> m_grid_pipeline_layout;
-        std::shared_ptr<hyper_rhi::ShaderModule> m_grid_vertex_shader;
-        std::shared_ptr<hyper_rhi::ShaderModule> m_grid_fragment_shader;
-        std::shared_ptr<hyper_rhi::GraphicsPipeline> m_grid_pipeline;
+        std::unique_ptr<OpaquePass> m_opaque_pass;
+        std::unique_ptr<GridPass> m_grid_pass;
 
-        std::vector<std::shared_ptr<MeshAsset>> m_meshes;
-
-        Camera m_editor_camera;
+        std::vector<std::shared_ptr<Mesh>> m_meshes;
 
         uint32_t m_frame_index;
     };

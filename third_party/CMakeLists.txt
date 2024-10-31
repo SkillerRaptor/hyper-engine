@@ -171,6 +171,41 @@ set_target_properties(
         FOLDER "third_party")
 
 #-------------------------------------------------------------------------------------------
+# imgui
+#-------------------------------------------------------------------------------------------
+FetchContent_Declare(
+		imgui
+		SYSTEM
+		GIT_REPOSITORY https://github.com/ocornut/imgui.git
+		GIT_TAG origin/docking)
+
+FetchContent_MakeAvailable(imgui)
+
+add_library(
+		imgui
+		${CMAKE_BINARY_DIR}/_deps/imgui-src/imconfig.h
+		${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui.cpp
+		${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui.h
+		${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_demo.cpp
+		${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_draw.cpp
+		${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_internal.h
+		${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_tables.cpp
+		${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_widgets.cpp
+		${CMAKE_BINARY_DIR}/_deps/imgui-src/imstb_rectpack.h
+		${CMAKE_BINARY_DIR}/_deps/imgui-src/imstb_textedit.h
+		${CMAKE_BINARY_DIR}/_deps/imgui-src/imstb_truetype.h)
+target_include_directories(
+		imgui
+		SYSTEM
+		PUBLIC
+		${CMAKE_BINARY_DIR}/_deps/)
+
+set_target_properties(
+        imgui
+        PROPERTIES
+        FOLDER "third_party")
+
+#-------------------------------------------------------------------------------------------
 # libassert
 #-------------------------------------------------------------------------------------------
 FetchContent_Declare(

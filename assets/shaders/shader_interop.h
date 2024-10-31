@@ -38,12 +38,12 @@
 // Shader Interop
 ////////////////////////////////////////////////////////////////////////////////
 
-struct Mesh
+struct ShaderMesh
 {
     ARRAY_BUFFER positions;
     ARRAY_BUFFER normals;
     ARRAY_BUFFER colors;
-    uint padding_1;
+    uint padding_0;
 
 #ifndef __cplusplus
     inline float4 get_position(uint index)
@@ -63,7 +63,7 @@ struct Mesh
 #endif
 };
 
-struct Material
+struct ShaderMaterial
 {
     float4 base_color;
 
@@ -90,18 +90,18 @@ struct ObjectPushConstants
     uint padding_1;
 
 #ifndef __cplusplus
-    inline Mesh get_mesh()
+    inline ShaderMesh get_mesh()
     {
         ResourceHandle mesh_handle = (ResourceHandle) mesh;
         SimpleBuffer buffer = (SimpleBuffer) mesh_handle.read_index();
-        return buffer.load<Mesh>();
+        return buffer.load<ShaderMesh>();
     }
 
-    inline Material get_material()
+    inline ShaderMaterial get_material()
     {
         ResourceHandle material_handle = (ResourceHandle) material;
         SimpleBuffer buffer = (SimpleBuffer) material_handle.read_index();
-        return buffer.load<Material>();
+        return buffer.load<ShaderMaterial>();
     }
 #endif
 };
@@ -114,7 +114,7 @@ struct ObjectPushConstants
 #define HE_DESCRIPTOR_SET_SLOT_FRAME ((1000 * 1000) - 1)
 #define HE_DESCRIPTOR_SET_SLOT_CAMERA ((1000 * 1000) - 2)
 
-struct Frame
+struct ShaderFrame
 {
     float time;
     float delta_time;
@@ -131,14 +131,14 @@ struct Frame
 };
 
 #ifndef __cplusplus
-inline Frame get_frame()
+inline ShaderFrame get_frame()
 {
     SimpleBuffer buffer = (SimpleBuffer) HE_DESCRIPTOR_SET_SLOT_FRAME;
-    return buffer.load<Frame>();
+    return buffer.load<ShaderFrame>();
 }
 #endif
 
-struct Camera
+struct ShaderCamera
 {
     float4 position;
 
@@ -156,11 +156,33 @@ struct Camera
 };
 
 #ifndef __cplusplus
-inline Camera get_camera()
+inline ShaderCamera get_camera()
 {
     SimpleBuffer buffer = (SimpleBuffer) HE_DESCRIPTOR_SET_SLOT_CAMERA;
-    return buffer.load<Camera>();
+    return buffer.load<ShaderCamera>();
 }
+#endif
+
+#ifdef __cplusplus
+#    undef float2
+#    undef float3
+#    undef float4
+#    undef float4x4
+
+#    undef int2
+#    undef int3
+#    undef int4
+
+#    undef uint
+#    undef uint2
+#    undef uint3
+#    undef uint4
+
+#    undef RESOURCE_HANDLE
+#    undef ARRAY_BUFFER
+#else
+#    undef RESOURCE_HANDLE
+#    undef ARRAY_BUFFER
 #endif
 
 #endif // HE_SHADER_INTEROP_HPP

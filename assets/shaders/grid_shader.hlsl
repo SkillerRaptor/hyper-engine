@@ -32,7 +32,7 @@ float3 unproject_point(float3 xyz, float4x4 inverse_view, float4x4 inverse_proje
 VertexOutput vs_main(
   uint vertex_id : SV_VertexID
 ) {
-    const Camera camera = get_camera();
+    const ShaderCamera camera = get_camera();
 
     const float3 grid_point = s_grid_plane[vertex_id];
     const float3 near_point = unproject_point(float3(grid_point.x, grid_point.y, 0.0), camera.inverse_view, camera.inverse_projection);
@@ -83,7 +83,7 @@ float compute_linear_depth(float3 position, float4x4 view_projection, float near
 }
 
 FragmentOutput fs_main(VertexOutput input) {
-    const Camera camera = get_camera();
+    const ShaderCamera camera = get_camera();
 
     const float t = -input.near_point.y / (input.far_point.y - input.near_point.y);
     const float3 fragment_position = input.near_point.xyz + t * (input.far_point.xyz - input.near_point.xyz);
