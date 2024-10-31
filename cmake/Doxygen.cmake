@@ -21,19 +21,21 @@ function(enable_doxygen)
         set(DOXYGEN_EXCLUDE_PATTERNS "${PROJECT_SOURCE_DIR}/third_party" "${CMAKE_CURRENT_BINARY_DIR}/_deps/*")
     endif ()
 
-    include(FetchContent)
+    find_package(Doxygen OPTIONAL_COMPONENTS dot)
 
-    FetchContent_Declare(_doxygen_theme URL https://github.com/jothepro/doxygen-awesome-css/archive/refs/tags/v2.3.4.zip)
-    FetchContent_MakeAvailable(_doxygen_theme)
-    set(DOXYGEN_HTML_EXTRA_STYLESHEET "${_doxygen_theme_SOURCE_DIR}/doxygen-awesome.css")
+    if (Doxygen_FOUND)
+        include(FetchContent)
 
-    find_package(Doxygen REQUIRED OPTIONAL_COMPONENTS dot)
+        FetchContent_Declare(_doxygen_theme URL https://github.com/jothepro/doxygen-awesome-css/archive/refs/tags/v2.3.4.zip)
+        FetchContent_MakeAvailable(_doxygen_theme)
+        set(DOXYGEN_HTML_EXTRA_STYLESHEET "${_doxygen_theme_SOURCE_DIR}/doxygen-awesome.css")
 
-    message(STATUS "Adding `doxygen-docs` target that builds the documentation.")
-    doxygen_add_docs(
-            doxygen-docs
-            ALL
-            ${PROJECT_SOURCE_DIR}
-            COMMENT
-            "Generating documentation - entry file: ${CMAKE_CURRENT_BINARY_DIR}/html/index.html")
+        message(STATUS "Adding `doxygen-docs` target that builds the documentation.")
+        doxygen_add_docs(
+                doxygen-docs
+                ALL
+                ${PROJECT_SOURCE_DIR}
+                COMMENT
+                "Generating documentation - entry file: ${CMAKE_CURRENT_BINARY_DIR}/html/index.html")
+    endif ()
 endfunction()
