@@ -65,28 +65,32 @@ namespace hyper_render
         const std::shared_ptr<hyper_rhi::Texture> &depth_texture,
         const std::vector<std::shared_ptr<Mesh>> &meshes) const
     {
-        const std::shared_ptr<hyper_rhi::RenderPass> render_pass = command_list->begin_render_pass(
-        {
+        const std::shared_ptr<hyper_rhi::RenderPass> render_pass = command_list->begin_render_pass({
             .label = "Opaque",
-            .label_color = {
-                .red = 254,
-                .green = 17,
-                .blue = 85,
-            },
-            .color_attachment = {
-                .attachment = swapchain_texture,
-                .operation = {
-                    .load_operation = hyper_rhi::LoadOperation::Clear,
-                    .store_operation = hyper_rhi::StoreOperation::Store,
+            .label_color =
+                hyper_rhi::LabelColor{
+                    .red = 254,
+                    .green = 17,
+                    .blue = 85,
                 },
-            },
-            .depth_attachment = {
-                .attachment = depth_texture,
-                .operation = {
-                    .load_operation = hyper_rhi::LoadOperation::Clear,
-                    .store_operation = hyper_rhi::StoreOperation::Store,
+            .color_attachment =
+                hyper_rhi::ColorAttachment{
+                    .attachment = swapchain_texture,
+                    .operation =
+                        hyper_rhi::Operations{
+                            .load_operation = hyper_rhi::LoadOperation::Clear,
+                            .store_operation = hyper_rhi::StoreOperation::Store,
+                        },
                 },
-            },
+            .depth_attachment =
+                hyper_rhi::DepthAttachment{
+                    .attachment = depth_texture,
+                    .operation =
+                        hyper_rhi::Operations{
+                            .load_operation = hyper_rhi::LoadOperation::Clear,
+                            .store_operation = hyper_rhi::StoreOperation::Store,
+                        },
+                },
         });
 
         render_pass->set_pipeline(m_pipeline);

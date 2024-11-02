@@ -33,14 +33,13 @@ struct ResourceHandle {
     static const uint DESCRIPTOR_SET_BINDLESS_STORAGE_BUFFER = 0;
     static const uint DESCRIPTOR_SET_BINDLESS_SAMPLED_IMAGE = 1;
     static const uint DESCRIPTOR_SET_BINDLESS_STORAGE_IMAGE = 2;
+    static const uint DESCRIPTOR_SET_BINDLESS_SAMPLER = 3;
 
     #define DEFINE_BUFFER_HEAP(type) \
         struct type##Handle { \
             uint internal_index; \
         }; \
         [[vk::binding(0, DESCRIPTOR_SET_BINDLESS_STORAGE_BUFFER)]] type g##_##type[]
-
-    // TODO: Add samplers
 
     #define DEFINE_TEXTURE_HEAP(texture_type) \
         template <typename T> \
@@ -62,6 +61,12 @@ struct ResourceHandle {
         [[vk::binding(0, DESCRIPTOR_SET_BINDLESS_STORAGE_IMAGE)]] texture_type<float3> g##_##texture_type##_##float3[]; \
         [[vk::binding(0, DESCRIPTOR_SET_BINDLESS_STORAGE_IMAGE)]] texture_type<float4> g##_##texture_type##_##float4[]
 
+    #define DEFINE_SAMPLER_HEAP(type) \
+        struct type##Handle { \
+            uint internal_index; \
+        }; \
+        [[vk::binding(0, DESCRIPTOR_SET_BINDLESS_SAMPLER)]] type g##_##type[]
+
     #define DEFINE_BUFFER_HEAP_OPERATOR(type) \
         type operator[](type##Handle identifier) { \
             return g_##type[NonUniformResourceIndex(identifier.internal_index)]; \
@@ -78,6 +83,11 @@ struct ResourceHandle {
         DEFINE_TEXTURE_HEAP_OPERATOR_VALUE(texture_type, g_##texture_type, float3, texture_type##Handle) \
         DEFINE_TEXTURE_HEAP_OPERATOR_VALUE(texture_type, g_##texture_type, float4, texture_type##Handle)
 
+    #define DEFINE_SAMPLER_HEAP_OPERATOR(type) \
+        type operator[](type##Handle identifier) { \
+            return g_##type[NonUniformResourceIndex(identifier.internal_index)]; \
+        }
+
     DEFINE_BUFFER_HEAP(ByteAddressBuffer);
     DEFINE_BUFFER_HEAP(RWByteAddressBuffer);
 
@@ -90,6 +100,8 @@ struct ResourceHandle {
     DEFINE_RW_TEXTURE_HEAP(RWTexture2D);
     DEFINE_RW_TEXTURE_HEAP(RWTexture3D);
 
+    DEFINE_SAMPLER_HEAP(SamplerState);
+
     struct VulkanResourceDescriptorHeapInternal {
         DEFINE_BUFFER_HEAP_OPERATOR(ByteAddressBuffer)
         DEFINE_BUFFER_HEAP_OPERATOR(RWByteAddressBuffer)
@@ -101,14 +113,18 @@ struct ResourceHandle {
         DEFINE_TEXTURE_HEAP_OPERATOR(Texture3D)
         DEFINE_TEXTURE_HEAP_OPERATOR(RWTexture3D)
         DEFINE_TEXTURE_HEAP_OPERATOR(TextureCube)
+
+        DEFINE_SAMPLER_HEAP_OPERATOR(SamplerState)
     };
 
     #undef DEFINE_BUFFER_HEAP
     #undef DEFINE_TEXTURE_HEAP
     #undef DEFINE_RW_TEXTURE_HEAP
+    #undef DEFINE_SAMPPLER_HEAP
     #undef DEFINE_BUFFER_HEAP_OPERATOR
     #undef DEFINE_TEXTURE_HEAP_OPERATOR_VALUE
     #undef DEFINE_TEXTURE_HEAP_OPERATOR
+    #undef DEFINE_SAMPLER_HEAP_OPERATOR
 
     static VulkanResourceDescriptorHeapInternal VkResourceDescriptorHeap;
 
@@ -179,19 +195,19 @@ struct Texture {
     template <typename T>
     T load_1d(uint pos) {
         Texture1D<T> texture = DESCRIPTOR_HEAP(Texture1DHandle<T>, this.handle.read_index());
-        return texture.load(uint2(pos, 0));
+        return texture.Load(uint2(pos, 0));
     }
 
     template <typename T>
     T load_2d(uint2 pos) {
         Texture2D<T> texture = DESCRIPTOR_HEAP(Texture2DHandle<T>, this.handle.read_index());
-        return texture.load(uint3(pos, 0));
+        return texture.Load(uint3(pos, 0));
     }
 
     template <typename T>
     T load_3d(uint3 pos) {
         Texture3D<T> texture = DESCRIPTOR_HEAP(Texture3DHandle<T>, this.handle.read_index());
-        return texture.load(uint4(pos, 0));
+        return texture.Load(uint4(pos, 0));
     }
 
     template<typename T>
@@ -237,19 +253,19 @@ struct RwTexture {
     template <typename T>
     T load_1d(uint pos) {
         Texture1D<T> texture = DESCRIPTOR_HEAP(Texture1DHandle<T>, this.handle.read_index());
-        return texture.load(uint2(pos, 0));
+        return texture.Load(uint2(pos, 0));
     }
 
     template <typename T>
     T load_2d(uint2 pos) {
         Texture2D<T> texture = DESCRIPTOR_HEAP(Texture2DHandle<T>, this.handle.read_index());
-        return texture.load(uint3(pos, 0));
+        return texture.Load(uint3(pos, 0));
     }
 
     template <typename T>
     T load_3d(uint3 pos) {
         Texture3D<T> texture = DESCRIPTOR_HEAP(Texture3DHandle<T>, this.handle.read_index());
-        return texture.load(uint4(pos, 0));
+        return texture.Load(uint4(pos, 0));
     }
 
     template <typename T>
@@ -304,6 +320,15 @@ struct RwTexture {
     T sample_level_3d(SamplerState sampler, float3 uvw, float mip) {
         Texture3D<T> texture = DESCRIPTOR_HEAP(Texture3DHandle<T>, this.handle.read_index());
         return texture.SampleLevel(sampler, uvw, mip);
+    }
+};
+
+struct Sampler {
+    ResourceHandle handle;
+
+    SamplerState load(uint index) {
+        SamplerState sampler_state_value = DESCRIPTOR_HEAP(SamplerStateHandle, this.handle.read_index());
+        return sampler_state_value;
     }
 };
 

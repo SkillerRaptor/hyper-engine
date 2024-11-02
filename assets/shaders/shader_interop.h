@@ -26,12 +26,24 @@
 #    define uint4 glm::u32vec4
 
 #    define RESOURCE_HANDLE ::hyper_rhi::ResourceHandle
+#    define SIMPLE_BUFFER RESOURCE_HANDLE
+#    define RW_SIMPLE_BUFFER RESOURCE_HANDLE
 #    define ARRAY_BUFFER RESOURCE_HANDLE
+#    define RW_ARRAY_BUFFER RESOURCE_HANDLE
+#    define TEXTURE RESOURCE_HANDLE
+#    define RW_TEXTURE RESOURCE_HANDLE
+#    define SAMPLER RESOURCE_HANDLE
 #else
 #    include "globals.hlsli"
 
 #    define RESOURCE_HANDLE uint
+#    define SIMPLE_BUFFER SimpleBuffer
+#    define RW_SIMPLE_BUFFER RwSimpleBuffer
 #    define ARRAY_BUFFER ArrayBuffer
+#    define RW_ARRAY_BUFFER RwArrayBuffer
+#    define TEXTURE Texture
+#    define RW_TEXTURE RwTexture
+#    define SAMPLER Sampler
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////

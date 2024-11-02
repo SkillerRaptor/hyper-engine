@@ -15,7 +15,11 @@
 
 namespace hyper_render
 {
-    Renderer::Renderer(hyper_event::EventBus &event_bus, const hyper_platform::Input &input, const RendererDescriptor &descriptor)
+    Renderer::Renderer(
+        hyper_event::EventBus &event_bus,
+        const hyper_platform::Window &window,
+        const hyper_platform::Input &input,
+        const RendererDescriptor &descriptor)
         : m_input(input)
         , m_graphics_device(descriptor.graphics_device)
         , m_surface(descriptor.surface)
@@ -122,7 +126,7 @@ namespace hyper_render
                     .layout_before = hyper_rhi::BarrierTextureLayout::Undefined,
                     .layout_after = hyper_rhi::BarrierTextureLayout::ColorAttachment,
                     .texture = swapchain_texture,
-                    .subresource_range = {
+                    .subresource_range = hyper_rhi::TextureBarrierSubresourceRange{
                         .base_mip_level = 0,
                         .mip_level_count = 1,
                         .base_array_level = 0,
@@ -137,7 +141,7 @@ namespace hyper_render
                     .layout_before = hyper_rhi::BarrierTextureLayout::Undefined,
                     .layout_after = hyper_rhi::BarrierTextureLayout::DepthStencilAttachment,
                     .texture = m_depth_texture,
-                    .subresource_range = {
+                    .subresource_range = hyper_rhi::TextureBarrierSubresourceRange{
                         .base_mip_level = 0,
                         .mip_level_count = 1,
                         .base_array_level = 0,
@@ -162,7 +166,7 @@ namespace hyper_render
                     .layout_before = hyper_rhi::BarrierTextureLayout::DepthStencilAttachment,
                     .layout_after = hyper_rhi::BarrierTextureLayout::DepthStencilAttachment,
                     .texture = m_depth_texture,
-                    .subresource_range = {
+                    .subresource_range = hyper_rhi::TextureBarrierSubresourceRange{
                         .base_mip_level = 0,
                         .mip_level_count = 1,
                         .base_array_level = 0,
@@ -187,7 +191,7 @@ namespace hyper_render
                     .layout_before = hyper_rhi::BarrierTextureLayout::ColorAttachment,
                     .layout_after = hyper_rhi::BarrierTextureLayout::Present,
                     .texture = swapchain_texture,
-                    .subresource_range = {
+                    .subresource_range = hyper_rhi::TextureBarrierSubresourceRange{
                         .base_mip_level = 0,
                         .mip_level_count = 1,
                         .base_array_level = 0,

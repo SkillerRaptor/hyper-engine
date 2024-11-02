@@ -30,7 +30,11 @@ namespace hyper_render
     class Renderer
     {
     public:
-        Renderer(hyper_event::EventBus &event_bus, const hyper_platform::Input &input, const RendererDescriptor &descriptor);
+        Renderer(
+            hyper_event::EventBus &event_bus,
+            const hyper_platform::Window &window,
+            const hyper_platform::Input &input,
+            const RendererDescriptor &descriptor);
 
         // NOTE: This shouldn't be in the renderer
         void update(float delta_time);

@@ -22,9 +22,9 @@ namespace hyper_render
             const std::shared_ptr<hyper_rhi::Texture> &depth_texture) const;
 
     private:
-        std::shared_ptr<hyper_rhi::PipelineLayout> m_grid_pipeline_layout;
-        std::shared_ptr<hyper_rhi::ShaderModule> m_grid_vertex_shader;
-        std::shared_ptr<hyper_rhi::ShaderModule> m_grid_fragment_shader;
-        std::shared_ptr<hyper_rhi::GraphicsPipeline> m_grid_pipeline;
+        std::shared_ptr<hyper_rhi::PipelineLayout> m_pipeline_layout;
+        std::shared_ptr<hyper_rhi::ShaderModule> m_vertex_shader;
+        std::shared_ptr<hyper_rhi::ShaderModule> m_fragment_shader;
+        std::shared_ptr<hyper_rhi::GraphicsPipeline> m_pipeline;
     };
 } // namespace hyper_render

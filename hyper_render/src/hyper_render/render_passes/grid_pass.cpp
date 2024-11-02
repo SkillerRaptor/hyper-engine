@@ -11,12 +11,12 @@
 namespace hyper_render
 {
     GridPass::GridPass(const std::shared_ptr<hyper_rhi::GraphicsDevice> &graphics_device, const hyper_rhi::ShaderCompiler &shader_compiler)
-        : m_grid_pipeline_layout(graphics_device->create_pipeline_layout({
+        : m_pipeline_layout(graphics_device->create_pipeline_layout({
               .label = "Grid",
               // TODO: Test if size is 0
               .push_constant_size = 4,
           }))
-        , m_grid_vertex_shader(graphics_device->create_shader_module({
+        , m_vertex_shader(graphics_device->create_shader_module({
               .label = "Grid",
               .type = hyper_rhi::ShaderType::Vertex,
               .entry_name = "vs_main",
@@ -28,7 +28,7 @@ namespace hyper_render
                            })
                            .spirv,
           }))
-        , m_grid_fragment_shader(graphics_device->create_shader_module({
+        , m_fragment_shader(graphics_device->create_shader_module({
               .label = "Grid",
               .type = hyper_rhi::ShaderType::Fragment,
               .entry_name = "fs_main",
@@ -40,11 +40,11 @@ namespace hyper_render
                            })
                            .spirv,
           }))
-        , m_grid_pipeline(graphics_device->create_graphics_pipeline({
+        , m_pipeline(graphics_device->create_graphics_pipeline({
               .label = "Grid",
-              .layout = m_grid_pipeline_layout,
-              .vertex_shader = m_grid_vertex_shader,
-              .fragment_shader = m_grid_fragment_shader,
+              .layout = m_pipeline_layout,
+              .vertex_shader = m_vertex_shader,
+              .fragment_shader = m_fragment_shader,
               .primitive_state =
                   hyper_rhi::PrimitiveState{
                       .cull_mode = hyper_rhi::Face::None,
@@ -63,31 +63,35 @@ namespace hyper_render
         const std::shared_ptr<hyper_rhi::Texture> &swapchain_texture,
         const std::shared_ptr<hyper_rhi::Texture> &depth_texture) const
     {
-        const std::shared_ptr<hyper_rhi::RenderPass> render_pass = command_list->begin_render_pass(
-        {
+        const std::shared_ptr<hyper_rhi::RenderPass> render_pass = command_list->begin_render_pass({
             .label = "Grid",
-            .label_color = {
-                .red = 51,
-                .green = 187,
-                .blue = 255,
-            },
-            .color_attachment = {
-                .attachment = swapchain_texture,
-                .operation = {
-                    .load_operation = hyper_rhi::LoadOperation::Load,
-                    .store_operation = hyper_rhi::StoreOperation::Store,
+            .label_color =
+                hyper_rhi::LabelColor{
+                    .red = 51,
+                    .green = 187,
+                    .blue = 255,
                 },
-            },
-            .depth_attachment = {
-                .attachment = depth_texture,
-                .operation = {
-                    .load_operation = hyper_rhi::LoadOperation::Load,
-                    .store_operation = hyper_rhi::StoreOperation::Store,
+            .color_attachment =
+                hyper_rhi::ColorAttachment{
+                    .attachment = swapchain_texture,
+                    .operation =
+                        hyper_rhi::Operations{
+                            .load_operation = hyper_rhi::LoadOperation::Load,
+                            .store_operation = hyper_rhi::StoreOperation::Store,
+                        },
                 },
-            },
+            .depth_attachment =
+                hyper_rhi::DepthAttachment{
+                    .attachment = depth_texture,
+                    .operation =
+                        hyper_rhi::Operations{
+                            .load_operation = hyper_rhi::LoadOperation::Load,
+                            .store_operation = hyper_rhi::StoreOperation::Store,
+                        },
+                },
         });
 
-        render_pass->set_pipeline(m_grid_pipeline);
+        render_pass->set_pipeline(m_pipeline);
 
         render_pass->draw({
             .vertex_count = 6,
