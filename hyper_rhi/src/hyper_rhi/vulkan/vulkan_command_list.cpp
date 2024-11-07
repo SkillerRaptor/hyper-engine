@@ -155,19 +155,147 @@ namespace hyper_rhi
 
     void VulkanCommandList::clear_buffer(const std::shared_ptr<Buffer> &buffer, const size_t size, const uint64_t offset)
     {
-        HE_UNUSED(buffer);
-        HE_UNUSED(size);
-        HE_UNUSED(offset);
+        const auto vulkan_buffer = std::dynamic_pointer_cast<VulkanBuffer>(buffer);
 
-        HE_PANIC();
+        vkCmdFillBuffer(m_command_buffer, vulkan_buffer->buffer(), offset, size, 0);
+
+        HE_TRACE("Clearing {} buffer", buffer->label().empty() ? "a" : fmt::format("the '{}'", buffer->label()));
     }
 
     void VulkanCommandList::clear_texture(const std::shared_ptr<Texture> &texture, const TextureSubresourceRange subresource_range)
     {
-        HE_UNUSED(texture);
-        HE_UNUSED(subresource_range);
+        const auto vulkan_texture = std::dynamic_pointer_cast<VulkanTexture>(texture);
 
-        HE_PANIC();
+        const VkImageSubresourceRange vulkan_subresource_range = {
+            .aspectMask = VulkanTextureView::get_image_aspect_flags(texture->format()),
+            .baseMipLevel = subresource_range.base_mip_level,
+            .levelCount = subresource_range.mip_level_count,
+            .baseArrayLayer = subresource_range.base_array_level,
+            .layerCount = subresource_range.array_layer_count,
+        };
+
+        switch (texture->format())
+        {
+        case Format::R8Unorm:
+        case Format::R8Snorm:
+        case Format::R8Uint:
+        case Format::R8Sint:
+        case Format::R8Srgb:
+        case Format::Rg8Unorm:
+        case Format::Rg8Snorm:
+        case Format::Rg8Uint:
+        case Format::Rg8Sint:
+        case Format::Rg8Srgb:
+        case Format::Rgb8Unorm:
+        case Format::Rgb8Snorm:
+        case Format::Rgb8Uint:
+        case Format::Rgb8Sint:
+        case Format::Rgb8Srgb:
+        case Format::Bgr8Unorm:
+        case Format::Bgr8Snorm:
+        case Format::Bgr8Uint:
+        case Format::Bgr8Sint:
+        case Format::Bgr8Srgb:
+        case Format::Rgba8Unorm:
+        case Format::Rgba8Snorm:
+        case Format::Rgba8Uint:
+        case Format::Rgba8Sint:
+        case Format::Rgba8Srgb:
+        case Format::Bgra8Unorm:
+        case Format::Bgra8Snorm:
+        case Format::Bgra8Uint:
+        case Format::Bgra8Sint:
+        case Format::Bgra8Srgb:
+        case Format::R16Unorm:
+        case Format::R16Snorm:
+        case Format::R16Uint:
+        case Format::R16Sint:
+        case Format::R16Sfloat:
+        case Format::Rg16Unorm:
+        case Format::Rg16Snorm:
+        case Format::Rg16Uint:
+        case Format::Rg16Sint:
+        case Format::Rg16Sfloat:
+        case Format::Rgb16Unorm:
+        case Format::Rgb16Snorm:
+        case Format::Rgb16Uint:
+        case Format::Rgb16Sint:
+        case Format::Rgb16Sfloat:
+        case Format::Rgba16Unorm:
+        case Format::Rgba16Snorm:
+        case Format::Rgba16Uint:
+        case Format::Rgba16Sint:
+        case Format::Rgba16Sfloat:
+        case Format::R32Uint:
+        case Format::R32Sint:
+        case Format::R32Sfloat:
+        case Format::Rg32Uint:
+        case Format::Rg32Sint:
+        case Format::Rg32Sfloat:
+        case Format::Rgb32Uint:
+        case Format::Rgb32Sint:
+        case Format::Rgb32Sfloat:
+        case Format::Rgba32Uint:
+        case Format::Rgba32Sint:
+        case Format::Rgba32Sfloat:
+        case Format::R64Uint:
+        case Format::R64Sint:
+        case Format::R64Sfloat:
+        case Format::Rg64Uint:
+        case Format::Rg64Sint:
+        case Format::Rg64Sfloat:
+        case Format::Rgb64Uint:
+        case Format::Rgb64Sint:
+        case Format::Rgb64Sfloat:
+        case Format::Rgba64Uint:
+        case Format::Rgba64Sint:
+        case Format::Rgba64Sfloat:
+        {
+            constexpr VkClearColorValue clear_color_value = {
+                .float32 = {
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0,
+                },
+            };
+
+            vkCmdClearColorImage(
+                m_command_buffer,
+                vulkan_texture->image(),
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                &clear_color_value,
+                1,
+                &vulkan_subresource_range);
+            break;
+        }
+        case Format::D16Unorm:
+        case Format::D32Sfloat:
+        case Format::S8Uint:
+        case Format::D16UnormS8Uint:
+        case Format::D24UnormS8Uint:
+        case Format::D32SfloatS8Uint:
+        {
+            constexpr VkClearDepthStencilValue clear_depth_stencil_value = {
+                .depth = 1.0,
+                .stencil = 0,
+            };
+
+            vkCmdClearDepthStencilImage(
+                m_command_buffer,
+                vulkan_texture->image(),
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                &clear_depth_stencil_value,
+                1,
+                &vulkan_subresource_range);
+            break;
+        }
+        case Format::Unknown:
+        default:
+            HE_UNREACHABLE();
+        }
+
+        HE_TRACE("Clearing {} texture", texture->label().empty() ? "a" : fmt::format("the '{}'", texture->label()));
     }
 
     void VulkanCommandList::copy_buffer_to_buffer(
@@ -177,13 +305,32 @@ namespace hyper_rhi
         const uint64_t dst_offset,
         const size_t size)
     {
-        HE_UNUSED(src);
-        HE_UNUSED(src_offset);
-        HE_UNUSED(dst);
-        HE_UNUSED(dst_offset);
-        HE_UNUSED(size);
+        const auto vulkan_src = std::dynamic_pointer_cast<VulkanBuffer>(src);
+        const auto vulkan_dst = std::dynamic_pointer_cast<VulkanBuffer>(dst);
 
-        HE_PANIC();
+        const VkBufferCopy2 region = {
+            .sType = VK_STRUCTURE_TYPE_BUFFER_COPY_2,
+            .pNext = nullptr,
+            .srcOffset = src_offset,
+            .dstOffset = dst_offset,
+            .size = size,
+        };
+
+        const VkCopyBufferInfo2 copy_buffer_info = {
+            .sType = VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2,
+            .pNext = nullptr,
+            .srcBuffer = vulkan_src->buffer(),
+            .dstBuffer = vulkan_dst->buffer(),
+            .regionCount = 1,
+            .pRegions = &region,
+        };
+
+        vkCmdCopyBuffer2(m_command_buffer, &copy_buffer_info);
+
+        HE_TRACE(
+            "Copying {} buffer to {} buffer",
+            src->label().empty() ? "a" : fmt::format("the '{}'", src->label()),
+            dst->label().empty() ? "a" : fmt::format("the '{}'", dst->label()));
     }
 
     void VulkanCommandList::copy_buffer_to_texture(
@@ -195,15 +342,53 @@ namespace hyper_rhi
         const uint32_t dst_mip_level,
         const uint32_t dst_array_index)
     {
-        HE_UNUSED(src);
-        HE_UNUSED(src_offset);
-        HE_UNUSED(dst);
-        HE_UNUSED(dst_offset);
-        HE_UNUSED(dst_extent);
-        HE_UNUSED(dst_mip_level);
-        HE_UNUSED(dst_array_index);
+        const auto vulkan_src = std::dynamic_pointer_cast<VulkanBuffer>(src);
+        const auto vulkan_dst = std::dynamic_pointer_cast<VulkanTexture>(dst);
 
-        HE_PANIC();
+        const VkImageSubresourceLayers subresource_layers = {
+            .aspectMask = VulkanTextureView::get_image_aspect_flags(dst->format()),
+            .mipLevel = dst_mip_level,
+            .baseArrayLayer = dst_array_index,
+            .layerCount = 1,
+        };
+
+        const VkBufferImageCopy2 region = {
+            .sType = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2,
+            .pNext = nullptr,
+            .bufferOffset = src_offset,
+            .bufferRowLength = 0,
+            .bufferImageHeight = 0,
+            .imageSubresource = subresource_layers,
+            .imageOffset =
+                VkOffset3D{
+                    .x = dst_offset.x,
+                    .y = dst_offset.y,
+                    .z = dst_offset.z,
+                },
+            .imageExtent =
+                VkExtent3D{
+                    .width = dst_extent.width,
+                    .height = dst_extent.height,
+                    .depth = dst_extent.depth,
+                },
+        };
+
+        const VkCopyBufferToImageInfo2 copy_buffer_to_image_info = {
+            .sType = VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2,
+            .pNext = nullptr,
+            .srcBuffer = vulkan_src->buffer(),
+            .dstImage = vulkan_dst->image(),
+            .dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .regionCount = 1,
+            .pRegions = &region,
+        };
+
+        vkCmdCopyBufferToImage2(m_command_buffer, &copy_buffer_to_image_info);
+
+        HE_TRACE(
+            "Copying {} buffer to {} texture",
+            src->label().empty() ? "a" : fmt::format("the '{}'", src->label()),
+            dst->label().empty() ? "a" : fmt::format("the '{}'", dst->label()));
     }
 
     void VulkanCommandList::copy_texture_to_buffer(
@@ -215,15 +400,53 @@ namespace hyper_rhi
         const std::shared_ptr<Buffer> &dst,
         const uint64_t dst_offset)
     {
-        HE_UNUSED(src);
-        HE_UNUSED(src_offset);
-        HE_UNUSED(src_extent);
-        HE_UNUSED(src_mip_level);
-        HE_UNUSED(src_array_index);
-        HE_UNUSED(dst);
-        HE_UNUSED(dst_offset);
+        const auto vulkan_src = std::dynamic_pointer_cast<VulkanTexture>(src);
+        const auto vulkan_dst = std::dynamic_pointer_cast<VulkanBuffer>(dst);
 
-        HE_PANIC();
+        const VkImageSubresourceLayers subresource_layers = {
+            .aspectMask = VulkanTextureView::get_image_aspect_flags(src->format()),
+            .mipLevel = src_mip_level,
+            .baseArrayLayer = src_array_index,
+            .layerCount = 1,
+        };
+
+        const VkBufferImageCopy2 region = {
+            .sType = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2,
+            .pNext = nullptr,
+            .bufferOffset = dst_offset,
+            .bufferRowLength = 0,
+            .bufferImageHeight = 0,
+            .imageSubresource = subresource_layers,
+            .imageOffset =
+                VkOffset3D{
+                    .x = src_offset.x,
+                    .y = src_offset.y,
+                    .z = src_offset.z,
+                },
+            .imageExtent =
+                VkExtent3D{
+                    .width = src_extent.width,
+                    .height = src_extent.height,
+                    .depth = src_extent.depth,
+                },
+        };
+
+        const VkCopyImageToBufferInfo2 copy_image_to_buffer_info = {
+            .sType = VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2,
+            .pNext = nullptr,
+            .srcImage = vulkan_src->image(),
+            .srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            .dstBuffer = vulkan_dst->buffer(),
+            .regionCount = 1,
+            .pRegions = &region,
+        };
+
+        vkCmdCopyImageToBuffer2(m_command_buffer, &copy_image_to_buffer_info);
+
+        HE_TRACE(
+            "Copying {} texture to {} buffer",
+            src->label().empty() ? "a" : fmt::format("the '{}'", src->label()),
+            dst->label().empty() ? "a" : fmt::format("the '{}'", dst->label()));
     }
 
     void VulkanCommandList::copy_texture_to_texture(
@@ -239,7 +462,8 @@ namespace hyper_rhi
     {
         const auto vulkan_src = std::dynamic_pointer_cast<VulkanTexture>(src);
         const auto vulkan_dst = std::dynamic_pointer_cast<VulkanTexture>(dst);
-        const VkImageCopy2 image_copy_info = {
+
+        const VkImageCopy2 region = {
             .sType = VK_STRUCTURE_TYPE_IMAGE_COPY_2,
             .pNext = nullptr,
             .srcSubresource =
@@ -284,10 +508,15 @@ namespace hyper_rhi
             .dstImage = vulkan_dst->image(),
             .dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             .regionCount = 1,
-            .pRegions = &image_copy_info,
+            .pRegions = &region,
         };
 
         vkCmdCopyImage2(m_command_buffer, &copy_image_info);
+
+        HE_TRACE(
+            "Copying {} texture to {} texture",
+            src->label().empty() ? "a" : fmt::format("the '{}'", src->label()),
+            dst->label().empty() ? "a" : fmt::format("the '{}'", dst->label()));
     }
 
     void VulkanCommandList::write_buffer(const std::shared_ptr<Buffer> &buffer, const void *data, const size_t size, const uint64_t offset)
@@ -297,7 +526,6 @@ namespace hyper_rhi
         if (buffer->byte_size() <= 65535)
         {
             vkCmdUpdateBuffer(m_command_buffer, vulkan_buffer->buffer(), offset, size, data);
-            HE_TRACE("Uploading {} bytes to {} buffer", size, buffer->label().empty() ? "a" : fmt::format("the '{}'", buffer->label()));
         }
         else
         {
@@ -306,14 +534,15 @@ namespace hyper_rhi
                 .byte_size = static_cast<uint64_t>(size),
                 .usage = BufferUsage::Storage,
             });
-            const std::shared_ptr<VulkanBuffer> vulkan_staging_buffer = std::dynamic_pointer_cast<VulkanBuffer>(staging_buffer);
+
+            const auto vulkan_staging_buffer = std::dynamic_pointer_cast<VulkanBuffer>(staging_buffer);
 
             void *mapped_ptr = nullptr;
             vmaMapMemory(m_graphics_device.allocator(), vulkan_staging_buffer->allocation(), &mapped_ptr);
             memcpy(mapped_ptr, data, size);
             vmaUnmapMemory(m_graphics_device.allocator(), vulkan_staging_buffer->allocation());
 
-            const VkBufferCopy2 buffer_copy_info = {
+            const VkBufferCopy2 region = {
                 .sType = VK_STRUCTURE_TYPE_BUFFER_COPY_2,
                 .pNext = nullptr,
                 .srcOffset = 0,
@@ -327,16 +556,13 @@ namespace hyper_rhi
                 .srcBuffer = vulkan_staging_buffer->buffer(),
                 .dstBuffer = vulkan_buffer->buffer(),
                 .regionCount = 1,
-                .pRegions = &buffer_copy_info,
+                .pRegions = &region,
             };
 
             vkCmdCopyBuffer2(m_command_buffer, &copy_buffer_info);
-
-            HE_TRACE(
-                "Uploading via staging buffer {} bytes to {} buffer",
-                size,
-                buffer->label().empty() ? "a" : fmt::format("the '{}'", buffer->label()));
         }
+
+        HE_TRACE("Writing {} bytes to {} buffer", size, buffer->label().empty() ? "a" : fmt::format("the '{}'", buffer->label()));
     }
 
     void VulkanCommandList::write_texture(
@@ -349,16 +575,62 @@ namespace hyper_rhi
         const size_t data_size,
         const uint64_t data_offset)
     {
-        HE_UNUSED(texture);
-        HE_UNUSED(offset);
-        HE_UNUSED(extent);
-        HE_UNUSED(mip_level);
-        HE_UNUSED(array_index);
-        HE_UNUSED(data);
-        HE_UNUSED(data_size);
-        HE_UNUSED(data_offset);
+        const auto vulkan_texture = std::dynamic_pointer_cast<VulkanTexture>(texture);
 
-        HE_PANIC();
+        const std::shared_ptr<Buffer> staging_buffer = m_graphics_device.create_staging_buffer({
+            .label = fmt::format("{} Staging", texture->label()),
+            .byte_size = static_cast<uint64_t>(data_size),
+            .usage = BufferUsage::Storage,
+        });
+
+        const auto vulkan_staging_buffer = std::dynamic_pointer_cast<VulkanBuffer>(staging_buffer);
+
+        void *mapped_ptr = nullptr;
+        vmaMapMemory(m_graphics_device.allocator(), vulkan_staging_buffer->allocation(), &mapped_ptr);
+        memcpy(mapped_ptr, data, data_size);
+        vmaUnmapMemory(m_graphics_device.allocator(), vulkan_staging_buffer->allocation());
+
+        const VkImageSubresourceLayers subresource_layers = {
+            .aspectMask = VulkanTextureView::get_image_aspect_flags(texture->format()),
+            .mipLevel = mip_level,
+            .baseArrayLayer = array_index,
+            .layerCount = 1,
+        };
+
+        const VkBufferImageCopy2 region = {
+            .sType = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2,
+            .pNext = nullptr,
+            .bufferOffset = data_offset,
+            .bufferRowLength = 0,
+            .bufferImageHeight = 0,
+            .imageSubresource = subresource_layers,
+            .imageOffset =
+                VkOffset3D{
+                    .x = offset.x,
+                    .y = offset.y,
+                    .z = offset.z,
+                },
+            .imageExtent =
+                VkExtent3D{
+                    .width = extent.width,
+                    .height = extent.height,
+                    .depth = extent.depth,
+                },
+        };
+
+        const VkCopyBufferToImageInfo2 copy_buffer_to_image_info = {
+            .sType = VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2,
+            .pNext = nullptr,
+            .srcBuffer = vulkan_staging_buffer->buffer(),
+            .dstImage = vulkan_texture->image(),
+            .dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .regionCount = 1,
+            .pRegions = &region,
+        };
+
+        vkCmdCopyBufferToImage2(m_command_buffer, &copy_buffer_to_image_info);
+
+        HE_TRACE("Writing {} bytes to {} texture", data_size, texture->label().empty() ? "a" : fmt::format("the '{}'", texture->label()));
     }
 
     std::shared_ptr<ComputePass> VulkanCommandList::begin_compute_pass(const ComputePassDescriptor &descriptor) const
@@ -433,7 +705,7 @@ namespace hyper_rhi
         return pipeline_stage;
     }
 
-    VkAccessFlags2 VulkanCommandList::get_access_flags(BarrierAccess barrier_access)
+    VkAccessFlags2 VulkanCommandList::get_access_flags(const BarrierAccess barrier_access)
     {
         VkAccessFlags2 access = VK_ACCESS_2_NONE;
 
