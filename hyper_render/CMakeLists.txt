@@ -31,5 +31,6 @@ target_link_libraries(
         hyper_platform
         fastgltf
         glm
-        meshoptimizer)
+        meshoptimizer
+        stb)
 
