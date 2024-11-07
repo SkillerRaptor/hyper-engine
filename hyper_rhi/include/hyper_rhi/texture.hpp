@@ -9,20 +9,118 @@
 #include <memory>
 #include <string>
 
+#include <hyper_core/assertion.hpp>
 #include <hyper_core/bitmask.hpp>
+#include <hyper_core/prerequisites.hpp>
 
 #include "hyper_rhi/resource.hpp"
-#include "hyper_rhi/resource_handle.hpp"
 
 namespace hyper_rhi
 {
     class TextureView;
 
-    enum class TextureFormat
+    enum class Format : uint8_t
     {
         Unknown,
-        B8G8R8A8_Srgb,
-        D32_SFloat,
+
+        R8Unorm,
+        R8Snorm,
+        R8Uint,
+        R8Sint,
+        R8Srgb,
+
+        Rg8Unorm,
+        Rg8Snorm,
+        Rg8Uint,
+        Rg8Sint,
+        Rg8Srgb,
+
+        Rgb8Unorm,
+        Rgb8Snorm,
+        Rgb8Uint,
+        Rgb8Sint,
+        Rgb8Srgb,
+
+        Bgr8Unorm,
+        Bgr8Snorm,
+        Bgr8Uint,
+        Bgr8Sint,
+        Bgr8Srgb,
+
+        Rgba8Unorm,
+        Rgba8Snorm,
+        Rgba8Uint,
+        Rgba8Sint,
+        Rgba8Srgb,
+
+        Bgra8Unorm,
+        Bgra8Snorm,
+        Bgra8Uint,
+        Bgra8Sint,
+        Bgra8Srgb,
+
+        R16Unorm,
+        R16Snorm,
+        R16Uint,
+        R16Sint,
+        R16Sfloat,
+
+        Rg16Unorm,
+        Rg16Snorm,
+        Rg16Uint,
+        Rg16Sint,
+        Rg16Sfloat,
+
+        Rgb16Unorm,
+        Rgb16Snorm,
+        Rgb16Uint,
+        Rgb16Sint,
+        Rgb16Sfloat,
+
+        Rgba16Unorm,
+        Rgba16Snorm,
+        Rgba16Uint,
+        Rgba16Sint,
+        Rgba16Sfloat,
+
+        R32Uint,
+        R32Sint,
+        R32Sfloat,
+
+        Rg32Uint,
+        Rg32Sint,
+        Rg32Sfloat,
+
+        Rgb32Uint,
+        Rgb32Sint,
+        Rgb32Sfloat,
+
+        Rgba32Uint,
+        Rgba32Sint,
+        Rgba32Sfloat,
+
+        R64Uint,
+        R64Sint,
+        R64Sfloat,
+
+        Rg64Uint,
+        Rg64Sint,
+        Rg64Sfloat,
+
+        Rgb64Uint,
+        Rgb64Sint,
+        Rgb64Sfloat,
+
+        Rgba64Uint,
+        Rgba64Sint,
+        Rgba64Sfloat,
+
+        D16Unorm,
+        D32Sfloat,
+        S8Uint,
+        D16UnormS8Uint,
+        D24UnormS8Uint,
+        D32SfloatS8Uint
     };
 
     enum class TextureDimension
@@ -38,8 +136,9 @@ namespace hyper_rhi
     enum class TextureUsage : uint8_t
     {
         None = 0,
-        ShaderResource = 1 << 0,
-        RenderTarget = 1 << 1,
+        Storage = 1 << 0,
+        RenderAttachment = 1 << 1,
+        ShaderResource = 1 << 2,
     };
 
     HE_ENABLE_BITMASK_OPERATORS(TextureUsage);
@@ -53,28 +152,79 @@ namespace hyper_rhi
         uint32_t depth = 1;
         uint32_t array_size = 1;
         uint32_t mip_levels = 1;
-        TextureFormat format = TextureFormat::Unknown;
+        Format format = Format::Unknown;
         TextureDimension dimension = TextureDimension::Unknown;
         TextureUsage usage = TextureUsage::None;
     };
+
+    struct TextureViewDescriptor;
 
     class Texture : public Resource
     {
     public:
         virtual ~Texture() = default;
 
-        [[nodiscard]] uint32_t width() const;
-        [[nodiscard]] uint32_t height() const;
-        [[nodiscard]] uint32_t depth() const;
-        [[nodiscard]] uint32_t array_size() const;
-        [[nodiscard]] uint32_t mip_levels() const;
-        [[nodiscard]] TextureFormat format() const;
-        [[nodiscard]] TextureDimension dimension() const;
-        [[nodiscard]] TextureUsage usage() const;
-        [[nodiscard]] TextureView &view() const;
+        [[nodiscard]] HE_FORCE_INLINE uint32_t width() const
+        {
+            return m_width;
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE uint32_t height() const
+        {
+            return m_height;
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE uint32_t depth() const
+        {
+            return m_depth;
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE uint32_t array_size() const
+        {
+            return m_array_size;
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE uint32_t mip_levels() const
+        {
+            return m_mip_levels;
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE Format format() const
+        {
+            return m_format;
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE TextureDimension dimension() const
+        {
+            return m_dimension;
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE TextureUsage usage() const
+        {
+            return m_usage;
+        }
 
     protected:
-        explicit Texture(const TextureDescriptor &descriptor);
+        explicit Texture(const TextureDescriptor &descriptor)
+            : Resource(descriptor.label)
+            , m_width(descriptor.width)
+            , m_height(descriptor.height)
+            , m_depth(descriptor.depth)
+            , m_array_size(descriptor.array_size)
+            , m_mip_levels(descriptor.mip_levels)
+            , m_format(descriptor.format)
+            , m_dimension(descriptor.dimension)
+            , m_usage(descriptor.usage)
+        {
+            HE_ASSERT(m_width > 0);
+            HE_ASSERT(m_height > 0);
+            HE_ASSERT(m_depth > 0);
+            HE_ASSERT(m_array_size > 0);
+            HE_ASSERT(m_mip_levels > 0);
+            HE_ASSERT(m_format != Format::Unknown);
+            HE_ASSERT(m_dimension != TextureDimension::Unknown);
+            HE_ASSERT(m_usage != TextureUsage::None);
+        }
 
     protected:
         uint32_t m_width;
@@ -82,9 +232,8 @@ namespace hyper_rhi
         uint32_t m_depth;
         uint32_t m_array_size;
         uint32_t m_mip_levels;
-        TextureFormat m_format;
+        Format m_format;
         TextureDimension m_dimension;
         TextureUsage m_usage;
-        std::shared_ptr<TextureView> m_view;
     };
 } // namespace hyper_rhi

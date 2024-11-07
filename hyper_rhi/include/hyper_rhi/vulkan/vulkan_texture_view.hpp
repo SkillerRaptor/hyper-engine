@@ -18,13 +18,16 @@ namespace hyper_rhi
     {
     public:
         VulkanTextureView(VulkanGraphicsDevice &graphics_device, const TextureViewDescriptor &descriptor);
+        ~VulkanTextureView() override;
 
-        [[nodiscard]] VkImageView image_view() const;
-
-        [[nodiscard]] static VkImageAspectFlags get_image_aspect_flags(TextureFormat format);
-
-    private:
+        [[nodiscard]] static VkImageAspectFlags get_image_aspect_flags(Format format);
+        [[nodiscard]] static VkComponentSwizzle get_component_swizzle(TextureComponentSwizzle component_swizzle);
         [[nodiscard]] static VkImageViewType get_image_view_type(TextureDimension dimension);
+
+        [[nodiscard]] HE_FORCE_INLINE VkImageView image_view() const
+        {
+            return m_image_view;
+        }
 
     private:
         VulkanGraphicsDevice &m_graphics_device;

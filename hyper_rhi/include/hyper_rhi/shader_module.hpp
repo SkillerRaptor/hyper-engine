@@ -6,9 +6,11 @@
 
 #pragma once
 
-#include <memory>
 #include <string>
 #include <vector>
+
+#include <hyper_core/assertion.hpp>
+#include <hyper_core/prerequisites.hpp>
 
 #include "hyper_rhi/resource.hpp"
 
@@ -36,12 +38,32 @@ namespace hyper_rhi
     public:
         virtual ~ShaderModule() = default;
 
-        [[nodiscard]] ShaderType type() const;
-        [[nodiscard]] std::string_view entry_name() const;
-        [[nodiscard]] const std::vector<uint8_t> &bytes() const;
+        [[nodiscard]] HE_FORCE_INLINE ShaderType type() const
+        {
+            return m_type;
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE std::string_view entry_name() const
+        {
+            return m_entry_name;
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE const std::vector<uint8_t> &bytes() const
+        {
+            return m_bytes;
+        }
 
     protected:
-        explicit ShaderModule(const ShaderModuleDescriptor &descriptor);
+        explicit ShaderModule(const ShaderModuleDescriptor &descriptor)
+            : Resource(descriptor.label)
+            , m_type(descriptor.type)
+            , m_entry_name(descriptor.entry_name)
+            , m_bytes(descriptor.bytes)
+        {
+            HE_ASSERT(m_type != ShaderType::None);
+            HE_ASSERT(!m_entry_name.empty());
+            HE_ASSERT(!m_bytes.empty());
+        }
 
     protected:
         ShaderType m_type;

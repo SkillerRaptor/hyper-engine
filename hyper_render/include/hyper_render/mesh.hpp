@@ -10,6 +10,7 @@
 #include <optional>
 #include <vector>
 
+#include <hyper_core/math.hpp>
 #include <hyper_rhi/graphics_device.hpp>
 
 namespace hyper_render
@@ -22,19 +23,24 @@ namespace hyper_render
 
     struct Mesh
     {
-    public:
-        [[nodiscard]] static std::optional<std::vector<std::shared_ptr<Mesh>>> load_model(
-            const std::shared_ptr<hyper_rhi::GraphicsDevice> &graphics_device,
-            const std::shared_ptr<hyper_rhi::Queue> &queue,
-            const std::string &path);
+        [[nodiscard]] static std::optional<std::vector<std::shared_ptr<Mesh>>>
+            load_model(const std::shared_ptr<hyper_rhi::GraphicsDevice> &graphics_device, const std::string &path);
 
-    public:
         std::string name;
         std::vector<Surface> surfaces;
-        std::shared_ptr<hyper_rhi::Buffer> positions;
-        std::shared_ptr<hyper_rhi::Buffer> normals;
-        std::shared_ptr<hyper_rhi::Buffer> colors;
-        std::shared_ptr<hyper_rhi::Buffer> mesh;
-        std::shared_ptr<hyper_rhi::Buffer> indices;
+
+        std::vector<glm::vec4> positions;
+        std::shared_ptr<hyper_rhi::Buffer> positions_buffer;
+
+        std::vector<glm::vec4> normals;
+        std::shared_ptr<hyper_rhi::Buffer> normals_buffer;
+
+        std::vector<glm::vec4> colors;
+        std::shared_ptr<hyper_rhi::Buffer> colors_buffer;
+
+        std::shared_ptr<hyper_rhi::Buffer> mesh_buffer;
+
+        std::vector<uint32_t> indices;
+        std::shared_ptr<hyper_rhi::Buffer> indices_buffer;
     };
 } // namespace hyper_render

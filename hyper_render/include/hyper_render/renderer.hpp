@@ -30,29 +30,30 @@ namespace hyper_render
     class Renderer
     {
     public:
-        Renderer(
-            hyper_event::EventBus &event_bus,
-            const hyper_platform::Window &window,
-            const hyper_platform::Input &input,
-            const RendererDescriptor &descriptor);
+        Renderer(hyper_event::EventBus &event_bus, const hyper_platform::Input &input, const RendererDescriptor &descriptor);
 
         // NOTE: This shouldn't be in the renderer
         void update(float delta_time);
         void render();
 
     private:
+        void create_textures(uint32_t width, uint32_t height);
+
         void on_resize(const hyper_platform::WindowResizeEvent &event);
-        void on_mouse_moved(const hyper_platform::MouseMovedEvent &event);
-        void on_mouse_scolled(const hyper_platform::MouseScrolledEvent &event);
+        void on_mouse_move(const hyper_platform::MouseMovedEvent &event);
+        void on_mouse_scroll(const hyper_platform::MouseScrolledEvent &event);
 
     private:
         const hyper_platform::Input &m_input;
         std::shared_ptr<hyper_rhi::GraphicsDevice> m_graphics_device;
         std::shared_ptr<hyper_rhi::Surface> m_surface;
-        std::shared_ptr<hyper_rhi::Texture> m_depth_texture;
         hyper_rhi::ShaderCompiler m_shader_compiler;
-        std::shared_ptr<hyper_rhi::Queue> m_queue;
         std::shared_ptr<hyper_rhi::CommandList> m_command_list;
+
+        std::shared_ptr<hyper_rhi::Texture> m_render_texture;
+        std::shared_ptr<hyper_rhi::TextureView> m_render_texture_view;
+        std::shared_ptr<hyper_rhi::Texture> m_depth_texture;
+        std::shared_ptr<hyper_rhi::TextureView> m_depth_texture_view;
 
         Camera m_editor_camera;
         std::shared_ptr<hyper_rhi::Buffer> m_camera_buffer;

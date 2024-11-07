@@ -12,7 +12,7 @@
 
 namespace hyper_rhi
 {
-    VulkanBuffer::VulkanBuffer(VulkanGraphicsDevice &graphics_device, const BufferDescriptor &descriptor)
+    VulkanBuffer::VulkanBuffer(VulkanGraphicsDevice &graphics_device, const BufferDescriptor &descriptor, const bool staging)
         : Buffer(descriptor)
         , m_graphics_device(graphics_device)
         , m_buffer(VK_NULL_HANDLE)
@@ -39,7 +39,7 @@ namespace hyper_rhi
 
         // TODO: Add more explicit allocation
         VmaAllocationCreateFlags allocation_flags = 0;
-        if ((descriptor.usage & BufferUsage::Staging) == BufferUsage::Staging)
+        if (staging)
         {
             allocation_flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
             allocation_flags |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
@@ -65,17 +65,18 @@ namespace hyper_rhi
 
         if ((descriptor.usage & BufferUsage::ShaderResource) == BufferUsage::ShaderResource)
         {
-            if (!m_handle.is_valid())
+            if (m_handle.valid())
             {
-                m_handle = m_graphics_device.descriptor_manager().allocate_buffer_handle(m_buffer);
+                m_graphics_device.descriptor_manager().set_buffer(m_buffer, m_handle.handle());
             }
             else
             {
-                m_graphics_device.descriptor_manager().set_dynamic_buffer(m_buffer, m_handle.handle());
+                m_handle = m_graphics_device.descriptor_manager().allocate_buffer_handle(m_buffer);
             }
         }
 
-        HE_TRACE("Created Buffer {} with {} bytes", m_label.empty() ? "" : fmt::format("'{}'", m_label), descriptor.byte_size);
+        // TODO: Add more trace information
+        HE_TRACE("Created Buffer");
     }
 
     VulkanBuffer::~VulkanBuffer()
@@ -83,27 +84,22 @@ namespace hyper_rhi
         m_graphics_device.resource_queue().buffers.emplace_back(m_buffer, m_allocation, m_handle);
     }
 
-    VkBuffer VulkanBuffer::buffer() const
-    {
-        return m_buffer;
-    }
-
-    VmaAllocation VulkanBuffer::allocation() const
-    {
-        return m_allocation;
-    }
-
     VkBufferUsageFlags VulkanBuffer::get_buffer_usage_flags(const BufferUsage buffer_usage_flags)
     {
         VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-        if ((buffer_usage_flags & BufferUsage::ShaderResource) == BufferUsage::ShaderResource)
-        {
-            usage_flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-        }
-
-        if ((buffer_usage_flags & BufferUsage::IndexBuffer) == BufferUsage::IndexBuffer)
+        if ((buffer_usage_flags & BufferUsage::Index) == BufferUsage::Index)
         {
             usage_flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+        }
+
+        if ((buffer_usage_flags & BufferUsage::Indirect) == BufferUsage::Indirect)
+        {
+            usage_flags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+        }
+
+        if ((buffer_usage_flags & BufferUsage::Storage) == BufferUsage::Storage)
+        {
+            usage_flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
         }
 
         return usage_flags;

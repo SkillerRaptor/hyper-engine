@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <hyper_core/prerequisites.hpp>
+
 #include "hyper_rhi/render_pass.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
@@ -19,24 +21,31 @@ namespace hyper_rhi
         VulkanRenderPass(VulkanGraphicsDevice &graphics_device, VkCommandBuffer command_buffer, const RenderPassDescriptor &descriptor);
         ~VulkanRenderPass() override;
 
-        void set_pipeline(const std::shared_ptr<GraphicsPipeline> &pipeline) override;
-        void set_index_buffer(const std::shared_ptr<Buffer> &buffer) const override;
+        void set_pipeline(const std::shared_ptr<RenderPipeline> &pipeline) override;
         void set_push_constants(const void *data, size_t data_size) const override;
 
-        void draw(const DrawArguments &arguments) const override;
-        void draw_indexed(const DrawIndexedArguments &arguments) const override;
+        void set_index_buffer(const std::shared_ptr<Buffer> &buffer) const override;
 
-        [[nodiscard]] VkCommandBuffer command_buffer() const;
+        void set_scissor(int32_t x, int32_t y, uint32_t width, uint32_t height) const override;
+        void set_viewport(float x, float y, float width, float height, float min_depth, float max_depth) const override;
 
-    private:
-        [[nodiscard]] static VkAttachmentLoadOp get_load_operation(LoadOperation load_operation);
-        [[nodiscard]] static VkAttachmentStoreOp get_store_operation(StoreOperation store_operation);
+        void draw(uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance) const override;
+        void draw_indexed(uint32_t index_count, uint32_t instance_count, uint32_t first_index, int32_t vertex_offset, uint32_t first_instance)
+            const override;
+
+        [[nodiscard]] static VkAttachmentLoadOp get_attachment_load_operation(LoadOperation load_operation);
+        [[nodiscard]] static VkAttachmentStoreOp get_attachment_store_operation(StoreOperation store_operation);
+
+        [[nodiscard]] HE_FORCE_INLINE VkCommandBuffer command_buffer() const
+        {
+            return m_command_buffer;
+        }
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
 
         VkCommandBuffer m_command_buffer;
 
-        std::shared_ptr<GraphicsPipeline> m_graphics_pipeline;
+        std::shared_ptr<RenderPipeline> m_pipeline;
     };
 } // namespace hyper_rhi

@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <hyper_core/prerequisites.hpp>
+
 #include <cstdint>
 
 namespace hyper_rhi
@@ -13,12 +15,25 @@ namespace hyper_rhi
     class ResourceHandle
     {
     public:
-        ResourceHandle();
-        explicit ResourceHandle(uint32_t handle);
+        ResourceHandle()
+            : m_handle(0xffffffff)
+        {
+        }
 
-        [[nodiscard]] bool is_valid() const;
+        explicit ResourceHandle(const uint32_t handle)
+            : m_handle(handle)
+        {
+        }
 
-        [[nodiscard]] uint32_t handle() const;
+        [[nodiscard]] HE_FORCE_INLINE bool valid() const
+        {
+            return m_handle != 0xffffffff;
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE uint32_t handle() const
+        {
+            return m_handle;
+        }
 
     private:
         uint32_t m_handle;

@@ -11,16 +11,13 @@
 #include <fastgltf/tools.hpp>
 
 #include <hyper_core/logger.hpp>
-#include <hyper_core/math.hpp>
 
 #include "shader_interop.h"
 
 namespace hyper_render
 {
-    std::optional<std::vector<std::shared_ptr<Mesh>>> Mesh::load_model(
-        const std::shared_ptr<hyper_rhi::GraphicsDevice> &graphics_device,
-        const std::shared_ptr<hyper_rhi::Queue> &queue,
-        const std::string &path)
+    std::optional<std::vector<std::shared_ptr<Mesh>>>
+        Mesh::load_model(const std::shared_ptr<hyper_rhi::GraphicsDevice> &graphics_device, const std::string &path)
     {
         HE_INFO("Loading model: {}", path);
 
@@ -140,56 +137,49 @@ namespace hyper_render
                 positions[positions.size() - 1] = scale * positions[positions.size() - 1];
             }
 
-            mesh_asset.positions = graphics_device->create_buffer({
+            mesh_asset.positions_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Positions", mesh_asset.name),
                 .byte_size = positions.size() * sizeof(glm::vec4),
-                .usage = hyper_rhi::BufferUsage::ShaderResource,
+                .usage = hyper_rhi::BufferUsage::Storage | hyper_rhi::BufferUsage::ShaderResource,
             });
-            queue->write_buffer(mesh_asset.positions, positions.data(), positions.size() * sizeof(glm::vec4));
+            mesh_asset.positions = positions;
 
-            mesh_asset.normals = graphics_device->create_buffer({
+            mesh_asset.normals_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Normals", mesh_asset.name),
                 .byte_size = normals.size() * sizeof(glm::vec4),
-                .usage = hyper_rhi::BufferUsage::ShaderResource,
+                .usage = hyper_rhi::BufferUsage::Storage | hyper_rhi::BufferUsage::ShaderResource,
             });
-            queue->write_buffer(mesh_asset.normals, normals.data(), normals.size() * sizeof(glm::vec4));
+            mesh_asset.normals = normals;
 
-            mesh_asset.colors = graphics_device->create_buffer({
+            mesh_asset.colors_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Colors", mesh_asset.name),
                 .byte_size = colors.size() * sizeof(glm::vec4),
-                .usage = hyper_rhi::BufferUsage::ShaderResource,
+                .usage = hyper_rhi::BufferUsage::Storage | hyper_rhi::BufferUsage::ShaderResource,
             });
-            queue->write_buffer(mesh_asset.colors, colors.data(), colors.size() * sizeof(glm::vec4));
+            mesh_asset.colors = colors;
 
-            const ShaderMesh mesh_data = {
-                .positions = mesh_asset.positions->handle(),
-                .normals = mesh_asset.normals->handle(),
-                .colors = mesh_asset.colors->handle(),
-                .padding_0 = 0,
-            };
-            mesh_asset.mesh = graphics_device->create_buffer({
+            mesh_asset.mesh_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Mesh Data", mesh_asset.name),
-                .byte_size = sizeof(Mesh),
-                .usage = hyper_rhi::BufferUsage::ShaderResource,
+                .byte_size = sizeof(ShaderMesh),
+                .usage = hyper_rhi::BufferUsage::Storage | hyper_rhi::BufferUsage::ShaderResource,
             });
-            queue->write_buffer(mesh_asset.mesh, &mesh_data, sizeof(Mesh));
 
             for (size_t index = 0; index < indices.size(); index += 3)
             {
                 std::swap(indices[index], indices[index + 2]);
             }
 
-            mesh_asset.indices = graphics_device->create_buffer({
+            mesh_asset.indices_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Indices", mesh_asset.name),
                 .byte_size = indices.size() * sizeof(uint32_t),
-                .usage = hyper_rhi::BufferUsage::IndexBuffer,
+                .usage = hyper_rhi::BufferUsage::Index,
             });
-            queue->write_buffer(mesh_asset.indices, indices.data(), indices.size() * sizeof(uint32_t));
+            mesh_asset.indices = indices;
 
             meshes.push_back(std::make_shared<Mesh>(std::move(mesh_asset)));
         }
 
-        queue->submit(nullptr);
+        // queue->submit(nullptr);
 
         return meshes;
     }

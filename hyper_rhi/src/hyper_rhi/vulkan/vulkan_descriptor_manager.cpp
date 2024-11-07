@@ -36,10 +36,8 @@ namespace hyper_rhi
         vkDestroyDescriptorPool(m_graphics_device.device(), m_descriptor_pool, nullptr);
     }
 
-    void VulkanDescriptorManager::set_dynamic_buffer(const VkBuffer buffer, const uint32_t slot)
+    void VulkanDescriptorManager::set_buffer(const VkBuffer buffer, const uint32_t slot) const
     {
-        HE_ASSERT(slot > m_current_index);
-
         const VkDescriptorBufferInfo buffer_info = {
             .buffer = buffer,
             .offset = 0,
@@ -62,31 +60,103 @@ namespace hyper_rhi
         vkUpdateDescriptorSets(m_graphics_device.device(), 1, &descriptor_write, 0, nullptr);
     }
 
-    ResourceHandle VulkanDescriptorManager::allocate_buffer_handle(const VkBuffer buffer)
+    void VulkanDescriptorManager::set_sampled_image(const VkImageView image_view, const VkImageLayout image_layout, const uint32_t slot) const
     {
-        const ResourceHandle handle = this->fetch_handle();
-
-        const VkDescriptorBufferInfo buffer_info = {
-            .buffer = buffer,
-            .offset = 0,
-            .range = VK_WHOLE_SIZE,
+        const VkDescriptorImageInfo image_info = {
+            .sampler = VK_NULL_HANDLE,
+            .imageView = image_view,
+            .imageLayout = image_layout,
         };
 
         const VkWriteDescriptorSet descriptor_write = {
             .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
             .pNext = nullptr,
-            .dstSet = m_descriptor_sets[0],
+            .dstSet = m_descriptor_sets[1],
             .dstBinding = 0,
-            .dstArrayElement = handle.handle(),
+            .dstArrayElement = slot,
             .descriptorCount = 1,
-            .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-            .pImageInfo = nullptr,
-            .pBufferInfo = &buffer_info,
+            .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+            .pImageInfo = &image_info,
+            .pBufferInfo = nullptr,
             .pTexelBufferView = nullptr,
         };
 
         vkUpdateDescriptorSets(m_graphics_device.device(), 1, &descriptor_write, 0, nullptr);
+    }
 
+    void VulkanDescriptorManager::set_storage_image(const VkImageView image_view, const VkImageLayout image_layout, const uint32_t slot) const
+    {
+        const VkDescriptorImageInfo image_info = {
+            .sampler = VK_NULL_HANDLE,
+            .imageView = image_view,
+            .imageLayout = image_layout,
+        };
+
+        const VkWriteDescriptorSet descriptor_write = {
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .pNext = nullptr,
+            .dstSet = m_descriptor_sets[2],
+            .dstBinding = 0,
+            .dstArrayElement = slot,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+            .pImageInfo = &image_info,
+            .pBufferInfo = nullptr,
+            .pTexelBufferView = nullptr,
+        };
+
+        vkUpdateDescriptorSets(m_graphics_device.device(), 1, &descriptor_write, 0, nullptr);
+    }
+
+    void VulkanDescriptorManager::set_sampler(const VkSampler sampler, const uint32_t slot) const
+    {
+        const VkDescriptorImageInfo image_info = {
+            .sampler = sampler,
+            .imageView = VK_NULL_HANDLE,
+            .imageLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+        };
+
+        const VkWriteDescriptorSet descriptor_write = {
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .pNext = nullptr,
+            .dstSet = m_descriptor_sets[3],
+            .dstBinding = 0,
+            .dstArrayElement = slot,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER,
+            .pImageInfo = &image_info,
+            .pBufferInfo = nullptr,
+            .pTexelBufferView = nullptr,
+        };
+
+        vkUpdateDescriptorSets(m_graphics_device.device(), 1, &descriptor_write, 0, nullptr);
+    }
+
+    ResourceHandle VulkanDescriptorManager::allocate_buffer_handle(const VkBuffer buffer)
+    {
+        const ResourceHandle handle = this->fetch_handle();
+        this->set_buffer(buffer, handle.handle());
+        return handle;
+    }
+
+    ResourceHandle VulkanDescriptorManager::allocate_sampled_image_handle(const VkImageView image_view, const VkImageLayout image_layout)
+    {
+        const ResourceHandle handle = this->fetch_handle();
+        this->set_sampled_image(image_view, image_layout, handle.handle());
+        return handle;
+    }
+
+    ResourceHandle VulkanDescriptorManager::allocate_storage_image_handle(const VkImageView image_view, const VkImageLayout image_layout)
+    {
+        const ResourceHandle handle = this->fetch_handle();
+        this->set_storage_image(image_view, image_layout, handle.handle());
+        return handle;
+    }
+
+    ResourceHandle VulkanDescriptorManager::allocate_sampler_handle(const VkSampler sampler)
+    {
+        const ResourceHandle handle = this->fetch_handle();
+        this->set_sampler(sampler, handle.handle());
         return handle;
     }
 
@@ -98,27 +168,6 @@ namespace hyper_rhi
         }
 
         m_recycled_descriptors.push(handle);
-    }
-
-    const std::array<uint32_t, VulkanDescriptorManager::s_descriptor_types.size()> &VulkanDescriptorManager::descriptor_counts() const
-    {
-        return m_descriptor_counts;
-    }
-
-    VkDescriptorPool VulkanDescriptorManager::descriptor_pool() const
-    {
-        return m_descriptor_pool;
-    }
-
-    const std::array<VkDescriptorSetLayout, VulkanDescriptorManager::s_descriptor_types.size()> &
-        VulkanDescriptorManager::descriptor_set_layouts() const
-    {
-        return m_descriptor_set_layouts;
-    }
-
-    const std::array<VkDescriptorSet, VulkanDescriptorManager::s_descriptor_types.size()> &VulkanDescriptorManager::descriptor_sets() const
-    {
-        return m_descriptor_sets;
     }
 
     void VulkanDescriptorManager::find_descriptor_counts()
@@ -140,6 +189,8 @@ namespace hyper_rhi
                     return properties.limits.maxDescriptorSetSampledImages;
                 case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                     return properties.limits.maxDescriptorSetStorageImages;
+                case VK_DESCRIPTOR_TYPE_SAMPLER:
+                    return properties.limits.maxDescriptorSetSamplers;
                 default:
                     HE_UNREACHABLE();
                 }

@@ -19,19 +19,19 @@ namespace hyper_rhi
         explicit D3D12GraphicsDevice(const GraphicsDeviceDescriptor &descriptor);
 
         std::shared_ptr<Surface> create_surface(const hyper_platform::Window &window) override;
-        std::shared_ptr<Queue> queue() override;
-
         std::shared_ptr<Buffer> create_buffer(const BufferDescriptor &descriptor) override;
         std::shared_ptr<CommandList> create_command_list() override;
         std::shared_ptr<ComputePipeline> create_compute_pipeline(const ComputePipelineDescriptor &descriptor) override;
-        std::shared_ptr<GraphicsPipeline> create_graphics_pipeline(const GraphicsPipelineDescriptor &descriptor) override;
+        std::shared_ptr<RenderPipeline> create_render_pipeline(const RenderPipelineDescriptor &descriptor) override;
         std::shared_ptr<PipelineLayout> create_pipeline_layout(const PipelineLayoutDescriptor &descriptor) override;
+        std::shared_ptr<Sampler> create_sampler(const SamplerDescriptor &descriptor) override;
         std::shared_ptr<ShaderModule> create_shader_module(const ShaderModuleDescriptor &descriptor) override;
         std::shared_ptr<Texture> create_texture(const TextureDescriptor &descriptor) override;
         std::shared_ptr<TextureView> create_texture_view(const TextureViewDescriptor &descriptor) override;
 
         void begin_frame(const std::shared_ptr<Surface> &surface, uint32_t frame_index) override;
         void end_frame() const override;
+        void execute(const std::shared_ptr<CommandList> &command_list) const override;
         void present(const std::shared_ptr<Surface> &surface) const override;
 
         void wait_for_idle() const override;

@@ -8,8 +8,8 @@
 
 #include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
-#include "hyper_rhi/vulkan/vulkan_graphics_pipeline.hpp"
 #include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
+#include "hyper_rhi/vulkan/vulkan_render_pipeline.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
 
 namespace hyper_rhi
@@ -21,16 +21,14 @@ namespace hyper_rhi
         : RenderPass(descriptor)
         , m_graphics_device(graphics_device)
         , m_command_buffer(command_buffer)
-        , m_graphics_pipeline(nullptr)
+        , m_pipeline(nullptr)
     {
         m_graphics_device.begin_marker(m_command_buffer, MarkerType::RenderPass, m_label, m_label_color);
 
-        const auto color_attachment = std::dynamic_pointer_cast<VulkanTexture>(m_color_attachment.attachment);
-        const auto depth_attachment = std::dynamic_pointer_cast<VulkanTexture>(m_depth_attachment.attachment);
-
+        // TODO: Should this always use the first image?
         const VkExtent2D render_area_extent = {
-            .width = color_attachment->width(),
-            .height = color_attachment->height(),
+            .width = m_color_attachments[0].view->texture().width(),
+            .height = m_color_attachments[0].view->texture().height(),
         };
 
         constexpr VkOffset2D render_area_offset = {
@@ -54,19 +52,25 @@ namespace hyper_rhi
             },
         };
 
-        const auto &color_attachment_view = dynamic_cast<VulkanTextureView &>(color_attachment->view());
-        const VkRenderingAttachmentInfo color_attachment_info = {
-            .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
-            .pNext = nullptr,
-            .imageView = color_attachment_view.image_view(),
-            .imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
-            .resolveMode = VK_RESOLVE_MODE_NONE,
-            .resolveImageView = VK_NULL_HANDLE,
-            .resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-            .loadOp = VulkanRenderPass::get_load_operation(descriptor.color_attachment.operation.load_operation),
-            .storeOp = VulkanRenderPass::get_store_operation(descriptor.color_attachment.operation.store_operation),
-            .clearValue = clear_value,
-        };
+        std::vector<VkRenderingAttachmentInfo> color_attachments = {};
+        for (const ColorAttachment &color_attachment : m_color_attachments)
+        {
+            const auto &color_attachment_view = std::dynamic_pointer_cast<VulkanTextureView>(color_attachment.view);
+            const VkRenderingAttachmentInfo color_attachment_info = {
+                .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+                .pNext = nullptr,
+                .imageView = color_attachment_view->image_view(),
+                .imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
+                .resolveMode = VK_RESOLVE_MODE_NONE,
+                .resolveImageView = VK_NULL_HANDLE,
+                .resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                .loadOp = VulkanRenderPass::get_attachment_load_operation(color_attachment.operation.load_operation),
+                .storeOp = VulkanRenderPass::get_attachment_store_operation(color_attachment.operation.store_operation),
+                .clearValue = clear_value,
+            };
+
+            color_attachments.push_back(color_attachment_info);
+        }
 
         constexpr VkClearValue depth_clear_value = {
             .depthStencil = {
@@ -75,17 +79,18 @@ namespace hyper_rhi
             },
         };
 
-        const auto &depth_attachment_view = dynamic_cast<VulkanTextureView &>(depth_attachment->view());
+        const auto &depth_attachment_view = std::dynamic_pointer_cast<VulkanTextureView>(m_depth_stencil_attachment.view);
+
         const VkRenderingAttachmentInfo depth_attachment_info = {
             .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
             .pNext = nullptr,
-            .imageView = depth_attachment_view.image_view(),
+            .imageView = depth_attachment_view->image_view(),
             .imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
             .resolveMode = VK_RESOLVE_MODE_NONE,
             .resolveImageView = VK_NULL_HANDLE,
             .resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-            .loadOp = VulkanRenderPass::get_load_operation(descriptor.depth_attachment.operation.load_operation),
-            .storeOp = VulkanRenderPass::get_store_operation(descriptor.depth_attachment.operation.store_operation),
+            .loadOp = VulkanRenderPass::get_attachment_load_operation(m_depth_stencil_attachment.depth_operation.load_operation),
+            .storeOp = VulkanRenderPass::get_attachment_store_operation(m_depth_stencil_attachment.depth_operation.store_operation),
             .clearValue = depth_clear_value,
         };
 
@@ -96,8 +101,8 @@ namespace hyper_rhi
             .renderArea = render_area,
             .layerCount = 1,
             .viewMask = 0,
-            .colorAttachmentCount = 1,
-            .pColorAttachments = &color_attachment_info,
+            .colorAttachmentCount = static_cast<uint32_t>(color_attachments.size()),
+            .pColorAttachments = color_attachments.data(),
             .pDepthAttachment = &depth_attachment_info,
             .pStencilAttachment = nullptr,
         };
@@ -133,20 +138,22 @@ namespace hyper_rhi
         m_graphics_device.end_marker(m_command_buffer);
     }
 
-    void VulkanRenderPass::set_pipeline(const std::shared_ptr<GraphicsPipeline> &pipeline)
+    void VulkanRenderPass::set_pipeline(const std::shared_ptr<RenderPipeline> &pipeline)
     {
-        m_graphics_pipeline = pipeline;
+        m_pipeline = pipeline;
 
-        const std::shared_ptr<VulkanGraphicsPipeline> vulkan_pipeline = std::dynamic_pointer_cast<VulkanGraphicsPipeline>(m_graphics_pipeline);
-        const auto &layout = dynamic_cast<VulkanPipelineLayout &>(m_graphics_pipeline->layout());
+        const auto vulkan_pipeline = std::dynamic_pointer_cast<VulkanRenderPipeline>(m_pipeline);
+        const auto &layout = dynamic_cast<VulkanPipelineLayout &>(m_pipeline->layout());
+
+        const auto &descriptor_sets = m_graphics_device.descriptor_manager().descriptor_sets();
 
         vkCmdBindDescriptorSets(
             m_command_buffer,
             VK_PIPELINE_BIND_POINT_GRAPHICS,
             layout.pipeline_layout(),
             0,
-            static_cast<uint32_t>(m_graphics_device.descriptor_manager().descriptor_sets().size()),
-            m_graphics_device.descriptor_manager().descriptor_sets().data(),
+            static_cast<uint32_t>(descriptor_sets.size()),
+            descriptor_sets.data(),
             0,
             nullptr);
 
@@ -160,49 +167,94 @@ namespace hyper_rhi
         vkCmdBindIndexBuffer(m_command_buffer, vulkan_buffer->buffer(), 0, VK_INDEX_TYPE_UINT32);
     }
 
+    void VulkanRenderPass::set_scissor(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) const
+    {
+        const VkOffset2D offset = {
+            .x = x,
+            .y = y,
+        };
+
+        const VkExtent2D extent = {
+            .width = width,
+            .height = height,
+        };
+
+        const VkRect2D scissor = {
+            .offset = offset,
+            .extent = extent,
+        };
+
+        vkCmdSetScissor(m_command_buffer, 0, 1, &scissor);
+    }
+
+    void VulkanRenderPass::set_viewport(
+        const float x,
+        const float y,
+        const float width,
+        const float height,
+        const float min_depth,
+        const float max_depth) const
+    {
+        const VkViewport viewport = {
+            .x = x,
+            .y = y,
+            .width = width,
+            .height = height,
+            .minDepth = min_depth,
+            .maxDepth = max_depth,
+        };
+
+        vkCmdSetViewport(m_command_buffer, 0, 1, &viewport);
+    }
+
     void VulkanRenderPass::set_push_constants(const void *data, const size_t data_size) const
     {
-        const auto &layout = dynamic_cast<VulkanPipelineLayout &>(m_graphics_pipeline->layout());
+        const auto &layout = dynamic_cast<VulkanPipelineLayout &>(m_pipeline->layout());
 
         vkCmdPushConstants(m_command_buffer, layout.pipeline_layout(), VK_SHADER_STAGE_ALL, 0, static_cast<uint32_t>(data_size), data);
     }
 
-    void VulkanRenderPass::draw(const DrawArguments &arguments) const
+    void VulkanRenderPass::draw(
+        const uint32_t vertex_count,
+        const uint32_t instance_count,
+        const uint32_t first_vertex,
+        const uint32_t first_instance) const
     {
-        vkCmdDraw(m_command_buffer, arguments.vertex_count, arguments.instance_count, arguments.first_vertex, arguments.first_instance);
+        vkCmdDraw(m_command_buffer, vertex_count, instance_count, first_vertex, first_instance);
     }
 
-    void VulkanRenderPass::draw_indexed(const DrawIndexedArguments &arguments) const
+    void VulkanRenderPass::draw_indexed(
+        const uint32_t index_count,
+        const uint32_t instance_count,
+        const uint32_t first_index,
+        const int32_t vertex_offset,
+        const uint32_t first_instance) const
     {
-        vkCmdDrawIndexed(
-            m_command_buffer,
-            arguments.index_count,
-            arguments.instance_count,
-            arguments.first_index,
-            arguments.vertex_offset,
-            arguments.first_instance);
+        vkCmdDrawIndexed(m_command_buffer, index_count, instance_count, first_index, vertex_offset, first_instance);
     }
 
-    VkAttachmentLoadOp VulkanRenderPass::get_load_operation(const LoadOperation load_operation)
+    VkAttachmentLoadOp VulkanRenderPass::get_attachment_load_operation(const LoadOperation load_operation)
     {
         switch (load_operation)
         {
-        case Clear:
+        case LoadOperation::Clear:
             return VK_ATTACHMENT_LOAD_OP_CLEAR;
-        case Load:
+        case LoadOperation::Load:
             return VK_ATTACHMENT_LOAD_OP_LOAD;
+        case LoadOperation::DontCare:
+            return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         default:
             HE_UNREACHABLE();
         }
     }
 
-    VkAttachmentStoreOp VulkanRenderPass::get_store_operation(const StoreOperation store_operation)
+    VkAttachmentStoreOp VulkanRenderPass::get_attachment_store_operation(const StoreOperation store_operation)
     {
         switch (store_operation)
         {
-        case Store:
+        case StoreOperation::Store:
             return VK_ATTACHMENT_STORE_OP_STORE;
-        case Discard:
+        case StoreOperation::DontCare:
             return VK_ATTACHMENT_STORE_OP_DONT_CARE;
         default:
             HE_UNREACHABLE();

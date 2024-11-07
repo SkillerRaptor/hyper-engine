@@ -10,39 +10,23 @@
 #include <string>
 
 #include "hyper_rhi/buffer.hpp"
-#include "hyper_rhi/graphics_pipeline.hpp"
-#include "hyper_rhi/resource.hpp"
-#include "hyper_rhi/texture.hpp"
+#include "hyper_rhi/render_pipeline.hpp"
+#include "hyper_rhi/pass.hpp"
+#include "hyper_rhi/texture_view.hpp"
 
 namespace hyper_rhi
 {
-    struct DrawArguments
-    {
-        uint32_t vertex_count;
-        uint32_t instance_count;
-        uint32_t first_vertex;
-        uint32_t first_instance;
-    };
-
-    struct DrawIndexedArguments
-    {
-        uint32_t index_count;
-        uint32_t instance_count;
-        uint32_t first_index;
-        int32_t vertex_offset;
-        uint32_t first_instance;
-    };
-
-    enum LoadOperation
+    enum class LoadOperation : uint8_t
     {
         Clear,
         Load,
+        DontCare,
     };
 
-    enum StoreOperation
+    enum class StoreOperation: uint8_t
     {
         Store,
-        Discard,
+        DontCare,
     };
 
     struct Operations
@@ -51,23 +35,17 @@ namespace hyper_rhi
         StoreOperation store_operation = StoreOperation::Store;
     };
 
-    struct LabelColor
-    {
-        uint8_t red = 255;
-        uint8_t green = 255;
-        uint8_t blue = 255;
-    };
-
     struct ColorAttachment
     {
-        std::shared_ptr<Texture> attachment = nullptr;
-        Operations operation;
+        std::shared_ptr<TextureView> view = nullptr;
+        Operations operation = {};
     };
 
-    struct DepthAttachment
+    struct DepthStencilAttachment
     {
-        std::shared_ptr<Texture> attachment = nullptr;
-        Operations operation;
+        std::shared_ptr<TextureView> view = nullptr;
+        Operations depth_operation = {};
+        // TODO: Add stencil operation
     };
 
     struct RenderPassDescriptor
@@ -75,32 +53,53 @@ namespace hyper_rhi
         std::string label;
         LabelColor label_color;
 
-        ColorAttachment color_attachment;
-        DepthAttachment depth_attachment;
+        std::vector<ColorAttachment> color_attachments = {};
+        DepthStencilAttachment depth_stencil_attachment = {};
     };
 
-    class RenderPass : public Resource
+    class RenderPass : public Pass
     {
     public:
         virtual ~RenderPass() = default;
 
-        virtual void set_pipeline(const std::shared_ptr<GraphicsPipeline> &pipeline) = 0;
-        virtual void set_index_buffer(const std::shared_ptr<Buffer> &buffer) const = 0;
+        virtual void set_pipeline(const std::shared_ptr<RenderPipeline> &pipeline) = 0;
         virtual void set_push_constants(const void *data, size_t data_size) const = 0;
 
-        virtual void draw(const DrawArguments &arguments) const = 0;
-        virtual void draw_indexed(const DrawIndexedArguments &arguments) const = 0;
+        virtual void set_index_buffer(const std::shared_ptr<Buffer> &buffer) const = 0;
 
-        [[nodiscard]] LabelColor label_color() const;
-        [[nodiscard]] ColorAttachment color_attachment() const;
-        [[nodiscard]] DepthAttachment depth_attachment() const;
+        virtual void set_scissor(int32_t x, int32_t y, uint32_t width, uint32_t height) const = 0;
+        virtual void set_viewport(float x, float y, float width, float height, float min_depth, float max_depth) const = 0;
+
+        virtual void draw(uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance) const = 0;
+        virtual void draw_indexed(
+            uint32_t index_count,
+            uint32_t instance_count,
+            uint32_t first_index,
+            int32_t vertex_offset,
+            uint32_t first_instance) const = 0;
+
+        // TODO: Add indirect
+
+        [[nodiscard]] HE_FORCE_INLINE const std::vector<ColorAttachment> &color_attachments() const
+        {
+            return m_color_attachments;
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE DepthStencilAttachment depth_stencil_attachment() const
+        {
+            return m_depth_stencil_attachment;
+        }
 
     protected:
-        explicit RenderPass(const RenderPassDescriptor &descriptor);
+        explicit RenderPass(const RenderPassDescriptor &descriptor)
+            : Pass(descriptor.label, descriptor.label_color)
+              , m_color_attachments(descriptor.color_attachments)
+              , m_depth_stencil_attachment(descriptor.depth_stencil_attachment)
+        {
+        }
 
     protected:
-        LabelColor m_label_color;
-        ColorAttachment m_color_attachment;
-        DepthAttachment m_depth_attachment;
+        std::vector<ColorAttachment> m_color_attachments;
+        DepthStencilAttachment m_depth_stencil_attachment;
     };
 } // namespace hyper_rhi

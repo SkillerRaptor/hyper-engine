@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <hyper_core/prerequisites.hpp>
+
 #include "hyper_rhi/shader_module.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
@@ -19,7 +21,10 @@ namespace hyper_rhi
         VulkanShaderModule(VulkanGraphicsDevice &graphics_device, const ShaderModuleDescriptor &descriptor);
         ~VulkanShaderModule() override;
 
-        [[nodiscard]] VkShaderModule shader_module() const;
+        [[nodiscard]] HE_FORCE_INLINE VkShaderModule shader_module() const
+        {
+            return m_shader_module;
+        }
 
     private:
         VulkanGraphicsDevice &m_graphics_device;

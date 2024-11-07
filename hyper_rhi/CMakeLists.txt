@@ -4,45 +4,37 @@
 # SPDX-License-Identifier: MIT
 #-------------------------------------------------------------------------------------------
 set(SOURCES
-        src/hyper_rhi/buffer.cpp
-        src/hyper_rhi/compute_pipeline.cpp
         src/hyper_rhi/graphics_device.cpp
-        src/hyper_rhi/graphics_pipeline.cpp
-        src/hyper_rhi/pipeline_layout.cpp
-        src/hyper_rhi/queue.cpp
-        src/hyper_rhi/render_pass.cpp
-        src/hyper_rhi/resource.cpp
-        src/hyper_rhi/resource_handle.cpp
         src/hyper_rhi/shader_compiler.cpp
-        src/hyper_rhi/shader_module.cpp
-        src/hyper_rhi/surface.cpp
-        src/hyper_rhi/texture.cpp
-        src/hyper_rhi/texture_view.cpp
         src/hyper_rhi/vulkan/vulkan_buffer.cpp
         src/hyper_rhi/vulkan/vulkan_command_list.cpp
+        src/hyper_rhi/vulkan/vulkan_compute_pass.cpp
+        src/hyper_rhi/vulkan/vulkan_compute_pipeline.cpp
         src/hyper_rhi/vulkan/vulkan_descriptor_manager.cpp
         src/hyper_rhi/vulkan/vulkan_graphics_device.cpp
-        src/hyper_rhi/vulkan/vulkan_graphics_pipeline.cpp
         src/hyper_rhi/vulkan/vulkan_pipeline_layout.cpp
-        src/hyper_rhi/vulkan/vulkan_queue.cpp
         src/hyper_rhi/vulkan/vulkan_render_pass.cpp
+        src/hyper_rhi/vulkan/vulkan_render_pipeline.cpp
+        src/hyper_rhi/vulkan/vulkan_sampler.cpp
         src/hyper_rhi/vulkan/vulkan_shader_module.cpp
         src/hyper_rhi/vulkan/vulkan_surface.cpp
         src/hyper_rhi/vulkan/vulkan_texture.cpp
         src/hyper_rhi/vulkan/vulkan_texture_view.cpp
-        src/hyper_rhi/vulkan/vulkan_upload_manager.cpp)
+)
 
 set(HEADERS
         include/hyper_rhi/buffer.hpp
         include/hyper_rhi/command_list.hpp
+        include/hyper_rhi/compute_pass.hpp
         include/hyper_rhi/compute_pipeline.hpp
         include/hyper_rhi/graphics_device.hpp
-        include/hyper_rhi/graphics_pipeline.hpp
+        include/hyper_rhi/pass.hpp
         include/hyper_rhi/pipeline_layout.hpp
-        include/hyper_rhi/queue.hpp
         include/hyper_rhi/render_pass.hpp
+        include/hyper_rhi/render_pipeline.hpp
         include/hyper_rhi/resource.hpp
         include/hyper_rhi/resource_handle.hpp
+        include/hyper_rhi/sampler.hpp
         include/hyper_rhi/shader_module.hpp
         include/hyper_rhi/shader_compiler.hpp
         include/hyper_rhi/surface.hpp
@@ -51,17 +43,19 @@ set(HEADERS
         include/hyper_rhi/vulkan/vulkan_buffer.hpp
         include/hyper_rhi/vulkan/vulkan_command_list.hpp
         include/hyper_rhi/vulkan/vulkan_common.hpp
+        include/hyper_rhi/vulkan/vulkan_compute_pass.hpp
+        include/hyper_rhi/vulkan/vulkan_compute_pipeline.hpp
         include/hyper_rhi/vulkan/vulkan_descriptor_manager.hpp
         include/hyper_rhi/vulkan/vulkan_graphics_device.hpp
-        include/hyper_rhi/vulkan/vulkan_graphics_pipeline.hpp
         include/hyper_rhi/vulkan/vulkan_pipeline_layout.hpp
-        include/hyper_rhi/vulkan/vulkan_queue.hpp
         include/hyper_rhi/vulkan/vulkan_render_pass.hpp
+        include/hyper_rhi/vulkan/vulkan_render_pipeline.hpp
+        include/hyper_rhi/vulkan/vulkan_sampler.hpp
         include/hyper_rhi/vulkan/vulkan_shader_module.hpp
         include/hyper_rhi/vulkan/vulkan_surface.hpp
         include/hyper_rhi/vulkan/vulkan_texture.hpp
         include/hyper_rhi/vulkan/vulkan_texture_view.hpp
-        include/hyper_rhi/vulkan/vulkan_upload_manager.hpp)
+)
 
 if (WIN32)
     set(SOURCES

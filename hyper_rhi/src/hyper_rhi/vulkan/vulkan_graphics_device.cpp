@@ -20,9 +20,9 @@
 
 #include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 #include "hyper_rhi/vulkan/vulkan_command_list.hpp"
-#include "hyper_rhi/vulkan/vulkan_graphics_pipeline.hpp"
 #include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
-#include "hyper_rhi/vulkan/vulkan_queue.hpp"
+#include "hyper_rhi/vulkan/vulkan_render_pipeline.hpp"
+#include "hyper_rhi/vulkan/vulkan_sampler.hpp"
 #include "hyper_rhi/vulkan/vulkan_shader_module.hpp"
 #include "hyper_rhi/vulkan/vulkan_surface.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
@@ -44,11 +44,13 @@ namespace hyper_rhi
         , m_debug_messenger(VK_NULL_HANDLE)
         , m_physical_device(VK_NULL_HANDLE)
         , m_device(VK_NULL_HANDLE)
-        , m_queue(nullptr)
+        , m_queue_family(0)
+        , m_queue(VK_NULL_HANDLE)
         , m_allocator(VK_NULL_HANDLE)
         , m_descriptor_manager(nullptr)
-        , m_frames({})
         , m_current_frame_index(0)
+        , m_frames({})
+        , m_submit_semaphore(VK_NULL_HANDLE)
         , m_resource_queue()
     {
         volkInitialize();
@@ -80,7 +82,6 @@ namespace hyper_rhi
         this->create_allocator();
 
         m_descriptor_manager = new VulkanDescriptorManager(*this);
-        m_upload_manager = new VulkanUploadManager(*this);
 
         this->create_frames();
 
@@ -93,6 +94,8 @@ namespace hyper_rhi
 
         this->destroy_resources();
 
+        vkDestroySemaphore(m_device, m_submit_semaphore, nullptr);
+
         for (const FrameData &frame : m_frames)
         {
             vkDestroySemaphore(m_device, frame.present_semaphore, nullptr);
@@ -100,7 +103,6 @@ namespace hyper_rhi
             vkDestroyCommandPool(m_device, frame.command_pool, nullptr);
         }
 
-        delete m_upload_manager;
         delete m_descriptor_manager;
 
         vmaDestroyAllocator(m_allocator);
@@ -123,14 +125,14 @@ namespace hyper_rhi
         return std::make_shared<VulkanSurface>(*this, window);
     }
 
-    std::shared_ptr<Queue> VulkanGraphicsDevice::queue()
-    {
-        return m_queue;
-    }
-
     std::shared_ptr<Buffer> VulkanGraphicsDevice::create_buffer(const BufferDescriptor &descriptor)
     {
         return std::make_shared<VulkanBuffer>(*this, descriptor);
+    }
+
+    std::shared_ptr<Buffer> VulkanGraphicsDevice::create_staging_buffer(const BufferDescriptor &descriptor)
+    {
+        return std::make_shared<VulkanBuffer>(*this, descriptor, true);
     }
 
     std::shared_ptr<CommandList> VulkanGraphicsDevice::create_command_list()
@@ -145,14 +147,19 @@ namespace hyper_rhi
         HE_UNREACHABLE();
     }
 
-    std::shared_ptr<GraphicsPipeline> VulkanGraphicsDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor &descriptor)
+    std::shared_ptr<RenderPipeline> VulkanGraphicsDevice::create_render_pipeline(const RenderPipelineDescriptor &descriptor)
     {
-        return std::make_shared<VulkanGraphicsPipeline>(*this, descriptor);
+        return std::make_shared<VulkanRenderPipeline>(*this, descriptor);
     }
 
     std::shared_ptr<PipelineLayout> VulkanGraphicsDevice::create_pipeline_layout(const PipelineLayoutDescriptor &descriptor)
     {
         return std::make_shared<VulkanPipelineLayout>(*this, descriptor);
+    }
+
+    std::shared_ptr<Sampler> VulkanGraphicsDevice::create_sampler(const SamplerDescriptor &descriptor)
+    {
+        return std::make_shared<VulkanSampler>(*this, descriptor);
     }
 
     std::shared_ptr<ShaderModule> VulkanGraphicsDevice::create_shader_module(const ShaderModuleDescriptor &descriptor)
@@ -310,7 +317,10 @@ namespace hyper_rhi
     {
         for (const BufferEntry &buffer_entry : m_resource_queue.buffers)
         {
-            vmaDestroyBuffer(m_allocator, buffer_entry.buffer, buffer_entry.allocation);
+            if (buffer_entry.allocation != VK_NULL_HANDLE)
+            {
+                vmaDestroyBuffer(m_allocator, buffer_entry.buffer, buffer_entry.allocation);
+            }
             m_descriptor_manager->retire_handle(buffer_entry.handle);
         }
         m_resource_queue.buffers.clear();
@@ -333,6 +343,12 @@ namespace hyper_rhi
         }
         m_resource_queue.pipeline_layouts.clear();
 
+        for (const VkSampler &sampler : m_resource_queue.samplers)
+        {
+            vkDestroySampler(m_device, sampler, nullptr);
+        }
+        m_resource_queue.samplers.clear();
+
         for (const VkShaderModule &shader_module : m_resource_queue.shader_modules)
         {
             vkDestroyShaderModule(m_device, shader_module, nullptr);
@@ -345,11 +361,15 @@ namespace hyper_rhi
             {
                 vmaDestroyImage(m_allocator, texture_entry.image, texture_entry.allocation);
             }
-
-            vkDestroyImageView(m_device, texture_entry.view, nullptr);
-            m_descriptor_manager->retire_handle(texture_entry.handle);
         }
         m_resource_queue.textures.clear();
+
+        for (const TextureViewEntry &texture_view_entry : m_resource_queue.texture_views)
+        {
+            vkDestroyImageView(m_device, texture_view_entry.view, nullptr);
+            m_descriptor_manager->retire_handle(texture_view_entry.handle);
+        }
+        m_resource_queue.texture_views.clear();
     }
 
     void VulkanGraphicsDevice::begin_frame(const std::shared_ptr<Surface> &surface, const uint32_t frame_index)
@@ -358,14 +378,13 @@ namespace hyper_rhi
 
         m_current_frame_index = frame_index;
 
-        const VkSemaphore submit_semaphore = m_queue->submit_semaphore();
         const uint64_t wait_frame_index = static_cast<uint64_t>(m_current_frame_index) - 1;
         const VkSemaphoreWaitInfo semaphore_wait_info = {
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
             .pNext = nullptr,
             .flags = 0,
             .semaphoreCount = 1,
-            .pSemaphores = &submit_semaphore,
+            .pSemaphores = &m_submit_semaphore,
             .pValues = &wait_frame_index,
         };
         HE_VK_CHECK(vkWaitSemaphores(m_device, &semaphore_wait_info, std::numeric_limits<uint64_t>::max()));
@@ -386,7 +405,7 @@ namespace hyper_rhi
             VK_NULL_HANDLE,
             &image_index));
 
-        vulkan_surface->set_current_texture_index(image_index);
+        vulkan_surface->set_texture_index(image_index);
     }
 
     void VulkanGraphicsDevice::end_frame() const
@@ -394,12 +413,70 @@ namespace hyper_rhi
         // NOTE: Do nothing for now
     }
 
+    void VulkanGraphicsDevice::execute(const std::shared_ptr<CommandList> &command_list) const
+    {
+        const std::shared_ptr<VulkanCommandList> vulkan_command_list = std::dynamic_pointer_cast<VulkanCommandList>(command_list);
+
+        const VkSemaphoreSubmitInfo semaphore_submit_info = {
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+            .pNext = nullptr,
+            .semaphore = this->current_frame().present_semaphore,
+            .value = 0,
+            .stageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
+            .deviceIndex = 0,
+        };
+
+        const VkCommandBufferSubmitInfo command_buffer_submit_info = {
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
+            .pNext = nullptr,
+            .commandBuffer = vulkan_command_list->command_buffer(),
+            .deviceMask = 0,
+        };
+
+        const VkSemaphoreSubmitInfo submit_semaphore_submit_info = {
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+            .pNext = nullptr,
+            .semaphore = m_submit_semaphore,
+            .value = this->current_frame_index(),
+            .stageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
+            .deviceIndex = 0,
+        };
+
+        const VkSemaphoreSubmitInfo render_semaphore_submit_info = {
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+            .pNext = nullptr,
+            .semaphore = this->current_frame().render_semaphore,
+            .value = 0,
+            .stageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
+            .deviceIndex = 0,
+        };
+
+        const std::array<VkSemaphoreSubmitInfo, 2> signal_semaphore_submit_infos = {
+            submit_semaphore_submit_info,
+            render_semaphore_submit_info,
+        };
+
+        const VkSubmitInfo2 submit_info = {
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+            .pNext = nullptr,
+            .flags = 0,
+            .waitSemaphoreInfoCount = 1,
+            .pWaitSemaphoreInfos = &semaphore_submit_info,
+            .commandBufferInfoCount = 1,
+            .pCommandBufferInfos = &command_buffer_submit_info,
+            .signalSemaphoreInfoCount = static_cast<uint32_t>(signal_semaphore_submit_infos.size()),
+            .pSignalSemaphoreInfos = signal_semaphore_submit_infos.data(),
+        };
+
+        HE_VK_CHECK(vkQueueSubmit2(m_queue, 1, &submit_info, VK_NULL_HANDLE));
+    }
+
     void VulkanGraphicsDevice::present(const std::shared_ptr<Surface> &surface) const
     {
         const auto vulkan_surface = std::dynamic_pointer_cast<VulkanSurface>(surface);
 
         const VkSwapchainKHR swapchain = vulkan_surface->swapchain();
-        const uint32_t current_texture_index = vulkan_surface->current_texture_index();
+        const uint32_t texture_index = vulkan_surface->texture_index();
 
         const VkPresentInfoKHR present_info = {
             .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
@@ -408,91 +485,16 @@ namespace hyper_rhi
             .pWaitSemaphores = &this->current_frame().render_semaphore,
             .swapchainCount = 1,
             .pSwapchains = &swapchain,
-            .pImageIndices = &current_texture_index,
+            .pImageIndices = &texture_index,
             .pResults = nullptr,
         };
 
-        HE_VK_CHECK(vkQueuePresentKHR(m_queue->queue(), &present_info));
+        HE_VK_CHECK(vkQueuePresentKHR(m_queue, &present_info));
     }
 
     void VulkanGraphicsDevice::wait_for_idle() const
     {
         HE_VK_CHECK(vkDeviceWaitIdle(m_device));
-    }
-
-    VkInstance VulkanGraphicsDevice::instance() const
-    {
-        return m_instance;
-    }
-
-    VkPhysicalDevice VulkanGraphicsDevice::physical_device() const
-    {
-        return m_physical_device;
-    }
-
-    VkDevice VulkanGraphicsDevice::device() const
-    {
-        return m_device;
-    }
-
-    VmaAllocator VulkanGraphicsDevice::allocator() const
-    {
-        return m_allocator;
-    }
-
-    VulkanDescriptorManager &VulkanGraphicsDevice::descriptor_manager() const
-    {
-        return *m_descriptor_manager;
-    }
-
-    VulkanUploadManager &VulkanGraphicsDevice::upload_manager() const
-    {
-        return *m_upload_manager;
-    }
-
-    ResourceQueue &VulkanGraphicsDevice::resource_queue()
-    {
-        return m_resource_queue;
-    }
-
-    const FrameData &VulkanGraphicsDevice::current_frame() const
-    {
-        return m_frames[m_current_frame_index % GraphicsDevice::s_frame_count];
-    }
-
-    uint32_t VulkanGraphicsDevice::current_frame_index() const
-    {
-        return m_current_frame_index;
-    }
-
-    bool VulkanGraphicsDevice::check_validation_layer_support()
-    {
-        uint32_t layer_count = 0;
-        HE_VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, nullptr));
-
-        std::vector<VkLayerProperties> layer_properties(layer_count);
-        HE_VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, layer_properties.data()));
-
-        for (const char *layer_name : g_validation_layers)
-        {
-            bool layer_found = false;
-
-            for (const VkLayerProperties &properties : layer_properties)
-            {
-                if (std::strcmp(layer_name, properties.layerName) == 0)
-                {
-                    layer_found = true;
-                    break;
-                }
-            }
-
-            if (!layer_found)
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     void VulkanGraphicsDevice::create_instance()
@@ -705,93 +707,6 @@ namespace hyper_rhi
         return std::nullopt;
     }
 
-    bool VulkanGraphicsDevice::check_extension_support(const VkPhysicalDevice &physical_device)
-    {
-        uint32_t extension_count = 0;
-        HE_VK_CHECK(vkEnumerateDeviceExtensionProperties(physical_device, nullptr, &extension_count, nullptr));
-
-        std::vector<VkExtensionProperties> extensions(extension_count);
-        HE_VK_CHECK(vkEnumerateDeviceExtensionProperties(physical_device, nullptr, &extension_count, extensions.data()));
-
-        std::set<std::string> required_extensions(g_device_extensions.begin(), g_device_extensions.end());
-        for (const VkExtensionProperties &extension : extensions)
-        {
-            required_extensions.erase(extension.extensionName);
-        }
-
-        return required_extensions.empty();
-    }
-
-    bool VulkanGraphicsDevice::check_feature_support(const VkPhysicalDevice &physical_device)
-    {
-        VkPhysicalDeviceDynamicRenderingFeatures dynamic_rendering = {
-            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES,
-            .pNext = nullptr,
-            .dynamicRendering = VK_FALSE,
-        };
-
-        VkPhysicalDeviceTimelineSemaphoreFeatures timeline_semaphore = {
-            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES,
-            .pNext = &dynamic_rendering,
-            .timelineSemaphore = VK_FALSE,
-        };
-
-        VkPhysicalDeviceSynchronization2Features synchronization2 = {
-            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES,
-            .pNext = &timeline_semaphore,
-            .synchronization2 = VK_FALSE,
-        };
-
-        VkPhysicalDeviceDescriptorIndexingFeatures descriptor_indexing = {
-            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES,
-            .pNext = &synchronization2,
-            .shaderInputAttachmentArrayDynamicIndexing = VK_FALSE,
-            .shaderUniformTexelBufferArrayDynamicIndexing = VK_FALSE,
-            .shaderStorageTexelBufferArrayDynamicIndexing = VK_FALSE,
-            .shaderUniformBufferArrayNonUniformIndexing = VK_FALSE,
-            .shaderSampledImageArrayNonUniformIndexing = VK_FALSE,
-            .shaderStorageBufferArrayNonUniformIndexing = VK_FALSE,
-            .shaderStorageImageArrayNonUniformIndexing = VK_FALSE,
-            .shaderInputAttachmentArrayNonUniformIndexing = VK_FALSE,
-            .shaderUniformTexelBufferArrayNonUniformIndexing = VK_FALSE,
-            .shaderStorageTexelBufferArrayNonUniformIndexing = VK_FALSE,
-            .descriptorBindingUniformBufferUpdateAfterBind = VK_FALSE,
-            .descriptorBindingSampledImageUpdateAfterBind = VK_FALSE,
-            .descriptorBindingStorageImageUpdateAfterBind = VK_FALSE,
-            .descriptorBindingStorageBufferUpdateAfterBind = VK_FALSE,
-            .descriptorBindingUniformTexelBufferUpdateAfterBind = VK_FALSE,
-            .descriptorBindingStorageTexelBufferUpdateAfterBind = VK_FALSE,
-            .descriptorBindingUpdateUnusedWhilePending = VK_FALSE,
-            .descriptorBindingPartiallyBound = VK_FALSE,
-            .descriptorBindingVariableDescriptorCount = VK_FALSE,
-            .runtimeDescriptorArray = VK_FALSE,
-        };
-
-        VkPhysicalDeviceFeatures2 device_features = {
-            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
-            .pNext = &descriptor_indexing,
-            .features = {},
-        };
-        vkGetPhysicalDeviceFeatures2(physical_device, &device_features);
-
-        const bool dynamic_rendering_supported = dynamic_rendering.dynamicRendering;
-        const bool timeline_semaphore_supported = timeline_semaphore.timelineSemaphore;
-        const bool synchronization2_supported = synchronization2.synchronization2;
-        const bool descriptor_indexing_supported =
-            descriptor_indexing.shaderUniformBufferArrayNonUniformIndexing & descriptor_indexing.shaderSampledImageArrayNonUniformIndexing &
-            descriptor_indexing.shaderStorageBufferArrayNonUniformIndexing & descriptor_indexing.shaderStorageImageArrayNonUniformIndexing &
-            descriptor_indexing.descriptorBindingUniformBufferUpdateAfterBind &
-            descriptor_indexing.descriptorBindingSampledImageUpdateAfterBind & descriptor_indexing.descriptorBindingStorageImageUpdateAfterBind &
-            descriptor_indexing.descriptorBindingStorageBufferUpdateAfterBind & descriptor_indexing.descriptorBindingUpdateUnusedWhilePending &
-            descriptor_indexing.descriptorBindingPartiallyBound & descriptor_indexing.descriptorBindingVariableDescriptorCount &
-            descriptor_indexing.runtimeDescriptorArray;
-
-        const bool features_supported =
-            dynamic_rendering_supported & timeline_semaphore_supported & synchronization2_supported & descriptor_indexing_supported;
-
-        return features_supported;
-    }
-
     void VulkanGraphicsDevice::create_device()
     {
         VkPhysicalDeviceDynamicRenderingFeatures dynamic_rendering = {
@@ -889,7 +804,11 @@ namespace hyper_rhi
         VkQueue queue = VK_NULL_HANDLE;
         vkGetDeviceQueue(m_device, queue_family.value(), 0, &queue);
 
-        m_queue = std::make_shared<VulkanQueue>(*this, queue_family.value(), queue);
+        m_queue_family = queue_family.value();
+        m_queue = queue;
+
+        // TODO: Retrieve queue type
+        this->set_object_name(m_queue, ObjectType::Queue, "Graphics");
     }
 
     void VulkanGraphicsDevice::create_allocator()
@@ -945,7 +864,25 @@ namespace hyper_rhi
 
     void VulkanGraphicsDevice::create_frames()
     {
-        const std::optional<uint32_t> queue_family = VulkanGraphicsDevice::find_queue_family(m_physical_device);
+        VkSemaphoreTypeCreateInfo submit_semaphore_type_create_info = {
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO,
+            .pNext = nullptr,
+            .semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE,
+            .initialValue = 0,
+        };
+
+        const VkSemaphoreCreateInfo submit_semaphore_create_info = {
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+            .pNext = &submit_semaphore_type_create_info,
+            .flags = 0,
+        };
+
+        HE_VK_CHECK(vkCreateSemaphore(m_device, &submit_semaphore_create_info, nullptr, &m_submit_semaphore));
+        HE_ASSERT(m_submit_semaphore != VK_NULL_HANDLE);
+
+        this->set_object_name(m_submit_semaphore, ObjectType::Semaphore, "Graphics Submit");
+
+        HE_TRACE("Created Submit Semaphore for queue family #{}", m_queue_family);
 
         for (size_t index = 0; index < GraphicsDevice::s_frame_count; ++index)
         {
@@ -953,7 +890,7 @@ namespace hyper_rhi
                 .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
                 .pNext = nullptr,
                 .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-                .queueFamilyIndex = queue_family.value(),
+                .queueFamilyIndex = m_queue_family,
             };
 
             HE_VK_CHECK(vkCreateCommandPool(m_device, &command_pool_create_info, nullptr, &m_frames[index].command_pool));
@@ -996,6 +933,123 @@ namespace hyper_rhi
 
             HE_TRACE("Created Frame Present Semaphore #{}", index);
         }
+    }
+
+    bool VulkanGraphicsDevice::check_validation_layer_support()
+    {
+        uint32_t layer_count = 0;
+        HE_VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, nullptr));
+
+        std::vector<VkLayerProperties> layer_properties(layer_count);
+        HE_VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, layer_properties.data()));
+
+        for (const char *layer_name : g_validation_layers)
+        {
+            bool layer_found = false;
+
+            for (const VkLayerProperties &properties : layer_properties)
+            {
+                if (std::strcmp(layer_name, properties.layerName) == 0)
+                {
+                    layer_found = true;
+                    break;
+                }
+            }
+
+            if (!layer_found)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool VulkanGraphicsDevice::check_extension_support(const VkPhysicalDevice &physical_device)
+    {
+        uint32_t extension_count = 0;
+        HE_VK_CHECK(vkEnumerateDeviceExtensionProperties(physical_device, nullptr, &extension_count, nullptr));
+
+        std::vector<VkExtensionProperties> extensions(extension_count);
+        HE_VK_CHECK(vkEnumerateDeviceExtensionProperties(physical_device, nullptr, &extension_count, extensions.data()));
+
+        std::set<std::string> required_extensions(g_device_extensions.begin(), g_device_extensions.end());
+        for (const VkExtensionProperties &extension : extensions)
+        {
+            required_extensions.erase(extension.extensionName);
+        }
+
+        return required_extensions.empty();
+    }
+
+    bool VulkanGraphicsDevice::check_feature_support(const VkPhysicalDevice &physical_device)
+    {
+        VkPhysicalDeviceDynamicRenderingFeatures dynamic_rendering = {
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES,
+            .pNext = nullptr,
+            .dynamicRendering = VK_FALSE,
+        };
+
+        VkPhysicalDeviceTimelineSemaphoreFeatures timeline_semaphore = {
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES,
+            .pNext = &dynamic_rendering,
+            .timelineSemaphore = VK_FALSE,
+        };
+
+        VkPhysicalDeviceSynchronization2Features synchronization2 = {
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES,
+            .pNext = &timeline_semaphore,
+            .synchronization2 = VK_FALSE,
+        };
+
+        VkPhysicalDeviceDescriptorIndexingFeatures descriptor_indexing = {
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES,
+            .pNext = &synchronization2,
+            .shaderInputAttachmentArrayDynamicIndexing = VK_FALSE,
+            .shaderUniformTexelBufferArrayDynamicIndexing = VK_FALSE,
+            .shaderStorageTexelBufferArrayDynamicIndexing = VK_FALSE,
+            .shaderUniformBufferArrayNonUniformIndexing = VK_FALSE,
+            .shaderSampledImageArrayNonUniformIndexing = VK_FALSE,
+            .shaderStorageBufferArrayNonUniformIndexing = VK_FALSE,
+            .shaderStorageImageArrayNonUniformIndexing = VK_FALSE,
+            .shaderInputAttachmentArrayNonUniformIndexing = VK_FALSE,
+            .shaderUniformTexelBufferArrayNonUniformIndexing = VK_FALSE,
+            .shaderStorageTexelBufferArrayNonUniformIndexing = VK_FALSE,
+            .descriptorBindingUniformBufferUpdateAfterBind = VK_FALSE,
+            .descriptorBindingSampledImageUpdateAfterBind = VK_FALSE,
+            .descriptorBindingStorageImageUpdateAfterBind = VK_FALSE,
+            .descriptorBindingStorageBufferUpdateAfterBind = VK_FALSE,
+            .descriptorBindingUniformTexelBufferUpdateAfterBind = VK_FALSE,
+            .descriptorBindingStorageTexelBufferUpdateAfterBind = VK_FALSE,
+            .descriptorBindingUpdateUnusedWhilePending = VK_FALSE,
+            .descriptorBindingPartiallyBound = VK_FALSE,
+            .descriptorBindingVariableDescriptorCount = VK_FALSE,
+            .runtimeDescriptorArray = VK_FALSE,
+        };
+
+        VkPhysicalDeviceFeatures2 device_features = {
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+            .pNext = &descriptor_indexing,
+            .features = {},
+        };
+        vkGetPhysicalDeviceFeatures2(physical_device, &device_features);
+
+        const bool dynamic_rendering_supported = dynamic_rendering.dynamicRendering;
+        const bool timeline_semaphore_supported = timeline_semaphore.timelineSemaphore;
+        const bool synchronization2_supported = synchronization2.synchronization2;
+        const bool descriptor_indexing_supported =
+            descriptor_indexing.shaderUniformBufferArrayNonUniformIndexing & descriptor_indexing.shaderSampledImageArrayNonUniformIndexing &
+            descriptor_indexing.shaderStorageBufferArrayNonUniformIndexing & descriptor_indexing.shaderStorageImageArrayNonUniformIndexing &
+            descriptor_indexing.descriptorBindingUniformBufferUpdateAfterBind &
+            descriptor_indexing.descriptorBindingSampledImageUpdateAfterBind & descriptor_indexing.descriptorBindingStorageImageUpdateAfterBind &
+            descriptor_indexing.descriptorBindingStorageBufferUpdateAfterBind & descriptor_indexing.descriptorBindingUpdateUnusedWhilePending &
+            descriptor_indexing.descriptorBindingPartiallyBound & descriptor_indexing.descriptorBindingVariableDescriptorCount &
+            descriptor_indexing.runtimeDescriptorArray;
+
+        const bool features_supported =
+            dynamic_rendering_supported & timeline_semaphore_supported & synchronization2_supported & descriptor_indexing_supported;
+
+        return features_supported;
     }
 
     VKAPI_ATTR VkBool32 VKAPI_CALL VulkanGraphicsDevice::debug_callback(

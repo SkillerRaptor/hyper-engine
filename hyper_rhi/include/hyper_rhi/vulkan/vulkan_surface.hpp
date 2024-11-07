@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <hyper_core/prerequisites.hpp>
+
 #include "hyper_rhi/surface.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
@@ -20,36 +22,45 @@ namespace hyper_rhi
 
         void rebuild();
 
-        [[nodiscard]] VkSwapchainKHR swapchain() const;
+        [[nodiscard]] HE_FORCE_INLINE VkSwapchainKHR swapchain() const
+        {
+            return m_swapchain;
+        }
 
-        void set_current_texture_index(uint32_t current_texture_index);
-        [[nodiscard]] uint32_t current_texture_index() const;
+        HE_FORCE_INLINE void set_texture_index(const uint32_t texture_index)
+        {
+            m_texture_index = texture_index;
+        }
 
-        [[nodiscard]] bool resized() const;
+        [[nodiscard]] HE_FORCE_INLINE uint32_t texture_index() const
+        {
+            return m_texture_index;
+        }
 
-        [[nodiscard]] std::shared_ptr<Texture> current_texture() const override;
+        [[nodiscard]] HE_FORCE_INLINE std::shared_ptr<Texture> current_texture() const override
+        {
+            return m_textures[m_texture_index];
+        }
 
     private:
         void create_surface(const hyper_platform::Window &window);
-
         void create_swapchain();
+        void create_textures();
+        void destroy();
+
         static VkExtent2D choose_extent(uint32_t width, uint32_t height, const VkSurfaceCapabilitiesKHR &capabilities);
         static VkSurfaceFormatKHR choose_format(const std::vector<VkSurfaceFormatKHR> &formats);
         static VkPresentModeKHR choose_present_mode(const std::vector<VkPresentModeKHR> &present_modes);
-
-        void create_textures();
-
-        void destroy();
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
 
         VkSurfaceKHR m_surface;
         VkSwapchainKHR m_swapchain;
-
         VkFormat m_format;
 
+        uint32_t m_texture_index;
         std::vector<std::shared_ptr<Texture>> m_textures;
-        uint32_t m_current_texture_index;
+        std::vector<std::shared_ptr<TextureView>> m_texture_views;
     };
 } // namespace hyper_rhi

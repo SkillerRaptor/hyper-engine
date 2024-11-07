@@ -45,11 +45,6 @@ namespace hyper_rhi
         return std::make_shared<D3D12Surface>(*this, window);
     }
 
-    std::shared_ptr<Queue> D3D12GraphicsDevice::queue()
-    {
-        HE_UNREACHABLE();
-    }
-
     std::shared_ptr<Buffer> D3D12GraphicsDevice::create_buffer(const BufferDescriptor &descriptor)
     {
         HE_UNUSED(descriptor);
@@ -69,7 +64,7 @@ namespace hyper_rhi
         HE_UNREACHABLE();
     }
 
-    std::shared_ptr<GraphicsPipeline> D3D12GraphicsDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor &descriptor)
+    std::shared_ptr<RenderPipeline> D3D12GraphicsDevice::create_render_pipeline(const RenderPipelineDescriptor &descriptor)
     {
         HE_UNUSED(descriptor);
 
@@ -77,6 +72,13 @@ namespace hyper_rhi
     }
 
     std::shared_ptr<PipelineLayout> D3D12GraphicsDevice::create_pipeline_layout(const PipelineLayoutDescriptor &descriptor)
+    {
+        HE_UNUSED(descriptor);
+
+        HE_UNREACHABLE();
+    }
+
+    std::shared_ptr<Sampler> D3D12GraphicsDevice::create_sampler(const SamplerDescriptor &descriptor)
     {
         HE_UNUSED(descriptor);
 
@@ -114,6 +116,13 @@ namespace hyper_rhi
 
     void D3D12GraphicsDevice::end_frame() const
     {
+        HE_UNREACHABLE();
+    }
+
+    void D3D12GraphicsDevice::execute(const std::shared_ptr<CommandList> &command_list) const
+    {
+        HE_UNUSED(command_list);
+
         HE_UNREACHABLE();
     }
 

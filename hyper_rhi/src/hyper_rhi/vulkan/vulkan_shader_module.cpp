@@ -19,8 +19,8 @@ namespace hyper_rhi
             .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
-            .codeSize = descriptor.bytes.size(),
-            .pCode = reinterpret_cast<const uint32_t *>(descriptor.bytes.data()),
+            .codeSize = m_bytes.size(),
+            .pCode = reinterpret_cast<const uint32_t *>(m_bytes.data()),
         };
 
         HE_VK_CHECK(vkCreateShaderModule(m_graphics_device.device(), &shader_module_create_info, nullptr, &m_shader_module));
@@ -44,16 +44,12 @@ namespace hyper_rhi
 
         m_graphics_device.set_object_name(m_shader_module, object_type, m_label);
 
-        HE_TRACE("Created Shader Module {} with {} bytes", m_label.empty() ? "" : fmt::format("'{}'", m_label), descriptor.bytes.size());
+        // TODO: Add more trace information
+        HE_TRACE("Created Shader Module");
     }
 
     VulkanShaderModule::~VulkanShaderModule()
     {
         m_graphics_device.resource_queue().shader_modules.emplace_back(m_shader_module);
-    }
-
-    VkShaderModule VulkanShaderModule::shader_module() const
-    {
-        return m_shader_module;
     }
 } // namespace hyper_rhi

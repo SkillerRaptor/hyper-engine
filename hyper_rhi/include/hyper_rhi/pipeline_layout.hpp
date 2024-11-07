@@ -8,6 +8,8 @@
 
 #include <string>
 
+#include <hyper_core/prerequisites.hpp>
+
 #include "hyper_rhi/resource.hpp"
 
 namespace hyper_rhi
@@ -24,10 +26,17 @@ namespace hyper_rhi
     public:
         virtual ~PipelineLayout() = default;
 
-        [[nodiscard]] uint32_t push_constant_size() const;
+        [[nodiscard]] HE_FORCE_INLINE uint32_t push_constant_size() const
+        {
+            return m_push_constant_size;
+        }
 
     protected:
-        explicit PipelineLayout(const PipelineLayoutDescriptor &descriptor);
+        explicit PipelineLayout(const PipelineLayoutDescriptor &descriptor)
+            : Resource(descriptor.label)
+            , m_push_constant_size(descriptor.push_constant_size)
+        {
+        }
 
     protected:
         uint32_t m_push_constant_size;
