@@ -17,33 +17,45 @@ namespace hyper_render
 {
     Renderer::Renderer(hyper_event::EventBus &event_bus, const hyper_platform::Input &input, const RendererDescriptor &descriptor)
         : m_input(input)
-        , m_graphics_device(descriptor.graphics_device)
-        , m_surface(descriptor.surface)
-        , m_shader_compiler()
-        , m_command_list(m_graphics_device->create_command_list())
-        , m_render_texture(nullptr)
-        , m_render_texture_view(nullptr)
-        , m_depth_texture(nullptr)
-        , m_depth_texture_view(nullptr)
-        , m_editor_camera(glm::vec3(0.0, 0.0, 2.0), -90.0, 0.0)
-        , m_camera_buffer(m_graphics_device->create_buffer({
-              .label = "Camera",
-              .byte_size = sizeof(ShaderCamera),
-              .usage = hyper_rhi::BufferUsage::Storage | hyper_rhi::BufferUsage::ShaderResource,
-              .handle = hyper_rhi::ResourceHandle(HE_DESCRIPTOR_SET_SLOT_CAMERA),
-          }))
-        , m_opaque_pass(nullptr)
-        , m_grid_pass(nullptr)
-        , m_meshes({})
-        , m_frame_index(1)
+          , m_graphics_device(descriptor.graphics_device)
+          , m_surface(descriptor.surface)
+          , m_shader_compiler()
+          , m_command_list(m_graphics_device->create_command_list())
+          , m_render_texture(nullptr)
+          , m_render_texture_view(nullptr)
+          , m_depth_texture(nullptr)
+          , m_depth_texture_view(nullptr)
+          , m_editor_camera(glm::vec3(0.0, 0.0, 2.0), -90.0, 0.0)
+          , m_camera_buffer(
+              m_graphics_device->create_buffer(
+              {
+                  .label = "Camera",
+                  .byte_size = sizeof(ShaderCamera),
+                  .usage = hyper_rhi::BufferUsage::Storage | hyper_rhi::BufferUsage::ShaderResource,
+                  .handle = hyper_rhi::ResourceHandle(HE_DESCRIPTOR_SET_SLOT_CAMERA),
+              }))
+          , m_opaque_pass(nullptr)
+          , m_grid_pass(nullptr)
+          , m_meshes({})
+          , m_frame_index(1)
     {
         this->create_textures(m_surface->width(), m_surface->height());
 
         m_opaque_pass = std::make_unique<OpaquePass>(
-            m_graphics_device, m_shader_compiler, m_render_texture, m_render_texture_view, m_depth_texture, m_depth_texture_view);
+            m_graphics_device,
+            m_shader_compiler,
+            m_render_texture,
+            m_render_texture_view,
+            m_depth_texture,
+            m_depth_texture_view);
 
         m_grid_pass = std::make_unique<GridPass>(
-            m_graphics_device, m_shader_compiler, m_render_texture, m_render_texture_view, m_depth_texture, m_depth_texture_view);
+            m_graphics_device,
+            m_shader_compiler,
+            m_render_texture,
+            m_render_texture_view,
+            m_depth_texture,
+            m_depth_texture_view);
 
         event_bus.subscribe<hyper_platform::WindowResizeEvent>(HE_BIND_FUNCTION(Renderer::on_resize));
         event_bus.subscribe<hyper_platform::MouseMovedEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_move));
@@ -53,6 +65,35 @@ namespace hyper_render
         {
             m_meshes.insert(m_meshes.end(), model.value().begin(), model.value().end());
         }
+
+        m_command_list->begin();
+        for (const std::shared_ptr<Mesh> &mesh : m_meshes)
+        {
+            if (!mesh->positions.empty())
+            {
+                m_command_list->write_buffer(mesh->positions_buffer, mesh->positions.data(), mesh->positions.size() * sizeof(glm::vec4), 0);
+                mesh->positions.clear();
+                m_command_list->write_buffer(mesh->normals_buffer, mesh->normals.data(), mesh->normals.size() * sizeof(glm::vec4), 0);
+                mesh->normals.clear();
+                m_command_list->write_buffer(mesh->colors_buffer, mesh->colors.data(), mesh->colors.size() * sizeof(glm::vec4), 0);
+                mesh->colors.clear();
+
+                const ShaderMesh mesh_data = {
+                    .positions = mesh->positions_buffer->handle(),
+                    .normals = mesh->normals_buffer->handle(),
+                    .colors = mesh->colors_buffer->handle(),
+                    .padding_0 = 0,
+                };
+
+                m_command_list->write_buffer(mesh->mesh_buffer, &mesh_data, sizeof(ShaderMesh), 0);
+
+                m_command_list->write_buffer(mesh->indices_buffer, mesh->indices.data(), mesh->indices.size() * sizeof(uint32_t), 0);
+                mesh->indices.clear();
+            }
+        }
+        m_command_list->end();
+        m_graphics_device->execute(m_command_list);
+        m_graphics_device->wait_for_idle();
 
         HE_INFO("Created Renderer");
     }
@@ -105,34 +146,9 @@ namespace hyper_render
 
         m_command_list->write_buffer(m_camera_buffer, &camera, sizeof(ShaderCamera), 0);
 
-        // TODO: HACK
-        for (const std::shared_ptr<Mesh> &mesh : m_meshes)
-        {
-            if (!mesh->positions.empty())
-            {
-                m_command_list->write_buffer(mesh->positions_buffer, mesh->positions.data(), mesh->positions.size() * sizeof(glm::vec4), 0);
-                mesh->positions.clear();
-                m_command_list->write_buffer(mesh->normals_buffer, mesh->normals.data(), mesh->normals.size() * sizeof(glm::vec4), 0);
-                mesh->normals.clear();
-                m_command_list->write_buffer(mesh->colors_buffer, mesh->colors.data(), mesh->colors.size() * sizeof(glm::vec4), 0);
-                mesh->colors.clear();
-
-                const ShaderMesh mesh_data = {
-                    .positions = mesh->positions_buffer->handle(),
-                    .normals = mesh->normals_buffer->handle(),
-                    .colors = mesh->colors_buffer->handle(),
-                    .padding_0 = 0,
-                };
-
-                m_command_list->write_buffer(mesh->mesh_buffer, &mesh_data, sizeof(ShaderMesh), 0);
-
-                m_command_list->write_buffer(mesh->indices_buffer, mesh->indices.data(), mesh->indices.size() * sizeof(uint32_t), 0);
-                mesh->indices.clear();
-            }
-        }
-
         // Ensure camera buffer was written, transition render texture to color attachment and depth texture to depth stencil attachment
-        m_command_list->insert_barriers({
+        m_command_list->insert_barriers(
+        {
             .memory_barriers = {},
             .buffer_memory_barriers = {
                 hyper_rhi::BufferMemoryBarrier{
@@ -355,7 +371,8 @@ namespace hyper_render
 
     void Renderer::create_textures(const uint32_t width, const uint32_t height)
     {
-        m_render_texture = m_graphics_device->create_texture({
+        m_render_texture = m_graphics_device->create_texture(
+        {
             .label = "Render",
             .width = width,
             .height = height,
@@ -367,7 +384,8 @@ namespace hyper_render
             .usage = hyper_rhi::TextureUsage::RenderAttachment,
         });
 
-        m_render_texture_view = m_graphics_device->create_texture_view({
+        m_render_texture_view = m_graphics_device->create_texture_view(
+        {
             .label = "Render",
             .texture = m_render_texture,
             .base_mip_level = 0,
@@ -375,17 +393,18 @@ namespace hyper_render
             .base_array_level = 0,
             .array_layer_count = 1,
             .component_mapping =
-                hyper_rhi::TextureComponentMapping{
-                    .r = hyper_rhi::TextureComponentSwizzle::Identity,
-                    .g = hyper_rhi::TextureComponentSwizzle::Identity,
-                    .b = hyper_rhi::TextureComponentSwizzle::Identity,
-                    .a = hyper_rhi::TextureComponentSwizzle::Identity,
-                },
+            hyper_rhi::TextureComponentMapping{
+                .r = hyper_rhi::TextureComponentSwizzle::Identity,
+                .g = hyper_rhi::TextureComponentSwizzle::Identity,
+                .b = hyper_rhi::TextureComponentSwizzle::Identity,
+                .a = hyper_rhi::TextureComponentSwizzle::Identity,
+            },
             .format = hyper_rhi::Format::Bgra8Unorm,
             .dimension = hyper_rhi::TextureDimension::Texture2D,
         });
 
-        m_depth_texture = m_graphics_device->create_texture({
+        m_depth_texture = m_graphics_device->create_texture(
+        {
             .label = "Depth",
             .width = width,
             .height = height,
@@ -397,7 +416,8 @@ namespace hyper_render
             .usage = hyper_rhi::TextureUsage::RenderAttachment,
         });
 
-        m_depth_texture_view = m_graphics_device->create_texture_view({
+        m_depth_texture_view = m_graphics_device->create_texture_view(
+        {
             .label = "Depth",
             .texture = m_depth_texture,
             .base_mip_level = 0,
@@ -405,12 +425,12 @@ namespace hyper_render
             .base_array_level = 0,
             .array_layer_count = 1,
             .component_mapping =
-                hyper_rhi::TextureComponentMapping{
-                    .r = hyper_rhi::TextureComponentSwizzle::Identity,
-                    .g = hyper_rhi::TextureComponentSwizzle::Identity,
-                    .b = hyper_rhi::TextureComponentSwizzle::Identity,
-                    .a = hyper_rhi::TextureComponentSwizzle::Identity,
-                },
+            hyper_rhi::TextureComponentMapping{
+                .r = hyper_rhi::TextureComponentSwizzle::Identity,
+                .g = hyper_rhi::TextureComponentSwizzle::Identity,
+                .b = hyper_rhi::TextureComponentSwizzle::Identity,
+                .a = hyper_rhi::TextureComponentSwizzle::Identity,
+            },
             .format = hyper_rhi::Format::D32Sfloat,
             .dimension = hyper_rhi::TextureDimension::Texture2D,
         });

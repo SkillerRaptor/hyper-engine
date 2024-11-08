@@ -31,7 +31,7 @@ namespace hyper_rhi
 
         void begin_frame(const std::shared_ptr<Surface> &surface, uint32_t frame_index) override;
         void end_frame() const override;
-        void execute(const std::shared_ptr<CommandList> &command_list) const override;
+        void execute(const std::shared_ptr<CommandList> &command_list) override;
         void present(const std::shared_ptr<Surface> &surface) const override;
 
         void wait_for_idle() const override;

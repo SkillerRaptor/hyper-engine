@@ -44,9 +44,9 @@ namespace hyper_rhi
     public:
         explicit GraphicsDevice(const GraphicsDeviceDescriptor &descriptor)
             : m_graphics_api(descriptor.graphics_api)
-            , m_debug_validation(descriptor.debug_validation)
-            , m_debug_label(descriptor.debug_label)
-            , m_debug_marker(descriptor.debug_marker)
+              , m_debug_validation(descriptor.debug_validation)
+              , m_debug_label(descriptor.debug_label)
+              , m_debug_marker(descriptor.debug_marker)
         {
         }
 
@@ -67,7 +67,7 @@ namespace hyper_rhi
 
         virtual void begin_frame(const std::shared_ptr<Surface> &surface, uint32_t frame_index) = 0;
         virtual void end_frame() const = 0;
-        virtual void execute(const std::shared_ptr<CommandList> &command_list) const = 0;
+        virtual void execute(const std::shared_ptr<CommandList> &command_list) = 0;
         virtual void present(const std::shared_ptr<Surface> &surface) const = 0;
 
         virtual void wait_for_idle() const = 0;

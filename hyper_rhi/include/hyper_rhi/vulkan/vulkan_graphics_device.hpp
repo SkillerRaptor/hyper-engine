@@ -24,6 +24,7 @@ namespace hyper_rhi
         CommandPool,
         ComputePipeline,
         ComputeShaderModule,
+        Fence,
         FragmentShaderModule,
         GraphicsPipeline,
         Image,
@@ -77,8 +78,9 @@ namespace hyper_rhi
         VkCommandPool command_pool;
         VkCommandBuffer command_buffer;
 
-        VkSemaphore render_semaphore;
-        VkSemaphore present_semaphore;
+        VkFence render_fence;
+        VkSemaphore submit_semaphore;
+        uint64_t semaphore_counter;
     };
 
     class VulkanGraphicsDevice final : public GraphicsDevice
@@ -107,7 +109,7 @@ namespace hyper_rhi
 
         void begin_frame(const std::shared_ptr<Surface> &surface, uint32_t frame_index) override;
         void end_frame() const override;
-        void execute(const std::shared_ptr<CommandList> &command_list) const override;
+        void execute(const std::shared_ptr<CommandList> &command_list) override;
         void present(const std::shared_ptr<Surface> &surface) const override;
 
         void wait_for_idle() const override;
@@ -186,7 +188,6 @@ namespace hyper_rhi
 
         uint32_t m_current_frame_index;
         std::array<FrameData, GraphicsDevice::s_frame_count> m_frames;
-        VkSemaphore m_submit_semaphore;
 
         ResourceQueue m_resource_queue;
     };
