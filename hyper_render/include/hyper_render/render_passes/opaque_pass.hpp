@@ -13,28 +13,21 @@
 
 namespace hyper_render
 {
+    struct DrawContext;
+
     class OpaquePass
     {
     public:
         OpaquePass(
-            const std::shared_ptr<hyper_rhi::GraphicsDevice> &graphics_device,
-            const hyper_rhi::ShaderCompiler &shader_compiler,
-            const std::shared_ptr<hyper_rhi::Texture> &render_texture,
             const std::shared_ptr<hyper_rhi::TextureView> &render_texture_view,
-            const std::shared_ptr<hyper_rhi::Texture> &depth_texture,
-            const std::shared_ptr<hyper_rhi::TextureView> &depth_texture_view);
+            const std::shared_ptr<hyper_rhi::TextureView> &depth_texture_view,
+            const std::shared_ptr<hyper_rhi::Buffer> &scene_buffer);
 
-        void render(const std::shared_ptr<hyper_rhi::CommandList> &command_list, const std::vector<std::shared_ptr<Mesh>> &meshes) const;
+        void render(const std::shared_ptr<hyper_rhi::CommandList> &command_list, const DrawContext &draw_context) const;
 
     private:
-        const std::shared_ptr<hyper_rhi::Texture> &m_render_texture;
         const std::shared_ptr<hyper_rhi::TextureView> &m_render_texture_view;
-        const std::shared_ptr<hyper_rhi::Texture> &m_depth_texture;
         const std::shared_ptr<hyper_rhi::TextureView> &m_depth_texture_view;
-
-        std::shared_ptr<hyper_rhi::PipelineLayout> m_pipeline_layout;
-        std::shared_ptr<hyper_rhi::ShaderModule> m_vertex_shader;
-        std::shared_ptr<hyper_rhi::ShaderModule> m_fragment_shader;
-        std::shared_ptr<hyper_rhi::RenderPipeline> m_pipeline;
+        const std::shared_ptr<hyper_rhi::Buffer> &m_scene_buffer;
     };
 } // namespace hyper_render

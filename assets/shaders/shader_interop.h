@@ -50,12 +50,20 @@
 // Shader Interop
 ////////////////////////////////////////////////////////////////////////////////
 
+struct ShaderScene
+{
+    float4 ambient_color;
+    float4 sunlight_direction; // .w for sun power
+    float4 sunlight_color;
+    float4 padding_0;
+};
+
 struct ShaderMesh
 {
     ARRAY_BUFFER positions;
     ARRAY_BUFFER normals;
     ARRAY_BUFFER colors;
-    uint padding_0;
+    ARRAY_BUFFER tex_coords;
 
 #ifndef __cplusplus
     inline float4 get_position(uint index)
@@ -72,14 +80,27 @@ struct ShaderMesh
     {
         return colors.load<float4>(index);
     }
+
+    inline float4 get_tex_coord(uint index)
+    {
+        return colors.load<float4>(index);
+    }
 #endif
 };
 
 struct ShaderMaterial
 {
-    float4 base_color;
+    float4 color_factors;
+    TEXTURE color_texture;
+    SAMPLER color_sampler;
+    uint padding_0;
+    uint padding_1;
 
-    // TODO: Add textures
+    float4 metal_roughness_factors;
+    TEXTURE metal_roughness_texture;
+    SAMPLER metal_roughness_sampler;
+    uint padding_2;
+    uint padding_3;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -96,24 +117,26 @@ struct ShaderMaterial
 
 struct ObjectPushConstants
 {
-    RESOURCE_HANDLE mesh;
-    RESOURCE_HANDLE material;
+    SIMPLE_BUFFER scene;
+    SIMPLE_BUFFER mesh;
+    SIMPLE_BUFFER material;
     uint padding_0;
-    uint padding_1;
+    float4x4 transform_matrix;
 
 #ifndef __cplusplus
+    inline ShaderScene get_scene()
+    {
+        return scene.load<ShaderScene>();
+    }
+
     inline ShaderMesh get_mesh()
     {
-        ResourceHandle mesh_handle = (ResourceHandle) mesh;
-        SimpleBuffer buffer = (SimpleBuffer) mesh_handle.read_index();
-        return buffer.load<ShaderMesh>();
+        return mesh.load<ShaderMesh>();
     }
 
     inline ShaderMaterial get_material()
     {
-        ResourceHandle material_handle = (ResourceHandle) material;
-        SimpleBuffer buffer = (SimpleBuffer) material_handle.read_index();
-        return buffer.load<ShaderMaterial>();
+        return material.load<ShaderMaterial>();
     }
 #endif
 };

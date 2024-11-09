@@ -40,17 +40,17 @@ namespace hyper_rhi
 
     VulkanGraphicsDevice::VulkanGraphicsDevice(const GraphicsDeviceDescriptor &descriptor)
         : GraphicsDevice(descriptor)
-          , m_instance(VK_NULL_HANDLE)
-          , m_debug_messenger(VK_NULL_HANDLE)
-          , m_physical_device(VK_NULL_HANDLE)
-          , m_device(VK_NULL_HANDLE)
-          , m_queue_family(0)
-          , m_queue(VK_NULL_HANDLE)
-          , m_allocator(VK_NULL_HANDLE)
-          , m_descriptor_manager(nullptr)
-          , m_current_frame_index(0)
-          , m_frames({})
-          , m_resource_queue()
+        , m_instance(VK_NULL_HANDLE)
+        , m_debug_messenger(VK_NULL_HANDLE)
+        , m_physical_device(VK_NULL_HANDLE)
+        , m_device(VK_NULL_HANDLE)
+        , m_queue_family(0)
+        , m_queue(VK_NULL_HANDLE)
+        , m_allocator(VK_NULL_HANDLE)
+        , m_descriptor_manager(nullptr)
+        , m_current_frame_index(0)
+        , m_frames({})
+        , m_resource_queue()
     {
         volkInitialize();
 
@@ -260,6 +260,8 @@ namespace hyper_rhi
                     return VK_OBJECT_TYPE_FENCE;
                 case ObjectType::Semaphore:
                     return VK_OBJECT_TYPE_SEMAPHORE;
+                case ObjectType::Sampler:
+                    return VK_OBJECT_TYPE_SAMPLER;
                 default:
                     HE_UNREACHABLE();
                 }
@@ -291,6 +293,8 @@ namespace hyper_rhi
                     return "Pipeline Layout";
                 case ObjectType::Queue:
                     return "Queue";
+                case ObjectType::Sampler:
+                    return "Sampler";
                 case ObjectType::Semaphore:
                     return "Semaphore";
                 case ObjectType::VertexShaderModule:
@@ -398,14 +402,13 @@ namespace hyper_rhi
         }
 
         uint32_t image_index = 0;
-        HE_VK_CHECK(
-            vkAcquireNextImageKHR(
-                m_device,
-                vulkan_surface->swapchain(),
-                std::numeric_limits<uint64_t>::max(),
-                VK_NULL_HANDLE,
-                this->current_frame().render_fence,
-                &image_index));
+        HE_VK_CHECK(vkAcquireNextImageKHR(
+            m_device,
+            vulkan_surface->swapchain(),
+            std::numeric_limits<uint64_t>::max(),
+            VK_NULL_HANDLE,
+            this->current_frame().render_fence,
+            &image_index));
 
         vulkan_surface->set_texture_index(image_index);
     }

@@ -211,39 +211,39 @@ struct Texture {
     }
 
     template<typename T>
-    T sample_1d(SamplerState sampler, float u) {
+    T sample_1d(SamplerState s, float u) {
         Texture1D<T> texture = DESCRIPTOR_HEAP(Texture1DHandle<T>, this.handle.read_index());
-        return texture.Sample(sampler, u);
+        return texture.Sample(s, u);
     }
 
     template<typename T>
-    T sample_2d(SamplerState sampler, float2 uv) {
+    T sample_2d(SamplerState s, float2 uv) {
         Texture2D<T> texture = DESCRIPTOR_HEAP(Texture2DHandle<T>, this.handle.read_index());
-        return texture.Sample(sampler, uv);
+        return texture.Sample(s, uv);
     }
 
     template<typename T>
-    T sample_3d(SamplerState sampler, float3 uvw) {
+    T sample_3d(SamplerState s, float3 uvw) {
         Texture3D<T> texture = DESCRIPTOR_HEAP(Texture3DHandle<T>, this.handle.read_index());
-        return texture.Sample(sampler, uvw);
+        return texture.Sample(s, uvw);
     }
 
     template<typename T>
-    T sample_level_1d(SamplerState sampler, float u, float mip) {
+    T sample_level_1d(SamplerState s, float u, float mip) {
         Texture1D<T> texture = DESCRIPTOR_HEAP(Texture1DHandle<T>, this.handle.read_index());
-        return texture.SampleLevel(sampler, u, mip);
+        return texture.SampleLevel(s, u, mip);
     }
 
     template<typename T>
-    T sample_level_2d(SamplerState sampler, float2 uv, float mip) {
+    T sample_level_2d(SamplerState s, float2 uv, float mip) {
         Texture2D<T> texture = DESCRIPTOR_HEAP(Texture2DHandle<T>, this.handle.read_index());
-        return texture.SampleLevel(sampler, uv, mip);
+        return texture.SampleLevel(s, uv, mip);
     }
 
     template<typename T>
-    T sample_level_3d(SamplerState sampler, float3 uvw, float mip) {
+    T sample_level_3d(SamplerState s, float3 uvw, float mip) {
         Texture3D<T> texture = DESCRIPTOR_HEAP(Texture3DHandle<T>, this.handle.read_index());
-        return texture.SampleLevel(sampler, uvw, mip);
+        return texture.SampleLevel(s, uvw, mip);
     }
 };
 
@@ -326,7 +326,7 @@ struct RwTexture {
 struct Sampler {
     ResourceHandle handle;
 
-    SamplerState load(uint index) {
+    SamplerState load() {
         SamplerState sampler_state_value = DESCRIPTOR_HEAP(SamplerStateHandle, this.handle.read_index());
         return sampler_state_value;
     }

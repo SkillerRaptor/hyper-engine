@@ -64,22 +64,22 @@ namespace hyper_rhi
             {
                 if ((m_texture->usage() & TextureUsage::Storage) == TextureUsage::Storage)
                 {
-                    m_graphics_device.descriptor_manager().set_storage_image(m_image_view, VK_IMAGE_LAYOUT_UNDEFINED, m_handle.handle());
+                    m_graphics_device.descriptor_manager().set_storage_image(m_image_view, VK_IMAGE_LAYOUT_GENERAL, m_handle.handle());
                 }
                 else
                 {
-                    m_graphics_device.descriptor_manager().set_sampled_image(m_image_view, VK_IMAGE_LAYOUT_UNDEFINED, m_handle.handle());
+                    m_graphics_device.descriptor_manager().set_sampled_image(m_image_view, VK_IMAGE_LAYOUT_GENERAL, m_handle.handle());
                 }
             }
             else
             {
                 if ((m_texture->usage() & TextureUsage::Storage) == TextureUsage::Storage)
                 {
-                    m_handle = m_graphics_device.descriptor_manager().allocate_storage_image_handle(m_image_view, VK_IMAGE_LAYOUT_UNDEFINED);
+                    m_handle = m_graphics_device.descriptor_manager().allocate_storage_image_handle(m_image_view, VK_IMAGE_LAYOUT_GENERAL);
                 }
                 else
                 {
-                    m_handle = m_graphics_device.descriptor_manager().allocate_sampled_image_handle(m_image_view, VK_IMAGE_LAYOUT_UNDEFINED);
+                    m_handle = m_graphics_device.descriptor_manager().allocate_sampled_image_handle(m_image_view, VK_IMAGE_LAYOUT_GENERAL);
                 }
             }
         }

@@ -442,6 +442,10 @@ namespace hyper_rhi
         {
             usage |= VK_IMAGE_USAGE_STORAGE_BIT;
         }
+        else
+        {
+            usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
+        }
 
         if ((texture_usage_flags & TextureUsage::RenderAttachment) == TextureUsage::RenderAttachment)
         {

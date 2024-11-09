@@ -15,7 +15,7 @@
 #include <hyper_rhi/surface.hpp>
 
 #include "hyper_render/camera.hpp"
-#include "hyper_render/mesh.hpp"
+#include "hyper_render/renderable.hpp"
 #include "hyper_render/render_passes/grid_pass.hpp"
 #include "hyper_render/render_passes/opaque_pass.hpp"
 
@@ -39,12 +39,15 @@ namespace hyper_render
     private:
         void create_textures(uint32_t width, uint32_t height);
 
+        void update_scene();
+
         void on_resize(const hyper_platform::WindowResizeEvent &event);
         void on_mouse_move(const hyper_platform::MouseMovedEvent &event);
         void on_mouse_scroll(const hyper_platform::MouseScrolledEvent &event);
 
     private:
         const hyper_platform::Input &m_input;
+
         std::shared_ptr<hyper_rhi::GraphicsDevice> m_graphics_device;
         std::shared_ptr<hyper_rhi::Surface> m_surface;
         hyper_rhi::ShaderCompiler m_shader_compiler;
@@ -58,10 +61,21 @@ namespace hyper_render
         Camera m_editor_camera;
         std::shared_ptr<hyper_rhi::Buffer> m_camera_buffer;
 
+        std::shared_ptr<hyper_rhi::Buffer> m_scene_buffer;
+
+        std::shared_ptr<hyper_rhi::Texture> m_white_texture;
+        std::shared_ptr<hyper_rhi::TextureView> m_white_texture_view;
+        std::shared_ptr<hyper_rhi::Sampler> m_default_sampler_nearest;
+        std::shared_ptr<hyper_rhi::Sampler> m_default_sampler_linear;
+
+        GltfMetallicRoughness m_metallic_roughness_material;
+
+        DrawContext m_draw_context;
+        std::vector<std::shared_ptr<Mesh>> m_meshes;
+        std::unordered_map<std::string, std::shared_ptr<Node>> m_loaded_nodes;
+
         std::unique_ptr<OpaquePass> m_opaque_pass;
         std::unique_ptr<GridPass> m_grid_pass;
-
-        std::vector<std::shared_ptr<Mesh>> m_meshes;
 
         uint32_t m_frame_index;
     };

@@ -96,6 +96,11 @@ namespace hyper_rhi
             return m_dimension;
         }
 
+        [[nodiscard]] HE_FORCE_INLINE ResourceHandle handle() const
+        {
+            return m_handle;
+        }
+
     protected:
         explicit TextureView(const TextureViewDescriptor &descriptor)
             : Resource(descriptor.label)

@@ -14,7 +14,7 @@
 
 namespace hyper_rhi
 {
-    enum Filter : uint8_t
+    enum class Filter : uint8_t
     {
         Nearest,
         Linear,
@@ -47,7 +47,6 @@ namespace hyper_rhi
         SamplerAddressMode address_mode_v = SamplerAddressMode::ClampToEdge;
         SamplerAddressMode address_mode_w = SamplerAddressMode::ClampToEdge;
         float mip_lod_bias = 0.0;
-        uint16_t max_anisotropy = 1;
         CompareOperation compare_operation = CompareOperation::Less;
         float min_lod = 0.0;
         float max_lod = 1.0;
@@ -96,11 +95,6 @@ namespace hyper_rhi
             return m_mip_lod_bias;
         }
 
-        [[nodiscard]] HE_FORCE_INLINE uint16_t max_anisotropy() const
-        {
-            return m_max_anisotropy;
-        }
-
         [[nodiscard]] HE_FORCE_INLINE CompareOperation compare_operation() const
         {
             return m_compare_operation;
@@ -136,7 +130,6 @@ namespace hyper_rhi
             , m_address_mode_v(descriptor.address_mode_v)
             , m_address_mode_w(descriptor.address_mode_w)
             , m_mip_lod_bias(descriptor.mip_lod_bias)
-            , m_max_anisotropy(descriptor.max_anisotropy)
             , m_compare_operation(descriptor.compare_operation)
             , m_min_lod(descriptor.min_lod)
             , m_max_lod(descriptor.max_lod)
@@ -154,7 +147,6 @@ namespace hyper_rhi
         SamplerAddressMode m_address_mode_v;
         SamplerAddressMode m_address_mode_w;
         float m_mip_lod_bias;
-        uint16_t m_max_anisotropy;
         CompareOperation m_compare_operation;
         float m_min_lod;
         float m_max_lod;

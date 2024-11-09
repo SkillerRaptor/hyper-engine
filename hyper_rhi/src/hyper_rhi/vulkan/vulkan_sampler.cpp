@@ -35,8 +35,8 @@ namespace hyper_rhi
             .addressModeV = address_mode_v,
             .addressModeW = address_mode_w,
             .mipLodBias = m_mip_lod_bias,
-            .anisotropyEnable = VK_TRUE,
-            .maxAnisotropy = static_cast<float>(m_max_anisotropy),
+            .anisotropyEnable = VK_FALSE,
+            .maxAnisotropy = 0.0,
             .compareEnable = VK_TRUE,
             .compareOp = compare_operation,
             .minLod = m_min_lod,
@@ -48,6 +48,15 @@ namespace hyper_rhi
         vkCreateSampler(m_graphics_device.device(), &sampler_create_info, nullptr, &m_sampler);
 
         m_graphics_device.set_object_name(m_sampler, ObjectType::Sampler, m_label);
+
+        if (m_handle.valid())
+        {
+            m_graphics_device.descriptor_manager().set_sampler(m_sampler, m_handle.handle());
+        }
+        else
+        {
+            m_handle = m_graphics_device.descriptor_manager().allocate_sampler_handle(m_sampler);
+        }
 
         // TODO: Add more trace information
         HE_TRACE("Created Sampler");
@@ -62,9 +71,9 @@ namespace hyper_rhi
     {
         switch (filter)
         {
-        case Nearest:
+        case Filter::Nearest:
             return VK_FILTER_NEAREST;
-        case Linear:
+        case Filter::Linear:
             return VK_FILTER_LINEAR;
         default:
             HE_UNREACHABLE();
@@ -75,9 +84,9 @@ namespace hyper_rhi
     {
         switch (filter)
         {
-        case Nearest:
+        case Filter::Nearest:
             return VK_SAMPLER_MIPMAP_MODE_NEAREST;
-        case Linear:
+        case Filter::Linear:
             return VK_SAMPLER_MIPMAP_MODE_LINEAR;
         default:
             HE_UNREACHABLE();
