@@ -83,7 +83,7 @@ namespace hyper_render
                         positions_attribute,
                         [&](const glm::vec3 value, const size_t index)
                         {
-                            positions[initial_vertex + index] = glm::vec4(-value.x, value.z, value.y, 1.0);
+                            positions[initial_vertex + index] = glm::vec4(value.x, value.y, -value.z, 1.0);
                         });
                 }
 
@@ -107,7 +107,7 @@ namespace hyper_render
                         asset->accessors[normals_attribute->accessorIndex],
                         [&](const glm::vec3 value, const size_t index)
                         {
-                            normals[initial_vertex + index] = glm::vec4(value.x, value.y, value.z, 1.0);
+                            normals[initial_vertex + index] = glm::vec4(value.x, value.y, -value.z, 1.0);
                             if (colors_attribute == primitive.attributes.end())
                             {
                                 colors[initial_vertex + index] = normals[initial_vertex + index];
@@ -116,11 +116,6 @@ namespace hyper_render
                 }
 
                 surfaces.push_back(surface);
-            }
-
-            for (size_t index = 0; index < indices.size(); index += 3)
-            {
-                std::swap(indices[index], indices[index + 2]);
             }
 
             const std::shared_ptr<hyper_rhi::Buffer> positions_buffer = graphics_device->create_buffer({

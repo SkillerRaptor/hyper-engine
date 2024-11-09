@@ -79,7 +79,7 @@ namespace hyper_render
               .format = hyper_rhi::Format::D32Sfloat,
               .dimension = hyper_rhi::TextureDimension::Texture2D,
           }))
-        , m_editor_camera(glm::vec3(0.0, 0.0, 2.0), -90.0, 0.0)
+        , m_editor_camera(glm::vec3(0.0, 2.0, 0.0), -90.0, 0.0)
         , m_camera_buffer(m_graphics_device->create_buffer({
               .label = "Camera",
               .byte_size = sizeof(ShaderCamera),
@@ -620,7 +620,7 @@ namespace hyper_render
         m_draw_context.opaque_surfaces.clear();
 
         const glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
-        const glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.5f));
+        const glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.5f, 0.0f));
         m_loaded_nodes["Sponza"]->draw(translation * scale, m_draw_context);
     }
 
