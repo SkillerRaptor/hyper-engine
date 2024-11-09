@@ -119,6 +119,34 @@ namespace hyper_render
               .format = hyper_rhi::Format::Rgba8Unorm,
               .dimension = hyper_rhi::TextureDimension::Texture2D,
           }))
+        , m_error_texture(m_graphics_device->create_texture({
+              .label = "Error",
+              .width = 16,
+              .height = 16,
+              .depth = 1,
+              .array_size = 1,
+              .mip_levels = 1,
+              .format = hyper_rhi::Format::Rgba8Unorm,
+              .dimension = hyper_rhi::TextureDimension::Texture2D,
+              .usage = hyper_rhi::TextureUsage::ShaderResource,
+          }))
+        , m_error_texture_view(m_graphics_device->create_texture_view({
+              .label = "Error",
+              .texture = m_error_texture,
+              .base_mip_level = 0,
+              .mip_level_count = 1,
+              .base_array_level = 0,
+              .array_layer_count = 1,
+              .component_mapping =
+                  hyper_rhi::TextureComponentMapping{
+                      .r = hyper_rhi::TextureComponentSwizzle::Identity,
+                      .g = hyper_rhi::TextureComponentSwizzle::Identity,
+                      .b = hyper_rhi::TextureComponentSwizzle::Identity,
+                      .a = hyper_rhi::TextureComponentSwizzle::Identity,
+                  },
+              .format = hyper_rhi::Format::Rgba8Unorm,
+              .dimension = hyper_rhi::TextureDimension::Texture2D,
+          }))
         , m_default_sampler_nearest(m_graphics_device->create_sampler({
               .label = "Default Nearest",
               .mag_filter = hyper_rhi::Filter::Nearest,
@@ -149,8 +177,6 @@ namespace hyper_render
           }))
         , m_metallic_roughness_material(m_graphics_device, m_shader_compiler, m_render_texture, m_depth_texture)
         , m_draw_context()
-        , m_meshes()
-        , m_loaded_nodes()
         , m_opaque_pass(nullptr)
         , m_grid_pass(nullptr)
         , m_frame_index(1)
@@ -158,29 +184,6 @@ namespace hyper_render
         event_bus.subscribe<hyper_platform::WindowResizeEvent>(HE_BIND_FUNCTION(Renderer::on_resize));
         event_bus.subscribe<hyper_platform::MouseMovedEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_move));
         event_bus.subscribe<hyper_platform::MouseScrolledEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_scroll));
-
-        /*
-        uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
-        _whiteImage = create_image((void *) &white, VkExtent3D{ 1, 1, 1 }, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT);
-
-        uint32_t grey = glm::packUnorm4x8(glm::vec4(0.66f, 0.66f, 0.66f, 1));
-        _greyImage = create_image((void *) &grey, VkExtent3D{ 1, 1, 1 }, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT);
-
-        uint32_t black = glm::packUnorm4x8(glm::vec4(0, 0, 0, 0));
-        _blackImage = create_image((void *) &black, VkExtent3D{ 1, 1, 1 }, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT);
-
-        // checkerboard image
-        uint32_t magenta = glm::packUnorm4x8(glm::vec4(1, 0, 1, 1));
-        std::array<uint32_t, 16 * 16> pixels; // for 16x16 checkerboard texture
-        for (int x = 0; x < 16; x++)
-        {
-            for (int y = 0; y < 16; y++)
-            {
-                pixels[y * 16 + x] = ((x % 2) ^ (y % 2)) ? magenta : black;
-            }
-        }
-        _errorCheckerboardImage = create_image(pixels.data(), VkExtent3D{ 16, 16, 1 }, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT);
-        */
 
         const GltfMetallicRoughness::MaterialResources material_resources = {
             .color_factors = glm::vec4(1.0, 1.0, 1.0, 1.0),
@@ -235,25 +238,72 @@ namespace hyper_render
             sizeof(white),
             0);
 
+        const uint32_t black = glm::packUnorm4x8(glm::vec4(0, 0, 0, 0));
+        const uint32_t magenta = glm::packUnorm4x8(glm::vec4(1, 0, 1, 1));
+
+        std::array<uint32_t, 16 * 16> pixels = {};
+        for (size_t x = 0; x < 16; x++)
+        {
+            for (size_t y = 0; y < 16; y++)
+            {
+                pixels[y * 16 + x] = ((x % 2) ^ (y % 2)) ? magenta : black;
+            }
+        }
+
+        // TODO: Automate barrier
+        m_command_list->insert_barriers(
+        {
+            .memory_barriers = {},
+            .buffer_memory_barriers = {},
+            .texture_memory_barriers = {
+                hyper_rhi::TextureMemoryBarrier{
+                    .stage_before = hyper_rhi::BarrierPipelineStage::AllCommands,
+                    .stage_after = hyper_rhi::BarrierPipelineStage::AllCommands,
+                    .access_before = hyper_rhi::BarrierAccess::None,
+                    .access_after = hyper_rhi::BarrierAccess::TransferWrite,
+                    .layout_before = hyper_rhi::BarrierTextureLayout::Undefined,
+                    .layout_after = hyper_rhi::BarrierTextureLayout::TransferDst,
+                    .texture = m_error_texture,
+                    .subresource_range = hyper_rhi::TextureBarrierSubresourceRange{
+                        .base_mip_level = 0,
+                        .mip_level_count = 1,
+                        .base_array_level = 0,
+                        .array_layer_count = 1,
+                    },
+                },
+            },
+        });
+        m_command_list->write_texture(
+            m_error_texture,
+            hyper_rhi::Offset3d{
+                .x = 0,
+                .y = 0,
+                .z = 0,
+            },
+            hyper_rhi::Extent3d{
+                .width = 16,
+                .height = 16,
+                .depth = 1,
+            },
+            0,
+            0,
+            &pixels,
+            sizeof(pixels),
+            0);
+
         MaterialInstance default_data =
             m_metallic_roughness_material.write_material(m_graphics_device, m_command_list, MaterialPassType::MainColor, material_resources);
 
-        const std::vector<std::shared_ptr<Mesh>> model =
-            Mesh::load_model(m_graphics_device, m_command_list, "./assets/models/sponza/Sponza.gltf");
-        m_meshes.insert(m_meshes.end(), model.begin(), model.end());
-
-        for (const std::shared_ptr<Mesh> &mesh : m_meshes)
-        {
-            auto node = std::make_shared<MeshNode>(glm::mat4(1.0f), glm::mat4(1.0f), mesh);
-
-            for (Surface &surface : node->mesh().surfaces())
-            {
-                surface.material = std::make_shared<GltfMaterial>(default_data);
-            }
-
-            // m_loaded_nodes[std::string(mesh->name())] = std::move(node);
-            m_loaded_nodes["Sponza"] = std::move(node);
-        }
+        const std::shared_ptr<LoadedGltf> scene = load_gltf(
+            m_graphics_device,
+            m_command_list,
+            m_white_texture_view,
+            m_error_texture,
+            m_error_texture_view,
+            m_default_sampler_linear,
+            m_metallic_roughness_material,
+            "./assets/models/DamagedHelmet.glb");
+        m_scenes["DamagedHelmet"] = scene;
 
         m_command_list->end();
 
@@ -618,10 +668,9 @@ namespace hyper_render
         // Draw meshes
 
         m_draw_context.opaque_surfaces.clear();
+        m_draw_context.transparent_surfaces.clear();
 
-        const glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
-        const glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.5f, 0.0f));
-        m_loaded_nodes["Sponza"]->draw(translation * scale, m_draw_context);
+        m_scenes["DamagedHelmet"]->draw(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.5f, 0.0f)), m_draw_context);
     }
 
     void Renderer::on_resize(const hyper_platform::WindowResizeEvent &event)

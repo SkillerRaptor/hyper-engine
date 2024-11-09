@@ -83,7 +83,7 @@ struct ShaderMesh
 
     inline float4 get_tex_coord(uint index)
     {
-        return colors.load<float4>(index);
+        return tex_coords.load<float4>(index);
     }
 #endif
 };

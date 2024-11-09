@@ -165,6 +165,11 @@ set(GLM_BUILD_INSTALL OFF CACHE INTERNAL "")
 
 FetchContent_MakeAvailable(glm)
 
+target_compile_definitions(
+        glm
+        INTERFACE
+        GLM_ENABLE_EXPERIMENTAL)
+
 set_target_properties(
         glm
         PROPERTIES

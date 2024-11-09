@@ -31,7 +31,7 @@ VertexOutput vs_main(
 
     VertexOutput output = (VertexOutput) 0;
     output.position = mul(camera.view_projection, mul(g_push.transform_matrix, position));
-    output.normal = mul(g_push.transform_matrix, float4(normal, 0.0)).xyz;
+    output.normal = normal;
     output.color = color * material.color_factors.xyz;
     output.uv = tex_coord;
     return output;
@@ -44,8 +44,12 @@ float4 fs_main(VertexOutput input) : SV_TARGET {
 
     const float light_value = max(dot(input.normal, scene.sunlight_direction.xyz), 0.1);
 
-    const float3 color = (input.color * 0.5 + 0.5) * material.color_texture.sample_2d<float4>(material.color_sampler.load(), input.uv).xyz;
-    const float3 ambient = color * scene.ambient_color.xyz;
+    const float4 color = float4(input.color, 1.0) * material.color_texture.sample_2d<float4>(material.color_sampler.load(), input.uv);
+    const float3 ambient = color.xyz * scene.ambient_color.xyz;
 
-    return float4(color * light_value * scene.sunlight_color.w + ambient, 1.0);
+    if (color.a < 0.1) {
+        discard;
+    }
+
+    return float4(color.xyz * light_value * scene.sunlight_color.w + ambient, 1.0);
 }

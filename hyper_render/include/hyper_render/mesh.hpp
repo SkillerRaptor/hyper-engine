@@ -31,11 +31,6 @@ namespace hyper_render
     class Mesh
     {
     public:
-        [[nodiscard]] static std::vector<std::shared_ptr<Mesh>> load_model(
-            const std::shared_ptr<hyper_rhi::GraphicsDevice> &graphics_device,
-            const std::shared_ptr<hyper_rhi::CommandList> &command_list,
-            const std::string &path);
-
         Mesh(
             std::string name,
             std::vector<Surface> surfaces,

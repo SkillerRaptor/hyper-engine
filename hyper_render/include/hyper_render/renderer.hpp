@@ -65,14 +65,15 @@ namespace hyper_render
 
         std::shared_ptr<hyper_rhi::Texture> m_white_texture;
         std::shared_ptr<hyper_rhi::TextureView> m_white_texture_view;
+        std::shared_ptr<hyper_rhi::Texture> m_error_texture;
+        std::shared_ptr<hyper_rhi::TextureView> m_error_texture_view;
         std::shared_ptr<hyper_rhi::Sampler> m_default_sampler_nearest;
         std::shared_ptr<hyper_rhi::Sampler> m_default_sampler_linear;
 
         GltfMetallicRoughness m_metallic_roughness_material;
 
         DrawContext m_draw_context;
-        std::vector<std::shared_ptr<Mesh>> m_meshes;
-        std::unordered_map<std::string, std::shared_ptr<Node>> m_loaded_nodes;
+        std::unordered_map<std::string, std::shared_ptr<LoadedGltf>> m_scenes;
 
         std::unique_ptr<OpaquePass> m_opaque_pass;
         std::unique_ptr<GridPass> m_grid_pass;

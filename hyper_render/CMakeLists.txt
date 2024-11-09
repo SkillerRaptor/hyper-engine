@@ -6,7 +6,6 @@
 set(SOURCES
         src/hyper_render/camera.cpp
         src/hyper_render/material.cpp
-        src/hyper_render/mesh.cpp
         src/hyper_render/renderable.cpp
         src/hyper_render/renderer.cpp
         src/hyper_render/render_passes/grid_pass.cpp

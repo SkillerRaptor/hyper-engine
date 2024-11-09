@@ -72,7 +72,7 @@ namespace hyper_render
               .primitive_state =
                   hyper_rhi::PrimitiveState{
                       .topology = hyper_rhi::PrimitiveTopology::TriangleList,
-                      .front_face = hyper_rhi::FrontFace::CounterClockwise,
+                      .front_face = hyper_rhi::FrontFace::Clockwise,
                       .cull_mode = hyper_rhi::Face::Back,
                       .polygon_mode = hyper_rhi::PolygonMode::Fill,
                   },
@@ -109,15 +109,16 @@ namespace hyper_render
               .primitive_state =
                   hyper_rhi::PrimitiveState{
                       .topology = hyper_rhi::PrimitiveTopology::TriangleList,
-                      .front_face = hyper_rhi::FrontFace::CounterClockwise,
+                      .front_face = hyper_rhi::FrontFace::Clockwise,
                       .cull_mode = hyper_rhi::Face::Back,
                       .polygon_mode = hyper_rhi::PolygonMode::Fill,
                   },
               .depth_stencil_state =
                   hyper_rhi::DepthStencilState{
-                      .depth_test_enable = false,
-                      .depth_write_enable = false,
-                      .depth_format = hyper_rhi::Format::Unknown,
+                      .depth_test_enable = true,
+                      .depth_write_enable = true,
+                      // TODO: Add 2nd pass for transparent stuff
+                      .depth_format = depth_texture->format(),
                       .depth_compare_operation = hyper_rhi::CompareOperation::Less,
                       .depth_bias_state = {},
                   },

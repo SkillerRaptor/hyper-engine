@@ -72,5 +72,23 @@ namespace hyper_render
 
             render_pass->draw_indexed(render_object.index_count, 1, render_object.first_index, 0, 0);
         }
+
+        for (const RenderObject &render_object : draw_context.transparent_surfaces)
+        {
+            render_pass->set_pipeline(render_object.material->pipeline);
+
+            render_pass->set_index_buffer(render_object.index_buffer);
+
+            const ObjectPushConstants mesh_push_constants = {
+                .scene = m_scene_buffer->handle(),
+                .mesh = render_object.mesh_buffer->handle(),
+                .material = render_object.material->buffer->handle(),
+                .padding_0 = 0,
+                .transform_matrix = render_object.transform,
+            };
+            render_pass->set_push_constants(&mesh_push_constants, sizeof(ObjectPushConstants));
+
+            render_pass->draw_indexed(render_object.index_count, 1, render_object.first_index, 0, 0);
+        }
     }
 } // namespace hyper_render
