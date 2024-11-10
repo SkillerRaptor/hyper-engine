@@ -14,9 +14,9 @@ namespace hyper_render
 {
     Camera::Camera(const glm::vec3 position, const float yaw, const float pitch)
         : m_position(position)
-        , m_front(glm::vec3(0.0, 0.0, 1.0))
-        , m_up(glm::vec3(0.0, 1.0, 0.0))
-        , m_right(glm::vec3(1.0, 0.0, 0.0))
+        , m_front(glm::vec3(0.0, 0.0, 0.0))
+        , m_up(glm::vec3(0.0, 0.0, 0.0))
+        , m_right(glm::vec3(0.0, 0.0, 0.0))
         , m_yaw(yaw)
         , m_pitch(pitch)
         , m_movement_speed(2.5f)
@@ -125,25 +125,25 @@ namespace hyper_render
 
     glm::mat4 Camera::projection_matrix() const
     {
-        return glm::perspectiveLH(glm::radians(m_fov), m_aspect_ratio, m_near, m_far);
+        return glm::perspective(glm::radians(m_fov), m_aspect_ratio, m_near, m_far);
     }
 
     glm::mat4 Camera::view_matrix() const
     {
-        return glm::lookAtLH(m_position, m_position + m_front, m_up);
+        return glm::lookAt(m_position, m_position + m_front, m_up);
     }
 
     void Camera::update_camera_vectors()
     {
         const glm::vec3 front = {
-            cos(glm::radians(-m_yaw)) * cos(glm::radians(m_pitch)),
+            cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch)),
             sin(glm::radians(m_pitch)),
-            sin(glm::radians(-m_yaw)) * cos(glm::radians(m_pitch)),
+            sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch)),
         };
 
         m_front = glm::normalize(front);
 
-        m_right = glm::normalize(glm::cross(glm::vec3(0.0, 1.0, 0.0), m_front));
-        m_up = glm::normalize(glm::cross(m_front, m_right));
+        m_right = glm::normalize(glm::cross(m_front, glm::vec3(0.0, 1.0, 0.0)));
+        m_up = glm::normalize(glm::cross(m_right, m_front));
     }
 } // namespace hyper_render

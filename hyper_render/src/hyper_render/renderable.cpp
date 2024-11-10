@@ -369,7 +369,7 @@ namespace hyper_render
                         positions_attribute,
                         [&](const glm::vec3 value, const size_t index)
                         {
-                            positions[initial_vertex + index] = glm::vec4(-value.x, value.y, value.z, 1.0);
+                            positions[initial_vertex + index] = glm::vec4(value.x, value.y, value.z, 1.0);
                             normals[initial_vertex + index] = glm::vec4(1.0, 0.0, 0.0, 0.0);
                             colors[initial_vertex + index] = glm::vec4(1.0, 1.0, 1.0, 0.0);
                             tex_coords[initial_vertex + index] = glm::vec4(0.0, 0.0, 0.0, 0.0);
@@ -384,7 +384,7 @@ namespace hyper_render
                         asset->accessors[normals_attribute->accessorIndex],
                         [&](const glm::vec3 value, const size_t index)
                         {
-                            normals[initial_vertex + index] = glm::vec4(-value.x, value.y, value.z, 0.0);
+                            normals[initial_vertex + index] = glm::vec4(value.x, value.y, value.z, 0.0);
                         });
                 }
 
