@@ -126,31 +126,6 @@ set_target_properties(
         FOLDER "third_party")
 
 #-------------------------------------------------------------------------------------------
-# glfw
-#-------------------------------------------------------------------------------------------
-FetchContent_Declare(
-        glfw
-        SYSTEM
-        GIT_REPOSITORY https://github.com/glfw/glfw.git
-        GIT_TAG 3.4)
-
-set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "")
-set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "")
-set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "")
-set(GLFW_INSTALL OFF CACHE INTERNAL "")
-
-FetchContent_MakeAvailable(glfw)
-
-set_target_properties(
-        update_mappings
-        PROPERTIES
-        FOLDER "third_party")
-set_target_properties(
-        glfw
-        PROPERTIES
-        FOLDER "third_party")
-
-#-------------------------------------------------------------------------------------------
 # glm
 #-------------------------------------------------------------------------------------------
 FetchContent_Declare(
@@ -192,7 +167,7 @@ set(SOURCES
         ${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_draw.cpp
         ${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_tables.cpp
         ${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_widgets.cpp
-        ${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_glfw.cpp
+        ${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_sdl3.cpp
         ${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_vulkan.cpp)
 
 set(HEADERS
@@ -202,7 +177,7 @@ set(HEADERS
         ${CMAKE_BINARY_DIR}/_deps/imgui-src/imstb_rectpack.h
         ${CMAKE_BINARY_DIR}/_deps/imgui-src/imstb_textedit.h
         ${CMAKE_BINARY_DIR}/_deps/imgui-src/imstb_truetype.h
-        ${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_glfw.h
+        ${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_sdl3.h
         ${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_vulkan.h)
 
 if (WIN32)
@@ -229,7 +204,7 @@ target_compile_definitions(
 target_link_libraries(
         imgui
         PUBLIC
-        glfw
+        SDL3::SDL3
         volk)
 
 set_target_properties(
@@ -277,6 +252,30 @@ FetchContent_MakeAvailable(meshoptimizer)
 
 set_target_properties(
         meshoptimizer
+        PROPERTIES
+        FOLDER "third_party")
+
+#-------------------------------------------------------------------------------------------
+# SDL
+#-------------------------------------------------------------------------------------------
+FetchContent_Declare(
+        sdl
+        SYSTEM
+        GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+        GIT_TAG main)
+
+set(SDL_SHARED OFF CACHE INTERNAL "")
+set(SDL_STATIC ON CACHE INTERNAL "")
+set(SDL_TEST_LIBRARY OFF CACHE INTERNAL "")
+set(SDL_TESTS OFF CACHE INTERNAL "")
+set(SDL_DISABLE_INSTALL ON CACHE INTERNAL "")
+set(SDL_DISABLE_INSTALL_DOCS ON CACHE INTERNAL "")
+set(SDL_INSTALL_TESTS OFF CACHE INTERNAL "")
+
+FetchContent_MakeAvailable(sdl)
+
+set_target_properties(
+        SDL3-static
         PROPERTIES
         FOLDER "third_party")
 

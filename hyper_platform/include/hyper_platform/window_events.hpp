@@ -8,6 +8,8 @@
 
 #include <cstdint>
 
+#include <hyper_core/prerequisites.hpp>
+
 namespace hyper_platform
 {
     class WindowCloseEvent
@@ -16,26 +18,48 @@ namespace hyper_platform
         WindowCloseEvent() = default;
     };
 
+    class WindowMoveEvent
+    {
+    public:
+        WindowMoveEvent(const uint32_t x, const uint32_t y)
+            : m_x(x)
+            , m_y(y)
+        {
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE uint32_t x() const
+        {
+            return m_x;
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE uint32_t y() const
+        {
+            return m_y;
+        }
+
+    private:
+        uint32_t m_x;
+        uint32_t m_y;
+    };
+
     class WindowResizeEvent
     {
     public:
-        WindowResizeEvent(uint32_t width, uint32_t height);
+        WindowResizeEvent(const uint32_t width, const uint32_t height)
+            : m_width(width)
+            , m_height(height)
+        {
+        }
 
-        [[nodiscard]] uint32_t width() const;
-        [[nodiscard]] uint32_t height() const;
+        [[nodiscard]] HE_FORCE_INLINE uint32_t width() const
+        {
+            return m_width;
+        }
 
-    private:
-        uint32_t m_width;
-        uint32_t m_height;
-    };
-
-    class WindowFramebufferResizeEvent
-    {
-    public:
-        WindowFramebufferResizeEvent(uint32_t width, uint32_t height);
-
-        uint32_t width() const;
-        uint32_t height() const;
+        [[nodiscard]] HE_FORCE_INLINE uint32_t height() const
+        {
+            return m_height;
+        }
 
     private:
         uint32_t m_width;

@@ -6,33 +6,45 @@
 
 #include "hyper_platform/input.hpp"
 
-#include <glfw/glfw3.h>
+#include <SDL3/SDL.h>
 
 namespace hyper_platform
 {
-    Input::Input(Window &window)
-        : m_window(window)
+    std::unordered_map<KeyCode, bool> Input::s_keys;
+
+    void Input::initialize(hyper_event::EventBus &event_bus)
     {
+        event_bus.subscribe<KeyPressEvent>(Input::on_key_press);
+        event_bus.subscribe<KeyReleaseEvent>(Input::on_key_release);
     }
 
-    bool Input::is_key_pressed(KeyCode key_code) const
+    bool Input::is_key_pressed(const KeyCode key_code)
     {
-        const int32_t state = glfwGetKey(m_window.native_window(), static_cast<int32_t>(key_code));
-        return state == GLFW_PRESS;
+        return s_keys[key_code];
     }
 
-    bool Input::is_mouse_button_pressed(MouseCode mouse_code) const
+    bool Input::is_mouse_button_pressed(const MouseCode mouse_code)
     {
-        const int32_t state = glfwGetMouseButton(m_window.native_window(), static_cast<int32_t>(mouse_code));
-        return state == GLFW_PRESS;
+        const SDL_MouseButtonFlags mouse_button_flags = SDL_GetMouseState(nullptr, nullptr);
+        return (mouse_button_flags & SDL_BUTTON_MASK(static_cast<int32_t>(mouse_code))) != 0;
     }
 
-    glm::vec2 Input::mouse_position() const
+    glm::vec2 Input::mouse_position()
     {
-        double x_position = 0.0;
-        double y_position = 0.0;
-        glfwGetCursorPos(m_window.native_window(), &x_position, &y_position);
+        float x = 0.0;
+        float y = 0.0;
+        SDL_GetMouseState(&x, &y);
 
-        return { static_cast<float>(x_position), static_cast<float>(y_position) };
+        return { x, y };
+    }
+
+    void Input::on_key_press(const KeyPressEvent &event)
+    {
+        s_keys[event.key_code()] = true;
+    }
+
+    void Input::on_key_release(const KeyReleaseEvent &event)
+    {
+        s_keys[event.key_code()] = false;
     }
 } // namespace hyper_platform

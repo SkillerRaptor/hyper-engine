@@ -6,13 +6,14 @@
 
 #include "hyper_platform/window.hpp"
 
-#include <GLFW/glfw3.h>
+#include <SDL3/SDL.h>
 
 #include <hyper_core/assertion.hpp>
 #include <hyper_core/logger.hpp>
 
 #include "hyper_platform/key_events.hpp"
 #include "hyper_platform/mouse_events.hpp"
+#include "hyper_platform/sdl_event.hpp"
 #include "hyper_platform/window_events.hpp"
 
 namespace hyper_platform
@@ -20,133 +21,86 @@ namespace hyper_platform
     Window::Window(const WindowDescriptor &descriptor)
         : m_native_window(nullptr)
     {
-        glfwInit();
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        HE_ASSERT(SDL_Init(SDL_INIT_VIDEO));
 
-        m_native_window =
-            glfwCreateWindow(static_cast<int>(descriptor.width), static_cast<int>(descriptor.height), descriptor.title.data(), nullptr, nullptr);
+        // NOTE: Should Vulkan flag be passed on a DX12 context?
+        m_native_window = SDL_CreateWindow(
+            descriptor.title.data(),
+            static_cast<int>(descriptor.width),
+            static_cast<int>(descriptor.height),
+            SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_VULKAN);
         HE_ASSERT(m_native_window);
-
-        glfwSetWindowUserPointer(m_native_window, &descriptor.event_bus);
-
-        glfwSetWindowSizeCallback(
-            m_native_window,
-            [](GLFWwindow *window, const int width, const int height)
-            {
-                hyper_event::EventBus &event_bus = *static_cast<hyper_event::EventBus *>(glfwGetWindowUserPointer(window));
-                event_bus.dispatch(hyper_platform::WindowResizeEvent(static_cast<uint32_t>(width), static_cast<uint32_t>(height)));
-            });
-
-        glfwSetFramebufferSizeCallback(
-            m_native_window,
-            [](GLFWwindow *window, const int width, const int height)
-            {
-                hyper_event::EventBus &event_bus = *static_cast<hyper_event::EventBus *>(glfwGetWindowUserPointer(window));
-                event_bus.dispatch(hyper_platform::WindowFramebufferResizeEvent(static_cast<uint32_t>(width), static_cast<uint32_t>(height)));
-            });
-
-        glfwSetWindowCloseCallback(
-            m_native_window,
-            [](GLFWwindow *window)
-            {
-                hyper_event::EventBus &event_bus = *static_cast<hyper_event::EventBus *>(glfwGetWindowUserPointer(window));
-                event_bus.dispatch(hyper_platform::WindowCloseEvent());
-            });
-
-        glfwSetKeyCallback(
-            m_native_window,
-            [](GLFWwindow *window, const int key, const int, const int action, const int)
-            {
-                hyper_event::EventBus &event_bus = *static_cast<hyper_event::EventBus *>(glfwGetWindowUserPointer(window));
-
-                switch (action)
-                {
-                case GLFW_PRESS:
-                    event_bus.dispatch(hyper_platform::KeyPressedEvent(static_cast<KeyCode>(key)));
-                    break;
-                case GLFW_RELEASE:
-                    event_bus.dispatch(hyper_platform::KeyReleasedEvent(static_cast<KeyCode>(key)));
-                    break;
-                default:
-                    break;
-                }
-            });
-
-        glfwSetMouseButtonCallback(
-            m_native_window,
-            [](GLFWwindow *window, const int button, const int action, const int)
-            {
-                hyper_event::EventBus &event_bus = *static_cast<hyper_event::EventBus *>(glfwGetWindowUserPointer(window));
-
-                switch (action)
-                {
-                case GLFW_PRESS:
-                    event_bus.dispatch(hyper_platform::MouseButtonPressedEvent(static_cast<MouseCode>(button)));
-                    break;
-                case GLFW_RELEASE:
-                    event_bus.dispatch(hyper_platform::MouseButtonReleasedEvent(static_cast<MouseCode>(button)));
-                    break;
-                default:
-                    break;
-                }
-            });
-
-        glfwSetScrollCallback(
-            m_native_window,
-            [](GLFWwindow *window, const double delta_x, const double delta_y)
-            {
-                hyper_event::EventBus &event_bus = *static_cast<hyper_event::EventBus *>(glfwGetWindowUserPointer(window));
-                event_bus.dispatch(hyper_platform::MouseScrolledEvent(static_cast<float>(delta_x), static_cast<float>(delta_y)));
-            });
-
-        glfwSetCursorPosCallback(
-            m_native_window,
-            [](GLFWwindow *window, const double x, const double y)
-            {
-                hyper_event::EventBus &event_bus = *static_cast<hyper_event::EventBus *>(glfwGetWindowUserPointer(window));
-                event_bus.dispatch(hyper_platform::MouseMovedEvent(static_cast<float>(x), static_cast<float>(y)));
-            });
-
-        // TODO: Add functionality to switch especially for editor/game mode
-        // glfwSetInputMode(m_native_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         HE_INFO("Created Window with title '{}' and size {}x{}", descriptor.title, descriptor.width, descriptor.height);
     }
 
     Window::~Window()
     {
-        glfwDestroyWindow(m_native_window);
-        glfwTerminate();
+        SDL_DestroyWindow(m_native_window);
+        SDL_Quit();
     }
 
     uint32_t Window::width() const
     {
-        int32_t width = 0;
-        glfwGetFramebufferSize(m_native_window, &width, nullptr);
-
+        int width = 0;
+        SDL_GetWindowSize(m_native_window, &width, nullptr);
         return static_cast<uint32_t>(width);
     }
 
     uint32_t Window::height() const
     {
-        int32_t height = 0;
-        glfwGetFramebufferSize(m_native_window, nullptr, &height);
-
+        int height = 0;
+        SDL_GetWindowSize(m_native_window, nullptr, &height);
         return static_cast<uint32_t>(height);
     }
 
-    GLFWwindow *Window::native_window() const
+    void Window::process_events(hyper_event::EventBus &event_bus)
     {
-        return m_native_window;
-    }
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+            event_bus.dispatch<SdlEvent>(event);
 
-    void Window::poll_events()
-    {
-        glfwPollEvents();
+            switch (event.type)
+            {
+            // NOTE: Window Events
+            case SDL_EVENT_QUIT:
+                event_bus.dispatch<WindowCloseEvent>();
+                break;
+            case SDL_EVENT_WINDOW_MOVED:
+                event_bus.dispatch<WindowMoveEvent>(event.window.data1, event.window.data2);
+                break;
+            case SDL_EVENT_WINDOW_RESIZED:
+                event_bus.dispatch<WindowResizeEvent>(event.window.data1, event.window.data2);
+                break;
+            // NOTE: Key Events
+            case SDL_EVENT_KEY_DOWN:
+                event_bus.dispatch<KeyPressEvent>(static_cast<KeyCode>(event.key.key));
+                break;
+            case SDL_EVENT_KEY_UP:
+                event_bus.dispatch<KeyReleaseEvent>(static_cast<KeyCode>(event.key.key));
+                break;
+            // NOTE: Mouse Events
+            case SDL_EVENT_MOUSE_MOTION:
+                event_bus.dispatch<MouseMoveEvent>(event.motion.x, event.motion.y);
+                break;
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
+                event_bus.dispatch<MouseButtonPressEvent>(static_cast<MouseCode>(event.button.button));
+                break;
+            case SDL_EVENT_MOUSE_BUTTON_UP:
+                event_bus.dispatch<MouseButtonReleaseEvent>(static_cast<MouseCode>(event.button.button));
+                break;
+            case SDL_EVENT_MOUSE_WHEEL:
+                event_bus.dispatch<MouseScrollEvent>(event.wheel.x, event.wheel.y);
+                break;
+            default:
+                break;
+            }
+        }
     }
 
     void Window::wait_events()
     {
-        glfwWaitEvents();
+        SDL_WaitEvent(nullptr);
     }
 } // namespace hyper_platform

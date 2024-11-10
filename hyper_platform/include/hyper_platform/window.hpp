@@ -8,9 +8,10 @@
 
 #include <string_view>
 
+#include <hyper_core/prerequisites.hpp>
 #include <hyper_event/event_bus.hpp>
 
-struct GLFWwindow;
+struct SDL_Window;
 
 namespace hyper_platform
 {
@@ -19,7 +20,6 @@ namespace hyper_platform
         std::string_view title;
         uint32_t width;
         uint32_t height;
-        hyper_event::EventBus &event_bus;
     };
 
     class Window
@@ -30,12 +30,16 @@ namespace hyper_platform
 
         [[nodiscard]] uint32_t width() const;
         [[nodiscard]] uint32_t height() const;
-        [[nodiscard]] GLFWwindow *native_window() const;
 
-        static void poll_events();
+        [[nodiscard]] HE_FORCE_INLINE SDL_Window *native_window() const
+        {
+            return m_native_window;
+        }
+
+        static void process_events(hyper_event::EventBus &event_bus);
         static void wait_events();
 
     private:
-        GLFWwindow *m_native_window;
+        SDL_Window *m_native_window;
     };
 } // namespace hyper_platform

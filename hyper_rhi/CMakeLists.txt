@@ -61,14 +61,12 @@ set(HEADERS
 if (WIN32)
     set(SOURCES
             ${SOURCES}
-            src/hyper_rhi/d3d12/d3d12_graphics_device.cpp
-            src/hyper_rhi/d3d12/d3d12_surface.cpp)
+            src/hyper_rhi/d3d12/d3d12_graphics_device.cpp)
 
     set(HEADERS
             ${HEADERS}
             include/hyper_rhi/d3d12/d3d12_common.hpp
-            include/hyper_rhi/d3d12/d3d12_graphics_device.hpp
-            include/hyper_rhi/d3d12/d3d12_surface.hpp)
+            include/hyper_rhi/d3d12/d3d12_graphics_device.hpp)
 endif ()
 
 hyperengine_define_library(hyper_rhi)
@@ -79,8 +77,8 @@ target_link_libraries(
         hyper_platform
         DirectXShaderCompiler
         fmt
-        glfw
         imgui
+        SDL3::SDL3
         volk
         VulkanMemoryAllocator)
 

@@ -25,7 +25,7 @@ namespace hyper_render
         Camera(glm::vec3 position, float yaw, float pitch);
 
         void process_keyboard(Movement movement, float delta_time);
-        void process_mouse_movement(float x_position, float y_position, bool middle_mouse);
+        void process_mouse_movement(float x_position, float y_position);
         void process_mouse_scroll(float y_offset);
 
         void set_aspect_ratio(float aspect_ratio);

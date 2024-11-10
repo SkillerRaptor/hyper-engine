@@ -8,8 +8,6 @@
 
 #include <hyper_core/prerequisites.hpp>
 
-#include "hyper_rhi/d3d12/d3d12_surface.hpp"
-
 namespace hyper_rhi
 {
     D3D12GraphicsDevice::D3D12GraphicsDevice(const GraphicsDeviceDescriptor &descriptor)
@@ -42,7 +40,9 @@ namespace hyper_rhi
 
     std::shared_ptr<Surface> D3D12GraphicsDevice::create_surface(const hyper_platform::Window &window)
     {
-        return std::make_shared<D3D12Surface>(*this, window);
+        HE_UNUSED(window);
+
+        HE_UNREACHABLE();
     }
 
     std::shared_ptr<Buffer> D3D12GraphicsDevice::create_buffer(const BufferDescriptor &descriptor)

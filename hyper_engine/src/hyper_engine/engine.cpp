@@ -22,9 +22,7 @@ namespace hyper_engine
               .title = "HyperEngine",
               .width = descriptor.width,
               .height = descriptor.height,
-              .event_bus = m_event_bus,
           })
-        , m_input(m_window)
         , m_graphics_device(hyper_rhi::GraphicsDevice::create({
               .graphics_api = descriptor.graphics_api,
               .debug_validation = descriptor.debug_validation,
@@ -35,12 +33,13 @@ namespace hyper_engine
         , m_renderer(
               m_event_bus,
               m_window,
-              m_input,
               {
                   .graphics_device = m_graphics_device,
                   .surface = m_surface,
               })
     {
+        hyper_platform::Input::initialize(m_event_bus);
+
         m_event_bus.subscribe<hyper_platform::WindowCloseEvent>(HE_BIND_FUNCTION(Engine::on_close));
         m_event_bus.subscribe<hyper_platform::WindowResizeEvent>(HE_BIND_FUNCTION(Engine::on_resize));
 
@@ -68,7 +67,7 @@ namespace hyper_engine
 
             accumulator += frame_time;
 
-            hyper_platform::Window::poll_events();
+            hyper_platform::Window::process_events(m_event_bus);
 
             while (m_window.width() == 0 || m_window.height() == 0)
             {

@@ -8,7 +8,7 @@
 
 #include <volk.h>
 
-#include <imgui_impl_glfw.h>
+#include <imgui_impl_sdl3.h>
 #include <imgui_impl_vulkan.h>
 
 #include "hyper_rhi/vulkan/vulkan_command_list.hpp"
@@ -51,7 +51,7 @@ namespace hyper_rhi
         const Format format = surface->format();
         const VkFormat vk_format = VulkanTexture::get_format(format);
 
-        ImGui_ImplGlfw_InitForVulkan(window.native_window(), true);
+        ImGui_ImplSDL3_InitForVulkan(window.native_window());
 
         ImGui_ImplVulkan_InitInfo init_info = {
             .Instance = m_graphics_device.instance(),

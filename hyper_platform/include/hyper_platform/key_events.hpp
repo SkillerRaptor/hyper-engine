@@ -6,27 +6,41 @@
 
 #pragma once
 
+#include <hyper_core/prerequisites.hpp>
+
 #include "hyper_platform/key_codes.hpp"
 
 namespace hyper_platform
 {
-    class KeyPressedEvent
+    class KeyPressEvent
     {
     public:
-        explicit KeyPressedEvent(KeyCode key_code);
+        explicit KeyPressEvent(const KeyCode key_code)
+            : m_key_code(key_code)
+        {
+        }
 
-        [[nodiscard]] KeyCode key_code() const;
+        [[nodiscard]] HE_FORCE_INLINE KeyCode key_code() const
+        {
+            return m_key_code;
+        }
 
     private:
         KeyCode m_key_code;
     };
 
-    class KeyReleasedEvent
+    class KeyReleaseEvent
     {
     public:
-        explicit KeyReleasedEvent(KeyCode key_code);
+        explicit KeyReleaseEvent(const KeyCode key_code)
+            : m_key_code(key_code)
+        {
+        }
 
-        [[nodiscard]] KeyCode key_code() const;
+        [[nodiscard]] HE_FORCE_INLINE KeyCode key_code() const
+        {
+            return m_key_code;
+        }
 
     private:
         KeyCode m_key_code;

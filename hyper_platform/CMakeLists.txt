@@ -5,9 +5,6 @@
 #-------------------------------------------------------------------------------------------
 set(SOURCES
         src/hyper_platform/input.cpp
-        src/hyper_platform/key_events.cpp
-        src/hyper_platform/mouse_events.cpp
-        src/hyper_platform/window_events.cpp
         src/hyper_platform/window.cpp)
 
 set(HEADERS
@@ -16,8 +13,9 @@ set(HEADERS
         include/hyper_platform/key_events.hpp
         include/hyper_platform/mouse_codes.hpp
         include/hyper_platform/mouse_events.hpp
-        include/hyper_platform/window_events.hpp
-        include/hyper_platform/window.hpp)
+        include/hyper_platform/sdl_event.hpp
+        include/hyper_platform/window.hpp
+        include/hyper_platform/window_events.hpp)
 
 hyperengine_define_library(hyper_platform)
 target_link_libraries(
@@ -25,6 +23,6 @@ target_link_libraries(
         PUBLIC
         hyper_core
         hyper_event
-        glfw
-        glm)
+        glm
+        SDL3::SDL3)
 

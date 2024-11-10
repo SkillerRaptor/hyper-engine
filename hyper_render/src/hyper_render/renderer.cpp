@@ -10,6 +10,7 @@
 
 #include <hyper_core/logger.hpp>
 #include <hyper_core/prerequisites.hpp>
+#include <hyper_platform/input.hpp>
 
 #include "hyper_render/material.hpp"
 
@@ -17,13 +18,8 @@
 
 namespace hyper_render
 {
-    Renderer::Renderer(
-        hyper_event::EventBus &event_bus,
-        const hyper_platform::Window &window,
-        const hyper_platform::Input &input,
-        const RendererDescriptor &descriptor)
-        : m_input(input)
-        , m_graphics_device(descriptor.graphics_device)
+    Renderer::Renderer(hyper_event::EventBus &event_bus, const hyper_platform::Window &window, const RendererDescriptor &descriptor)
+        : m_graphics_device(descriptor.graphics_device)
         , m_surface(descriptor.surface)
         , m_shader_compiler()
         , m_command_list(m_graphics_device->create_command_list())
@@ -187,8 +183,8 @@ namespace hyper_render
         , m_frame_index(1)
     {
         event_bus.subscribe<hyper_platform::WindowResizeEvent>(HE_BIND_FUNCTION(Renderer::on_resize));
-        event_bus.subscribe<hyper_platform::MouseMovedEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_move));
-        event_bus.subscribe<hyper_platform::MouseScrolledEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_scroll));
+        event_bus.subscribe<hyper_platform::MouseMoveEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_move));
+        event_bus.subscribe<hyper_platform::MouseScrollEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_scroll));
 
         const GltfMetallicRoughness::MaterialResources material_resources = {
             .color_factors = glm::vec4(1.0, 1.0, 1.0, 1.0),
@@ -320,29 +316,29 @@ namespace hyper_render
         m_grid_pass = std::make_unique<GridPass>(
             m_graphics_device, m_shader_compiler, m_render_texture, m_render_texture_view, m_depth_texture, m_depth_texture_view);
 
-        m_imgui_pass = std::make_unique<ImGuiPass>(window, m_graphics_device, m_surface);
+        m_imgui_pass = std::make_unique<ImGuiPass>(event_bus, window, m_graphics_device, m_surface);
 
         HE_INFO("Created Renderer");
     }
 
     void Renderer::update(const float delta_time)
     {
-        if (m_input.is_key_pressed(hyper_platform::KeyCode::W))
+        if (hyper_platform::Input::is_key_pressed(hyper_platform::KeyCode::W))
         {
             m_editor_camera.process_keyboard(Camera::Movement::Forward, delta_time);
         }
 
-        if (m_input.is_key_pressed(hyper_platform::KeyCode::S))
+        if (hyper_platform::Input::is_key_pressed(hyper_platform::KeyCode::S))
         {
             m_editor_camera.process_keyboard(Camera::Movement::Backward, delta_time);
         }
 
-        if (m_input.is_key_pressed(hyper_platform::KeyCode::A))
+        if (hyper_platform::Input::is_key_pressed(hyper_platform::KeyCode::A))
         {
             m_editor_camera.process_keyboard(Camera::Movement::Left, delta_time);
         }
 
-        if (m_input.is_key_pressed(hyper_platform::KeyCode::D))
+        if (hyper_platform::Input::is_key_pressed(hyper_platform::KeyCode::D))
         {
             m_editor_camera.process_keyboard(Camera::Movement::Right, delta_time);
         }
@@ -663,12 +659,12 @@ namespace hyper_render
         this->create_textures(event.width(), event.height());
     }
 
-    void Renderer::on_mouse_move(const hyper_platform::MouseMovedEvent &event)
+    void Renderer::on_mouse_move(const hyper_platform::MouseMoveEvent &event)
     {
-        m_editor_camera.process_mouse_movement(event.x(), event.y(), m_input.is_mouse_button_pressed(hyper_platform::MouseCode::ButtonMiddle));
+        m_editor_camera.process_mouse_movement(event.x(), event.y());
     }
 
-    void Renderer::on_mouse_scroll(const hyper_platform::MouseScrolledEvent &event)
+    void Renderer::on_mouse_scroll(const hyper_platform::MouseScrollEvent &event)
     {
         m_editor_camera.process_mouse_scroll(event.delta_y());
     }

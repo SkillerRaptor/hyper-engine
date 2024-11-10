@@ -11,7 +11,7 @@
 #include <set>
 #include <vector>
 
-#include <GLFW/glfw3.h>
+#include <SDL3/SDL_vulkan.h>
 
 #define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>
@@ -528,7 +528,7 @@ namespace hyper_rhi
         const char *const *layers = m_debug_validation ? g_validation_layers.data() : nullptr;
 
         uint32_t required_extension_count = 0;
-        const char *const *required_extensions = glfwGetRequiredInstanceExtensions(&required_extension_count);
+        const char *const *required_extensions = SDL_Vulkan_GetInstanceExtensions(&required_extension_count);
 
         std::vector<const char *> extensions(required_extensions, required_extensions + required_extension_count);
         if (m_debug_validation)
@@ -696,7 +696,7 @@ namespace hyper_rhi
         for (const VkQueueFamilyProperties &queue_family : queue_families)
         {
             const bool graphics_supported = queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT;
-            const bool present_supported = glfwGetPhysicalDevicePresentationSupport(m_instance, physical_device, index);
+            const bool present_supported = SDL_Vulkan_GetPresentationSupport(m_instance, physical_device, index);
 
             if (graphics_supported && present_supported)
             {

@@ -6,11 +6,11 @@
 
 #include "hyper_rhi/vulkan/vulkan_surface.hpp"
 
-#include "hyper_rhi/vulkan/vulkan_texture.hpp"
-
 #include <algorithm>
 
-#include <GLFW/glfw3.h>
+#include <SDL3/SDL_vulkan.h>
+
+#include "hyper_rhi/vulkan/vulkan_texture.hpp"
 
 namespace hyper_rhi
 {
@@ -52,7 +52,7 @@ namespace hyper_rhi
 
     void VulkanSurface::create_surface(const hyper_platform::Window &window)
     {
-        HE_VK_CHECK(glfwCreateWindowSurface(m_graphics_device.instance(), window.native_window(), nullptr, &m_surface));
+        HE_ASSERT(SDL_Vulkan_CreateSurface(window.native_window(), m_graphics_device.instance(), nullptr, &m_surface));
         HE_ASSERT(m_surface != VK_NULL_HANDLE);
 
         HE_TRACE("Created Surface");
