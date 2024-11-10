@@ -21,17 +21,9 @@ namespace hyper_render
         ImGuiIO &io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
 
         ImGui::StyleColorsDark();
-
-        ImGuiStyle &style = ImGui::GetStyle();
-        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
-            style.WindowRounding = 0.0f;
-            style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-        }
 
         m_imgui_manager->initialize(window, surface);
     }
@@ -55,8 +47,7 @@ namespace hyper_render
 
         ImGui::Render();
 
-        {
-            const std::shared_ptr<hyper_rhi::RenderPass> render_pass = command_list->begin_render_pass({
+        const std::shared_ptr<hyper_rhi::RenderPass> render_pass = command_list->begin_render_pass({
             .label = "ImGui",
             .label_color =
                 hyper_rhi::LabelColor{
@@ -85,10 +76,6 @@ namespace hyper_render
                 },
             });
 
-            m_imgui_manager->render(command_list);
-        }
-
-        ImGui::UpdatePlatformWindows();
-        ImGui::RenderPlatformWindowsDefault();
+        m_imgui_manager->render(command_list);
     }
 } // namespace hyper_render
