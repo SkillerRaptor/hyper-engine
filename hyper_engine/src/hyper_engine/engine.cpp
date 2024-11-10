@@ -34,6 +34,7 @@ namespace hyper_engine
         , m_surface(m_graphics_device->create_surface(m_window))
         , m_renderer(
               m_event_bus,
+              m_window,
               m_input,
               {
                   .graphics_device = m_graphics_device,

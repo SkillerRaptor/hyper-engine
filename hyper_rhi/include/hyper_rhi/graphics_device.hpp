@@ -11,6 +11,7 @@
 #include "hyper_rhi/buffer.hpp"
 #include "hyper_rhi/command_list.hpp"
 #include "hyper_rhi/compute_pipeline.hpp"
+#include "hyper_rhi/imgui_manager.hpp"
 #include "hyper_rhi/pipeline_layout.hpp"
 #include "hyper_rhi/render_pipeline.hpp"
 #include "hyper_rhi/shader_module.hpp"
@@ -44,9 +45,9 @@ namespace hyper_rhi
     public:
         explicit GraphicsDevice(const GraphicsDeviceDescriptor &descriptor)
             : m_graphics_api(descriptor.graphics_api)
-              , m_debug_validation(descriptor.debug_validation)
-              , m_debug_label(descriptor.debug_label)
-              , m_debug_marker(descriptor.debug_marker)
+            , m_debug_validation(descriptor.debug_validation)
+            , m_debug_label(descriptor.debug_label)
+            , m_debug_marker(descriptor.debug_marker)
         {
         }
 
@@ -64,6 +65,8 @@ namespace hyper_rhi
         [[nodiscard]] virtual std::shared_ptr<ShaderModule> create_shader_module(const ShaderModuleDescriptor &descriptor) = 0;
         [[nodiscard]] virtual std::shared_ptr<Texture> create_texture(const TextureDescriptor &descriptor) = 0;
         [[nodiscard]] virtual std::shared_ptr<TextureView> create_texture_view(const TextureViewDescriptor &descriptor) = 0;
+
+        [[nodiscard]] virtual std::shared_ptr<ImGuiManager> create_imgui_manager() = 0;
 
         virtual void begin_frame(const std::shared_ptr<Surface> &surface, uint32_t frame_index) = 0;
         virtual void end_frame() const = 0;

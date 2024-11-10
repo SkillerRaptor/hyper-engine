@@ -24,7 +24,27 @@ namespace hyper_rhi
         HE_INFO("Created D3D12 Surface");
     }
 
+    uint32_t D3D12Surface::min_image_count() const
+    {
+        HE_UNREACHABLE();
+    }
+
+    uint32_t D3D12Surface::image_count() const
+    {
+        HE_UNREACHABLE();
+    }
+
+    Format D3D12Surface::format() const
+    {
+        HE_UNREACHABLE();
+    }
+
     std::shared_ptr<Texture> D3D12Surface::current_texture() const
+    {
+        HE_UNREACHABLE();
+    }
+
+    std::shared_ptr<TextureView> D3D12Surface::current_texture_view() const
     {
         HE_UNREACHABLE();
     }

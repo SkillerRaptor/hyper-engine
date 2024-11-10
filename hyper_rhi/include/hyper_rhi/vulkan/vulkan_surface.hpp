@@ -11,6 +11,7 @@
 #include "hyper_rhi/surface.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
+#include "hyper_rhi/vulkan/vulkan_texture.hpp"
 
 namespace hyper_rhi
 {
@@ -37,9 +38,29 @@ namespace hyper_rhi
             return m_texture_index;
         }
 
+        [[nodiscard]] HE_FORCE_INLINE uint32_t min_image_count() const override
+        {
+            return m_min_image_count;
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE uint32_t image_count() const override
+        {
+            return m_image_count;
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE Format format() const override
+        {
+            return VulkanTexture::format_to_texture_format(m_format);
+        }
+
         [[nodiscard]] HE_FORCE_INLINE std::shared_ptr<Texture> current_texture() const override
         {
             return m_textures[m_texture_index];
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE std::shared_ptr<TextureView> current_texture_view() const override
+        {
+            return m_texture_views[m_texture_index];
         }
 
     private:
@@ -57,6 +78,8 @@ namespace hyper_rhi
 
         VkSurfaceKHR m_surface;
         VkSwapchainKHR m_swapchain;
+        uint32_t m_min_image_count;
+        uint32_t m_image_count;
         VkFormat m_format;
 
         uint32_t m_texture_index;

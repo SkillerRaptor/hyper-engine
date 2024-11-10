@@ -108,7 +108,7 @@ namespace hyper_platform
             });
 
         // TODO: Add functionality to switch especially for editor/game mode
-        glfwSetInputMode(m_native_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        // glfwSetInputMode(m_native_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         HE_INFO("Created Window with title '{}' and size {}x{}", descriptor.title, descriptor.width, descriptor.height);
     }

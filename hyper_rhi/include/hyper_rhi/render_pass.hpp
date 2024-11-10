@@ -23,7 +23,7 @@ namespace hyper_rhi
         DontCare,
     };
 
-    enum class StoreOperation: uint8_t
+    enum class StoreOperation : uint8_t
     {
         Store,
         DontCare,
@@ -71,12 +71,9 @@ namespace hyper_rhi
         virtual void set_viewport(float x, float y, float width, float height, float min_depth, float max_depth) const = 0;
 
         virtual void draw(uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance) const = 0;
-        virtual void draw_indexed(
-            uint32_t index_count,
-            uint32_t instance_count,
-            uint32_t first_index,
-            int32_t vertex_offset,
-            uint32_t first_instance) const = 0;
+        virtual void
+            draw_indexed(uint32_t index_count, uint32_t instance_count, uint32_t first_index, int32_t vertex_offset, uint32_t first_instance)
+                const = 0;
 
         // TODO: Add indirect
 
@@ -93,9 +90,10 @@ namespace hyper_rhi
     protected:
         explicit RenderPass(const RenderPassDescriptor &descriptor)
             : Pass(descriptor.label, descriptor.label_color)
-              , m_color_attachments(descriptor.color_attachments)
-              , m_depth_stencil_attachment(descriptor.depth_stencil_attachment)
+            , m_color_attachments(descriptor.color_attachments)
+            , m_depth_stencil_attachment(descriptor.depth_stencil_attachment)
         {
+            HE_ASSERT(!m_color_attachments.empty());
         }
 
     protected:

@@ -20,6 +20,7 @@
 
 #include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 #include "hyper_rhi/vulkan/vulkan_command_list.hpp"
+#include "hyper_rhi/vulkan/vulkan_imgui_manager.hpp"
 #include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
 #include "hyper_rhi/vulkan/vulkan_render_pipeline.hpp"
 #include "hyper_rhi/vulkan/vulkan_sampler.hpp"
@@ -34,8 +35,9 @@ namespace hyper_rhi
         "VK_LAYER_KHRONOS_validation",
     };
 
-    static constexpr std::array<const char *, 1> g_device_extensions = {
+    static constexpr std::array<const char *, 2> g_device_extensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+        VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
     };
 
     VulkanGraphicsDevice::VulkanGraphicsDevice(const GraphicsDeviceDescriptor &descriptor)
@@ -172,6 +174,11 @@ namespace hyper_rhi
     std::shared_ptr<TextureView> VulkanGraphicsDevice::create_texture_view(const TextureViewDescriptor &descriptor)
     {
         return std::make_shared<VulkanTextureView>(*this, descriptor);
+    }
+
+    std::shared_ptr<ImGuiManager> VulkanGraphicsDevice::create_imgui_manager()
+    {
+        return std::make_shared<VulkanImGuiManager>(*this);
     }
 
     void VulkanGraphicsDevice::begin_marker(

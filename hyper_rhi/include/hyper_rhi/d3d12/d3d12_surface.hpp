@@ -17,7 +17,13 @@ namespace hyper_rhi
     public:
         D3D12Surface(D3D12GraphicsDevice &graphics_device, const hyper_platform::Window &window);
 
+        [[nodiscard]] uint32_t min_image_count() const override;
+        [[nodiscard]] uint32_t image_count() const override;
+
+        [[nodiscard]] Format format() const override;
+
         [[nodiscard]] std::shared_ptr<Texture> current_texture() const override;
+        [[nodiscard]] std::shared_ptr<TextureView> current_texture_view() const override;
 
     private:
         void create_swapchain(const hyper_platform::Window &window);

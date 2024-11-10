@@ -29,6 +29,8 @@ namespace hyper_rhi
         std::shared_ptr<Texture> create_texture(const TextureDescriptor &descriptor) override;
         std::shared_ptr<TextureView> create_texture_view(const TextureViewDescriptor &descriptor) override;
 
+        std::shared_ptr<ImGuiManager> create_imgui_manager() override;
+
         void begin_frame(const std::shared_ptr<Surface> &surface, uint32_t frame_index) override;
         void end_frame() const override;
         void execute(const std::shared_ptr<CommandList> &command_list) override;

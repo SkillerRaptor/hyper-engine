@@ -17,6 +17,7 @@
 #include "hyper_render/camera.hpp"
 #include "hyper_render/renderable.hpp"
 #include "hyper_render/render_passes/grid_pass.hpp"
+#include "hyper_render/render_passes/imgui_pass.hpp"
 #include "hyper_render/render_passes/opaque_pass.hpp"
 
 namespace hyper_render
@@ -30,7 +31,11 @@ namespace hyper_render
     class Renderer
     {
     public:
-        Renderer(hyper_event::EventBus &event_bus, const hyper_platform::Input &input, const RendererDescriptor &descriptor);
+        Renderer(
+            hyper_event::EventBus &event_bus,
+            const hyper_platform::Window &window,
+            const hyper_platform::Input &input,
+            const RendererDescriptor &descriptor);
 
         // NOTE: This shouldn't be in the renderer
         void update(float delta_time);
@@ -77,6 +82,7 @@ namespace hyper_render
 
         std::unique_ptr<OpaquePass> m_opaque_pass;
         std::unique_ptr<GridPass> m_grid_pass;
+        std::unique_ptr<ImGuiPass> m_imgui_pass;
 
         uint32_t m_frame_index;
     };

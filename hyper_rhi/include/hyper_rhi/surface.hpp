@@ -21,7 +21,13 @@ namespace hyper_rhi
     public:
         virtual ~Surface() = default;
 
+        [[nodiscard]] virtual uint32_t min_image_count() const = 0;
+        [[nodiscard]] virtual uint32_t image_count() const = 0;
+
+        [[nodiscard]] virtual Format format() const = 0;
+
         [[nodiscard]] virtual std::shared_ptr<Texture> current_texture() const = 0;
+        [[nodiscard]] virtual std::shared_ptr<TextureView> current_texture_view() const = 0;
 
         HE_FORCE_INLINE void resize(const uint32_t width, const uint32_t height)
         {

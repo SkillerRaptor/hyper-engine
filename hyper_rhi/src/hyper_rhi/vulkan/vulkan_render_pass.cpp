@@ -79,12 +79,13 @@ namespace hyper_rhi
             },
         };
 
-        const auto &depth_attachment_view = std::dynamic_pointer_cast<VulkanTextureView>(m_depth_stencil_attachment.view);
+        const auto &depth_attachment_view =
+            m_depth_stencil_attachment.view == nullptr ? nullptr : std::dynamic_pointer_cast<VulkanTextureView>(m_depth_stencil_attachment.view);
 
         const VkRenderingAttachmentInfo depth_attachment_info = {
             .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
             .pNext = nullptr,
-            .imageView = depth_attachment_view->image_view(),
+            .imageView = depth_attachment_view == nullptr ? VK_NULL_HANDLE : depth_attachment_view->image_view(),
             .imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
             .resolveMode = VK_RESOLVE_MODE_NONE,
             .resolveImageView = VK_NULL_HANDLE,
@@ -103,7 +104,7 @@ namespace hyper_rhi
             .viewMask = 0,
             .colorAttachmentCount = static_cast<uint32_t>(color_attachments.size()),
             .pColorAttachments = color_attachments.data(),
-            .pDepthAttachment = &depth_attachment_info,
+            .pDepthAttachment = depth_attachment_view == nullptr ? nullptr : &depth_attachment_info,
             .pStencilAttachment = nullptr,
         };
 

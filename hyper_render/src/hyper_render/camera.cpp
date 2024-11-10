@@ -52,7 +52,7 @@ namespace hyper_render
         }
     }
 
-    void Camera::process_mouse_movement(const float x_position, const float y_position)
+    void Camera::process_mouse_movement(const float x_position, const float y_position, const bool middle_mouse)
     {
         if (m_first_mouse)
         {
@@ -66,6 +66,11 @@ namespace hyper_render
 
         m_last_x = x_position;
         m_last_y = y_position;
+
+        if (!middle_mouse)
+        {
+            return;
+        }
 
         m_yaw += x_offset;
         m_pitch += y_offset;

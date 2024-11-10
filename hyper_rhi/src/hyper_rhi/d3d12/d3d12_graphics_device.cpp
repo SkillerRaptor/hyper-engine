@@ -14,11 +14,11 @@ namespace hyper_rhi
 {
     D3D12GraphicsDevice::D3D12GraphicsDevice(const GraphicsDeviceDescriptor &descriptor)
         : GraphicsDevice(descriptor)
-          , m_factory(nullptr)
-          , m_adapter(nullptr)
-          , m_device(nullptr)
-          , m_command_queue(nullptr)
-          , m_allocator(nullptr)
+        , m_factory(nullptr)
+        , m_adapter(nullptr)
+        , m_device(nullptr)
+        , m_command_queue(nullptr)
+        , m_allocator(nullptr)
     {
         if (m_debug_validation)
         {
@@ -103,6 +103,11 @@ namespace hyper_rhi
     {
         HE_UNUSED(descriptor);
 
+        HE_UNREACHABLE();
+    }
+
+    std::shared_ptr<ImGuiManager> D3D12GraphicsDevice::create_imgui_manager()
+    {
         HE_UNREACHABLE();
     }
 

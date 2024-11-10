@@ -207,7 +207,7 @@ namespace hyper_render
                     .depth = 1,
                     .array_size = 1,
                     .mip_levels = 1,
-                    .format = hyper_rhi::Format::Rgba8Unorm,
+                    .format = hyper_rhi::Format::Rgba8Srgb,
                     .dimension = hyper_rhi::TextureDimension::Texture2D,
                     .usage = hyper_rhi::TextureUsage::ShaderResource,
                 });
@@ -226,7 +226,7 @@ namespace hyper_render
                             .b = hyper_rhi::TextureComponentSwizzle::Identity,
                             .a = hyper_rhi::TextureComponentSwizzle::Identity,
                         },
-                    .format = hyper_rhi::Format::Rgba8Unorm,
+                    .format = hyper_rhi::Format::Rgba8Srgb,
                     .dimension = hyper_rhi::TextureDimension::Texture2D,
                 });
 
@@ -369,7 +369,7 @@ namespace hyper_render
                         positions_attribute,
                         [&](const glm::vec3 value, const size_t index)
                         {
-                            positions[initial_vertex + index] = glm::vec4(value.x, value.y, value.z, 1.0);
+                            positions[initial_vertex + index] = glm::vec4(-value.x, value.y, value.z, 1.0);
                             normals[initial_vertex + index] = glm::vec4(1.0, 0.0, 0.0, 0.0);
                             colors[initial_vertex + index] = glm::vec4(1.0, 1.0, 1.0, 0.0);
                             tex_coords[initial_vertex + index] = glm::vec4(0.0, 0.0, 0.0, 0.0);
@@ -384,7 +384,7 @@ namespace hyper_render
                         asset->accessors[normals_attribute->accessorIndex],
                         [&](const glm::vec3 value, const size_t index)
                         {
-                            normals[initial_vertex + index] = glm::vec4(value.x, value.y, value.z, 0.0);
+                            normals[initial_vertex + index] = glm::vec4(-value.x, value.y, value.z, 0.0);
                         });
                 }
 

@@ -101,6 +101,8 @@ namespace hyper_rhi
         std::shared_ptr<Texture> create_texture(const TextureDescriptor &descriptor) override;
         std::shared_ptr<TextureView> create_texture_view(const TextureViewDescriptor &descriptor) override;
 
+        std::shared_ptr<ImGuiManager> create_imgui_manager() override;
+
         void begin_marker(VkCommandBuffer command_buffer, MarkerType type, std::string_view name, LabelColor color) const;
         void end_marker(VkCommandBuffer command_buffer) const;
 
@@ -127,6 +129,16 @@ namespace hyper_rhi
         [[nodiscard]] HE_FORCE_INLINE VkDevice device() const
         {
             return m_device;
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE uint32_t queue_family() const
+        {
+            return m_queue_family;
+        }
+
+        [[nodiscard]] HE_FORCE_INLINE VkQueue queue() const
+        {
+            return m_queue;
         }
 
         [[nodiscard]] HE_FORCE_INLINE VmaAllocator allocator() const

@@ -17,7 +17,11 @@
 
 namespace hyper_render
 {
-    Renderer::Renderer(hyper_event::EventBus &event_bus, const hyper_platform::Input &input, const RendererDescriptor &descriptor)
+    Renderer::Renderer(
+        hyper_event::EventBus &event_bus,
+        const hyper_platform::Window &window,
+        const hyper_platform::Input &input,
+        const RendererDescriptor &descriptor)
         : m_input(input)
         , m_graphics_device(descriptor.graphics_device)
         , m_surface(descriptor.surface)
@@ -179,6 +183,7 @@ namespace hyper_render
         , m_draw_context()
         , m_opaque_pass(nullptr)
         , m_grid_pass(nullptr)
+        , m_imgui_pass(nullptr)
         , m_frame_index(1)
     {
         event_bus.subscribe<hyper_platform::WindowResizeEvent>(HE_BIND_FUNCTION(Renderer::on_resize));
@@ -315,6 +320,8 @@ namespace hyper_render
         m_grid_pass = std::make_unique<GridPass>(
             m_graphics_device, m_shader_compiler, m_render_texture, m_render_texture_view, m_depth_texture, m_depth_texture_view);
 
+        m_imgui_pass = std::make_unique<ImGuiPass>(window, m_graphics_device, m_surface);
+
         HE_INFO("Created Renderer");
     }
 
@@ -418,6 +425,7 @@ namespace hyper_render
 
         // TODO: Add error if current texture is asked before the frame began
         const std::shared_ptr<hyper_rhi::Texture> swapchain_texture = m_surface->current_texture();
+        const std::shared_ptr<hyper_rhi::TextureView> swapchain_texture_view = m_surface->current_texture_view();
 
         // NOTE: Transitioning the render and swapchain image for transfer
         m_command_list->insert_barriers(
@@ -504,7 +512,7 @@ namespace hyper_render
             },
         });
 
-        // TODO: Draw GUI
+        m_imgui_pass->render(m_command_list, swapchain_texture_view);
 
         m_command_list->insert_barriers(
         {
@@ -528,31 +536,6 @@ namespace hyper_render
                 },
             },
         });
-
-        /*
-        m_command_list->insert_barriers(
-        {
-            .memory_barriers = {},
-            .buffer_memory_barriers = {},
-            .texture_memory_barriers = {
-                hyper_rhi::TextureMemoryBarrier{
-                    .stage_before = hyper_rhi::BarrierPipelineStage::AllTransfer,
-                    .stage_after = hyper_rhi::BarrierPipelineStage::AllCommands,
-                    .access_before = hyper_rhi::BarrierAccess::TransferWrite,
-                    .access_after = hyper_rhi::BarrierAccess::None,
-                    .layout_before = hyper_rhi::BarrierTextureLayout::TransferDst,
-                    .layout_after = hyper_rhi::BarrierTextureLayout::Present,
-                    .texture = swapchain_texture,
-                    .subresource_range = hyper_rhi::TextureBarrierSubresourceRange{
-                        .base_mip_level = 0,
-                        .mip_level_count = 1,
-                        .base_array_level = 0,
-                        .array_layer_count = 1,
-                    },
-                },
-            },
-        });
-        */
 
         m_command_list->end();
 
@@ -682,7 +665,7 @@ namespace hyper_render
 
     void Renderer::on_mouse_move(const hyper_platform::MouseMovedEvent &event)
     {
-        m_editor_camera.process_mouse_movement(event.x(), event.y());
+        m_editor_camera.process_mouse_movement(event.x(), event.y(), m_input.is_mouse_button_pressed(hyper_platform::MouseCode::ButtonMiddle));
     }
 
     void Renderer::on_mouse_scroll(const hyper_platform::MouseScrolledEvent &event)

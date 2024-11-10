@@ -186,24 +186,51 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(imgui)
 
-add_library(
-        imgui
-        ${CMAKE_BINARY_DIR}/_deps/imgui-src/imconfig.h
+set(SOURCES
         ${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui.cpp
-        ${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui.h
         ${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_demo.cpp
         ${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_draw.cpp
-        ${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_internal.h
         ${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_tables.cpp
         ${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_widgets.cpp
+        ${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_glfw.cpp
+        ${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_vulkan.cpp)
+
+set(HEADERS
+        ${CMAKE_BINARY_DIR}/_deps/imgui-src/imconfig.h
+        ${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui.h
+        ${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_internal.h
         ${CMAKE_BINARY_DIR}/_deps/imgui-src/imstb_rectpack.h
         ${CMAKE_BINARY_DIR}/_deps/imgui-src/imstb_textedit.h
-        ${CMAKE_BINARY_DIR}/_deps/imgui-src/imstb_truetype.h)
+        ${CMAKE_BINARY_DIR}/_deps/imgui-src/imstb_truetype.h
+        ${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_glfw.h
+        ${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_vulkan.h)
+
+if (WIN32)
+    set(SOURCES
+            ${SOURCES}
+            ${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_dx12.cpp)
+
+    set(HEADERS
+            ${HEADERS}
+            ${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_dx12.h)
+endif ()
+
+add_library(imgui ${SOURCES} ${HEADERS})
 target_include_directories(
         imgui
         SYSTEM
         PUBLIC
-        ${CMAKE_BINARY_DIR}/_deps/imgui-src/)
+        ${CMAKE_BINARY_DIR}/_deps/imgui-src/
+        ${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/)
+target_compile_definitions(
+        imgui
+        PUBLIC
+        IMGUI_IMPL_VULKAN_USE_VOLK)
+target_link_libraries(
+        imgui
+        PUBLIC
+        glfw
+        volk)
 
 set_target_properties(
         imgui

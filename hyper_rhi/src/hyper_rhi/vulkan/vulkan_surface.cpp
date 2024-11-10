@@ -19,6 +19,8 @@ namespace hyper_rhi
         , m_graphics_device(graphics_device)
         , m_surface(VK_NULL_HANDLE)
         , m_swapchain(VK_NULL_HANDLE)
+        , m_min_image_count(0)
+        , m_image_count(0)
         , m_format(VK_FORMAT_UNDEFINED)
         , m_textures({})
         , m_texture_views({})
@@ -83,10 +85,11 @@ namespace hyper_rhi
 
         const VkPresentModeKHR surface_present_mode = VulkanSurface::choose_present_mode(present_modes);
 
-        uint32_t image_count = surface_capabilities.minImageCount + 1;
-        if (surface_capabilities.maxImageCount > 0 && image_count > surface_capabilities.maxImageCount)
+        m_min_image_count = surface_capabilities.minImageCount + 1;
+        m_image_count = m_min_image_count;
+        if (surface_capabilities.maxImageCount > 0 && m_image_count > surface_capabilities.maxImageCount)
         {
-            image_count = surface_capabilities.maxImageCount;
+            m_image_count = surface_capabilities.maxImageCount;
         }
 
         const VkSwapchainCreateInfoKHR swapchain_create_info = {
@@ -94,7 +97,7 @@ namespace hyper_rhi
             .pNext = nullptr,
             .flags = 0,
             .surface = m_surface,
-            .minImageCount = image_count,
+            .minImageCount = m_image_count,
             .imageFormat = m_format,
             .imageColorSpace = surface_format.colorSpace,
             .imageExtent = surface_extent,
@@ -192,7 +195,7 @@ namespace hyper_rhi
     {
         for (const VkSurfaceFormatKHR &format : formats)
         {
-            if (format.format == VK_FORMAT_B8G8R8A8_SRGB && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+            if (format.format == VK_FORMAT_B8G8R8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
             {
                 return format;
             }

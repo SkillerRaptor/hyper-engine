@@ -72,7 +72,7 @@ namespace hyper_render
               .primitive_state =
                   hyper_rhi::PrimitiveState{
                       .topology = hyper_rhi::PrimitiveTopology::TriangleList,
-                      .front_face = hyper_rhi::FrontFace::Clockwise,
+                      .front_face = hyper_rhi::FrontFace::CounterClockwise,
                       .cull_mode = hyper_rhi::Face::Back,
                       .polygon_mode = hyper_rhi::PolygonMode::Fill,
                   },
@@ -109,7 +109,7 @@ namespace hyper_render
               .primitive_state =
                   hyper_rhi::PrimitiveState{
                       .topology = hyper_rhi::PrimitiveTopology::TriangleList,
-                      .front_face = hyper_rhi::FrontFace::Clockwise,
+                      .front_face = hyper_rhi::FrontFace::CounterClockwise,
                       .cull_mode = hyper_rhi::Face::Back,
                       .polygon_mode = hyper_rhi::PolygonMode::Fill,
                   },

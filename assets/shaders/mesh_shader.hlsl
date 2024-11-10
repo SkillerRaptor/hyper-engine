@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "color_space.hlsli"
 #include "globals.hlsli"
 #include "shader_interop.h"
 
@@ -51,5 +52,5 @@ float4 fs_main(VertexOutput input) : SV_TARGET {
         discard;
     }
 
-    return float4(color.xyz * light_value * scene.sunlight_color.w + ambient, 1.0);
+    return float4(apply_srgb(color.xyz * light_value * scene.sunlight_color.w + ambient), 1.0);
 }
