@@ -35,9 +35,8 @@ namespace hyper_rhi
         "VK_LAYER_KHRONOS_validation",
     };
 
-    static constexpr std::array<const char *, 2> g_device_extensions = {
+    static constexpr std::array<const char *, 1> g_device_extensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-        VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
     };
 
     VulkanGraphicsDevice::VulkanGraphicsDevice(const GraphicsDeviceDescriptor &descriptor)
