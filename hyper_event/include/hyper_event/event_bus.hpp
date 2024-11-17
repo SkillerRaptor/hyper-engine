@@ -13,7 +13,7 @@
 #include "hyper_event/event_handler.hpp"
 #include "hyper_event/event_id_generator.hpp"
 
-namespace hyper_event
+namespace he::event
 {
     class EventBus
     {
@@ -49,4 +49,4 @@ namespace hyper_event
     private:
         std::unordered_map<size_t, std::unique_ptr<EventHandler>> m_handlers;
     };
-} // namespace hyper_event
+} // namespace he::event

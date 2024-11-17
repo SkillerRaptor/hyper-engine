@@ -6,12 +6,10 @@
 
 #pragma once
 
-#include <hyper_core/prerequisites.hpp>
-
 #include "hyper_rhi/compute_pass.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
@@ -26,10 +24,7 @@ namespace hyper_rhi
 
         void dispatch(uint32_t x, uint32_t y, uint32_t z) const override;
 
-        [[nodiscard]] HE_FORCE_INLINE VkCommandBuffer command_buffer() const
-        {
-            return m_command_buffer;
-        }
+        VkCommandBuffer command_buffer() const;
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
@@ -38,4 +33,4 @@ namespace hyper_rhi
 
         std::shared_ptr<ComputePipeline> m_pipeline;
     };
-} // namespace hyper_rhi
+} // namespace he::rhi

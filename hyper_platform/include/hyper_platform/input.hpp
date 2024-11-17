@@ -6,31 +6,25 @@
 
 #pragma once
 
-#include "hyper_event/event_bus.hpp"
-
 #include <hyper_core/math.hpp>
 
 #include "hyper_platform/key_codes.hpp"
-#include "hyper_platform/key_events.hpp"
 #include "hyper_platform/mouse_codes.hpp"
 
-namespace hyper_platform
+namespace he
 {
-    class Input
+    namespace event
     {
-    public:
-        static void initialize(hyper_event::EventBus &event_bus);
+        class EventBus;
+    } // namespace event
 
-        [[nodiscard]] static bool is_key_pressed(KeyCode key_code);
-        [[nodiscard]] static bool is_mouse_button_pressed(MouseCode mouse_code);
+    namespace platform::input
+    {
+        void initialize(he::event::EventBus &event_bus);
 
-        [[nodiscard]] static glm::vec2 mouse_position();
+        bool is_key_pressed(KeyCode key_code);
+        bool is_mouse_button_pressed(MouseCode mouse_code);
 
-    private:
-        static void on_key_press(const KeyPressEvent &event);
-        static void on_key_release(const KeyReleaseEvent &event);
-
-    private:
-        static std::unordered_map<KeyCode, bool> s_keys;
-    };
-} // namespace hyper_platform
+        glm::vec2 mouse_position();
+    } // namespace platform::input
+} // namespace he

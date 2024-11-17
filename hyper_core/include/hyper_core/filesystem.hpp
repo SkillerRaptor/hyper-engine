@@ -6,10 +6,10 @@
 
 #pragma once
 
-#include <string>
+#include <string_view>
 #include <vector>
 
-namespace hyper_core::filesystem
+namespace he::core::fs
 {
-    [[nodiscard]] std::vector<uint8_t> read_file(const std::string &file_path);
-} // namespace hyper_core::filesystem
+    std::vector<uint8_t> read_file(std::string_view file_path);
+} // namespace he::core::fs

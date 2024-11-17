@@ -10,15 +10,29 @@
 
 #include <hyper_core/logger.hpp>
 #include <hyper_core/prerequisites.hpp>
+#include <hyper_event/event_bus.hpp>
 #include <hyper_platform/input.hpp>
+#include <hyper_platform/mouse_events.hpp>
+#include <hyper_platform/window_events.hpp>
+#include <hyper_rhi/buffer.hpp>
+#include <hyper_rhi/command_list.hpp>
+#include <hyper_rhi/graphics_device.hpp>
+#include <hyper_rhi/sampler.hpp>
+#include <hyper_rhi/shader_compiler.hpp>
+#include <hyper_rhi/surface.hpp>
+#include <hyper_rhi/texture.hpp>
+#include <hyper_rhi/texture_view.hpp>
 
 #include "hyper_render/material.hpp"
+#include "hyper_render/render_passes/grid_pass.hpp"
+#include "hyper_render/render_passes/imgui_pass.hpp"
+#include "hyper_render/render_passes/opaque_pass.hpp"
 
 #include "shader_interop.h"
 
-namespace hyper_render
+namespace he::render
 {
-    Renderer::Renderer(hyper_event::EventBus &event_bus, const hyper_platform::Window &window, const RendererDescriptor &descriptor)
+    Renderer::Renderer(he::event::EventBus &event_bus, const he::platform::Window &window, const RendererDescriptor &descriptor)
         : m_graphics_device(descriptor.graphics_device)
         , m_surface(descriptor.surface)
         , m_shader_compiler()
@@ -30,26 +44,27 @@ namespace hyper_render
               .depth = 1,
               .array_size = 1,
               .mip_levels = 1,
-              .format = hyper_rhi::Format::Bgra8Unorm,
-              .dimension = hyper_rhi::TextureDimension::Texture2D,
-              .usage = hyper_rhi::TextureUsage::RenderAttachment,
+              .format = he::rhi::Format::Bgra8Unorm,
+              .dimension = he::rhi::Dimension::Texture2D,
+              .usage = he::rhi::TextureUsage::RenderAttachment,
           }))
         , m_render_texture_view(m_graphics_device->create_texture_view({
               .label = "Render",
               .texture = m_render_texture,
-              .base_mip_level = 0,
-              .mip_level_count = 1,
-              .base_array_level = 0,
-              .array_layer_count = 1,
-              .component_mapping =
-                  hyper_rhi::TextureComponentMapping{
-                      .r = hyper_rhi::TextureComponentSwizzle::Identity,
-                      .g = hyper_rhi::TextureComponentSwizzle::Identity,
-                      .b = hyper_rhi::TextureComponentSwizzle::Identity,
-                      .a = hyper_rhi::TextureComponentSwizzle::Identity,
+              .subresource_range =
+                  he::rhi::SubresourceRange{
+                      .base_mip_level = 0,
+                      .mip_level_count = 1,
+                      .base_array_level = 0,
+                      .array_layer_count = 1,
                   },
-              .format = hyper_rhi::Format::Bgra8Unorm,
-              .dimension = hyper_rhi::TextureDimension::Texture2D,
+              .component_mapping =
+                  he::rhi::ComponentMapping{
+                      .r = he::rhi::ComponentSwizzle::Identity,
+                      .g = he::rhi::ComponentSwizzle::Identity,
+                      .b = he::rhi::ComponentSwizzle::Identity,
+                      .a = he::rhi::ComponentSwizzle::Identity,
+                  },
           }))
         , m_depth_texture(m_graphics_device->create_texture({
               .label = "Depth",
@@ -58,38 +73,39 @@ namespace hyper_render
               .depth = 1,
               .array_size = 1,
               .mip_levels = 1,
-              .format = hyper_rhi::Format::D32Sfloat,
-              .dimension = hyper_rhi::TextureDimension::Texture2D,
-              .usage = hyper_rhi::TextureUsage::RenderAttachment,
+              .format = he::rhi::Format::D32Sfloat,
+              .dimension = he::rhi::Dimension::Texture2D,
+              .usage = he::rhi::TextureUsage::RenderAttachment,
           }))
         , m_depth_texture_view(m_graphics_device->create_texture_view({
               .label = "Depth",
               .texture = m_depth_texture,
-              .base_mip_level = 0,
-              .mip_level_count = 1,
-              .base_array_level = 0,
-              .array_layer_count = 1,
-              .component_mapping =
-                  hyper_rhi::TextureComponentMapping{
-                      .r = hyper_rhi::TextureComponentSwizzle::Identity,
-                      .g = hyper_rhi::TextureComponentSwizzle::Identity,
-                      .b = hyper_rhi::TextureComponentSwizzle::Identity,
-                      .a = hyper_rhi::TextureComponentSwizzle::Identity,
+              .subresource_range =
+                  he::rhi::SubresourceRange{
+                      .base_mip_level = 0,
+                      .mip_level_count = 1,
+                      .base_array_level = 0,
+                      .array_layer_count = 1,
                   },
-              .format = hyper_rhi::Format::D32Sfloat,
-              .dimension = hyper_rhi::TextureDimension::Texture2D,
+              .component_mapping =
+                  he::rhi::ComponentMapping{
+                      .r = he::rhi::ComponentSwizzle::Identity,
+                      .g = he::rhi::ComponentSwizzle::Identity,
+                      .b = he::rhi::ComponentSwizzle::Identity,
+                      .a = he::rhi::ComponentSwizzle::Identity,
+                  },
           }))
         , m_editor_camera(glm::vec3(0.0, 2.0, 0.0), -90.0, 0.0)
         , m_camera_buffer(m_graphics_device->create_buffer({
               .label = "Camera",
               .byte_size = sizeof(ShaderCamera),
-              .usage = hyper_rhi::BufferUsage::Storage | hyper_rhi::BufferUsage::ShaderResource,
-              .handle = hyper_rhi::ResourceHandle(HE_DESCRIPTOR_SET_SLOT_CAMERA),
+              .usage = he::rhi::BufferUsage::Storage | he::rhi::BufferUsage::ShaderResource,
+              .handle = he::rhi::ResourceHandle(HE_DESCRIPTOR_SET_SLOT_CAMERA),
           }))
         , m_scene_buffer(m_graphics_device->create_buffer({
               .label = "Scene",
               .byte_size = sizeof(ShaderScene),
-              .usage = hyper_rhi::BufferUsage::Storage | hyper_rhi::BufferUsage::ShaderResource,
+              .usage = he::rhi::BufferUsage::Storage | he::rhi::BufferUsage::ShaderResource,
           }))
         , m_white_texture(m_graphics_device->create_texture({
               .label = "White",
@@ -98,26 +114,27 @@ namespace hyper_render
               .depth = 1,
               .array_size = 1,
               .mip_levels = 1,
-              .format = hyper_rhi::Format::Rgba8Unorm,
-              .dimension = hyper_rhi::TextureDimension::Texture2D,
-              .usage = hyper_rhi::TextureUsage::ShaderResource,
+              .format = he::rhi::Format::Rgba8Unorm,
+              .dimension = he::rhi::Dimension::Texture2D,
+              .usage = he::rhi::TextureUsage::ShaderResource,
           }))
         , m_white_texture_view(m_graphics_device->create_texture_view({
               .label = "White",
               .texture = m_white_texture,
-              .base_mip_level = 0,
-              .mip_level_count = 1,
-              .base_array_level = 0,
-              .array_layer_count = 1,
-              .component_mapping =
-                  hyper_rhi::TextureComponentMapping{
-                      .r = hyper_rhi::TextureComponentSwizzle::Identity,
-                      .g = hyper_rhi::TextureComponentSwizzle::Identity,
-                      .b = hyper_rhi::TextureComponentSwizzle::Identity,
-                      .a = hyper_rhi::TextureComponentSwizzle::Identity,
+              .subresource_range =
+                  he::rhi::SubresourceRange{
+                      .base_mip_level = 0,
+                      .mip_level_count = 1,
+                      .base_array_level = 0,
+                      .array_layer_count = 1,
                   },
-              .format = hyper_rhi::Format::Rgba8Unorm,
-              .dimension = hyper_rhi::TextureDimension::Texture2D,
+              .component_mapping =
+                  he::rhi::ComponentMapping{
+                      .r = he::rhi::ComponentSwizzle::Identity,
+                      .g = he::rhi::ComponentSwizzle::Identity,
+                      .b = he::rhi::ComponentSwizzle::Identity,
+                      .a = he::rhi::ComponentSwizzle::Identity,
+                  },
           }))
         , m_error_texture(m_graphics_device->create_texture({
               .label = "Error",
@@ -126,54 +143,57 @@ namespace hyper_render
               .depth = 1,
               .array_size = 1,
               .mip_levels = 1,
-              .format = hyper_rhi::Format::Rgba8Unorm,
-              .dimension = hyper_rhi::TextureDimension::Texture2D,
-              .usage = hyper_rhi::TextureUsage::ShaderResource,
+              .format = he::rhi::Format::Rgba8Unorm,
+              .dimension = he::rhi::Dimension::Texture2D,
+              .usage = he::rhi::TextureUsage::ShaderResource,
           }))
-        , m_error_texture_view(m_graphics_device->create_texture_view({
-              .label = "Error",
-              .texture = m_error_texture,
-              .base_mip_level = 0,
-              .mip_level_count = 1,
-              .base_array_level = 0,
-              .array_layer_count = 1,
-              .component_mapping =
-                  hyper_rhi::TextureComponentMapping{
-                      .r = hyper_rhi::TextureComponentSwizzle::Identity,
-                      .g = hyper_rhi::TextureComponentSwizzle::Identity,
-                      .b = hyper_rhi::TextureComponentSwizzle::Identity,
-                      .a = hyper_rhi::TextureComponentSwizzle::Identity,
-                  },
-              .format = hyper_rhi::Format::Rgba8Unorm,
-              .dimension = hyper_rhi::TextureDimension::Texture2D,
-          }))
+        , m_error_texture_view(
+              m_graphics_device->create_texture_view(
+                  {
+                      .label = "Error",
+                      .texture = m_error_texture,
+                      .subresource_range =
+                          he::rhi::SubresourceRange{
+                              .base_mip_level = 0,
+                              .mip_level_count = 1,
+                              .base_array_level = 0,
+                              .array_layer_count = 1,
+                          },
+                      .component_mapping =
+                          he::rhi::ComponentMapping{
+                              .r = he::rhi::ComponentSwizzle::Identity,
+                              .g = he::rhi::ComponentSwizzle::Identity,
+                              .b = he::rhi::ComponentSwizzle::Identity,
+                              .a = he::rhi::ComponentSwizzle::Identity,
+                          },
+                  }))
         , m_default_sampler_nearest(m_graphics_device->create_sampler({
               .label = "Default Nearest",
-              .mag_filter = hyper_rhi::Filter::Nearest,
-              .min_filter = hyper_rhi::Filter::Nearest,
-              .mipmap_filter = hyper_rhi::Filter::Nearest,
-              .address_mode_u = hyper_rhi::SamplerAddressMode::Repeat,
-              .address_mode_v = hyper_rhi::SamplerAddressMode::Repeat,
-              .address_mode_w = hyper_rhi::SamplerAddressMode::Repeat,
+              .mag_filter = he::rhi::Filter::Nearest,
+              .min_filter = he::rhi::Filter::Nearest,
+              .mipmap_filter = he::rhi::Filter::Nearest,
+              .address_mode_u = he::rhi::AddressMode::Repeat,
+              .address_mode_v = he::rhi::AddressMode::Repeat,
+              .address_mode_w = he::rhi::AddressMode::Repeat,
               .mip_lod_bias = 0.0,
-              .compare_operation = hyper_rhi::CompareOperation::Never,
+              .compare_operation = he::rhi::CompareOperation::Never,
               .min_lod = 0.0,
               .max_lod = 1.0,
-              .border_color = hyper_rhi::BorderColor::TransparentBlack,
+              .border_color = he::rhi::BorderColor::TransparentBlack,
           }))
         , m_default_sampler_linear(m_graphics_device->create_sampler({
               .label = "Default Linear",
-              .mag_filter = hyper_rhi::Filter::Linear,
-              .min_filter = hyper_rhi::Filter::Linear,
-              .mipmap_filter = hyper_rhi::Filter::Nearest,
-              .address_mode_u = hyper_rhi::SamplerAddressMode::Repeat,
-              .address_mode_v = hyper_rhi::SamplerAddressMode::Repeat,
-              .address_mode_w = hyper_rhi::SamplerAddressMode::Repeat,
+              .mag_filter = he::rhi::Filter::Linear,
+              .min_filter = he::rhi::Filter::Linear,
+              .mipmap_filter = he::rhi::Filter::Nearest,
+              .address_mode_u = he::rhi::AddressMode::Repeat,
+              .address_mode_v = he::rhi::AddressMode::Repeat,
+              .address_mode_w = he::rhi::AddressMode::Repeat,
               .mip_lod_bias = 0.0,
-              .compare_operation = hyper_rhi::CompareOperation::Never,
+              .compare_operation = he::rhi::CompareOperation::Never,
               .min_lod = 0.0,
               .max_lod = 1.0,
-              .border_color = hyper_rhi::BorderColor::TransparentBlack,
+              .border_color = he::rhi::BorderColor::TransparentBlack,
           }))
         , m_metallic_roughness_material(m_graphics_device, m_shader_compiler, m_render_texture, m_depth_texture)
         , m_draw_context()
@@ -182,9 +202,9 @@ namespace hyper_render
         , m_imgui_pass(nullptr)
         , m_frame_index(1)
     {
-        event_bus.subscribe<hyper_platform::WindowResizeEvent>(HE_BIND_FUNCTION(Renderer::on_resize));
-        event_bus.subscribe<hyper_platform::MouseMoveEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_move));
-        event_bus.subscribe<hyper_platform::MouseScrollEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_scroll));
+        event_bus.subscribe<he::platform::WindowResizeEvent>(HE_BIND_FUNCTION(Renderer::on_resize));
+        event_bus.subscribe<he::platform::MouseMoveEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_move));
+        event_bus.subscribe<he::platform::MouseScrollEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_scroll));
 
         const GltfMetallicRoughness::MaterialResources material_resources = {
             .color_factors = glm::vec4(1.0, 1.0, 1.0, 1.0),
@@ -204,15 +224,15 @@ namespace hyper_render
             .memory_barriers = {},
             .buffer_memory_barriers = {},
             .texture_memory_barriers = {
-                hyper_rhi::TextureMemoryBarrier{
-                    .stage_before = hyper_rhi::BarrierPipelineStage::AllCommands,
-                    .stage_after = hyper_rhi::BarrierPipelineStage::AllCommands,
-                    .access_before = hyper_rhi::BarrierAccess::None,
-                    .access_after = hyper_rhi::BarrierAccess::TransferWrite,
-                    .layout_before = hyper_rhi::BarrierTextureLayout::Undefined,
-                    .layout_after = hyper_rhi::BarrierTextureLayout::TransferDst,
+                he::rhi::TextureMemoryBarrier{
+                    .stage_before = he::rhi::BarrierPipelineStage::AllCommands,
+                    .stage_after = he::rhi::BarrierPipelineStage::AllCommands,
+                    .access_before = he::rhi::BarrierAccess::None,
+                    .access_after = he::rhi::BarrierAccess::TransferWrite,
+                    .layout_before = he::rhi::BarrierTextureLayout::Undefined,
+                    .layout_after = he::rhi::BarrierTextureLayout::TransferDst,
                     .texture = m_white_texture,
-                    .subresource_range = hyper_rhi::TextureBarrierSubresourceRange{
+                    .subresource_range = he::rhi::SubresourceRange{
                         .base_mip_level = 0,
                         .mip_level_count = 1,
                         .base_array_level = 0,
@@ -223,12 +243,12 @@ namespace hyper_render
         });
         m_command_list->write_texture(
             m_white_texture,
-            hyper_rhi::Offset3d{
+            he::rhi::Offset3d{
                 .x = 0,
                 .y = 0,
                 .z = 0,
             },
-            hyper_rhi::Extent3d{
+            he::rhi::Extent3d{
                 .width = 1,
                 .height = 1,
                 .depth = 1,
@@ -257,15 +277,15 @@ namespace hyper_render
             .memory_barriers = {},
             .buffer_memory_barriers = {},
             .texture_memory_barriers = {
-                hyper_rhi::TextureMemoryBarrier{
-                    .stage_before = hyper_rhi::BarrierPipelineStage::AllCommands,
-                    .stage_after = hyper_rhi::BarrierPipelineStage::AllCommands,
-                    .access_before = hyper_rhi::BarrierAccess::None,
-                    .access_after = hyper_rhi::BarrierAccess::TransferWrite,
-                    .layout_before = hyper_rhi::BarrierTextureLayout::Undefined,
-                    .layout_after = hyper_rhi::BarrierTextureLayout::TransferDst,
+                he::rhi::TextureMemoryBarrier{
+                    .stage_before = he::rhi::BarrierPipelineStage::AllCommands,
+                    .stage_after = he::rhi::BarrierPipelineStage::AllCommands,
+                    .access_before = he::rhi::BarrierAccess::None,
+                    .access_after = he::rhi::BarrierAccess::TransferWrite,
+                    .layout_before = he::rhi::BarrierTextureLayout::Undefined,
+                    .layout_after = he::rhi::BarrierTextureLayout::TransferDst,
                     .texture = m_error_texture,
-                    .subresource_range = hyper_rhi::TextureBarrierSubresourceRange{
+                    .subresource_range = he::rhi::SubresourceRange{
                         .base_mip_level = 0,
                         .mip_level_count = 1,
                         .base_array_level = 0,
@@ -276,12 +296,12 @@ namespace hyper_render
         });
         m_command_list->write_texture(
             m_error_texture,
-            hyper_rhi::Offset3d{
+            he::rhi::Offset3d{
                 .x = 0,
                 .y = 0,
                 .z = 0,
             },
-            hyper_rhi::Extent3d{
+            he::rhi::Extent3d{
                 .width = 16,
                 .height = 16,
                 .depth = 1,
@@ -321,24 +341,28 @@ namespace hyper_render
         HE_INFO("Created Renderer");
     }
 
+    Renderer::~Renderer()
+    {
+    }
+
     void Renderer::update(const float delta_time)
     {
-        if (hyper_platform::Input::is_key_pressed(hyper_platform::KeyCode::W))
+        if (he::platform::input::is_key_pressed(he::platform::KeyCode::W))
         {
             m_editor_camera.process_keyboard(Camera::Movement::Forward, delta_time);
         }
 
-        if (hyper_platform::Input::is_key_pressed(hyper_platform::KeyCode::S))
+        if (he::platform::input::is_key_pressed(he::platform::KeyCode::S))
         {
             m_editor_camera.process_keyboard(Camera::Movement::Backward, delta_time);
         }
 
-        if (hyper_platform::Input::is_key_pressed(hyper_platform::KeyCode::A))
+        if (he::platform::input::is_key_pressed(he::platform::KeyCode::A))
         {
             m_editor_camera.process_keyboard(Camera::Movement::Left, delta_time);
         }
 
-        if (hyper_platform::Input::is_key_pressed(hyper_platform::KeyCode::D))
+        if (he::platform::input::is_key_pressed(he::platform::KeyCode::D))
         {
             m_editor_camera.process_keyboard(Camera::Movement::Right, delta_time);
         }
@@ -358,30 +382,30 @@ namespace hyper_render
             .memory_barriers = {},
             .buffer_memory_barriers = {},
             .texture_memory_barriers = {
-                hyper_rhi::TextureMemoryBarrier{
-                    .stage_before = hyper_rhi::BarrierPipelineStage::AllCommands,
-                    .stage_after = hyper_rhi::BarrierPipelineStage::ColorAttachmentOutput,
-                    .access_before = hyper_rhi::BarrierAccess::None,
-                    .access_after = hyper_rhi::BarrierAccess::ColorAttachmentWrite,
-                    .layout_before = hyper_rhi::BarrierTextureLayout::Undefined,
-                    .layout_after = hyper_rhi::BarrierTextureLayout::ColorAttachment,
+                he::rhi::TextureMemoryBarrier{
+                    .stage_before = he::rhi::BarrierPipelineStage::AllCommands,
+                    .stage_after = he::rhi::BarrierPipelineStage::ColorAttachmentOutput,
+                    .access_before = he::rhi::BarrierAccess::None,
+                    .access_after = he::rhi::BarrierAccess::ColorAttachmentWrite,
+                    .layout_before = he::rhi::BarrierTextureLayout::Undefined,
+                    .layout_after = he::rhi::BarrierTextureLayout::ColorAttachment,
                     .texture = m_render_texture,
-                    .subresource_range = hyper_rhi::TextureBarrierSubresourceRange{
+                    .subresource_range = he::rhi::SubresourceRange{
                         .base_mip_level = 0,
                         .mip_level_count = 1,
                         .base_array_level = 0,
                         .array_layer_count = 1,
                     },
                 },
-                hyper_rhi::TextureMemoryBarrier{
-                    .stage_before = hyper_rhi::BarrierPipelineStage::AllCommands,
-                    .stage_after = hyper_rhi::BarrierPipelineStage::LateFragmentTests,
-                    .access_before = hyper_rhi::BarrierAccess::None,
-                    .access_after = hyper_rhi::BarrierAccess::DepthStencilAttachmentWrite,
-                    .layout_before = hyper_rhi::BarrierTextureLayout::Undefined,
-                    .layout_after = hyper_rhi::BarrierTextureLayout::DepthStencilAttachment,
+                he::rhi::TextureMemoryBarrier{
+                    .stage_before = he::rhi::BarrierPipelineStage::AllCommands,
+                    .stage_after = he::rhi::BarrierPipelineStage::LateFragmentTests,
+                    .access_before = he::rhi::BarrierAccess::None,
+                    .access_after = he::rhi::BarrierAccess::DepthStencilAttachmentWrite,
+                    .layout_before = he::rhi::BarrierTextureLayout::Undefined,
+                    .layout_after = he::rhi::BarrierTextureLayout::DepthStencilAttachment,
                     .texture = m_depth_texture,
-                    .subresource_range = hyper_rhi::TextureBarrierSubresourceRange{
+                    .subresource_range = he::rhi::SubresourceRange{
                         .base_mip_level = 0,
                         .mip_level_count = 1,
                         .base_array_level = 0,
@@ -399,15 +423,15 @@ namespace hyper_render
             .memory_barriers = {},
             .buffer_memory_barriers = {},
             .texture_memory_barriers = {
-                hyper_rhi::TextureMemoryBarrier{
-                    .stage_before = hyper_rhi::BarrierPipelineStage::LateFragmentTests,
-                    .stage_after = hyper_rhi::BarrierPipelineStage::EarlyFragmentTests,
-                    .access_before = hyper_rhi::BarrierAccess::DepthStencilAttachmentWrite,
-                    .access_after = hyper_rhi::BarrierAccess::DepthStencilAttachmentWrite,
-                    .layout_before = hyper_rhi::BarrierTextureLayout::DepthStencilAttachment,
-                    .layout_after = hyper_rhi::BarrierTextureLayout::DepthStencilAttachment,
+                he::rhi::TextureMemoryBarrier{
+                    .stage_before = he::rhi::BarrierPipelineStage::LateFragmentTests,
+                    .stage_after = he::rhi::BarrierPipelineStage::EarlyFragmentTests,
+                    .access_before = he::rhi::BarrierAccess::DepthStencilAttachmentWrite,
+                    .access_after = he::rhi::BarrierAccess::DepthStencilAttachmentWrite,
+                    .layout_before = he::rhi::BarrierTextureLayout::DepthStencilAttachment,
+                    .layout_after = he::rhi::BarrierTextureLayout::DepthStencilAttachment,
                     .texture = m_depth_texture,
-                    .subresource_range = hyper_rhi::TextureBarrierSubresourceRange{
+                    .subresource_range = he::rhi::SubresourceRange{
                         .base_mip_level = 0,
                         .mip_level_count = 1,
                         .base_array_level = 0,
@@ -420,8 +444,8 @@ namespace hyper_render
         m_grid_pass->render(m_command_list);
 
         // TODO: Add error if current texture is asked before the frame began
-        const std::shared_ptr<hyper_rhi::Texture> swapchain_texture = m_surface->current_texture();
-        const std::shared_ptr<hyper_rhi::TextureView> swapchain_texture_view = m_surface->current_texture_view();
+        const std::shared_ptr<he::rhi::Texture> swapchain_texture = m_surface->current_texture();
+        const std::shared_ptr<he::rhi::TextureView> swapchain_texture_view = m_surface->current_texture_view();
 
         // NOTE: Transitioning the render and swapchain image for transfer
         m_command_list->insert_barriers(
@@ -429,30 +453,30 @@ namespace hyper_render
             .memory_barriers = {},
             .buffer_memory_barriers = {},
             .texture_memory_barriers = {
-                hyper_rhi::TextureMemoryBarrier{
-                    .stage_before = hyper_rhi::BarrierPipelineStage::ColorAttachmentOutput,
-                    .stage_after = hyper_rhi::BarrierPipelineStage::AllTransfer,
-                    .access_before = hyper_rhi::BarrierAccess::ColorAttachmentWrite,
-                    .access_after = hyper_rhi::BarrierAccess::TransferRead,
-                    .layout_before = hyper_rhi::BarrierTextureLayout::ColorAttachment,
-                    .layout_after = hyper_rhi::BarrierTextureLayout::TransferSrc,
+                he::rhi::TextureMemoryBarrier{
+                    .stage_before = he::rhi::BarrierPipelineStage::ColorAttachmentOutput,
+                    .stage_after = he::rhi::BarrierPipelineStage::AllTransfer,
+                    .access_before = he::rhi::BarrierAccess::ColorAttachmentWrite,
+                    .access_after = he::rhi::BarrierAccess::TransferRead,
+                    .layout_before = he::rhi::BarrierTextureLayout::ColorAttachment,
+                    .layout_after = he::rhi::BarrierTextureLayout::TransferSrc,
                     .texture = m_render_texture,
-                    .subresource_range = hyper_rhi::TextureBarrierSubresourceRange{
+                    .subresource_range = he::rhi::SubresourceRange{
                         .base_mip_level = 0,
                         .mip_level_count = 1,
                         .base_array_level = 0,
                         .array_layer_count = 1,
                     },
                 },
-                hyper_rhi::TextureMemoryBarrier{
-                    .stage_before = hyper_rhi::BarrierPipelineStage::AllCommands,
-                    .stage_after = hyper_rhi::BarrierPipelineStage::AllTransfer,
-                    .access_before = hyper_rhi::BarrierAccess::None,
-                    .access_after = hyper_rhi::BarrierAccess::TransferWrite,
-                    .layout_before = hyper_rhi::BarrierTextureLayout::Undefined,
-                    .layout_after = hyper_rhi::BarrierTextureLayout::TransferDst,
+                he::rhi::TextureMemoryBarrier{
+                    .stage_before = he::rhi::BarrierPipelineStage::AllCommands,
+                    .stage_after = he::rhi::BarrierPipelineStage::AllTransfer,
+                    .access_before = he::rhi::BarrierAccess::None,
+                    .access_after = he::rhi::BarrierAccess::TransferWrite,
+                    .layout_before = he::rhi::BarrierTextureLayout::Undefined,
+                    .layout_after = he::rhi::BarrierTextureLayout::TransferDst,
                     .texture = swapchain_texture,
-                    .subresource_range = hyper_rhi::TextureBarrierSubresourceRange{
+                    .subresource_range = he::rhi::SubresourceRange{
                         .base_mip_level = 0,
                         .mip_level_count = 1,
                         .base_array_level = 0,
@@ -464,7 +488,7 @@ namespace hyper_render
 
         m_command_list->copy_texture_to_texture(
             m_render_texture,
-            hyper_rhi::Offset3d{
+            he::rhi::Offset3d{
                 .x = 0,
                 .y = 0,
                 .z = 0,
@@ -472,14 +496,14 @@ namespace hyper_render
             0,
             0,
             swapchain_texture,
-            hyper_rhi::Offset3d{
+            he::rhi::Offset3d{
                 .x = 0,
                 .y = 0,
                 .z = 0,
             },
             0,
             0,
-            hyper_rhi::Extent3d{
+            he::rhi::Extent3d{
                 .width = m_render_texture->width(),
                 .height = m_render_texture->height(),
                 .depth = m_render_texture->depth(),
@@ -490,15 +514,15 @@ namespace hyper_render
             .memory_barriers = {},
             .buffer_memory_barriers = {},
             .texture_memory_barriers = {
-                hyper_rhi::TextureMemoryBarrier{
-                    .stage_before = hyper_rhi::BarrierPipelineStage::AllTransfer,
-                    .stage_after = hyper_rhi::BarrierPipelineStage::ColorAttachmentOutput,
-                    .access_before = hyper_rhi::BarrierAccess::TransferWrite,
-                    .access_after = hyper_rhi::BarrierAccess::ColorAttachmentWrite,
-                    .layout_before = hyper_rhi::BarrierTextureLayout::TransferDst,
-                    .layout_after = hyper_rhi::BarrierTextureLayout::ColorAttachment,
+                he::rhi::TextureMemoryBarrier{
+                    .stage_before = he::rhi::BarrierPipelineStage::AllTransfer,
+                    .stage_after = he::rhi::BarrierPipelineStage::ColorAttachmentOutput,
+                    .access_before = he::rhi::BarrierAccess::TransferWrite,
+                    .access_after = he::rhi::BarrierAccess::ColorAttachmentWrite,
+                    .layout_before = he::rhi::BarrierTextureLayout::TransferDst,
+                    .layout_after = he::rhi::BarrierTextureLayout::ColorAttachment,
                     .texture = swapchain_texture,
-                    .subresource_range = hyper_rhi::TextureBarrierSubresourceRange{
+                    .subresource_range = he::rhi::SubresourceRange{
                         .base_mip_level = 0,
                         .mip_level_count = 1,
                         .base_array_level = 0,
@@ -515,15 +539,15 @@ namespace hyper_render
             .memory_barriers = {},
             .buffer_memory_barriers = {},
             .texture_memory_barriers = {
-                hyper_rhi::TextureMemoryBarrier{
-                    .stage_before = hyper_rhi::BarrierPipelineStage::ColorAttachmentOutput,
-                    .stage_after = hyper_rhi::BarrierPipelineStage::AllCommands,
-                    .access_before = hyper_rhi::BarrierAccess::ColorAttachmentWrite,
-                    .access_after = hyper_rhi::BarrierAccess::None,
-                    .layout_before = hyper_rhi::BarrierTextureLayout::ColorAttachment,
-                    .layout_after = hyper_rhi::BarrierTextureLayout::Present,
+                he::rhi::TextureMemoryBarrier{
+                    .stage_before = he::rhi::BarrierPipelineStage::ColorAttachmentOutput,
+                    .stage_after = he::rhi::BarrierPipelineStage::AllCommands,
+                    .access_before = he::rhi::BarrierAccess::ColorAttachmentWrite,
+                    .access_after = he::rhi::BarrierAccess::None,
+                    .layout_before = he::rhi::BarrierTextureLayout::ColorAttachment,
+                    .layout_after = he::rhi::BarrierTextureLayout::Present,
                     .texture = swapchain_texture,
-                    .subresource_range = hyper_rhi::TextureBarrierSubresourceRange{
+                    .subresource_range = he::rhi::SubresourceRange{
                         .base_mip_level = 0,
                         .mip_level_count = 1,
                         .base_array_level = 0,
@@ -552,27 +576,28 @@ namespace hyper_render
             .depth = 1,
             .array_size = 1,
             .mip_levels = 1,
-            .format = hyper_rhi::Format::Bgra8Unorm,
-            .dimension = hyper_rhi::TextureDimension::Texture2D,
-            .usage = hyper_rhi::TextureUsage::RenderAttachment,
+            .format = he::rhi::Format::Bgra8Unorm,
+            .dimension = he::rhi::Dimension::Texture2D,
+            .usage = he::rhi::TextureUsage::RenderAttachment,
         });
 
         m_render_texture_view = m_graphics_device->create_texture_view({
             .label = "Render",
             .texture = m_render_texture,
-            .base_mip_level = 0,
-            .mip_level_count = 1,
-            .base_array_level = 0,
-            .array_layer_count = 1,
-            .component_mapping =
-                hyper_rhi::TextureComponentMapping{
-                    .r = hyper_rhi::TextureComponentSwizzle::Identity,
-                    .g = hyper_rhi::TextureComponentSwizzle::Identity,
-                    .b = hyper_rhi::TextureComponentSwizzle::Identity,
-                    .a = hyper_rhi::TextureComponentSwizzle::Identity,
+            .subresource_range =
+                he::rhi::SubresourceRange{
+                    .base_mip_level = 0,
+                    .mip_level_count = 1,
+                    .base_array_level = 0,
+                    .array_layer_count = 1,
                 },
-            .format = hyper_rhi::Format::Bgra8Unorm,
-            .dimension = hyper_rhi::TextureDimension::Texture2D,
+            .component_mapping =
+                he::rhi::ComponentMapping{
+                    .r = he::rhi::ComponentSwizzle::Identity,
+                    .g = he::rhi::ComponentSwizzle::Identity,
+                    .b = he::rhi::ComponentSwizzle::Identity,
+                    .a = he::rhi::ComponentSwizzle::Identity,
+                },
         });
 
         m_depth_texture = m_graphics_device->create_texture({
@@ -582,27 +607,28 @@ namespace hyper_render
             .depth = 1,
             .array_size = 1,
             .mip_levels = 1,
-            .format = hyper_rhi::Format::D32Sfloat,
-            .dimension = hyper_rhi::TextureDimension::Texture2D,
-            .usage = hyper_rhi::TextureUsage::RenderAttachment,
+            .format = he::rhi::Format::D32Sfloat,
+            .dimension = he::rhi::Dimension::Texture2D,
+            .usage = he::rhi::TextureUsage::RenderAttachment,
         });
 
         m_depth_texture_view = m_graphics_device->create_texture_view({
             .label = "Depth",
             .texture = m_depth_texture,
-            .base_mip_level = 0,
-            .mip_level_count = 1,
-            .base_array_level = 0,
-            .array_layer_count = 1,
-            .component_mapping =
-                hyper_rhi::TextureComponentMapping{
-                    .r = hyper_rhi::TextureComponentSwizzle::Identity,
-                    .g = hyper_rhi::TextureComponentSwizzle::Identity,
-                    .b = hyper_rhi::TextureComponentSwizzle::Identity,
-                    .a = hyper_rhi::TextureComponentSwizzle::Identity,
+            .subresource_range =
+                he::rhi::SubresourceRange{
+                    .base_mip_level = 0,
+                    .mip_level_count = 1,
+                    .base_array_level = 0,
+                    .array_layer_count = 1,
                 },
-            .format = hyper_rhi::Format::D32Sfloat,
-            .dimension = hyper_rhi::TextureDimension::Texture2D,
+            .component_mapping =
+                he::rhi::ComponentMapping{
+                    .r = he::rhi::ComponentSwizzle::Identity,
+                    .g = he::rhi::ComponentSwizzle::Identity,
+                    .b = he::rhi::ComponentSwizzle::Identity,
+                    .a = he::rhi::ComponentSwizzle::Identity,
+                },
         });
     }
 
@@ -652,20 +678,20 @@ namespace hyper_render
         m_scenes["DamagedHelmet"]->draw(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.5f, 0.0f)), m_draw_context);
     }
 
-    void Renderer::on_resize(const hyper_platform::WindowResizeEvent &event)
+    void Renderer::on_resize(const he::platform::WindowResizeEvent &event)
     {
         m_editor_camera.set_aspect_ratio(static_cast<float>(event.width()) / static_cast<float>(event.height()));
 
         this->create_textures(event.width(), event.height());
     }
 
-    void Renderer::on_mouse_move(const hyper_platform::MouseMoveEvent &event)
+    void Renderer::on_mouse_move(const he::platform::MouseMoveEvent &event)
     {
         m_editor_camera.process_mouse_movement(event.x(), event.y());
     }
 
-    void Renderer::on_mouse_scroll(const hyper_platform::MouseScrollEvent &event)
+    void Renderer::on_mouse_scroll(const he::platform::MouseScrollEvent &event)
     {
         m_editor_camera.process_mouse_scroll(event.delta_y());
     }
-} // namespace hyper_render
+} // namespace he::render

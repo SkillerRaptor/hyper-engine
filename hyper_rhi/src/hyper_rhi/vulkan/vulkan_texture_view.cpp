@@ -6,10 +6,14 @@
 
 #include "hyper_rhi/vulkan/vulkan_texture_view.hpp"
 
+#include <hyper_core/assertion.hpp>
+#include <hyper_core/logger.hpp>
+
+#include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     VulkanTextureView::VulkanTextureView(VulkanGraphicsDevice &graphics_device, const TextureViewDescriptor &descriptor)
         : TextureView(descriptor)
@@ -18,9 +22,9 @@ namespace hyper_rhi
     {
         const auto &texture = std::dynamic_pointer_cast<VulkanTexture>(m_texture);
 
-        const VkImageViewType view_type = VulkanTextureView::get_image_view_type(m_dimension);
+        const VkImageViewType view_type = VulkanTextureView::get_image_view_type(texture->dimension());
 
-        const VkFormat format = VulkanTexture::get_format(m_format);
+        const VkFormat format = VulkanTexture::get_format(texture->format());
 
         const VkComponentSwizzle r = VulkanTextureView::get_component_swizzle(m_component_mapping.r);
         const VkComponentSwizzle g = VulkanTextureView::get_component_swizzle(m_component_mapping.g);
@@ -33,13 +37,13 @@ namespace hyper_rhi
             .a = a,
         };
 
-        const VkImageAspectFlags aspect_mask = VulkanTextureView::get_image_aspect_flags(m_format);
+        const VkImageAspectFlags aspect_mask = VulkanTextureView::get_image_aspect_flags(texture->format());
         const VkImageSubresourceRange subresource_range = {
             .aspectMask = aspect_mask,
-            .baseMipLevel = m_base_mip_level,
-            .levelCount = m_mip_level_count,
-            .baseArrayLayer = m_base_array_level,
-            .layerCount = m_array_layer_count,
+            .baseMipLevel = m_subresource_range.base_mip_level,
+            .levelCount = m_subresource_range.mip_level_count,
+            .baseArrayLayer = m_subresource_range.base_array_level,
+            .layerCount = m_subresource_range.array_layer_count,
         };
 
         const VkImageViewCreateInfo image_view_create_info = {
@@ -93,43 +97,43 @@ namespace hyper_rhi
         m_graphics_device.resource_queue().texture_views.emplace_back(m_image_view, m_handle);
     }
 
-    VkImageViewType VulkanTextureView::get_image_view_type(const TextureDimension dimension)
+    VkImageViewType VulkanTextureView::get_image_view_type(const Dimension dimension)
     {
         switch (dimension)
         {
-        case TextureDimension::Texture1D:
+        case Dimension::Texture1D:
             return VK_IMAGE_VIEW_TYPE_1D;
-        case TextureDimension::Texture1DArray:
+        case Dimension::Texture1DArray:
             return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
-        case TextureDimension::Texture2D:
+        case Dimension::Texture2D:
             return VK_IMAGE_VIEW_TYPE_2D;
-        case TextureDimension::Texture2DArray:
+        case Dimension::Texture2DArray:
             return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-        case TextureDimension::Texture3D:
+        case Dimension::Texture3D:
             return VK_IMAGE_VIEW_TYPE_3D;
-        case TextureDimension::Unknown:
+        case Dimension::Unknown:
         default:
             HE_UNREACHABLE();
         }
     }
 
-    VkComponentSwizzle VulkanTextureView::get_component_swizzle(const TextureComponentSwizzle component_swizzle)
+    VkComponentSwizzle VulkanTextureView::get_component_swizzle(const ComponentSwizzle component_swizzle)
     {
         switch (component_swizzle)
         {
-        case TextureComponentSwizzle::Identity:
+        case ComponentSwizzle::Identity:
             return VK_COMPONENT_SWIZZLE_IDENTITY;
-        case TextureComponentSwizzle::Zero:
+        case ComponentSwizzle::Zero:
             return VK_COMPONENT_SWIZZLE_ZERO;
-        case TextureComponentSwizzle::One:
+        case ComponentSwizzle::One:
             return VK_COMPONENT_SWIZZLE_ONE;
-        case TextureComponentSwizzle::R:
+        case ComponentSwizzle::R:
             return VK_COMPONENT_SWIZZLE_R;
-        case TextureComponentSwizzle::G:
+        case ComponentSwizzle::G:
             return VK_COMPONENT_SWIZZLE_G;
-        case TextureComponentSwizzle::B:
+        case ComponentSwizzle::B:
             return VK_COMPONENT_SWIZZLE_B;
-        case TextureComponentSwizzle::A:
+        case ComponentSwizzle::A:
             return VK_COMPONENT_SWIZZLE_A;
         default:
             HE_UNREACHABLE();
@@ -229,4 +233,9 @@ namespace hyper_rhi
             HE_UNREACHABLE();
         }
     }
-} // namespace hyper_rhi
+
+    VkImageView VulkanTextureView::image_view() const
+    {
+        return m_image_view;
+    }
+} // namespace he::rhi

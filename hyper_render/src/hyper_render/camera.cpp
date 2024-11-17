@@ -6,11 +6,11 @@
 
 #include "hyper_render/camera.hpp"
 
-#include "hyper_platform/input.hpp"
-
 #include <hyper_core/assertion.hpp>
+#include <hyper_platform/input.hpp>
+#include <hyper_platform/mouse_codes.hpp>
 
-namespace hyper_render
+namespace he::render
 {
     Camera::Camera(const glm::vec3 position, const float yaw, const float pitch)
         : m_position(position)
@@ -69,7 +69,7 @@ namespace hyper_render
         m_last_x = x_position;
         m_last_y = y_position;
 
-        if (!hyper_platform::Input::is_mouse_button_pressed(hyper_platform::MouseCode::ButtonMiddle))
+        if (!he::platform::input::is_mouse_button_pressed(he::platform::MouseCode::ButtonMiddle))
         {
             return;
         }
@@ -146,4 +146,4 @@ namespace hyper_render
         m_right = glm::normalize(glm::cross(m_front, glm::vec3(0.0, 1.0, 0.0)));
         m_up = glm::normalize(glm::cross(m_right, m_front));
     }
-} // namespace hyper_render
+} // namespace he::render

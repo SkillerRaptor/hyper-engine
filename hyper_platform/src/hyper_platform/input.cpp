@@ -8,28 +8,42 @@
 
 #include <SDL3/SDL.h>
 
-namespace hyper_platform
+#include <hyper_event/event_bus.hpp>
+
+#include "hyper_platform/key_events.hpp"
+
+namespace he::platform::input
 {
-    std::unordered_map<KeyCode, bool> Input::s_keys;
+    static std::unordered_map<KeyCode, bool> g_keys;
 
-    void Input::initialize(hyper_event::EventBus &event_bus)
+    void on_key_press(const KeyPressEvent &event)
     {
-        event_bus.subscribe<KeyPressEvent>(Input::on_key_press);
-        event_bus.subscribe<KeyReleaseEvent>(Input::on_key_release);
+        g_keys[event.key_code()] = true;
     }
 
-    bool Input::is_key_pressed(const KeyCode key_code)
+    void on_key_release(const KeyReleaseEvent &event)
     {
-        return s_keys[key_code];
+        g_keys[event.key_code()] = false;
     }
 
-    bool Input::is_mouse_button_pressed(const MouseCode mouse_code)
+    void initialize(he::event::EventBus &event_bus)
+    {
+        event_bus.subscribe<KeyPressEvent>(on_key_press);
+        event_bus.subscribe<KeyReleaseEvent>(on_key_release);
+    }
+
+    bool is_key_pressed(const KeyCode key_code)
+    {
+        return g_keys[key_code];
+    }
+
+    bool is_mouse_button_pressed(const MouseCode mouse_code)
     {
         const SDL_MouseButtonFlags mouse_button_flags = SDL_GetMouseState(nullptr, nullptr);
         return (mouse_button_flags & SDL_BUTTON_MASK(static_cast<int32_t>(mouse_code))) != 0;
     }
 
-    glm::vec2 Input::mouse_position()
+    glm::vec2 mouse_position()
     {
         float x = 0.0;
         float y = 0.0;
@@ -37,14 +51,4 @@ namespace hyper_platform
 
         return { x, y };
     }
-
-    void Input::on_key_press(const KeyPressEvent &event)
-    {
-        s_keys[event.key_code()] = true;
-    }
-
-    void Input::on_key_release(const KeyReleaseEvent &event)
-    {
-        s_keys[event.key_code()] = false;
-    }
-} // namespace hyper_platform
+} // namespace he::platform::input

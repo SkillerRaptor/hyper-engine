@@ -6,10 +6,13 @@
 
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
 
+#include <hyper_core/assertion.hpp>
+#include <hyper_core/logger.hpp>
+
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture_view.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     VulkanTexture::VulkanTexture(VulkanGraphicsDevice &graphics_device, const TextureDescriptor &descriptor, const VkImage image)
         : Texture(descriptor)
@@ -73,6 +76,16 @@ namespace hyper_rhi
     VulkanTexture::~VulkanTexture()
     {
         m_graphics_device.resource_queue().textures.emplace_back(m_image, m_allocation);
+    }
+
+    VkImage VulkanTexture::image() const
+    {
+        return m_image;
+    }
+
+    VmaAllocation VulkanTexture::allocation() const
+    {
+        return m_allocation;
     }
 
     Format VulkanTexture::format_to_texture_format(const VkFormat format)
@@ -417,19 +430,19 @@ namespace hyper_rhi
         }
     }
 
-    VkImageType VulkanTexture::get_image_type(const TextureDimension dimension)
+    VkImageType VulkanTexture::get_image_type(const Dimension dimension)
     {
         switch (dimension)
         {
-        case TextureDimension::Texture1D:
-        case TextureDimension::Texture1DArray:
+        case Dimension::Texture1D:
+        case Dimension::Texture1DArray:
             return VK_IMAGE_TYPE_1D;
-        case TextureDimension::Texture2D:
-        case TextureDimension::Texture2DArray:
+        case Dimension::Texture2D:
+        case Dimension::Texture2DArray:
             return VK_IMAGE_TYPE_2D;
-        case TextureDimension::Texture3D:
+        case Dimension::Texture3D:
             return VK_IMAGE_TYPE_3D;
-        case TextureDimension::Unknown:
+        case Dimension::Unknown:
         default:
             HE_UNREACHABLE();
         }
@@ -543,4 +556,4 @@ namespace hyper_rhi
 
         return usage;
     }
-} // namespace hyper_rhi
+} // namespace he::rhi

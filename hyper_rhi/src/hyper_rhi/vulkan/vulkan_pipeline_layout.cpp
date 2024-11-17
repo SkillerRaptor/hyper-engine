@@ -6,9 +6,13 @@
 
 #include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
 
+#include <hyper_core/assertion.hpp>
+#include <hyper_core/logger.hpp>
+
+#include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     VulkanPipelineLayout::VulkanPipelineLayout(VulkanGraphicsDevice &graphics_device, const PipelineLayoutDescriptor &descriptor)
         : PipelineLayout(descriptor)
@@ -46,4 +50,9 @@ namespace hyper_rhi
     {
         m_graphics_device.resource_queue().pipeline_layouts.emplace_back(m_pipeline_layout);
     }
-} // namespace hyper_rhi
+
+    VkPipelineLayout VulkanPipelineLayout::pipeline_layout() const
+    {
+        return m_pipeline_layout;
+    }
+} // namespace he::rhi

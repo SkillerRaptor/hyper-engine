@@ -6,9 +6,11 @@
 
 #pragma once
 
-namespace hyper_platform
+#include <cstdint>
+
+namespace he::platform
 {
-    enum class MouseCode
+    enum class MouseCode : uint8_t
     {
         ButtonLeft = 1,
         ButtonMiddle = 2,
@@ -16,4 +18,4 @@ namespace hyper_platform
         ButtonX1 = 4,
         ButtonX2 = 5,
     };
-} // namespace hyper_platform
+} // namespace he::platform

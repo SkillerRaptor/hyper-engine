@@ -9,19 +9,19 @@
 #include <memory>
 #include <string>
 
-#include "hyper_rhi/buffer.hpp"
-#include "hyper_rhi/compute_pipeline.hpp"
-#include "hyper_rhi/pass.hpp"
+#include "hyper_rhi/label_color.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
+    class ComputePipeline;
+
     struct ComputePassDescriptor
     {
         std::string label;
         LabelColor label_color;
     };
 
-    class ComputePass : public Pass
+    class ComputePass
     {
     public:
         virtual ~ComputePass() = default;
@@ -33,10 +33,14 @@ namespace hyper_rhi
 
         // TODO: Add indirect
 
+        std::string_view label() const;
+        LabelColor label_color() const;
+
     protected:
-        explicit ComputePass(const ComputePassDescriptor &descriptor)
-            : Pass(descriptor.label, descriptor.label_color)
-        {
-        }
+        explicit ComputePass(const ComputePassDescriptor &descriptor);
+
+    protected:
+        std::string m_label;
+        LabelColor m_label_color;
     };
-} // namespace hyper_rhi
+} // namespace he::rhi

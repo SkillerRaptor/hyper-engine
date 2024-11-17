@@ -6,14 +6,12 @@
 
 #pragma once
 
-#include <hyper_core/prerequisites.hpp>
-
 #include "hyper_rhi/buffer.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
 #include <vk_mem_alloc.h>
 
-namespace hyper_rhi
+namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
@@ -23,17 +21,10 @@ namespace hyper_rhi
         VulkanBuffer(VulkanGraphicsDevice &graphics_device, const BufferDescriptor &descriptor, bool staging = false);
         ~VulkanBuffer() override;
 
-        [[nodiscard]] static VkBufferUsageFlags get_buffer_usage_flags(BufferUsage buffer_usage_flags);
+        VkBuffer buffer() const;
+        VmaAllocation allocation() const;
 
-        [[nodiscard]] HE_FORCE_INLINE VkBuffer buffer() const
-        {
-            return m_buffer;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE VmaAllocation allocation() const
-        {
-            return m_allocation;
-        }
+        static VkBufferUsageFlags get_buffer_usage_flags(BufferUsage buffer_usage_flags);
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
@@ -41,4 +32,4 @@ namespace hyper_rhi
         VkBuffer m_buffer;
         VmaAllocation m_allocation;
     };
-} // namespace hyper_rhi
+} // namespace he::rhi

@@ -14,9 +14,6 @@
 #undef near
 #undef far
 
-#include <hyper_core/assertion.hpp>
-#include <hyper_core/logger.hpp>
-
 using Microsoft::WRL::ComPtr;
 
 #define HE_DX_CHECK(x)                                                                  \

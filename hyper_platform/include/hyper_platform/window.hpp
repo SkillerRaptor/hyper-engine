@@ -8,38 +8,39 @@
 
 #include <string_view>
 
-#include <hyper_core/prerequisites.hpp>
-#include <hyper_event/event_bus.hpp>
-
 struct SDL_Window;
 
-namespace hyper_platform
+namespace he
 {
-    struct WindowDescriptor
+    namespace event
     {
-        std::string_view title;
-        uint32_t width;
-        uint32_t height;
-    };
+        class EventBus;
+    } // namespace event
 
-    class Window
+    namespace platform
     {
-    public:
-        explicit Window(const WindowDescriptor &descriptor);
-        ~Window();
-
-        [[nodiscard]] uint32_t width() const;
-        [[nodiscard]] uint32_t height() const;
-
-        [[nodiscard]] HE_FORCE_INLINE SDL_Window *native_window() const
+        struct WindowDescriptor
         {
-            return m_native_window;
-        }
+            std::string_view title;
+            uint32_t width;
+            uint32_t height;
+        };
 
-        static void process_events(hyper_event::EventBus &event_bus);
-        static void wait_events();
+        class Window
+        {
+        public:
+            explicit Window(const WindowDescriptor &descriptor);
+            ~Window();
 
-    private:
-        SDL_Window *m_native_window;
-    };
-} // namespace hyper_platform
+            uint32_t width() const;
+            uint32_t height() const;
+            SDL_Window *native_window() const;
+
+            static void process_events(he::event::EventBus &event_bus);
+            static void wait_events();
+
+        private:
+            SDL_Window *m_native_window;
+        };
+    } // namespace platform
+} // namespace he

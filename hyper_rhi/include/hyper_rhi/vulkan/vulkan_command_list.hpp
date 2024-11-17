@@ -6,12 +6,10 @@
 
 #pragma once
 
-#include <hyper_core/prerequisites.hpp>
-
 #include "hyper_rhi/command_list.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
@@ -26,7 +24,7 @@ namespace hyper_rhi
         void insert_barriers(const Barriers &barriers) const override;
 
         void clear_buffer(const std::shared_ptr<Buffer> &buffer, size_t size, uint64_t offset) override;
-        void clear_texture(const std::shared_ptr<Texture> &texture, TextureSubresourceRange subresource_range) override;
+        void clear_texture(const std::shared_ptr<Texture> &texture, SubresourceRange subresource_range) override;
 
         void copy_buffer_to_buffer(
             const std::shared_ptr<Buffer> &src,
@@ -72,21 +70,18 @@ namespace hyper_rhi
             size_t data_size,
             uint64_t data_offset) override;
 
-        [[nodiscard]] std::shared_ptr<ComputePass> begin_compute_pass(const ComputePassDescriptor &descriptor) const override;
-        [[nodiscard]] std::shared_ptr<RenderPass> begin_render_pass(const RenderPassDescriptor &descriptor) const override;
+        std::shared_ptr<ComputePass> begin_compute_pass(const ComputePassDescriptor &descriptor) const override;
+        std::shared_ptr<RenderPass> begin_render_pass(const RenderPassDescriptor &descriptor) const override;
 
-        [[nodiscard]] static VkPipelineStageFlags2 get_pipeline_stage_flags(BarrierPipelineStage barrier_pipeline_stage);
-        [[nodiscard]] static VkAccessFlags2 get_access_flags(BarrierAccess barrier_access);
-        [[nodiscard]] static VkImageLayout get_image_layout(BarrierTextureLayout texture_layout);
+        VkCommandBuffer command_buffer() const;
 
-        [[nodiscard]] HE_FORCE_INLINE VkCommandBuffer command_buffer() const
-        {
-            return m_command_buffer;
-        }
+        static VkPipelineStageFlags2 get_pipeline_stage_flags(BarrierPipelineStage barrier_pipeline_stage);
+        static VkAccessFlags2 get_access_flags(BarrierAccess barrier_access);
+        static VkImageLayout get_image_layout(BarrierTextureLayout texture_layout);
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
 
         VkCommandBuffer m_command_buffer;
     };
-} // namespace hyper_rhi
+} // namespace he::rhi

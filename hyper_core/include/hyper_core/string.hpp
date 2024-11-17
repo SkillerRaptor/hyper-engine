@@ -8,7 +8,7 @@
 
 #include <string>
 
-namespace hyper_core::string
+namespace he::core::string
 {
-    [[nodiscard]] std::wstring to_wstring(const std::string &string);
-} // namespace hyper_core::string
+    std::wstring to_wstring(const std::string &string);
+} // namespace he::core::string

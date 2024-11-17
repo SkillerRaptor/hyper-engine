@@ -6,15 +6,12 @@
 
 #pragma once
 
-#include <hyper_core/prerequisites.hpp>
-
 #include "hyper_rhi/texture.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
-#include "hyper_rhi/vulkan/vulkan_texture_view.hpp"
 
 #include <vk_mem_alloc.h>
 
-namespace hyper_rhi
+namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
@@ -24,20 +21,13 @@ namespace hyper_rhi
         VulkanTexture(VulkanGraphicsDevice &graphics_device, const TextureDescriptor &descriptor, VkImage image = VK_NULL_HANDLE);
         ~VulkanTexture() override;
 
-        [[nodiscard]] static Format format_to_texture_format(VkFormat format);
-        [[nodiscard]] static VkFormat get_format(Format format);
-        [[nodiscard]] static VkImageType get_image_type(TextureDimension dimension);
-        [[nodiscard]] static VkImageUsageFlags get_image_usage_flags(TextureUsage texture_usage_flags, Format format);
+        VkImage image() const;
+        VmaAllocation allocation() const;
 
-        [[nodiscard]] HE_FORCE_INLINE VkImage image() const
-        {
-            return m_image;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE VmaAllocation allocation() const
-        {
-            return m_allocation;
-        }
+        static Format format_to_texture_format(VkFormat format);
+        static VkFormat get_format(Format format);
+        static VkImageType get_image_type(Dimension dimension);
+        static VkImageUsageFlags get_image_usage_flags(TextureUsage texture_usage_flags, Format format);
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
@@ -45,4 +35,4 @@ namespace hyper_rhi
         VkImage m_image;
         VmaAllocation m_allocation;
     };
-} // namespace hyper_rhi
+} // namespace he::rhi

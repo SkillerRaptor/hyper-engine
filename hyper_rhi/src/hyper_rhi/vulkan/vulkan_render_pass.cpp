@@ -6,13 +6,18 @@
 
 #include "hyper_rhi/vulkan/vulkan_render_pass.hpp"
 
+#include <hyper_core/assertion.hpp>
+#include <hyper_core/logger.hpp>
+
 #include "hyper_rhi/vulkan/vulkan_buffer.hpp"
+#include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 #include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
 #include "hyper_rhi/vulkan/vulkan_render_pipeline.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
+#include "hyper_rhi/vulkan/vulkan_texture_view.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     VulkanRenderPass::VulkanRenderPass(
         VulkanGraphicsDevice &graphics_device,
@@ -27,8 +32,8 @@ namespace hyper_rhi
 
         // TODO: Should this always use the first image?
         const VkExtent2D render_area_extent = {
-            .width = m_color_attachments[0].view->texture().width(),
-            .height = m_color_attachments[0].view->texture().height(),
+            .width = m_color_attachments[0].view->texture()->width(),
+            .height = m_color_attachments[0].view->texture()->height(),
         };
 
         constexpr VkOffset2D render_area_offset = {
@@ -144,14 +149,14 @@ namespace hyper_rhi
         m_pipeline = pipeline;
 
         const auto vulkan_pipeline = std::dynamic_pointer_cast<VulkanRenderPipeline>(m_pipeline);
-        const auto &layout = dynamic_cast<VulkanPipelineLayout &>(m_pipeline->layout());
+        const auto layout = std::dynamic_pointer_cast<VulkanPipelineLayout>(m_pipeline->layout());
 
         const auto &descriptor_sets = m_graphics_device.descriptor_manager().descriptor_sets();
 
         vkCmdBindDescriptorSets(
             m_command_buffer,
             VK_PIPELINE_BIND_POINT_GRAPHICS,
-            layout.pipeline_layout(),
+            layout->pipeline_layout(),
             0,
             static_cast<uint32_t>(descriptor_sets.size()),
             descriptor_sets.data(),
@@ -210,9 +215,9 @@ namespace hyper_rhi
 
     void VulkanRenderPass::set_push_constants(const void *data, const size_t data_size) const
     {
-        const auto &layout = dynamic_cast<VulkanPipelineLayout &>(m_pipeline->layout());
+        const auto layout = std::dynamic_pointer_cast<VulkanPipelineLayout>(m_pipeline->layout());
 
-        vkCmdPushConstants(m_command_buffer, layout.pipeline_layout(), VK_SHADER_STAGE_ALL, 0, static_cast<uint32_t>(data_size), data);
+        vkCmdPushConstants(m_command_buffer, layout->pipeline_layout(), VK_SHADER_STAGE_ALL, 0, static_cast<uint32_t>(data_size), data);
     }
 
     void VulkanRenderPass::draw(
@@ -232,6 +237,11 @@ namespace hyper_rhi
         const uint32_t first_instance) const
     {
         vkCmdDrawIndexed(m_command_buffer, index_count, instance_count, first_index, vertex_offset, first_instance);
+    }
+
+    VkCommandBuffer VulkanRenderPass::command_buffer() const
+    {
+        return m_command_buffer;
     }
 
     VkAttachmentLoadOp VulkanRenderPass::get_attachment_load_operation(const LoadOperation load_operation)
@@ -261,4 +271,4 @@ namespace hyper_rhi
             HE_UNREACHABLE();
         }
     }
-} // namespace hyper_rhi
+} // namespace he::rhi

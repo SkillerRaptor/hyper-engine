@@ -6,12 +6,15 @@
 
 #include "hyper_rhi/vulkan/vulkan_render_pipeline.hpp"
 
+#include <hyper_core/assertion.hpp>
+#include <hyper_core/logger.hpp>
+
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 #include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
 #include "hyper_rhi/vulkan/vulkan_shader_module.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     VulkanRenderPipeline::VulkanRenderPipeline(VulkanGraphicsDevice &graphics_device, const RenderPipelineDescriptor &descriptor)
         : RenderPipeline(descriptor)
@@ -241,6 +244,11 @@ namespace hyper_rhi
         m_graphics_device.resource_queue().graphics_pipelines.emplace_back(m_pipeline);
     }
 
+    VkPipeline VulkanRenderPipeline::pipeline() const
+    {
+        return m_pipeline;
+    }
+
     VkPrimitiveTopology VulkanRenderPipeline::get_primitive_topology(const PrimitiveTopology primitive_topology)
     {
         switch (primitive_topology)
@@ -421,4 +429,4 @@ namespace hyper_rhi
 
         return color_component_flags;
     }
-} // namespace hyper_rhi
+} // namespace he::rhi

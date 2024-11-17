@@ -5,7 +5,11 @@
 #-------------------------------------------------------------------------------------------
 set(SOURCES
         src/hyper_platform/input.cpp
-        src/hyper_platform/window.cpp)
+        src/hyper_platform/key_events.cpp
+        src/hyper_platform/mouse_events.cpp
+        src/hyper_platform/sdl_event.cpp
+        src/hyper_platform/window.cpp
+        src/hyper_platform/window_events.cpp)
 
 set(HEADERS
         include/hyper_platform/input.hpp

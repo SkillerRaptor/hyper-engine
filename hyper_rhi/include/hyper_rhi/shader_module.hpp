@@ -9,21 +9,10 @@
 #include <string>
 #include <vector>
 
-#include <hyper_core/assertion.hpp>
-#include <hyper_core/prerequisites.hpp>
+#include "hyper_rhi/shader_type.hpp"
 
-#include "hyper_rhi/resource.hpp"
-
-namespace hyper_rhi
+namespace he::rhi
 {
-    enum class ShaderType
-    {
-        None,
-        Compute,
-        Fragment,
-        Vertex
-    };
-
     struct ShaderModuleDescriptor
     {
         std::string label;
@@ -33,41 +22,25 @@ namespace hyper_rhi
         std::vector<uint8_t> bytes = {};
     };
 
-    class ShaderModule : public Resource
+    class ShaderModule
     {
     public:
         virtual ~ShaderModule() = default;
 
-        [[nodiscard]] HE_FORCE_INLINE ShaderType type() const
-        {
-            return m_type;
-        }
+        std::string_view label() const;
 
-        [[nodiscard]] HE_FORCE_INLINE std::string_view entry_name() const
-        {
-            return m_entry_name;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE const std::vector<uint8_t> &bytes() const
-        {
-            return m_bytes;
-        }
+        ShaderType type() const;
+        std::string_view entry_name() const;
+        const std::vector<uint8_t> &bytes() const;
 
     protected:
-        explicit ShaderModule(const ShaderModuleDescriptor &descriptor)
-            : Resource(descriptor.label)
-            , m_type(descriptor.type)
-            , m_entry_name(descriptor.entry_name)
-            , m_bytes(descriptor.bytes)
-        {
-            HE_ASSERT(m_type != ShaderType::None);
-            HE_ASSERT(!m_entry_name.empty());
-            HE_ASSERT(!m_bytes.empty());
-        }
+        explicit ShaderModule(const ShaderModuleDescriptor &descriptor);
 
     protected:
+        std::string m_label;
+
         ShaderType m_type;
         std::string m_entry_name;
         std::vector<uint8_t> m_bytes;
     };
-} // namespace hyper_rhi
+} // namespace he::rhi

@@ -25,7 +25,7 @@
 #    define uint3 glm::u32vec3
 #    define uint4 glm::u32vec4
 
-#    define RESOURCE_HANDLE ::hyper_rhi::ResourceHandle
+#    define RESOURCE_HANDLE ::he::rhi::ResourceHandle
 #    define SIMPLE_BUFFER RESOURCE_HANDLE
 #    define RW_SIMPLE_BUFFER RESOURCE_HANDLE
 #    define ARRAY_BUFFER RESOURCE_HANDLE

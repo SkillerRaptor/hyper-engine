@@ -18,16 +18,6 @@
         return this->function(std::forward<decltype(args)>(args)...); \
     }
 
-#ifndef HE_FORCE_INLINE
-#    if defined(__GNUC__)
-#        define HE_FORCE_INLINE __attribute__((always_inline)) inline
-#    elif defined(_MSC_VER)
-#        define HE_FORCE_INLINE __forceinline
-#    else
-#        define HE_FORCE_INLINE inline
-#    endif
-#endif
-
 #ifndef NDEBUG
 #    define HE_DEBUG_BUILD 1
 #else

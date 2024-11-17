@@ -11,18 +11,23 @@
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_vulkan.h>
 
+#include <hyper_core/assertion.hpp>
+#include <hyper_core/logger.hpp>
+#include <hyper_platform/window.hpp>
+
 #include "hyper_rhi/vulkan/vulkan_command_list.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
+#include "hyper_rhi/vulkan/vulkan_surface.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     VulkanImGuiManager::VulkanImGuiManager(VulkanGraphicsDevice &graphics_device)
         : m_graphics_device(graphics_device)
     {
     }
 
-    void VulkanImGuiManager::initialize(const hyper_platform::Window &window, const std::shared_ptr<Surface> &surface)
+    void VulkanImGuiManager::initialize(const he::platform::Window &window, const std::shared_ptr<Surface> &surface)
     {
         const VkDescriptorPoolSize pool_sizes[] = {
             { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
@@ -116,4 +121,4 @@ namespace hyper_rhi
         io.DisplaySize = ImVec2(static_cast<float>(width), static_cast<float>(height));
         io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
     }
-} // namespace hyper_rhi
+} // namespace he::rhi

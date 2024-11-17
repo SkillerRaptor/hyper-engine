@@ -6,10 +6,14 @@
 
 #include "hyper_rhi/vulkan/vulkan_sampler.hpp"
 
+#include <hyper_core/assertion.hpp>
+#include <hyper_core/logger.hpp>
+
+#include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 #include "hyper_rhi/vulkan/vulkan_render_pipeline.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     VulkanSampler::VulkanSampler(VulkanGraphicsDevice &graphics_device, const SamplerDescriptor &descriptor)
         : Sampler(descriptor)
@@ -67,6 +71,11 @@ namespace hyper_rhi
         m_graphics_device.resource_queue().samplers.emplace_back(m_sampler);
     }
 
+    VkSampler VulkanSampler::sampler() const
+    {
+        return m_sampler;
+    }
+
     VkFilter VulkanSampler::get_filter(const Filter filter)
     {
         switch (filter)
@@ -93,19 +102,19 @@ namespace hyper_rhi
         }
     }
 
-    VkSamplerAddressMode VulkanSampler::get_sampler_address_mode(const SamplerAddressMode filter)
+    VkSamplerAddressMode VulkanSampler::get_sampler_address_mode(const AddressMode filter)
     {
         switch (filter)
         {
-        case SamplerAddressMode::Repeat:
+        case AddressMode::Repeat:
             return VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        case SamplerAddressMode::MirroredRepeat:
+        case AddressMode::MirroredRepeat:
             return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
-        case SamplerAddressMode::ClampToEdge:
+        case AddressMode::ClampToEdge:
             return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        case SamplerAddressMode::ClampToBorder:
+        case AddressMode::ClampToBorder:
             return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
-        case SamplerAddressMode::MirrorClampToEdge:
+        case AddressMode::MirrorClampToEdge:
             return VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
         default:
             HE_UNREACHABLE();
@@ -126,4 +135,4 @@ namespace hyper_rhi
             HE_UNREACHABLE();
         }
     }
-} // namespace hyper_rhi
+} // namespace he::rhi

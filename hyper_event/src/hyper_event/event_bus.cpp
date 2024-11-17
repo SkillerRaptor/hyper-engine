@@ -6,6 +6,6 @@
 
 #include "hyper_event/event_bus.hpp"
 
-namespace hyper_event
+namespace he::event
 {
-} // namespace hyper_event
+} // namespace he::event

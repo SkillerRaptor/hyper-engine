@@ -6,11 +6,14 @@
 
 #include "hyper_rhi/vulkan/vulkan_compute_pipeline.hpp"
 
+#include <hyper_core/assertion.hpp>
+#include <hyper_core/logger.hpp>
+
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 #include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
 #include "hyper_rhi/vulkan/vulkan_shader_module.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     VulkanComputePipeline::VulkanComputePipeline(VulkanGraphicsDevice &graphics_device, const ComputePipelineDescriptor &descriptor)
         : ComputePipeline(descriptor)
@@ -54,4 +57,9 @@ namespace hyper_rhi
     {
         m_graphics_device.resource_queue().compute_pipelines.emplace_back(m_pipeline);
     }
-} // namespace hyper_rhi
+
+    VkPipeline VulkanComputePipeline::pipeline() const
+    {
+        return m_pipeline;
+    }
+} // namespace he::rhi

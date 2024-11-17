@@ -6,12 +6,10 @@
 
 #pragma once
 
-#include <hyper_core/prerequisites.hpp>
-
 #include "hyper_rhi/compute_pipeline.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
@@ -21,10 +19,7 @@ namespace hyper_rhi
         VulkanComputePipeline(VulkanGraphicsDevice &graphics_device, const ComputePipelineDescriptor &descriptor);
         ~VulkanComputePipeline() override;
 
-        [[nodiscard]] HE_FORCE_INLINE VkPipeline pipeline() const
-        {
-            return m_pipeline;
-        }
+        VkPipeline pipeline() const;
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
@@ -32,4 +27,4 @@ namespace hyper_rhi
         VkPipeline m_pipeline;
     };
 
-} // namespace hyper_rhi
+} // namespace he::rhi

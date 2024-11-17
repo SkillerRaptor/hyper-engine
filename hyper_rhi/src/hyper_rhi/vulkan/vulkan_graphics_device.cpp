@@ -16,10 +16,13 @@
 #define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>
 
+#include <hyper_core/assertion.hpp>
+#include <hyper_core/logger.hpp>
 #include <hyper_core/prerequisites.hpp>
 
 #include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 #include "hyper_rhi/vulkan/vulkan_command_list.hpp"
+#include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
 #include "hyper_rhi/vulkan/vulkan_imgui_manager.hpp"
 #include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
 #include "hyper_rhi/vulkan/vulkan_render_pipeline.hpp"
@@ -29,7 +32,7 @@
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture_view.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     static constexpr std::array<const char *, 1> g_validation_layers = {
         "VK_LAYER_KHRONOS_validation",
@@ -118,7 +121,7 @@ namespace hyper_rhi
         vkDestroyInstance(m_instance, nullptr);
     }
 
-    std::shared_ptr<Surface> VulkanGraphicsDevice::create_surface(const hyper_platform::Window &window)
+    std::shared_ptr<Surface> VulkanGraphicsDevice::create_surface(const he::platform::Window &window)
     {
         return std::make_shared<VulkanSurface>(*this, window);
     }
@@ -496,6 +499,56 @@ namespace hyper_rhi
     void VulkanGraphicsDevice::wait_for_idle() const
     {
         HE_VK_CHECK(vkDeviceWaitIdle(m_device));
+    }
+
+    VkInstance VulkanGraphicsDevice::instance() const
+    {
+        return m_instance;
+    }
+
+    VkPhysicalDevice VulkanGraphicsDevice::physical_device() const
+    {
+        return m_physical_device;
+    }
+
+    VkDevice VulkanGraphicsDevice::device() const
+    {
+        return m_device;
+    }
+
+    uint32_t VulkanGraphicsDevice::queue_family() const
+    {
+        return m_queue_family;
+    }
+
+    VkQueue VulkanGraphicsDevice::queue() const
+    {
+        return m_queue;
+    }
+
+    VmaAllocator VulkanGraphicsDevice::allocator() const
+    {
+        return m_allocator;
+    }
+
+    VulkanDescriptorManager &VulkanGraphicsDevice::descriptor_manager() const
+    {
+        return *m_descriptor_manager;
+    }
+
+    ResourceQueue &VulkanGraphicsDevice::resource_queue()
+    {
+        return m_resource_queue;
+    }
+
+    const FrameData &VulkanGraphicsDevice::current_frame() const
+    {
+        return m_frames[m_current_frame_index % GraphicsDevice::s_frame_count];
+    }
+
+    uint32_t VulkanGraphicsDevice::current_frame_index() const
+    {
+        return m_current_frame_index;
     }
 
     void VulkanGraphicsDevice::create_instance()
@@ -1072,4 +1125,4 @@ namespace hyper_rhi
 
         return VK_FALSE;
     }
-} // namespace hyper_rhi
+} // namespace he::rhi

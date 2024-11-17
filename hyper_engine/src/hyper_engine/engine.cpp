@@ -11,8 +11,12 @@
 #include <hyper_core/assertion.hpp>
 #include <hyper_core/logger.hpp>
 #include <hyper_core/prerequisites.hpp>
+#include <hyper_platform/input.hpp>
+#include <hyper_platform/window_events.hpp>
+#include <hyper_rhi/graphics_device.hpp>
+#include <hyper_rhi/surface.hpp>
 
-namespace hyper_engine
+namespace he::engine
 {
     Engine::Engine(const EngineDescriptor &descriptor)
         : m_start_time(std::chrono::steady_clock::now())
@@ -23,7 +27,7 @@ namespace hyper_engine
               .width = descriptor.width,
               .height = descriptor.height,
           })
-        , m_graphics_device(hyper_rhi::GraphicsDevice::create({
+        , m_graphics_device(he::rhi::GraphicsDevice::create({
               .graphics_api = descriptor.graphics_api,
               .debug_validation = descriptor.debug_validation,
               .debug_label = descriptor.debug_label,
@@ -38,10 +42,10 @@ namespace hyper_engine
                   .surface = m_surface,
               })
     {
-        hyper_platform::Input::initialize(m_event_bus);
+        he::platform::input::initialize(m_event_bus);
 
-        m_event_bus.subscribe<hyper_platform::WindowCloseEvent>(HE_BIND_FUNCTION(Engine::on_close));
-        m_event_bus.subscribe<hyper_platform::WindowResizeEvent>(HE_BIND_FUNCTION(Engine::on_resize));
+        m_event_bus.subscribe<he::platform::WindowCloseEvent>(HE_BIND_FUNCTION(Engine::on_close));
+        m_event_bus.subscribe<he::platform::WindowResizeEvent>(HE_BIND_FUNCTION(Engine::on_resize));
 
         m_running = true;
 
@@ -67,11 +71,11 @@ namespace hyper_engine
 
             accumulator += frame_time;
 
-            hyper_platform::Window::process_events(m_event_bus);
+            he::platform::Window::process_events(m_event_bus);
 
             while (m_window.width() == 0 || m_window.height() == 0)
             {
-                hyper_platform::Window::wait_events();
+                he::platform::Window::wait_events();
             }
 
             while (accumulator >= delta_time)
@@ -90,13 +94,13 @@ namespace hyper_engine
         }
     }
 
-    void Engine::on_close(const hyper_platform::WindowCloseEvent &)
+    void Engine::on_close(const he::platform::WindowCloseEvent &)
     {
         m_running = false;
     }
 
-    void Engine::on_resize(const hyper_platform::WindowResizeEvent &event) const
+    void Engine::on_resize(const he::platform::WindowResizeEvent &event) const
     {
         m_surface->resize(event.width(), event.height());
     }
-} // namespace hyper_engine
+} // namespace he::engine

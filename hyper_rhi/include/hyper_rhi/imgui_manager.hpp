@@ -8,24 +8,30 @@
 
 #include <memory>
 
-#include <hyper_platform/window.hpp>
-
-#include "hyper_rhi/command_list.hpp"
-#include "hyper_rhi/surface.hpp"
-
-namespace hyper_rhi
+namespace he
 {
-    class ImGuiManager
+    namespace platform
     {
-    public:
-        virtual ~ImGuiManager() = default;
+        class Window;
+    } // namespace platform
 
-        virtual void initialize(const hyper_platform::Window &window, const std::shared_ptr<Surface> &surface) = 0;
-        virtual void destroy() = 0;
+    namespace rhi
+    {
+        class CommandList;
+        class Surface;
 
-        virtual void new_frame() = 0;
-        virtual void render(const std::shared_ptr<CommandList> &command_list) = 0;
+        class ImGuiManager
+        {
+        public:
+            virtual ~ImGuiManager() = default;
 
-        virtual void on_resize(uint32_t width, uint32_t height) = 0;
-    };
-} // namespace hyper_rhi
+            virtual void initialize(const he::platform::Window &window, const std::shared_ptr<Surface> &surface) = 0;
+            virtual void destroy() = 0;
+
+            virtual void new_frame() = 0;
+            virtual void render(const std::shared_ptr<CommandList> &command_list) = 0;
+
+            virtual void on_resize(uint32_t width, uint32_t height) = 0;
+        };
+    } // namespace rhi
+} // namespace he

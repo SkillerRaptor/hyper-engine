@@ -6,17 +6,18 @@
 
 #include "hyper_core/logger.hpp"
 
-#include <fmt/color.h>
+#include <memory>
 
+#include <fmt/color.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/ansicolor_sink.h>
 #include <spdlog/sinks/ansicolor_sink-inl.h>
 
-namespace hyper_core
+namespace he::core::logger
 {
-    std::shared_ptr<spdlog::logger> Logger::s_internal_logger = nullptr;
+    static std::unique_ptr<spdlog::logger> g_logger = nullptr;
 
-    void Logger::initialize()
+    void initialize()
     {
         const auto stdout_sink = std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>();
         stdout_sink->set_color(spdlog::level::info, "\033[38;2;0;128;0m");
@@ -31,23 +32,28 @@ namespace hyper_core
         const auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("latest.log", true);
         file_sink->set_pattern("%Y-%m-%d%H:%M:%S.%f %l %s:%#: %v");
 
-        const spdlog::sinks_init_list log_sinks = {
-            stdout_sink,
-            file_sink,
-        };
-
-        s_internal_logger = std::make_shared<spdlog::logger>("HyperEngine", log_sinks.begin(), log_sinks.end());
-        s_internal_logger->set_level(spdlog::level::info);
-        s_internal_logger->flush_on(spdlog::level::info);
+        g_logger = std::make_unique<spdlog::logger>(
+            "HyperEngine",
+            spdlog::sinks_init_list{
+                stdout_sink,
+                file_sink,
+            });
+        g_logger->set_level(spdlog::level::info);
+        g_logger->flush_on(spdlog::level::info);
     }
 
-    void Logger::set_level(const spdlog::level::level_enum level)
+    void shutdown()
     {
-        s_internal_logger->set_level(level);
+        g_logger = nullptr;
     }
 
-    std::shared_ptr<spdlog::logger> &Logger::internal_logger()
+    void set_level(const spdlog::level::level_enum level)
     {
-        return s_internal_logger;
+        g_logger->set_level(level);
     }
-} // namespace hyper_core
+
+    const std::unique_ptr<spdlog::logger> &internal_logger()
+    {
+        return g_logger;
+    }
+} // namespace he::core::logger

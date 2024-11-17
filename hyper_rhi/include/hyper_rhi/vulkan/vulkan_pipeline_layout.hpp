@@ -6,12 +6,10 @@
 
 #pragma once
 
-#include <hyper_core/prerequisites.hpp>
-
 #include "hyper_rhi/pipeline_layout.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
@@ -21,14 +19,11 @@ namespace hyper_rhi
         VulkanPipelineLayout(VulkanGraphicsDevice &graphics_device, const PipelineLayoutDescriptor &descriptor);
         ~VulkanPipelineLayout() override;
 
-        [[nodiscard]] HE_FORCE_INLINE VkPipelineLayout pipeline_layout() const
-        {
-            return m_pipeline_layout;
-        }
+        VkPipelineLayout pipeline_layout() const;
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
 
         VkPipelineLayout m_pipeline_layout;
     };
-} // namespace hyper_rhi
+} // namespace he::rhi

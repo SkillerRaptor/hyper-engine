@@ -6,13 +6,12 @@
 
 #pragma once
 
-#include <hyper_core/prerequisites.hpp>
+#include <string>
 
-#include "hyper_rhi/render_pipeline.hpp"
-#include "hyper_rhi/resource.hpp"
+#include "hyper_rhi/compare_operation.hpp"
 #include "hyper_rhi/resource_handle.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     enum class Filter : uint8_t
     {
@@ -20,7 +19,7 @@ namespace hyper_rhi
         Linear,
     };
 
-    enum class SamplerAddressMode : uint8_t
+    enum class AddressMode : uint8_t
     {
         Repeat,
         MirroredRepeat,
@@ -43,9 +42,9 @@ namespace hyper_rhi
         Filter mag_filter = Filter::Linear;
         Filter min_filter = Filter::Linear;
         Filter mipmap_filter = Filter::Linear;
-        SamplerAddressMode address_mode_u = SamplerAddressMode::ClampToEdge;
-        SamplerAddressMode address_mode_v = SamplerAddressMode::ClampToEdge;
-        SamplerAddressMode address_mode_w = SamplerAddressMode::ClampToEdge;
+        AddressMode address_mode_u = AddressMode::ClampToEdge;
+        AddressMode address_mode_v = AddressMode::ClampToEdge;
+        AddressMode address_mode_w = AddressMode::ClampToEdge;
         float mip_lod_bias = 0.0;
         CompareOperation compare_operation = CompareOperation::Less;
         float min_lod = 0.0;
@@ -55,97 +54,39 @@ namespace hyper_rhi
         ResourceHandle handle;
     };
 
-    class Sampler : public Resource
+    class Sampler
     {
     public:
         virtual ~Sampler() = default;
 
-        [[nodiscard]] HE_FORCE_INLINE Filter mag_filter() const
-        {
-            return m_mag_filter;
-        }
+        std::string_view label() const;
 
-        [[nodiscard]] HE_FORCE_INLINE Filter min_filter() const
-        {
-            return m_min_filter;
-        }
+        Filter mag_filter() const;
+        Filter min_filter() const;
+        Filter mipmap_filter() const;
+        AddressMode address_mode_u() const;
+        AddressMode address_mode_v() const;
+        AddressMode address_mode_w() const;
+        float mip_lod_bias() const;
+        CompareOperation compare_operation() const;
+        float min_lod() const;
+        float max_lod() const;
+        BorderColor border_color() const;
 
-        [[nodiscard]] HE_FORCE_INLINE Filter mipmap_filter() const
-        {
-            return m_mipmap_filter;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE SamplerAddressMode address_mode_u() const
-        {
-            return m_address_mode_u;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE SamplerAddressMode address_mode_v() const
-        {
-            return m_address_mode_v;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE SamplerAddressMode address_mode_w() const
-        {
-            return m_address_mode_w;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE float mip_lod_bias() const
-        {
-            return m_mip_lod_bias;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE CompareOperation compare_operation() const
-        {
-            return m_compare_operation;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE float min_lod() const
-        {
-            return m_min_lod;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE float max_lod() const
-        {
-            return m_max_lod;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE BorderColor border_color() const
-        {
-            return m_border_color;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE ResourceHandle handle() const
-        {
-            return m_handle;
-        }
+        ResourceHandle handle() const;
 
     protected:
-        explicit Sampler(const SamplerDescriptor &descriptor)
-            : Resource(descriptor.label)
-            , m_mag_filter(descriptor.mag_filter)
-            , m_min_filter(descriptor.min_filter)
-            , m_mipmap_filter(descriptor.mipmap_filter)
-            , m_address_mode_u(descriptor.address_mode_u)
-            , m_address_mode_v(descriptor.address_mode_v)
-            , m_address_mode_w(descriptor.address_mode_w)
-            , m_mip_lod_bias(descriptor.mip_lod_bias)
-            , m_compare_operation(descriptor.compare_operation)
-            , m_min_lod(descriptor.min_lod)
-            , m_max_lod(descriptor.max_lod)
-            , m_border_color(descriptor.border_color)
-            , m_handle(descriptor.handle)
-        {
-            // TODO: Add assertions
-        }
+        explicit Sampler(const SamplerDescriptor &descriptor);
 
     protected:
+        std::string m_label;
+
         Filter m_mag_filter;
         Filter m_min_filter;
         Filter m_mipmap_filter;
-        SamplerAddressMode m_address_mode_u;
-        SamplerAddressMode m_address_mode_v;
-        SamplerAddressMode m_address_mode_w;
+        AddressMode m_address_mode_u;
+        AddressMode m_address_mode_v;
+        AddressMode m_address_mode_w;
         float m_mip_lod_bias;
         CompareOperation m_compare_operation;
         float m_min_lod;
@@ -154,4 +95,4 @@ namespace hyper_rhi
 
         ResourceHandle m_handle;
     };
-} // namespace hyper_rhi
+} // namespace he::rhi

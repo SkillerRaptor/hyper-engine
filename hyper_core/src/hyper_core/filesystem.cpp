@@ -8,11 +8,11 @@
 
 #include <fstream>
 
-namespace hyper_core::filesystem
+namespace he::core::fs
 {
-    std::vector<uint8_t> read_file(const std::string &file_path)
+    std::vector<uint8_t> read_file(const std::string_view file_path)
     {
-        std::ifstream file(file_path, std::ios::binary | std::ios::ate);
+        std::ifstream file(file_path.data(), std::ios::binary | std::ios::ate);
         if (!file.is_open())
         {
             return {};
@@ -26,4 +26,4 @@ namespace hyper_core::filesystem
 
         return data;
     }
-} // namespace hyper_core::filesystem
+} // namespace he::core::fs

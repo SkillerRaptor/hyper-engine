@@ -7,50 +7,54 @@
 #include "hyper_render/render_passes/opaque_pass.hpp"
 
 #include <hyper_core/filesystem.hpp>
+#include <hyper_rhi/buffer.hpp>
+#include <hyper_rhi/command_list.hpp>
+#include <hyper_rhi/render_pass.hpp>
+#include <hyper_rhi/texture_view.hpp>
 
 #include "hyper_render/renderer.hpp"
 
 #include "shader_interop.h"
 
-namespace hyper_render
+namespace he::render
 {
     OpaquePass::OpaquePass(
-        const std::shared_ptr<hyper_rhi::TextureView> &render_texture_view,
-        const std::shared_ptr<hyper_rhi::TextureView> &depth_texture_view,
-        const std::shared_ptr<hyper_rhi::Buffer> &scene_buffer)
+        const std::shared_ptr<he::rhi::TextureView> &render_texture_view,
+        const std::shared_ptr<he::rhi::TextureView> &depth_texture_view,
+        const std::shared_ptr<he::rhi::Buffer> &scene_buffer)
         : m_render_texture_view(render_texture_view)
         , m_depth_texture_view(depth_texture_view)
         , m_scene_buffer(scene_buffer)
     {
     }
 
-    void OpaquePass::render(const std::shared_ptr<hyper_rhi::CommandList> &command_list, const DrawContext &draw_context) const
+    void OpaquePass::render(const std::shared_ptr<he::rhi::CommandList> &command_list, const DrawContext &draw_context) const
     {
-        const std::shared_ptr<hyper_rhi::RenderPass> render_pass = command_list->begin_render_pass({
+        const std::shared_ptr<he::rhi::RenderPass> render_pass = command_list->begin_render_pass({
             .label = "Opaque",
             .label_color =
-                hyper_rhi::LabelColor{
+                he::rhi::LabelColor{
                     .red = 254,
                     .green = 17,
                     .blue = 85,
                 },
             .color_attachments = {
-                hyper_rhi::ColorAttachment{
+                he::rhi::ColorAttachment{
                     .view = m_render_texture_view,
                     .operation =
-                        hyper_rhi::Operations{
-                            .load_operation = hyper_rhi::LoadOperation::Clear,
-                            .store_operation = hyper_rhi::StoreOperation::Store,
+                        he::rhi::Operations{
+                            .load_operation = he::rhi::LoadOperation::Clear,
+                            .store_operation = he::rhi::StoreOperation::Store,
                         },
                 },
             },
             .depth_stencil_attachment =
-                hyper_rhi::DepthStencilAttachment{
+                he::rhi::DepthStencilAttachment{
                     .view = m_depth_texture_view,
                     .depth_operation =
-                        hyper_rhi::Operations{
-                            .load_operation = hyper_rhi::LoadOperation::Clear,
-                            .store_operation = hyper_rhi::StoreOperation::Store,
+                        he::rhi::Operations{
+                            .load_operation = he::rhi::LoadOperation::Clear,
+                            .store_operation = he::rhi::StoreOperation::Store,
                         },
                 },
         });
@@ -91,4 +95,4 @@ namespace hyper_render
             render_pass->draw_indexed(render_object.index_count, 1, render_object.first_index, 0, 0);
         }
     }
-} // namespace hyper_render
+} // namespace he::render

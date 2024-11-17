@@ -6,7 +6,9 @@
 
 #pragma once
 
-namespace hyper_platform
+#include <cstdint>
+
+namespace he::platform
 {
     enum class KeyCode : uint32_t
     {
@@ -260,4 +262,4 @@ namespace hyper_platform
         Call = 0x40000121u,
         EndCall = 0x40000122u
     };
-} // namespace hyper_platform
+} // namespace he::platform

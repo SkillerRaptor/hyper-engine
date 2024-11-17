@@ -8,7 +8,7 @@
 
 #include <hyper_core/math.hpp>
 
-namespace hyper_render
+namespace he::render
 {
     class Camera
     {
@@ -30,13 +30,13 @@ namespace hyper_render
 
         void set_aspect_ratio(float aspect_ratio);
 
-        [[nodiscard]] glm::vec3 position() const;
+        glm::vec3 position() const;
 
-        [[nodiscard]] float near_plane() const;
-        [[nodiscard]] float far_plane() const;
+        float near_plane() const;
+        float far_plane() const;
 
-        [[nodiscard]] glm::mat4 projection_matrix() const;
-        [[nodiscard]] glm::mat4 view_matrix() const;
+        glm::mat4 projection_matrix() const;
+        glm::mat4 view_matrix() const;
 
     private:
         void update_camera_vectors();
@@ -62,4 +62,4 @@ namespace hyper_render
         float m_last_x;
         float m_last_y;
     };
-} // namespace hyper_render
+} // namespace he::render

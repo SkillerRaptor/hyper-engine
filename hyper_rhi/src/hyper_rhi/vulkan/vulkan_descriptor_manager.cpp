@@ -6,10 +6,13 @@
 
 #include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
 
+#include <hyper_core/assertion.hpp>
+#include <hyper_core/logger.hpp>
+
 #include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     VulkanDescriptorManager::VulkanDescriptorManager(VulkanGraphicsDevice &graphics_device)
         : m_graphics_device(graphics_device)
@@ -170,6 +173,27 @@ namespace hyper_rhi
         m_recycled_descriptors.push(handle);
     }
 
+    const std::array<uint32_t, VulkanDescriptorManager::s_descriptor_types.size()> &VulkanDescriptorManager::descriptor_counts() const
+    {
+        return m_descriptor_counts;
+    }
+
+    VkDescriptorPool VulkanDescriptorManager::descriptor_pool() const
+    {
+        return m_descriptor_pool;
+    }
+
+    const std::array<VkDescriptorSetLayout, VulkanDescriptorManager::s_descriptor_types.size()> &
+        VulkanDescriptorManager::descriptor_set_layouts() const
+    {
+        return m_descriptor_set_layouts;
+    }
+
+    const std::array<VkDescriptorSet, VulkanDescriptorManager::s_descriptor_types.size()> &VulkanDescriptorManager::descriptor_sets() const
+    {
+        return m_descriptor_sets;
+    }
+
     void VulkanDescriptorManager::find_descriptor_counts()
     {
         VkPhysicalDeviceProperties properties = {};
@@ -318,4 +342,4 @@ namespace hyper_rhi
         m_recycled_descriptors.pop();
         return handle;
     }
-} // namespace hyper_rhi
+} // namespace he::rhi

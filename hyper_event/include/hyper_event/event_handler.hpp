@@ -9,7 +9,7 @@
 #include <functional>
 #include <vector>
 
-namespace hyper_event
+namespace he::event
 {
     class EventHandler
     {
@@ -37,4 +37,4 @@ namespace hyper_event
     private:
         std::vector<std::function<void(const T &)>> m_callbacks;
     };
-} // namespace hyper_event
+} // namespace he::event

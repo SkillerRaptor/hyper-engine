@@ -9,15 +9,19 @@
 #include <array>
 #include <memory>
 #include <optional>
+#include <vector>
 
+#include "hyper_rhi/label_color.hpp"
 #include "hyper_rhi/graphics_device.hpp"
+#include "hyper_rhi/resource_handle.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
-#include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
 
 #include <vk_mem_alloc.h>
 
-namespace hyper_rhi
+namespace he::rhi
 {
+    class VulkanDescriptorManager;
+
     enum class ObjectType
     {
         Buffer,
@@ -89,7 +93,7 @@ namespace hyper_rhi
         explicit VulkanGraphicsDevice(const GraphicsDeviceDescriptor &descriptor);
         ~VulkanGraphicsDevice() override;
 
-        std::shared_ptr<Surface> create_surface(const hyper_platform::Window &window) override;
+        std::shared_ptr<Surface> create_surface(const he::platform::Window &window) override;
         std::shared_ptr<Buffer> create_buffer(const BufferDescriptor &descriptor) override;
         std::shared_ptr<Buffer> create_staging_buffer(const BufferDescriptor &descriptor);
         std::shared_ptr<CommandList> create_command_list() override;
@@ -116,62 +120,23 @@ namespace hyper_rhi
 
         void wait_for_idle() const override;
 
-        [[nodiscard]] HE_FORCE_INLINE VkInstance instance() const
-        {
-            return m_instance;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE VkPhysicalDevice physical_device() const
-        {
-            return m_physical_device;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE VkDevice device() const
-        {
-            return m_device;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE uint32_t queue_family() const
-        {
-            return m_queue_family;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE VkQueue queue() const
-        {
-            return m_queue;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE VmaAllocator allocator() const
-        {
-            return m_allocator;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE VulkanDescriptorManager &descriptor_manager() const
-        {
-            return *m_descriptor_manager;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE ResourceQueue &resource_queue()
-        {
-            return m_resource_queue;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE const FrameData &current_frame() const
-        {
-            return m_frames[m_current_frame_index % GraphicsDevice::s_frame_count];
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE uint32_t current_frame_index() const
-        {
-            return m_current_frame_index;
-        }
+        VkInstance instance() const;
+        VkPhysicalDevice physical_device() const;
+        VkDevice device() const;
+        uint32_t queue_family() const;
+        VkQueue queue() const;
+        VmaAllocator allocator() const;
+        VulkanDescriptorManager &descriptor_manager() const;
+        ResourceQueue &resource_queue();
+        const FrameData &current_frame() const;
+        uint32_t current_frame_index() const;
 
     private:
         void create_instance();
         void create_debug_messenger();
         void choose_physical_device();
-        [[nodiscard]] uint32_t rate_physical_device(const VkPhysicalDevice &physical_device) const;
-        [[nodiscard]] std::optional<uint32_t> find_queue_family(const VkPhysicalDevice &physical_device) const;
+        uint32_t rate_physical_device(const VkPhysicalDevice &physical_device) const;
+        std::optional<uint32_t> find_queue_family(const VkPhysicalDevice &physical_device) const;
         void create_device();
         void create_allocator();
         void create_frames();
@@ -203,4 +168,4 @@ namespace hyper_rhi
 
         ResourceQueue m_resource_queue;
     };
-} // namespace hyper_rhi
+} // namespace he::rhi

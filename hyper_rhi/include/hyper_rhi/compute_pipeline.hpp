@@ -9,15 +9,11 @@
 #include <memory>
 #include <string>
 
-#include <hyper_core/assertion.hpp>
-#include <hyper_core/prerequisites.hpp>
-
-#include "hyper_rhi/pipeline_layout.hpp"
-#include "hyper_rhi/resource.hpp"
-#include "hyper_rhi/shader_module.hpp"
-
-namespace hyper_rhi
+namespace he::rhi
 {
+    class PipelineLayout;
+    class ShaderModule;
+
     struct ComputePipelineDescriptor
     {
         std::string label;
@@ -26,33 +22,23 @@ namespace hyper_rhi
         std::shared_ptr<ShaderModule> shader = nullptr;
     };
 
-    class ComputePipeline : public Resource
+    class ComputePipeline
     {
     public:
         virtual ~ComputePipeline() = default;
 
-        [[nodiscard]] HE_FORCE_INLINE PipelineLayout &layout() const
-        {
-            return *m_layout;
-        }
+        std::string_view label() const;
 
-        [[nodiscard]] HE_FORCE_INLINE ShaderModule &shader() const
-        {
-            return *m_shader;
-        }
+        const std::shared_ptr<PipelineLayout> &layout() const;
+        const std::shared_ptr<ShaderModule> &shader() const;
 
     protected:
-        explicit ComputePipeline(const ComputePipelineDescriptor &descriptor)
-            : Resource(descriptor.label)
-            , m_layout(descriptor.layout)
-            , m_shader(descriptor.shader)
-        {
-            HE_ASSERT(m_layout != nullptr);
-            HE_ASSERT(m_shader != nullptr);
-        }
+        explicit ComputePipeline(const ComputePipelineDescriptor &descriptor);
 
     protected:
+        std::string m_label;
+
         std::shared_ptr<PipelineLayout> m_layout;
         std::shared_ptr<ShaderModule> m_shader;
     };
-} // namespace hyper_rhi
+} // namespace he::rhi

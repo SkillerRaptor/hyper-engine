@@ -10,13 +10,14 @@
 
 #include <hyper_core/assertion.hpp>
 #include <hyper_core/logger.hpp>
+#include <hyper_event/event_bus.hpp>
 
 #include "hyper_platform/key_events.hpp"
 #include "hyper_platform/mouse_events.hpp"
 #include "hyper_platform/sdl_event.hpp"
 #include "hyper_platform/window_events.hpp"
 
-namespace hyper_platform
+namespace he::platform
 {
     Window::Window(const WindowDescriptor &descriptor)
         : m_native_window(nullptr)
@@ -54,12 +55,17 @@ namespace hyper_platform
         return static_cast<uint32_t>(height);
     }
 
-    void Window::process_events(hyper_event::EventBus &event_bus)
+    SDL_Window *Window::native_window() const
+    {
+        return m_native_window;
+    }
+
+    void Window::process_events(he::event::EventBus &event_bus)
     {
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
-            event_bus.dispatch<SdlEvent>(event);
+            event_bus.dispatch<SdlEvent>(&event);
 
             switch (event.type)
             {
@@ -103,4 +109,4 @@ namespace hyper_platform
     {
         SDL_WaitEvent(nullptr);
     }
-} // namespace hyper_platform
+} // namespace he::platform

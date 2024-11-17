@@ -6,27 +6,18 @@
 
 #pragma once
 
-#include <hyper_core/prerequisites.hpp>
+union SDL_Event;
 
-#include <SDL3/SDL.h>
-
-namespace hyper_platform
+namespace he::platform
 {
-
     class SdlEvent
     {
     public:
-        explicit SdlEvent(const SDL_Event &event)
-            : m_event(event)
-        {
-        }
+        explicit SdlEvent(const SDL_Event *event);
 
-        [[nodiscard]] HE_FORCE_INLINE const SDL_Event *event() const
-        {
-            return &m_event;
-        }
+        const SDL_Event *event() const;
 
     private:
-        SDL_Event m_event;
+        const SDL_Event *m_event;
     };
-} // namespace hyper_platform
+} // namespace he::platform

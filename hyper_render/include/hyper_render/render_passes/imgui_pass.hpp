@@ -6,31 +6,51 @@
 
 #pragma once
 
-#include "hyper_platform/sdl_event.hpp"
+#include <memory>
 
-#include <hyper_rhi/graphics_device.hpp>
-#include <hyper_rhi/imgui_manager.hpp>
-
-namespace hyper_render
+namespace he
 {
-    class ImGuiPass
+    namespace event
     {
-    public:
-        ImGuiPass(
-            hyper_event::EventBus &event_bus,
-            const hyper_platform::Window &window,
-            const std::shared_ptr<hyper_rhi::GraphicsDevice> &graphics_device,
-            const std::shared_ptr<hyper_rhi::Surface> &surface);
-        ~ImGuiPass();
+        class EventBus;
+    }
 
-        void render(
-            const std::shared_ptr<hyper_rhi::CommandList> &command_list,
-            const std::shared_ptr<hyper_rhi::TextureView> &swapchain_texture_view) const;
+    namespace platform
+    {
+        class SdlEvent;
+        class Window;
+    } // namespace platform
 
-    private:
-        static void on_sdl_event(const hyper_platform::SdlEvent &event);
+    namespace rhi
+    {
+        class CommandList;
+        class GraphicsDevice;
+        class ImGuiManager;
+        class Surface;
+        class TextureView;
+    } // namespace rhi
 
-    private:
-        std::shared_ptr<hyper_rhi::ImGuiManager> m_imgui_manager;
-    };
-} // namespace hyper_render
+    namespace render
+    {
+        class ImGuiPass
+        {
+        public:
+            ImGuiPass(
+                he::event::EventBus &event_bus,
+                const he::platform::Window &window,
+                const std::shared_ptr<he::rhi::GraphicsDevice> &graphics_device,
+                const std::shared_ptr<he::rhi::Surface> &surface);
+            ~ImGuiPass();
+
+            void render(
+                const std::shared_ptr<he::rhi::CommandList> &command_list,
+                const std::shared_ptr<he::rhi::TextureView> &swapchain_texture_view) const;
+
+        private:
+            static void on_sdl_event(const he::platform::SdlEvent &event);
+
+        private:
+            std::shared_ptr<he::rhi::ImGuiManager> m_imgui_manager;
+        };
+    } // namespace render
+} // namespace he

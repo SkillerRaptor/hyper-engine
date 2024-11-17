@@ -6,12 +6,10 @@
 
 #pragma once
 
-#include <hyper_core/prerequisites.hpp>
-
 #include "hyper_rhi/render_pass.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
@@ -33,13 +31,10 @@ namespace hyper_rhi
         void draw_indexed(uint32_t index_count, uint32_t instance_count, uint32_t first_index, int32_t vertex_offset, uint32_t first_instance)
             const override;
 
-        [[nodiscard]] static VkAttachmentLoadOp get_attachment_load_operation(LoadOperation load_operation);
-        [[nodiscard]] static VkAttachmentStoreOp get_attachment_store_operation(StoreOperation store_operation);
+        VkCommandBuffer command_buffer() const;
 
-        [[nodiscard]] HE_FORCE_INLINE VkCommandBuffer command_buffer() const
-        {
-            return m_command_buffer;
-        }
+        static VkAttachmentLoadOp get_attachment_load_operation(LoadOperation load_operation);
+        static VkAttachmentStoreOp get_attachment_store_operation(StoreOperation store_operation);
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
@@ -48,4 +43,4 @@ namespace hyper_rhi
 
         std::shared_ptr<RenderPipeline> m_pipeline;
     };
-} // namespace hyper_rhi
+} // namespace he::rhi

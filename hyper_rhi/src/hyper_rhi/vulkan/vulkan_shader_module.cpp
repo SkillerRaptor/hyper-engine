@@ -6,9 +6,12 @@
 
 #include "hyper_rhi/vulkan/vulkan_shader_module.hpp"
 
+#include <hyper_core/assertion.hpp>
+#include <hyper_core/logger.hpp>
+
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     VulkanShaderModule::VulkanShaderModule(VulkanGraphicsDevice &graphics_device, const ShaderModuleDescriptor &descriptor)
         : ShaderModule(descriptor)
@@ -52,4 +55,9 @@ namespace hyper_rhi
     {
         m_graphics_device.resource_queue().shader_modules.emplace_back(m_shader_module);
     }
-} // namespace hyper_rhi
+
+    VkShaderModule VulkanShaderModule::shader_module() const
+    {
+        return m_shader_module;
+    }
+} // namespace he::rhi

@@ -13,9 +13,9 @@
 #include <wrl.h>
 #include <dxcapi.h>
 
-#include "hyper_rhi/shader_module.hpp"
+#include "hyper_rhi/shader_type.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     struct ShaderDescriptor
     {
@@ -49,10 +49,10 @@ namespace hyper_rhi
     public:
         ShaderCompiler();
 
-        [[nodiscard]] ShaderData compile(const ShaderDescriptor &descriptor) const;
+        ShaderData compile(const ShaderDescriptor &descriptor) const;
 
     private:
         Microsoft::WRL::ComPtr<IDxcCompiler3> m_compiler;
         Microsoft::WRL::ComPtr<IDxcUtils> m_utils;
     };
-} // namespace hyper_rhi
+} // namespace he::rhi

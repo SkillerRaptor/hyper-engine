@@ -10,11 +10,17 @@
 
 #include <SDL3/SDL_vulkan.h>
 
-#include "hyper_rhi/vulkan/vulkan_texture.hpp"
+#include <hyper_core/assertion.hpp>
+#include <hyper_core/logger.hpp>
+#include <hyper_platform/window.hpp>
 
-namespace hyper_rhi
+#include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
+#include "hyper_rhi/vulkan/vulkan_texture.hpp"
+#include "hyper_rhi/vulkan/vulkan_texture_view.hpp"
+
+namespace he::rhi
 {
-    VulkanSurface::VulkanSurface(VulkanGraphicsDevice &graphics_device, const hyper_platform::Window &window)
+    VulkanSurface::VulkanSurface(VulkanGraphicsDevice &graphics_device, const he::platform::Window &window)
         : Surface(window.width(), window.height())
         , m_graphics_device(graphics_device)
         , m_surface(VK_NULL_HANDLE)
@@ -50,7 +56,47 @@ namespace hyper_rhi
         m_resized = false;
     }
 
-    void VulkanSurface::create_surface(const hyper_platform::Window &window)
+    VkSwapchainKHR VulkanSurface::swapchain() const
+    {
+        return m_swapchain;
+    }
+
+    void VulkanSurface::set_texture_index(const uint32_t texture_index)
+    {
+        m_texture_index = texture_index;
+    }
+
+    uint32_t VulkanSurface::texture_index() const
+    {
+        return m_texture_index;
+    }
+
+    uint32_t VulkanSurface::min_image_count() const
+    {
+        return m_min_image_count;
+    }
+
+    uint32_t VulkanSurface::image_count() const
+    {
+        return m_image_count;
+    }
+
+    Format VulkanSurface::format() const
+    {
+        return VulkanTexture::format_to_texture_format(m_format);
+    }
+
+    std::shared_ptr<Texture> VulkanSurface::current_texture() const
+    {
+        return m_textures[m_texture_index];
+    }
+
+    std::shared_ptr<TextureView> VulkanSurface::current_texture_view() const
+    {
+        return m_texture_views[m_texture_index];
+    }
+
+    void VulkanSurface::create_surface(const he::platform::Window &window)
     {
         HE_ASSERT(SDL_Vulkan_CreateSurface(window.native_window(), m_graphics_device.instance(), nullptr, &m_surface));
         HE_ASSERT(m_surface != VK_NULL_HANDLE);
@@ -141,7 +187,7 @@ namespace hyper_rhi
                     .array_size = 1,
                     .mip_levels = 1,
                     .format = VulkanTexture::format_to_texture_format(m_format),
-                    .dimension = TextureDimension::Texture2D,
+                    .dimension = Dimension::Texture2D,
                     .usage = TextureUsage::RenderAttachment,
                 },
                 image));
@@ -149,19 +195,20 @@ namespace hyper_rhi
             m_texture_views.push_back(m_graphics_device.create_texture_view({
                 .label = fmt::format("Swapchain #{}", index),
                 .texture = m_textures[index],
-                .base_mip_level = 0,
-                .mip_level_count = 1,
-                .base_array_level = 0,
-                .array_layer_count = 1,
-                .component_mapping =
-                    TextureComponentMapping{
-                        .r = TextureComponentSwizzle::Identity,
-                        .g = TextureComponentSwizzle::Identity,
-                        .b = TextureComponentSwizzle::Identity,
-                        .a = TextureComponentSwizzle::Identity,
+                .subresource_range =
+                    SubresourceRange{
+                        .base_mip_level = 0,
+                        .mip_level_count = 1,
+                        .base_array_level = 0,
+                        .array_layer_count = 1,
                     },
-                .format = VulkanTexture::format_to_texture_format(m_format),
-                .dimension = TextureDimension::Texture2D,
+                .component_mapping =
+                    ComponentMapping{
+                        .r = ComponentSwizzle::Identity,
+                        .g = ComponentSwizzle::Identity,
+                        .b = ComponentSwizzle::Identity,
+                        .a = ComponentSwizzle::Identity,
+                    },
             }));
 
             ++index;
@@ -216,4 +263,4 @@ namespace hyper_rhi
 
         return VK_PRESENT_MODE_FIFO_KHR;
     }
-} // namespace hyper_rhi
+} // namespace he::rhi

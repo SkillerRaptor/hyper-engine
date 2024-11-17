@@ -9,12 +9,10 @@
 #include <array>
 #include <stack>
 
-#include <hyper_core/prerequisites.hpp>
-
 #include "hyper_rhi/resource_handle.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
@@ -37,31 +35,16 @@ namespace hyper_rhi
         void set_storage_image(VkImageView image_view, VkImageLayout image_layout, uint32_t slot) const;
         void set_sampler(VkSampler sampler, uint32_t slot) const;
 
-        [[nodiscard]] ResourceHandle allocate_buffer_handle(VkBuffer buffer);
-        [[nodiscard]] ResourceHandle allocate_sampled_image_handle(VkImageView image_view, VkImageLayout image_layout);
-        [[nodiscard]] ResourceHandle allocate_storage_image_handle(VkImageView image_view, VkImageLayout image_layout);
-        [[nodiscard]] ResourceHandle allocate_sampler_handle(VkSampler sampler);
+        ResourceHandle allocate_buffer_handle(VkBuffer buffer);
+        ResourceHandle allocate_sampled_image_handle(VkImageView image_view, VkImageLayout image_layout);
+        ResourceHandle allocate_storage_image_handle(VkImageView image_view, VkImageLayout image_layout);
+        ResourceHandle allocate_sampler_handle(VkSampler sampler);
         void retire_handle(ResourceHandle handle);
 
-        [[nodiscard]] HE_FORCE_INLINE const std::array<uint32_t, s_descriptor_types.size()> &descriptor_counts() const
-        {
-            return m_descriptor_counts;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE VkDescriptorPool descriptor_pool() const
-        {
-            return m_descriptor_pool;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE const std::array<VkDescriptorSetLayout, s_descriptor_types.size()> &descriptor_set_layouts() const
-        {
-            return m_descriptor_set_layouts;
-        }
-
-        [[nodiscard]] HE_FORCE_INLINE const std::array<VkDescriptorSet, s_descriptor_types.size()> &descriptor_sets() const
-        {
-            return m_descriptor_sets;
-        }
+        const std::array<uint32_t, s_descriptor_types.size()> &descriptor_counts() const;
+        VkDescriptorPool descriptor_pool() const;
+        const std::array<VkDescriptorSetLayout, s_descriptor_types.size()> &descriptor_set_layouts() const;
+        const std::array<VkDescriptorSet, s_descriptor_types.size()> &descriptor_sets() const;
 
     private:
         void find_descriptor_counts();
@@ -83,4 +66,4 @@ namespace hyper_rhi
         std::stack<ResourceHandle> m_recycled_descriptors;
         uint32_t m_current_index;
     };
-} // namespace hyper_rhi
+} // namespace he::rhi

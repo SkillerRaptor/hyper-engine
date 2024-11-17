@@ -6,11 +6,12 @@
 
 #pragma once
 
-#include "hyper_rhi/texture.hpp"
+#include "hyper_rhi/dimension.hpp"
+#include "hyper_rhi/format.hpp"
 #include "hyper_rhi/texture_view.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
@@ -20,18 +21,15 @@ namespace hyper_rhi
         VulkanTextureView(VulkanGraphicsDevice &graphics_device, const TextureViewDescriptor &descriptor);
         ~VulkanTextureView() override;
 
-        [[nodiscard]] static VkImageAspectFlags get_image_aspect_flags(Format format);
-        [[nodiscard]] static VkComponentSwizzle get_component_swizzle(TextureComponentSwizzle component_swizzle);
-        [[nodiscard]] static VkImageViewType get_image_view_type(TextureDimension dimension);
+        VkImageView image_view() const;
 
-        [[nodiscard]] HE_FORCE_INLINE VkImageView image_view() const
-        {
-            return m_image_view;
-        }
+        static VkImageAspectFlags get_image_aspect_flags(Format format);
+        static VkComponentSwizzle get_component_swizzle(ComponentSwizzle component_swizzle);
+        static VkImageViewType get_image_view_type(Dimension dimension);
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
 
         VkImageView m_image_view;
     };
-} // namespace hyper_rhi
+} // namespace he::rhi

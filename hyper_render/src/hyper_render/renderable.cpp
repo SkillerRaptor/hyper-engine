@@ -6,19 +6,27 @@
 
 #include "hyper_render/renderable.hpp"
 
-#include <utility>
-
 #include <fastgltf/core.hpp>
 #include <fastgltf/glm_element_traits.hpp>
 #include <fastgltf/tools.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <stb_image.h>
 
+#include <hyper_core/assertion.hpp>
 #include <hyper_core/logger.hpp>
+#include <hyper_rhi/buffer.hpp>
+#include <hyper_rhi/command_list.hpp>
+#include <hyper_rhi/graphics_device.hpp>
+#include <hyper_rhi/sampler.hpp>
+#include <hyper_rhi/shader_compiler.hpp>
+#include <hyper_rhi/texture.hpp>
+#include <hyper_rhi/texture_view.hpp>
+
+#include "hyper_render/mesh.hpp"
 
 #include "shader_interop.h"
 
-namespace hyper_render
+namespace he::render
 {
     void Node::refresh_transform(const glm::mat4 &parent_matrix)
     {
@@ -36,6 +44,11 @@ namespace hyper_render
         {
             child->draw(top_matrix, context);
         }
+    }
+
+    MeshNode::MeshNode(const std::shared_ptr<Mesh> &mesh)
+        : mesh(mesh)
+    {
     }
 
     void MeshNode::draw(const glm::mat4 &top_matrix, DrawContext &context) const
@@ -66,6 +79,24 @@ namespace hyper_render
         Node::draw(top_matrix, context);
     }
 
+    LoadedGltf::LoadedGltf(
+        std::vector<std::shared_ptr<Mesh>> meshes,
+        std::vector<std::shared_ptr<Node>> nodes,
+        std::vector<std::shared_ptr<he::rhi::Texture>> textures,
+        std::vector<std::shared_ptr<he::rhi::TextureView>> texture_views,
+        std::vector<std::shared_ptr<GltfMaterial>> materials,
+        std::vector<std::shared_ptr<Node>> top_nodes,
+        std::vector<std::shared_ptr<he::rhi::Sampler>> samplers)
+        : m_meshes(std::move(meshes))
+        , m_nodes(std::move(nodes))
+        , m_textures(std::move(textures))
+        , m_texture_views(std::move(texture_views))
+        , m_materials(std::move(materials))
+        , m_top_nodes(std::move(top_nodes))
+        , m_samplers(std::move(samplers))
+    {
+    }
+
     void LoadedGltf::draw(const glm::mat4 &top_matrix, DrawContext &draw_context) const
     {
         for (const std::shared_ptr<Node> &node : m_top_nodes)
@@ -75,18 +106,20 @@ namespace hyper_render
     }
 
     std::shared_ptr<LoadedGltf> load_gltf(
-        const std::shared_ptr<hyper_rhi::GraphicsDevice> &graphics_device,
-        const std::shared_ptr<hyper_rhi::CommandList> &command_list,
-        const std::shared_ptr<hyper_rhi::TextureView> &white_texture_view,
-        const std::shared_ptr<hyper_rhi::Texture> &error_texture,
-        const std::shared_ptr<hyper_rhi::TextureView> &error_texture_view,
-        const std::shared_ptr<hyper_rhi::Sampler> &default_sampler_linear,
+        const std::shared_ptr<he::rhi::GraphicsDevice> &graphics_device,
+        const std::shared_ptr<he::rhi::CommandList> &command_list,
+        const std::shared_ptr<he::rhi::TextureView> &white_texture_view,
+        const std::shared_ptr<he::rhi::Texture> &error_texture,
+        const std::shared_ptr<he::rhi::TextureView> &error_texture_view,
+        const std::shared_ptr<he::rhi::Sampler> &default_sampler_linear,
         const GltfMetallicRoughness &metallic_roughness_material,
         const std::string &path)
     {
         HE_INFO("Loading GLTF '{}'", path);
 
         const std::filesystem::path file_path(path);
+
+        std::string file_name = file_path.filename().generic_string();
 
         fastgltf::Expected<fastgltf::GltfDataBuffer> data = fastgltf::GltfDataBuffer::FromPath(file_path);
         HE_ASSERT(data.error() == fastgltf::Error::None);
@@ -98,48 +131,48 @@ namespace hyper_render
         fastgltf::Expected<fastgltf::Asset> asset = parser.loadGltf(data.get(), file_path.parent_path(), options);
         HE_ASSERT(asset.error() == fastgltf::Error::None);
 
-        std::vector<std::shared_ptr<hyper_rhi::Sampler>> samplers;
+        std::vector<std::shared_ptr<he::rhi::Sampler>> samplers;
         for (const fastgltf::Sampler &sampler : asset->samplers)
         {
-            const auto extract_filter = [](const fastgltf::Filter filter) -> hyper_rhi::Filter
+            const auto extract_filter = [](const fastgltf::Filter filter) -> he::rhi::Filter
             {
                 switch (filter)
                 {
                 case fastgltf::Filter::Nearest:
                 case fastgltf::Filter::NearestMipMapNearest:
                 case fastgltf::Filter::NearestMipMapLinear:
-                    return hyper_rhi::Filter::Nearest;
+                    return he::rhi::Filter::Nearest;
                 case fastgltf::Filter::Linear:
                 case fastgltf::Filter::LinearMipMapNearest:
                 case fastgltf::Filter::LinearMipMapLinear:
-                    return hyper_rhi::Filter::Linear;
+                    return he::rhi::Filter::Linear;
                 default:
                     HE_UNREACHABLE();
                 }
             };
 
-            const hyper_rhi::Filter mag_filter = extract_filter(sampler.magFilter.value_or(fastgltf::Filter::Nearest));
-            const hyper_rhi::Filter min_filter = extract_filter(sampler.minFilter.value_or(fastgltf::Filter::Nearest));
-            const hyper_rhi::Filter mipmap_filter = extract_filter(sampler.minFilter.value_or(fastgltf::Filter::Nearest));
+            const he::rhi::Filter mag_filter = extract_filter(sampler.magFilter.value_or(fastgltf::Filter::Nearest));
+            const he::rhi::Filter min_filter = extract_filter(sampler.minFilter.value_or(fastgltf::Filter::Nearest));
+            const he::rhi::Filter mipmap_filter = extract_filter(sampler.minFilter.value_or(fastgltf::Filter::Nearest));
 
             samplers.push_back(graphics_device->create_sampler({
-                .label = std::string(sampler.name),
+                .label = sampler.name.empty() ? file_name : std::string(sampler.name),
                 .mag_filter = mag_filter,
                 .min_filter = min_filter,
                 .mipmap_filter = mipmap_filter,
-                .address_mode_u = hyper_rhi::SamplerAddressMode::Repeat,
-                .address_mode_v = hyper_rhi::SamplerAddressMode::Repeat,
-                .address_mode_w = hyper_rhi::SamplerAddressMode::Repeat,
+                .address_mode_u = he::rhi::AddressMode::Repeat,
+                .address_mode_v = he::rhi::AddressMode::Repeat,
+                .address_mode_w = he::rhi::AddressMode::Repeat,
                 .mip_lod_bias = 0.0,
-                .compare_operation = hyper_rhi::CompareOperation::Never,
+                .compare_operation = he::rhi::CompareOperation::Never,
                 .min_lod = 0.0,
                 .max_lod = 1000.0f,
-                .border_color = hyper_rhi::BorderColor::TransparentBlack,
+                .border_color = he::rhi::BorderColor::TransparentBlack,
             }));
         }
 
-        std::vector<std::shared_ptr<hyper_rhi::Texture>> textures;
-        std::vector<std::shared_ptr<hyper_rhi::TextureView>> texture_views;
+        std::vector<std::shared_ptr<he::rhi::Texture>> textures;
+        std::vector<std::shared_ptr<he::rhi::TextureView>> texture_views;
         for (const fastgltf::Image &image : asset->images)
         {
             int32_t width = 0;
@@ -200,49 +233,50 @@ namespace hyper_render
 
             if (image_data)
             {
-                std::shared_ptr<hyper_rhi::Texture> texture = graphics_device->create_texture({
-                    .label = std::string(image.name),
+                std::shared_ptr<he::rhi::Texture> texture = graphics_device->create_texture({
+                    .label = image.name.empty() ? file_name : std::string(image.name),
                     .width = static_cast<uint32_t>(width),
                     .height = static_cast<uint32_t>(height),
                     .depth = 1,
                     .array_size = 1,
                     .mip_levels = 1,
-                    .format = hyper_rhi::Format::Rgba8Srgb,
-                    .dimension = hyper_rhi::TextureDimension::Texture2D,
-                    .usage = hyper_rhi::TextureUsage::ShaderResource,
+                    .format = he::rhi::Format::Rgba8Srgb,
+                    .dimension = he::rhi::Dimension::Texture2D,
+                    .usage = he::rhi::TextureUsage::ShaderResource,
                 });
 
-                std::shared_ptr<hyper_rhi::TextureView> texture_view = graphics_device->create_texture_view({
-                    .label = std::string(image.name),
+                std::shared_ptr<he::rhi::TextureView> texture_view = graphics_device->create_texture_view({
+                    .label = image.name.empty() ? file_name : std::string(image.name),
                     .texture = texture,
-                    .base_mip_level = 0,
-                    .mip_level_count = 1,
-                    .base_array_level = 0,
-                    .array_layer_count = 1,
-                    .component_mapping =
-                        hyper_rhi::TextureComponentMapping{
-                            .r = hyper_rhi::TextureComponentSwizzle::Identity,
-                            .g = hyper_rhi::TextureComponentSwizzle::Identity,
-                            .b = hyper_rhi::TextureComponentSwizzle::Identity,
-                            .a = hyper_rhi::TextureComponentSwizzle::Identity,
+                    .subresource_range =
+                        he::rhi::SubresourceRange{
+                            .base_mip_level = 0,
+                            .mip_level_count = 1,
+                            .base_array_level = 0,
+                            .array_layer_count = 1,
                         },
-                    .format = hyper_rhi::Format::Rgba8Srgb,
-                    .dimension = hyper_rhi::TextureDimension::Texture2D,
+                    .component_mapping =
+                        he::rhi::ComponentMapping{
+                            .r = he::rhi::ComponentSwizzle::Identity,
+                            .g = he::rhi::ComponentSwizzle::Identity,
+                            .b = he::rhi::ComponentSwizzle::Identity,
+                            .a = he::rhi::ComponentSwizzle::Identity,
+                        },
                 });
 
                 command_list->insert_barriers({
                     .memory_barriers = {},
                     .buffer_memory_barriers = {},
                     .texture_memory_barriers = {
-                        hyper_rhi::TextureMemoryBarrier{
-                            .stage_before = hyper_rhi::BarrierPipelineStage::AllCommands,
-                            .stage_after = hyper_rhi::BarrierPipelineStage::AllCommands,
-                            .access_before = hyper_rhi::BarrierAccess::None,
-                            .access_after = hyper_rhi::BarrierAccess::TransferWrite,
-                            .layout_before = hyper_rhi::BarrierTextureLayout::Undefined,
-                            .layout_after = hyper_rhi::BarrierTextureLayout::TransferDst,
+                        he::rhi::TextureMemoryBarrier{
+                            .stage_before = he::rhi::BarrierPipelineStage::AllCommands,
+                            .stage_after = he::rhi::BarrierPipelineStage::AllCommands,
+                            .access_before = he::rhi::BarrierAccess::None,
+                            .access_after = he::rhi::BarrierAccess::TransferWrite,
+                            .layout_before = he::rhi::BarrierTextureLayout::Undefined,
+                            .layout_after = he::rhi::BarrierTextureLayout::TransferDst,
                             .texture = texture,
-                            .subresource_range = hyper_rhi::TextureBarrierSubresourceRange{
+                            .subresource_range = he::rhi::SubresourceRange{
                                 .base_mip_level = 0,
                                 .mip_level_count = 1,
                                 .base_array_level = 0,
@@ -254,12 +288,12 @@ namespace hyper_render
 
                 command_list->write_texture(
                     texture,
-                    hyper_rhi::Offset3d{
+                    he::rhi::Offset3d{
                         .x = 0,
                         .y = 0,
                         .z = 0,
                     },
-                    hyper_rhi::Extent3d{
+                    he::rhi::Extent3d{
                         .width = static_cast<uint32_t>(width),
                         .height = static_cast<uint32_t>(height),
                         .depth = 1,
@@ -424,38 +458,38 @@ namespace hyper_render
                 surfaces.push_back(surface);
             }
 
-            const std::shared_ptr<hyper_rhi::Buffer> positions_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<he::rhi::Buffer> positions_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Positions", mesh.name),
                 .byte_size = positions.size() * sizeof(glm::vec4),
-                .usage = hyper_rhi::BufferUsage::Storage | hyper_rhi::BufferUsage::ShaderResource,
+                .usage = he::rhi::BufferUsage::Storage | he::rhi::BufferUsage::ShaderResource,
             });
             command_list->write_buffer(positions_buffer, positions.data(), positions.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<hyper_rhi::Buffer> normals_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<he::rhi::Buffer> normals_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Normals", mesh.name),
                 .byte_size = normals.size() * sizeof(glm::vec4),
-                .usage = hyper_rhi::BufferUsage::Storage | hyper_rhi::BufferUsage::ShaderResource,
+                .usage = he::rhi::BufferUsage::Storage | he::rhi::BufferUsage::ShaderResource,
             });
             command_list->write_buffer(normals_buffer, normals.data(), normals.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<hyper_rhi::Buffer> colors_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<he::rhi::Buffer> colors_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Colors", mesh.name),
                 .byte_size = colors.size() * sizeof(glm::vec4),
-                .usage = hyper_rhi::BufferUsage::Storage | hyper_rhi::BufferUsage::ShaderResource,
+                .usage = he::rhi::BufferUsage::Storage | he::rhi::BufferUsage::ShaderResource,
             });
             command_list->write_buffer(colors_buffer, colors.data(), colors.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<hyper_rhi::Buffer> tex_coords_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<he::rhi::Buffer> tex_coords_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Tex Coords", mesh.name),
                 .byte_size = tex_coords.size() * sizeof(glm::vec4),
-                .usage = hyper_rhi::BufferUsage::Storage | hyper_rhi::BufferUsage::ShaderResource,
+                .usage = he::rhi::BufferUsage::Storage | he::rhi::BufferUsage::ShaderResource,
             });
             command_list->write_buffer(tex_coords_buffer, tex_coords.data(), tex_coords.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<hyper_rhi::Buffer> mesh_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<he::rhi::Buffer> mesh_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Mesh Data", mesh.name),
                 .byte_size = sizeof(ShaderMesh),
-                .usage = hyper_rhi::BufferUsage::Storage | hyper_rhi::BufferUsage::ShaderResource,
+                .usage = he::rhi::BufferUsage::Storage | he::rhi::BufferUsage::ShaderResource,
             });
 
             const ShaderMesh shader_mesh = {
@@ -467,10 +501,10 @@ namespace hyper_render
 
             command_list->write_buffer(mesh_buffer, &shader_mesh, sizeof(ShaderMesh), 0);
 
-            const std::shared_ptr<hyper_rhi::Buffer> indices_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<he::rhi::Buffer> indices_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Indices", mesh.name),
                 .byte_size = indices.size() * sizeof(uint32_t),
-                .usage = hyper_rhi::BufferUsage::Index,
+                .usage = he::rhi::BufferUsage::Index,
             });
             command_list->write_buffer(indices_buffer, indices.data(), indices.size() * sizeof(uint32_t), 0);
 
@@ -549,4 +583,4 @@ namespace hyper_render
         auto scene = std::make_shared<LoadedGltf>(meshes, nodes, textures, texture_views, materials, top_nodes, samplers);
         return scene;
     }
-} // namespace hyper_render
+} // namespace he::render

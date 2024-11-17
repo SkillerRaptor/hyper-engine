@@ -6,11 +6,13 @@
 
 #include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 
-#include <hyper_core/bitmask.hpp>
+#include <hyper_core/assertion.hpp>
+#include <hyper_core/logger.hpp>
 
+#include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     VulkanBuffer::VulkanBuffer(VulkanGraphicsDevice &graphics_device, const BufferDescriptor &descriptor, const bool staging)
         : Buffer(descriptor)
@@ -84,6 +86,16 @@ namespace hyper_rhi
         m_graphics_device.resource_queue().buffers.emplace_back(m_buffer, m_allocation, m_handle);
     }
 
+    VkBuffer VulkanBuffer::buffer() const
+    {
+        return m_buffer;
+    }
+
+    VmaAllocation VulkanBuffer::allocation() const
+    {
+        return m_allocation;
+    }
+
     VkBufferUsageFlags VulkanBuffer::get_buffer_usage_flags(const BufferUsage buffer_usage_flags)
     {
         VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
@@ -104,4 +116,4 @@ namespace hyper_rhi
 
         return usage_flags;
     }
-} // namespace hyper_rhi
+} // namespace he::rhi

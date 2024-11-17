@@ -8,14 +8,16 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
-#include "hyper_rhi/buffer.hpp"
-#include "hyper_rhi/render_pipeline.hpp"
-#include "hyper_rhi/pass.hpp"
-#include "hyper_rhi/texture_view.hpp"
+#include "hyper_rhi/label_color.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
+    class Buffer;
+    class RenderPipeline;
+    class TextureView;
+
     enum class LoadOperation : uint8_t
     {
         Clear,
@@ -57,7 +59,7 @@ namespace hyper_rhi
         DepthStencilAttachment depth_stencil_attachment = {};
     };
 
-    class RenderPass : public Pass
+    class RenderPass
     {
     public:
         virtual ~RenderPass() = default;
@@ -77,27 +79,20 @@ namespace hyper_rhi
 
         // TODO: Add indirect
 
-        [[nodiscard]] HE_FORCE_INLINE const std::vector<ColorAttachment> &color_attachments() const
-        {
-            return m_color_attachments;
-        }
+        std::string_view label() const;
+        LabelColor label_color() const;
 
-        [[nodiscard]] HE_FORCE_INLINE DepthStencilAttachment depth_stencil_attachment() const
-        {
-            return m_depth_stencil_attachment;
-        }
+        const std::vector<ColorAttachment> &color_attachments() const;
+        DepthStencilAttachment depth_stencil_attachment() const;
 
     protected:
-        explicit RenderPass(const RenderPassDescriptor &descriptor)
-            : Pass(descriptor.label, descriptor.label_color)
-            , m_color_attachments(descriptor.color_attachments)
-            , m_depth_stencil_attachment(descriptor.depth_stencil_attachment)
-        {
-            HE_ASSERT(!m_color_attachments.empty());
-        }
+        explicit RenderPass(const RenderPassDescriptor &descriptor);
 
     protected:
+        std::string m_label;
+        LabelColor m_label_color;
+
         std::vector<ColorAttachment> m_color_attachments;
         DepthStencilAttachment m_depth_stencil_attachment;
     };
-} // namespace hyper_rhi
+} // namespace he::rhi

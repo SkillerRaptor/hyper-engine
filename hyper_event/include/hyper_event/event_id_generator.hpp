@@ -6,13 +6,15 @@
 
 #pragma once
 
-namespace hyper_event
+#include <cstddef>
+
+namespace he::event
 {
     class EventIdGenerator
     {
     public:
         template <typename>
-        [[nodiscard]] static size_t type()
+        static size_t type()
         {
             static const size_t value = EventIdGenerator::identifier();
             return value;
@@ -25,4 +27,4 @@ namespace hyper_event
             return value++;
         }
     };
-} // namespace hyper_event
+} // namespace he::event

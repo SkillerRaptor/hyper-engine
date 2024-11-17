@@ -8,14 +8,11 @@
 
 #include <string>
 
-#include <hyper_core/assertion.hpp>
-#include <hyper_core/bitmask.hpp>
-#include <hyper_core/prerequisites.hpp>
+#include <hyper_core/bits.hpp>
 
-#include "hyper_rhi/resource.hpp"
 #include "hyper_rhi/resource_handle.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     enum class BufferUsage : uint8_t
     {
@@ -38,46 +35,27 @@ namespace hyper_rhi
         ResourceHandle handle = {};
     };
 
-    class Buffer : public Resource
+    class Buffer
     {
     public:
         virtual ~Buffer() = default;
 
-        [[nodiscard]] HE_FORCE_INLINE uint64_t byte_size() const
-        {
-            return m_byte_size;
-        }
+        std::string_view label() const;
 
-        [[nodiscard]] HE_FORCE_INLINE BufferUsage usage() const
-        {
-            return m_usage;
-        }
+        uint64_t byte_size() const;
+        BufferUsage usage() const;
 
-        [[nodiscard]] HE_FORCE_INLINE ResourceHandle handle() const
-        {
-            return m_handle;
-        }
+        ResourceHandle handle() const;
 
     protected:
-        explicit Buffer(const BufferDescriptor &descriptor)
-            : Resource(descriptor.label)
-            , m_byte_size(descriptor.byte_size)
-            , m_usage(descriptor.usage)
-            , m_handle(descriptor.handle)
-        {
-            HE_ASSERT(descriptor.byte_size > 0);
-            HE_ASSERT(descriptor.usage != BufferUsage::None);
-
-            if ((descriptor.usage & BufferUsage::ShaderResource) == BufferUsage::ShaderResource)
-            {
-                HE_ASSERT((descriptor.usage & BufferUsage::Storage) == BufferUsage::Storage);
-            }
-        }
+        explicit Buffer(const BufferDescriptor &descriptor);
 
     protected:
+        std::string m_label;
+
         uint64_t m_byte_size;
         BufferUsage m_usage;
 
         ResourceHandle m_handle;
     };
-} // namespace hyper_rhi
+} // namespace he::rhi

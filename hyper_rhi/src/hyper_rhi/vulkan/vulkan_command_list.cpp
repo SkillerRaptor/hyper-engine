@@ -6,13 +6,17 @@
 
 #include "hyper_rhi/vulkan/vulkan_command_list.hpp"
 
+#include <hyper_core/assertion.hpp>
+#include <hyper_core/logger.hpp>
+
 #include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 #include "hyper_rhi/vulkan/vulkan_compute_pass.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 #include "hyper_rhi/vulkan/vulkan_render_pass.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
+#include "hyper_rhi/vulkan/vulkan_texture_view.hpp"
 
-namespace hyper_rhi
+namespace he::rhi
 {
     VulkanCommandList::VulkanCommandList(VulkanGraphicsDevice &graphics_device)
         : m_graphics_device(graphics_device)
@@ -162,7 +166,7 @@ namespace hyper_rhi
         HE_TRACE("Clearing {} buffer", buffer->label().empty() ? "a" : fmt::format("the '{}'", buffer->label()));
     }
 
-    void VulkanCommandList::clear_texture(const std::shared_ptr<Texture> &texture, const TextureSubresourceRange subresource_range)
+    void VulkanCommandList::clear_texture(const std::shared_ptr<Texture> &texture, const SubresourceRange subresource_range)
     {
         const auto vulkan_texture = std::dynamic_pointer_cast<VulkanTexture>(texture);
 
@@ -643,6 +647,11 @@ namespace hyper_rhi
         return std::make_shared<VulkanRenderPass>(m_graphics_device, m_command_buffer, descriptor);
     }
 
+    VkCommandBuffer VulkanCommandList::command_buffer() const
+    {
+        return m_command_buffer;
+    }
+
     VkPipelineStageFlags2 VulkanCommandList::get_pipeline_stage_flags(const BarrierPipelineStage barrier_pipeline_stage)
     {
         VkPipelineStageFlags2 pipeline_stage = VK_PIPELINE_STAGE_2_NONE;
@@ -776,4 +785,4 @@ namespace hyper_rhi
             HE_UNREACHABLE();
         }
     }
-} // namespace hyper_rhi
+} // namespace he::rhi

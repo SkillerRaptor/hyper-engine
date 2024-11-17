@@ -9,9 +9,6 @@
 #include <volk.h>
 #include <vulkan/vk_enum_string_helper.h>
 
-#include <hyper_core/assertion.hpp>
-#include <hyper_core/logger.hpp>
-
 #define HE_VK_TYPE_TO_STRING(type, value) string_##type(value)
 
 #define HE_VK_CHECK(x)                                                                          \
