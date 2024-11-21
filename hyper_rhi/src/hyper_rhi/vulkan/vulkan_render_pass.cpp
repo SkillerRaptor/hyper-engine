@@ -23,7 +23,7 @@ namespace he::rhi
         VulkanGraphicsDevice &graphics_device,
         const VkCommandBuffer command_buffer,
         const RenderPassDescriptor &descriptor)
-        : RenderPass(descriptor)
+        : IRenderPass(descriptor)
         , m_graphics_device(graphics_device)
         , m_command_buffer(command_buffer)
         , m_pipeline(nullptr)
@@ -144,7 +144,7 @@ namespace he::rhi
         m_graphics_device.end_marker(m_command_buffer);
     }
 
-    void VulkanRenderPass::set_pipeline(const std::shared_ptr<RenderPipeline> &pipeline)
+    void VulkanRenderPass::set_pipeline(const std::shared_ptr<IRenderPipeline> &pipeline)
     {
         m_pipeline = pipeline;
 
@@ -166,7 +166,7 @@ namespace he::rhi
         vkCmdBindPipeline(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkan_pipeline->pipeline());
     }
 
-    void VulkanRenderPass::set_index_buffer(const std::shared_ptr<Buffer> &buffer) const
+    void VulkanRenderPass::set_index_buffer(const std::shared_ptr<IBuffer> &buffer) const
     {
         const auto vulkan_buffer = std::dynamic_pointer_cast<VulkanBuffer>(buffer);
 

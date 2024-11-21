@@ -35,10 +35,10 @@ namespace he::rhi
         ResourceHandle handle = {};
     };
 
-    class Buffer
+    class IBuffer
     {
     public:
-        virtual ~Buffer() = default;
+        virtual ~IBuffer() = default;
 
         std::string_view label() const;
 
@@ -48,7 +48,7 @@ namespace he::rhi
         ResourceHandle handle() const;
 
     protected:
-        explicit Buffer(const BufferDescriptor &descriptor);
+        explicit IBuffer(const BufferDescriptor &descriptor);
 
     protected:
         std::string m_label;

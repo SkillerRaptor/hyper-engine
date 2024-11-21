@@ -17,8 +17,8 @@
 
 namespace he::rhi
 {
-    class PipelineLayout;
-    class ShaderModule;
+    class IPipelineLayout;
+    class IShaderModule;
 
     enum class BlendFactor : uint8_t
     {
@@ -141,37 +141,37 @@ namespace he::rhi
     {
         std::string label;
 
-        std::shared_ptr<PipelineLayout> layout = nullptr;
-        std::shared_ptr<ShaderModule> vertex_shader = nullptr;
-        std::shared_ptr<ShaderModule> fragment_shader = nullptr;
+        std::shared_ptr<IPipelineLayout> layout = nullptr;
+        std::shared_ptr<IShaderModule> vertex_shader = nullptr;
+        std::shared_ptr<IShaderModule> fragment_shader = nullptr;
         std::vector<ColorAttachmentState> color_attachment_states = {};
         PrimitiveState primitive_state = {};
         DepthStencilState depth_stencil_state = {};
     };
 
-    class RenderPipeline
+    class IRenderPipeline
     {
     public:
-        virtual ~RenderPipeline() = default;
+        virtual ~IRenderPipeline() = default;
 
         std::string_view label() const;
 
-        const std::shared_ptr<PipelineLayout> &layout() const;
-        const std::shared_ptr<ShaderModule> &vertex_shader() const;
-        const std::shared_ptr<ShaderModule> &fragment_shader() const;
+        const std::shared_ptr<IPipelineLayout> &layout() const;
+        const std::shared_ptr<IShaderModule> &vertex_shader() const;
+        const std::shared_ptr<IShaderModule> &fragment_shader() const;
         const std::vector<ColorAttachmentState> &color_attachment_states() const;
         PrimitiveState primitive_state() const;
         DepthStencilState depth_stencil_state() const;
 
     protected:
-        explicit RenderPipeline(const RenderPipelineDescriptor &descriptor);
+        explicit IRenderPipeline(const RenderPipelineDescriptor &descriptor);
 
     protected:
         std::string m_label;
 
-        std::shared_ptr<PipelineLayout> m_layout;
-        std::shared_ptr<ShaderModule> m_vertex_shader;
-        std::shared_ptr<ShaderModule> m_fragment_shader;
+        std::shared_ptr<IPipelineLayout> m_layout;
+        std::shared_ptr<IShaderModule> m_vertex_shader;
+        std::shared_ptr<IShaderModule> m_fragment_shader;
         std::vector<ColorAttachmentState> m_color_attachment_states;
         PrimitiveState m_primitive_state;
         DepthStencilState m_depth_stencil_state;

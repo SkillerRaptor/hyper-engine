@@ -13,7 +13,7 @@ namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
-    class VulkanRenderPipeline final : public RenderPipeline
+    class VulkanRenderPipeline final : public IRenderPipeline
     {
     public:
         VulkanRenderPipeline(VulkanGraphicsDevice &graphics_device, const RenderPipelineDescriptor &descriptor);

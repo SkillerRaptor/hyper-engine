@@ -15,7 +15,7 @@
 namespace he::rhi
 {
     VulkanTexture::VulkanTexture(VulkanGraphicsDevice &graphics_device, const TextureDescriptor &descriptor, const VkImage image)
-        : Texture(descriptor)
+        : ITexture(descriptor)
         , m_graphics_device(graphics_device)
         , m_image(image)
         , m_allocation(VK_NULL_HANDLE)

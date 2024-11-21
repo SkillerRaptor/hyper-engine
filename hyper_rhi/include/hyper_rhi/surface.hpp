@@ -12,21 +12,21 @@
 
 namespace he::rhi
 {
-    class Texture;
-    class TextureView;
+    class ITexture;
+    class ITextureView;
 
-    class Surface
+    class ISurface
     {
     public:
-        virtual ~Surface() = default;
+        virtual ~ISurface() = default;
 
         virtual uint32_t min_image_count() const = 0;
         virtual uint32_t image_count() const = 0;
 
         virtual Format format() const = 0;
 
-        virtual std::shared_ptr<Texture> current_texture() const = 0;
-        virtual std::shared_ptr<TextureView> current_texture_view() const = 0;
+        virtual std::shared_ptr<ITexture> current_texture() const = 0;
+        virtual std::shared_ptr<ITextureView> current_texture_view() const = 0;
 
         void resize(const uint32_t width, const uint32_t height);
 
@@ -35,7 +35,7 @@ namespace he::rhi
         uint32_t height() const;
 
     protected:
-        Surface(const uint32_t width, const uint32_t height);
+        ISurface(const uint32_t width, const uint32_t height);
 
     protected:
         bool m_resized;

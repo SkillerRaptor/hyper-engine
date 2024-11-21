@@ -14,7 +14,7 @@
 
 namespace he::rhi
 {
-    class Texture;
+    class ITexture;
 
     enum class ComponentSwizzle : uint8_t
     {
@@ -39,7 +39,7 @@ namespace he::rhi
     {
         std::string label;
 
-        std::shared_ptr<Texture> texture = nullptr;
+        std::shared_ptr<ITexture> texture = nullptr;
 
         SubresourceRange subresource_range;
         ComponentMapping component_mapping = {};
@@ -47,26 +47,26 @@ namespace he::rhi
         ResourceHandle handle = {};
     };
 
-    class TextureView
+    class ITextureView
     {
     public:
-        virtual ~TextureView() = default;
+        virtual ~ITextureView() = default;
 
         std::string_view label() const;
 
-        const std::shared_ptr<Texture> &texture() const;
+        const std::shared_ptr<ITexture> &texture() const;
         SubresourceRange subresource_range() const;
         ComponentMapping component_mapping() const;
 
         ResourceHandle handle() const;
 
     protected:
-        explicit TextureView(const TextureViewDescriptor &descriptor);
+        explicit ITextureView(const TextureViewDescriptor &descriptor);
 
     protected:
         std::string m_label;
 
-        std::shared_ptr<Texture> m_texture;
+        std::shared_ptr<ITexture> m_texture;
         SubresourceRange m_subresource_range;
         ComponentMapping m_component_mapping;
 

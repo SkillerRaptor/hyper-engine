@@ -11,14 +11,14 @@
 
 namespace he::event
 {
-    class EventHandler
+    class IEventHandler
     {
     public:
-        virtual ~EventHandler() = default;
+        virtual ~IEventHandler() = default;
     };
 
     template <typename T>
-    class EventHandlerImpl final : public EventHandler
+    class EventHandler final : public IEventHandler
     {
     public:
         void subscribe(const std::function<void(const T &)> &callback)

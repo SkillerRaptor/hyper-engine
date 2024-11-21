@@ -21,12 +21,12 @@
 namespace he::render
 {
     GridPass::GridPass(
-        const std::shared_ptr<he::rhi::GraphicsDevice> &graphics_device,
+        const std::shared_ptr<he::rhi::IGraphicsDevice> &graphics_device,
         const he::rhi::ShaderCompiler &shader_compiler,
-        const std::shared_ptr<he::rhi::Texture> &render_texture,
-        const std::shared_ptr<he::rhi::TextureView> &render_texture_view,
-        const std::shared_ptr<he::rhi::Texture> &depth_texture,
-        const std::shared_ptr<he::rhi::TextureView> &depth_texture_view)
+        const std::shared_ptr<he::rhi::ITexture> &render_texture,
+        const std::shared_ptr<he::rhi::ITextureView> &render_texture_view,
+        const std::shared_ptr<he::rhi::ITexture> &depth_texture,
+        const std::shared_ptr<he::rhi::ITextureView> &depth_texture_view)
         : m_render_texture(render_texture)
         , m_render_texture_view(render_texture_view)
         , m_depth_texture(depth_texture)
@@ -98,9 +98,9 @@ namespace he::render
     {
     }
 
-    void GridPass::render(const std::shared_ptr<he::rhi::CommandList> &command_list) const
+    void GridPass::render(const std::shared_ptr<he::rhi::ICommandList> &command_list) const
     {
-        const std::shared_ptr<he::rhi::RenderPass> render_pass = command_list->begin_render_pass({
+        const std::shared_ptr<he::rhi::IRenderPass> render_pass = command_list->begin_render_pass({
             .label = "Grid",
             .label_color =
                 he::rhi::LabelColor{

@@ -10,7 +10,7 @@
 
 namespace he::rhi
 {
-    ComputePipeline::ComputePipeline(const ComputePipelineDescriptor &descriptor)
+    IComputePipeline::IComputePipeline(const ComputePipelineDescriptor &descriptor)
         : m_label(descriptor.label)
         , m_layout(descriptor.layout)
         , m_shader(descriptor.shader)
@@ -21,17 +21,17 @@ namespace he::rhi
         HE_ASSERT(m_shader != nullptr);
     }
 
-    std::string_view ComputePipeline::label() const
+    std::string_view IComputePipeline::label() const
     {
         return m_label;
     }
 
-    const std::shared_ptr<PipelineLayout> &ComputePipeline::layout() const
+    const std::shared_ptr<IPipelineLayout> &IComputePipeline::layout() const
     {
         return m_layout;
     }
 
-    const std::shared_ptr<ShaderModule> &ComputePipeline::shader() const
+    const std::shared_ptr<IShaderModule> &IComputePipeline::shader() const
     {
         return m_shader;
     }

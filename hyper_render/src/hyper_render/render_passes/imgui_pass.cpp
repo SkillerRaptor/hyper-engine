@@ -23,8 +23,8 @@ namespace he::render
     ImGuiPass::ImGuiPass(
         he::event::EventBus &event_bus,
         const he::platform::Window &window,
-        const std::shared_ptr<he::rhi::GraphicsDevice> &graphics_device,
-        const std::shared_ptr<he::rhi::Surface> &surface)
+        const std::shared_ptr<he::rhi::IGraphicsDevice> &graphics_device,
+        const std::shared_ptr<he::rhi::ISurface> &surface)
         : m_imgui_manager(graphics_device->create_imgui_manager())
     {
         event_bus.subscribe<he::platform::SdlEvent>(ImGuiPass::on_sdl_event);
@@ -48,8 +48,8 @@ namespace he::render
     }
 
     void ImGuiPass::render(
-        const std::shared_ptr<he::rhi::CommandList> &command_list,
-        const std::shared_ptr<he::rhi::TextureView> &swapchain_texture_view) const
+        const std::shared_ptr<he::rhi::ICommandList> &command_list,
+        const std::shared_ptr<he::rhi::ITextureView> &swapchain_texture_view) const
     {
         m_imgui_manager->new_frame();
         ImGui_ImplSDL3_NewFrame();
@@ -59,7 +59,7 @@ namespace he::render
 
         ImGui::Render();
 
-        const std::shared_ptr<he::rhi::RenderPass> render_pass = command_list->begin_render_pass({
+        const std::shared_ptr<he::rhi::IRenderPass> render_pass = command_list->begin_render_pass({
             .label = "ImGui",
             .label_color =
                 he::rhi::LabelColor{

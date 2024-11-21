@@ -23,11 +23,11 @@ namespace he
 
     namespace rhi
     {
-        class CommandList;
-        class GraphicsDevice;
-        class ImGuiManager;
-        class Surface;
-        class TextureView;
+        class ICommandList;
+        class IGraphicsDevice;
+        class IImGuiManager;
+        class ISurface;
+        class ITextureView;
     } // namespace rhi
 
     namespace render
@@ -38,19 +38,19 @@ namespace he
             ImGuiPass(
                 he::event::EventBus &event_bus,
                 const he::platform::Window &window,
-                const std::shared_ptr<he::rhi::GraphicsDevice> &graphics_device,
-                const std::shared_ptr<he::rhi::Surface> &surface);
+                const std::shared_ptr<he::rhi::IGraphicsDevice> &graphics_device,
+                const std::shared_ptr<he::rhi::ISurface> &surface);
             ~ImGuiPass();
 
             void render(
-                const std::shared_ptr<he::rhi::CommandList> &command_list,
-                const std::shared_ptr<he::rhi::TextureView> &swapchain_texture_view) const;
+                const std::shared_ptr<he::rhi::ICommandList> &command_list,
+                const std::shared_ptr<he::rhi::ITextureView> &swapchain_texture_view) const;
 
         private:
             static void on_sdl_event(const he::platform::SdlEvent &event);
 
         private:
-            std::shared_ptr<he::rhi::ImGuiManager> m_imgui_manager;
+            std::shared_ptr<he::rhi::IImGuiManager> m_imgui_manager;
         };
     } // namespace render
 } // namespace he

@@ -220,7 +220,7 @@ namespace he::rhi
                 }
             }();
 
-            const uint32_t descriptor_count = limit > GraphicsDevice::s_descriptor_limit ? GraphicsDevice::s_descriptor_limit : limit;
+            const uint32_t descriptor_count = limit > IGraphicsDevice::s_descriptor_limit ? IGraphicsDevice::s_descriptor_limit : limit;
 
             m_descriptor_counts[index] = descriptor_count;
 

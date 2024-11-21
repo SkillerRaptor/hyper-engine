@@ -10,7 +10,7 @@
 
 namespace he::rhi
 {
-    ShaderModule::ShaderModule(const ShaderModuleDescriptor &descriptor)
+    IShaderModule::IShaderModule(const ShaderModuleDescriptor &descriptor)
         : m_label(descriptor.label)
         , m_type(descriptor.type)
         , m_entry_name(descriptor.entry_name)
@@ -23,22 +23,22 @@ namespace he::rhi
         HE_ASSERT(!m_bytes.empty());
     }
 
-    std::string_view ShaderModule::label() const
+    std::string_view IShaderModule::label() const
     {
         return m_label;
     }
 
-    ShaderType ShaderModule::type() const
+    ShaderType IShaderModule::type() const
     {
         return m_type;
     }
 
-    std::string_view ShaderModule::entry_name() const
+    std::string_view IShaderModule::entry_name() const
     {
         return m_entry_name;
     }
 
-    const std::vector<uint8_t> &ShaderModule::bytes() const
+    const std::vector<uint8_t> &IShaderModule::bytes() const
     {
         return m_bytes;
     }

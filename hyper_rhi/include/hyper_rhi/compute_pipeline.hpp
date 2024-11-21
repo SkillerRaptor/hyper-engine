@@ -11,34 +11,34 @@
 
 namespace he::rhi
 {
-    class PipelineLayout;
-    class ShaderModule;
+    class IPipelineLayout;
+    class IShaderModule;
 
     struct ComputePipelineDescriptor
     {
         std::string label;
 
-        std::shared_ptr<PipelineLayout> layout = nullptr;
-        std::shared_ptr<ShaderModule> shader = nullptr;
+        std::shared_ptr<IPipelineLayout> layout = nullptr;
+        std::shared_ptr<IShaderModule> shader = nullptr;
     };
 
-    class ComputePipeline
+    class IComputePipeline
     {
     public:
-        virtual ~ComputePipeline() = default;
+        virtual ~IComputePipeline() = default;
 
         std::string_view label() const;
 
-        const std::shared_ptr<PipelineLayout> &layout() const;
-        const std::shared_ptr<ShaderModule> &shader() const;
+        const std::shared_ptr<IPipelineLayout> &layout() const;
+        const std::shared_ptr<IShaderModule> &shader() const;
 
     protected:
-        explicit ComputePipeline(const ComputePipelineDescriptor &descriptor);
+        explicit IComputePipeline(const ComputePipelineDescriptor &descriptor);
 
     protected:
         std::string m_label;
 
-        std::shared_ptr<PipelineLayout> m_layout;
-        std::shared_ptr<ShaderModule> m_shader;
+        std::shared_ptr<IPipelineLayout> m_layout;
+        std::shared_ptr<IShaderModule> m_shader;
     };
 } // namespace he::rhi

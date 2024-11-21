@@ -10,19 +10,19 @@
 
 namespace he::rhi
 {
-    ComputePass::ComputePass(const ComputePassDescriptor &descriptor)
+    IComputePass::IComputePass(const ComputePassDescriptor &descriptor)
         : m_label(descriptor.label)
         , m_label_color(descriptor.label_color)
     {
         HE_ASSERT(!m_label.empty(), "Compute Pass wasn't given a label");
     }
 
-    std::string_view ComputePass::label() const
+    std::string_view IComputePass::label() const
     {
         return m_label;
     }
 
-    LabelColor ComputePass::label_color() const
+    LabelColor IComputePass::label_color() const
     {
         return m_label_color;
     }

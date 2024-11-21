@@ -24,8 +24,8 @@ namespace he
 
     namespace rhi
     {
-        class GraphicsDevice;
-        class Surface;
+        class IGraphicsDevice;
+        class ISurface;
     } // namespace rhi
 
     namespace engine
@@ -57,8 +57,8 @@ namespace he
             bool m_running;
             he::event::EventBus m_event_bus;
             he::platform::Window m_window;
-            std::shared_ptr<he::rhi::GraphicsDevice> m_graphics_device;
-            std::shared_ptr<he::rhi::Surface> m_surface;
+            std::shared_ptr<he::rhi::IGraphicsDevice> m_graphics_device;
+            std::shared_ptr<he::rhi::ISurface> m_surface;
             he::render::Renderer m_renderer;
         };
     } // namespace engine

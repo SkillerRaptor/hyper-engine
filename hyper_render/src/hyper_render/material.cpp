@@ -24,41 +24,46 @@
 namespace he::render
 {
     GltfMetallicRoughness::GltfMetallicRoughness(
-        const std::shared_ptr<he::rhi::GraphicsDevice> &graphics_device,
+        const std::shared_ptr<he::rhi::IGraphicsDevice> &graphics_device,
         const he::rhi::ShaderCompiler &shader_compiler,
-        const std::shared_ptr<he::rhi::Texture> &render_texture,
-        const std::shared_ptr<he::rhi::Texture> &depth_texture)
+        const std::shared_ptr<he::rhi::ITexture> &render_texture,
+        const std::shared_ptr<he::rhi::ITexture> &depth_texture)
     {
-        const std::shared_ptr<he::rhi::ShaderModule> vertex_shader = graphics_device->create_shader_module({
-            .label = "Mesh",
-            .type = he::rhi::ShaderType::Vertex,
-            .entry_name = "vs_main",
-            .bytes = shader_compiler
-                         .compile({
-                             .type = he::rhi::ShaderType::Vertex,
-                             .entry_name = "vs_main",
-                             .data = he::core::fs::read_file("./assets/shaders/mesh_shader.hlsl"),
-                         })
-                         .spirv,
-        });
+        const std::shared_ptr<he::rhi::IShaderModule> vertex_shader = graphics_device->create_shader_module(
+            {
+                .label = "Mesh",
+                .type = he::rhi::ShaderType::Vertex,
+                .entry_name = "vs_main",
+                .bytes = shader_compiler
+                             .compile(
+                                 {
+                                     .type = he::rhi::ShaderType::Vertex,
+                                     .entry_name = "vs_main",
+                                     .data = he::core::fs::read_file("./assets/shaders/mesh_shader.hlsl"),
+                                 })
+                             .spirv,
+            });
 
-        const std::shared_ptr<he::rhi::ShaderModule> fragment_shader = graphics_device->create_shader_module({
-            .label = "Mesh",
-            .type = he::rhi::ShaderType::Fragment,
-            .entry_name = "fs_main",
-            .bytes = shader_compiler
-                         .compile({
-                             .type = he::rhi::ShaderType::Fragment,
-                             .entry_name = "fs_main",
-                             .data = he::core::fs::read_file("./assets/shaders/mesh_shader.hlsl"),
-                         })
-                         .spirv,
-        });
+        const std::shared_ptr<he::rhi::IShaderModule> fragment_shader = graphics_device->create_shader_module(
+            {
+                .label = "Mesh",
+                .type = he::rhi::ShaderType::Fragment,
+                .entry_name = "fs_main",
+                .bytes = shader_compiler
+                             .compile(
+                                 {
+                                     .type = he::rhi::ShaderType::Fragment,
+                                     .entry_name = "fs_main",
+                                     .data = he::core::fs::read_file("./assets/shaders/mesh_shader.hlsl"),
+                                 })
+                             .spirv,
+            });
 
-        const std::shared_ptr<he::rhi::PipelineLayout> pipeline_layout = graphics_device->create_pipeline_layout({
-            .label = "Mesh",
-            .push_constant_size = sizeof(ObjectPushConstants),
-        });
+        const std::shared_ptr<he::rhi::IPipelineLayout> pipeline_layout = graphics_device->create_pipeline_layout(
+            {
+                .label = "Mesh",
+                .push_constant_size = sizeof(ObjectPushConstants),
+            });
 
         m_opaque_pipeline = graphics_device->create_render_pipeline({
               .label = "Opaque",
@@ -137,16 +142,17 @@ namespace he::render
     }
 
     MaterialInstance GltfMetallicRoughness::write_material(
-        const std::shared_ptr<he::rhi::GraphicsDevice> &graphics_device,
-        const std::shared_ptr<he::rhi::CommandList> &command_list,
+        const std::shared_ptr<he::rhi::IGraphicsDevice> &graphics_device,
+        const std::shared_ptr<he::rhi::ICommandList> &command_list,
         const MaterialPassType pass_type,
         const MaterialResources &resources) const
     {
-        const std::shared_ptr<he::rhi::Buffer> buffer = graphics_device->create_buffer({
-            .label = "Material",
-            .byte_size = sizeof(ShaderMaterial),
-            .usage = he::rhi::BufferUsage::Storage | he::rhi::BufferUsage::ShaderResource,
-        });
+        const std::shared_ptr<he::rhi::IBuffer> buffer = graphics_device->create_buffer(
+            {
+                .label = "Material",
+                .byte_size = sizeof(ShaderMaterial),
+                .usage = he::rhi::BufferUsage::Storage | he::rhi::BufferUsage::ShaderResource,
+            });
 
         const ShaderMaterial shader_material = {
             .color_factors = resources.color_factors,
@@ -163,7 +169,7 @@ namespace he::render
 
         command_list->write_buffer(buffer, &shader_material, sizeof(ShaderMaterial), 0);
 
-        const std::shared_ptr<he::rhi::RenderPipeline> pipeline = [&]()
+        const std::shared_ptr<he::rhi::IRenderPipeline> pipeline = [&]()
         {
             switch (pass_type)
             {

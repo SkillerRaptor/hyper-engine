@@ -30,7 +30,7 @@ namespace he
 
     namespace rhi
     {
-        class Surface;
+        class ISurface;
     } // namespace rhi
 
     namespace render
@@ -41,8 +41,8 @@ namespace he
 
         struct RendererDescriptor
         {
-            std::shared_ptr<he::rhi::GraphicsDevice> graphics_device;
-            std::shared_ptr<he::rhi::Surface> surface;
+            std::shared_ptr<he::rhi::IGraphicsDevice> graphics_device;
+            std::shared_ptr<he::rhi::ISurface> surface;
         };
 
         class Renderer
@@ -65,27 +65,27 @@ namespace he
             void on_mouse_scroll(const he::platform::MouseScrollEvent &event);
 
         private:
-            std::shared_ptr<he::rhi::GraphicsDevice> m_graphics_device;
-            std::shared_ptr<he::rhi::Surface> m_surface;
+            std::shared_ptr<he::rhi::IGraphicsDevice> m_graphics_device;
+            std::shared_ptr<he::rhi::ISurface> m_surface;
             he::rhi::ShaderCompiler m_shader_compiler;
-            std::shared_ptr<he::rhi::CommandList> m_command_list;
+            std::shared_ptr<he::rhi::ICommandList> m_command_list;
 
-            std::shared_ptr<he::rhi::Texture> m_render_texture;
-            std::shared_ptr<he::rhi::TextureView> m_render_texture_view;
-            std::shared_ptr<he::rhi::Texture> m_depth_texture;
-            std::shared_ptr<he::rhi::TextureView> m_depth_texture_view;
+            std::shared_ptr<he::rhi::ITexture> m_render_texture;
+            std::shared_ptr<he::rhi::ITextureView> m_render_texture_view;
+            std::shared_ptr<he::rhi::ITexture> m_depth_texture;
+            std::shared_ptr<he::rhi::ITextureView> m_depth_texture_view;
 
             Camera m_editor_camera;
-            std::shared_ptr<he::rhi::Buffer> m_camera_buffer;
+            std::shared_ptr<he::rhi::IBuffer> m_camera_buffer;
 
-            std::shared_ptr<he::rhi::Buffer> m_scene_buffer;
+            std::shared_ptr<he::rhi::IBuffer> m_scene_buffer;
 
-            std::shared_ptr<he::rhi::Texture> m_white_texture;
-            std::shared_ptr<he::rhi::TextureView> m_white_texture_view;
-            std::shared_ptr<he::rhi::Texture> m_error_texture;
-            std::shared_ptr<he::rhi::TextureView> m_error_texture_view;
-            std::shared_ptr<he::rhi::Sampler> m_default_sampler_nearest;
-            std::shared_ptr<he::rhi::Sampler> m_default_sampler_linear;
+            std::shared_ptr<he::rhi::ITexture> m_white_texture;
+            std::shared_ptr<he::rhi::ITextureView> m_white_texture_view;
+            std::shared_ptr<he::rhi::ITexture> m_error_texture;
+            std::shared_ptr<he::rhi::ITextureView> m_error_texture_view;
+            std::shared_ptr<he::rhi::ISampler> m_default_sampler_nearest;
+            std::shared_ptr<he::rhi::ISampler> m_default_sampler_linear;
 
             GltfMetallicRoughness m_metallic_roughness_material;
 

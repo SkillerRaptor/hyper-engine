@@ -17,19 +17,19 @@ namespace he
 
     namespace rhi
     {
-        class CommandList;
-        class Surface;
+        class ICommandList;
+        class ISurface;
 
-        class ImGuiManager
+        class IImGuiManager
         {
         public:
-            virtual ~ImGuiManager() = default;
+            virtual ~IImGuiManager() = default;
 
-            virtual void initialize(const he::platform::Window &window, const std::shared_ptr<Surface> &surface) = 0;
+            virtual void initialize(const he::platform::Window &window, const std::shared_ptr<ISurface> &surface) = 0;
             virtual void destroy() = 0;
 
             virtual void new_frame() = 0;
-            virtual void render(const std::shared_ptr<CommandList> &command_list) = 0;
+            virtual void render(const std::shared_ptr<ICommandList> &command_list) = 0;
 
             virtual void on_resize(uint32_t width, uint32_t height) = 0;
         };

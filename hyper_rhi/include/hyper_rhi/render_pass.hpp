@@ -14,9 +14,9 @@
 
 namespace he::rhi
 {
-    class Buffer;
-    class RenderPipeline;
-    class TextureView;
+    class IBuffer;
+    class IRenderPipeline;
+    class ITextureView;
 
     enum class LoadOperation : uint8_t
     {
@@ -39,13 +39,13 @@ namespace he::rhi
 
     struct ColorAttachment
     {
-        std::shared_ptr<TextureView> view = nullptr;
+        std::shared_ptr<ITextureView> view = nullptr;
         Operations operation = {};
     };
 
     struct DepthStencilAttachment
     {
-        std::shared_ptr<TextureView> view = nullptr;
+        std::shared_ptr<ITextureView> view = nullptr;
         Operations depth_operation = {};
         // TODO: Add stencil operation
     };
@@ -59,15 +59,15 @@ namespace he::rhi
         DepthStencilAttachment depth_stencil_attachment = {};
     };
 
-    class RenderPass
+    class IRenderPass
     {
     public:
-        virtual ~RenderPass() = default;
+        virtual ~IRenderPass() = default;
 
-        virtual void set_pipeline(const std::shared_ptr<RenderPipeline> &pipeline) = 0;
+        virtual void set_pipeline(const std::shared_ptr<IRenderPipeline> &pipeline) = 0;
         virtual void set_push_constants(const void *data, size_t data_size) const = 0;
 
-        virtual void set_index_buffer(const std::shared_ptr<Buffer> &buffer) const = 0;
+        virtual void set_index_buffer(const std::shared_ptr<IBuffer> &buffer) const = 0;
 
         virtual void set_scissor(int32_t x, int32_t y, uint32_t width, uint32_t height) const = 0;
         virtual void set_viewport(float x, float y, float width, float height, float min_depth, float max_depth) const = 0;
@@ -86,7 +86,7 @@ namespace he::rhi
         DepthStencilAttachment depth_stencil_attachment() const;
 
     protected:
-        explicit RenderPass(const RenderPassDescriptor &descriptor);
+        explicit IRenderPass(const RenderPassDescriptor &descriptor);
 
     protected:
         std::string m_label;

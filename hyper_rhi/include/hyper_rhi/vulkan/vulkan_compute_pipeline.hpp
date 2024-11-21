@@ -13,7 +13,7 @@ namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
-    class VulkanComputePipeline final : public ComputePipeline
+    class VulkanComputePipeline final : public IComputePipeline
     {
     public:
         VulkanComputePipeline(VulkanGraphicsDevice &graphics_device, const ComputePipelineDescriptor &descriptor);

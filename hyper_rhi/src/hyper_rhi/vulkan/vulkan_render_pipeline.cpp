@@ -17,7 +17,7 @@
 namespace he::rhi
 {
     VulkanRenderPipeline::VulkanRenderPipeline(VulkanGraphicsDevice &graphics_device, const RenderPipelineDescriptor &descriptor)
-        : RenderPipeline(descriptor)
+        : IRenderPipeline(descriptor)
         , m_graphics_device(graphics_device)
         , m_pipeline(VK_NULL_HANDLE)
     {

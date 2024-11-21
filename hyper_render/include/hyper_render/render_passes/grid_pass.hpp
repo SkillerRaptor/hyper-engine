@@ -12,14 +12,14 @@ namespace he
 {
     namespace rhi
     {
-        class CommandList;
-        class GraphicsDevice;
-        class PipelineLayout;
-        class RenderPipeline;
+        class ICommandList;
+        class IGraphicsDevice;
+        class IPipelineLayout;
+        class IRenderPipeline;
         class ShaderCompiler;
-        class ShaderModule;
-        class Texture;
-        class TextureView;
+        class IShaderModule;
+        class ITexture;
+        class ITextureView;
     } // namespace rhi
 
     namespace render
@@ -28,25 +28,25 @@ namespace he
         {
         public:
             GridPass(
-                const std::shared_ptr<he::rhi::GraphicsDevice> &graphics_device,
+                const std::shared_ptr<he::rhi::IGraphicsDevice> &graphics_device,
                 const he::rhi::ShaderCompiler &shader_compiler,
-                const std::shared_ptr<he::rhi::Texture> &render_texture,
-                const std::shared_ptr<he::rhi::TextureView> &render_texture_view,
-                const std::shared_ptr<he::rhi::Texture> &depth_texture,
-                const std::shared_ptr<he::rhi::TextureView> &depth_texture_view);
+                const std::shared_ptr<he::rhi::ITexture> &render_texture,
+                const std::shared_ptr<he::rhi::ITextureView> &render_texture_view,
+                const std::shared_ptr<he::rhi::ITexture> &depth_texture,
+                const std::shared_ptr<he::rhi::ITextureView> &depth_texture_view);
 
-            void render(const std::shared_ptr<he::rhi::CommandList> &command_list) const;
+            void render(const std::shared_ptr<he::rhi::ICommandList> &command_list) const;
 
         private:
-            const std::shared_ptr<he::rhi::Texture> &m_render_texture;
-            const std::shared_ptr<he::rhi::TextureView> &m_render_texture_view;
-            const std::shared_ptr<he::rhi::Texture> &m_depth_texture;
-            const std::shared_ptr<he::rhi::TextureView> &m_depth_texture_view;
+            const std::shared_ptr<he::rhi::ITexture> &m_render_texture;
+            const std::shared_ptr<he::rhi::ITextureView> &m_render_texture_view;
+            const std::shared_ptr<he::rhi::ITexture> &m_depth_texture;
+            const std::shared_ptr<he::rhi::ITextureView> &m_depth_texture_view;
 
-            std::shared_ptr<he::rhi::PipelineLayout> m_pipeline_layout;
-            std::shared_ptr<he::rhi::ShaderModule> m_vertex_shader;
-            std::shared_ptr<he::rhi::ShaderModule> m_fragment_shader;
-            std::shared_ptr<he::rhi::RenderPipeline> m_pipeline;
+            std::shared_ptr<he::rhi::IPipelineLayout> m_pipeline_layout;
+            std::shared_ptr<he::rhi::IShaderModule> m_vertex_shader;
+            std::shared_ptr<he::rhi::IShaderModule> m_fragment_shader;
+            std::shared_ptr<he::rhi::IRenderPipeline> m_pipeline;
         };
     } // namespace render
 } // namespace he

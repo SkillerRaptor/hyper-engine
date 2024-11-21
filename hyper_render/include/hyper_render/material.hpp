@@ -14,14 +14,14 @@ namespace he
 {
     namespace rhi
     {
-        class Buffer;
-        class CommandList;
-        class GraphicsDevice;
-        class RenderPipeline;
-        class Sampler;
+        class IBuffer;
+        class ICommandList;
+        class IGraphicsDevice;
+        class IRenderPipeline;
+        class ISampler;
         class ShaderCompiler;
-        class Texture;
-        class TextureView;
+        class ITexture;
+        class ITextureView;
     } // namespace rhi
 
     namespace render
@@ -34,10 +34,10 @@ namespace he
 
         struct MaterialInstance
         {
-            std::shared_ptr<he::rhi::RenderPipeline> pipeline = nullptr;
+            std::shared_ptr<he::rhi::IRenderPipeline> pipeline = nullptr;
             MaterialPassType pass_type = MaterialPassType::MainColor;
 
-            std::shared_ptr<he::rhi::Buffer> buffer = nullptr;
+            std::shared_ptr<he::rhi::IBuffer> buffer = nullptr;
         };
 
         class GltfMetallicRoughness
@@ -46,30 +46,30 @@ namespace he
             struct MaterialResources
             {
                 glm::vec4 color_factors;
-                std::shared_ptr<he::rhi::TextureView> color_texture_view = nullptr;
-                std::shared_ptr<he::rhi::Sampler> color_sampler = nullptr;
+                std::shared_ptr<he::rhi::ITextureView> color_texture_view = nullptr;
+                std::shared_ptr<he::rhi::ISampler> color_sampler = nullptr;
 
                 glm::vec4 metal_roughness_factors;
-                std::shared_ptr<he::rhi::TextureView> metal_roughness_texture_view = nullptr;
-                std::shared_ptr<he::rhi::Sampler> metal_roughness_sampler = nullptr;
+                std::shared_ptr<he::rhi::ITextureView> metal_roughness_texture_view = nullptr;
+                std::shared_ptr<he::rhi::ISampler> metal_roughness_sampler = nullptr;
             };
 
         public:
             GltfMetallicRoughness(
-                const std::shared_ptr<he::rhi::GraphicsDevice> &graphics_device,
+                const std::shared_ptr<he::rhi::IGraphicsDevice> &graphics_device,
                 const he::rhi::ShaderCompiler &shader_compiler,
-                const std::shared_ptr<he::rhi::Texture> &render_texture,
-                const std::shared_ptr<he::rhi::Texture> &depth_texture);
+                const std::shared_ptr<he::rhi::ITexture> &render_texture,
+                const std::shared_ptr<he::rhi::ITexture> &depth_texture);
 
             MaterialInstance write_material(
-                const std::shared_ptr<he::rhi::GraphicsDevice> &graphics_device,
-                const std::shared_ptr<he::rhi::CommandList> &command_list,
+                const std::shared_ptr<he::rhi::IGraphicsDevice> &graphics_device,
+                const std::shared_ptr<he::rhi::ICommandList> &command_list,
                 MaterialPassType pass_type,
                 const MaterialResources &resources) const;
 
         private:
-            std::shared_ptr<he::rhi::RenderPipeline> m_opaque_pipeline;
-            std::shared_ptr<he::rhi::RenderPipeline> m_transparent_pipeline;
+            std::shared_ptr<he::rhi::IRenderPipeline> m_opaque_pipeline;
+            std::shared_ptr<he::rhi::IRenderPipeline> m_transparent_pipeline;
         };
     } // namespace render
 } // namespace he

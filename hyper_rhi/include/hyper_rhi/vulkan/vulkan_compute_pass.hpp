@@ -13,13 +13,13 @@ namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
-    class VulkanComputePass final : public ComputePass
+    class VulkanComputePass final : public IComputePass
     {
     public:
         VulkanComputePass(VulkanGraphicsDevice &graphics_device, VkCommandBuffer command_buffer, const ComputePassDescriptor &descriptor);
         ~VulkanComputePass() override;
 
-        void set_pipeline(const std::shared_ptr<ComputePipeline> &pipeline) override;
+        void set_pipeline(const std::shared_ptr<IComputePipeline> &pipeline) override;
         void set_push_constants(const void *data, size_t data_size) const override;
 
         void dispatch(uint32_t x, uint32_t y, uint32_t z) const override;
@@ -31,6 +31,6 @@ namespace he::rhi
 
         VkCommandBuffer m_command_buffer;
 
-        std::shared_ptr<ComputePipeline> m_pipeline;
+        std::shared_ptr<IComputePipeline> m_pipeline;
     };
 } // namespace he::rhi

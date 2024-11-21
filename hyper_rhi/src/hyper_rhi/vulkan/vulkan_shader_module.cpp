@@ -14,7 +14,7 @@
 namespace he::rhi
 {
     VulkanShaderModule::VulkanShaderModule(VulkanGraphicsDevice &graphics_device, const ShaderModuleDescriptor &descriptor)
-        : ShaderModule(descriptor)
+        : IShaderModule(descriptor)
         , m_graphics_device(graphics_device)
         , m_shader_module(VK_NULL_HANDLE)
     {

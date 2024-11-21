@@ -16,7 +16,7 @@
 
 namespace he::rhi
 {
-    GraphicsDevice::GraphicsDevice(const GraphicsDeviceDescriptor &descriptor)
+    IGraphicsDevice::IGraphicsDevice(const GraphicsDeviceDescriptor &descriptor)
         : m_graphics_api(descriptor.graphics_api)
         , m_debug_validation(descriptor.debug_validation)
         , m_debug_label(descriptor.debug_label)
@@ -24,7 +24,7 @@ namespace he::rhi
     {
     }
 
-    std::shared_ptr<GraphicsDevice> GraphicsDevice::create(const GraphicsDeviceDescriptor &descriptor)
+    std::shared_ptr<IGraphicsDevice> IGraphicsDevice::create(const GraphicsDeviceDescriptor &descriptor)
     {
         switch (descriptor.graphics_api)
         {
@@ -41,22 +41,22 @@ namespace he::rhi
         }
     }
 
-    GraphicsApi GraphicsDevice::graphics_api() const
+    GraphicsApi IGraphicsDevice::graphics_api() const
     {
         return m_graphics_api;
     }
 
-    bool GraphicsDevice::debug_validation() const
+    bool IGraphicsDevice::debug_validation() const
     {
         return m_debug_validation;
     }
 
-    bool GraphicsDevice::debug_label() const
+    bool IGraphicsDevice::debug_label() const
     {
         return m_debug_label;
     }
 
-    bool GraphicsDevice::debug_marker() const
+    bool IGraphicsDevice::debug_marker() const
     {
         return m_debug_marker;
     }

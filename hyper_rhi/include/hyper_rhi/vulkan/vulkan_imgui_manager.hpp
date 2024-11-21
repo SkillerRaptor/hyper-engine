@@ -12,16 +12,16 @@ namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
-    class VulkanImGuiManager final : public ImGuiManager
+    class VulkanImGuiManager final : public IImGuiManager
     {
     public:
         explicit VulkanImGuiManager(VulkanGraphicsDevice &graphics_device);
 
-        void initialize(const he::platform::Window &window, const std::shared_ptr<Surface> &surface) override;
+        void initialize(const he::platform::Window &window, const std::shared_ptr<ISurface> &surface) override;
         void destroy() override;
 
         void new_frame() override;
-        void render(const std::shared_ptr<CommandList> &command_list) override;
+        void render(const std::shared_ptr<ICommandList> &command_list) override;
 
         void on_resize(uint32_t width, uint32_t height) override;
 

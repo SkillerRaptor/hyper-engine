@@ -10,7 +10,7 @@
 
 namespace he::rhi
 {
-    Texture::Texture(const TextureDescriptor &descriptor)
+    ITexture::ITexture(const TextureDescriptor &descriptor)
         : m_label(descriptor.label)
         , m_width(descriptor.width)
         , m_height(descriptor.height)
@@ -33,47 +33,47 @@ namespace he::rhi
         HE_ASSERT(m_usage != TextureUsage::None);
     }
 
-    std::string_view Texture::label() const
+    std::string_view ITexture::label() const
     {
         return m_label;
     }
 
-    uint32_t Texture::width() const
+    uint32_t ITexture::width() const
     {
         return m_width;
     }
 
-    uint32_t Texture::height() const
+    uint32_t ITexture::height() const
     {
         return m_height;
     }
 
-    uint32_t Texture::depth() const
+    uint32_t ITexture::depth() const
     {
         return m_depth;
     }
 
-    uint32_t Texture::array_size() const
+    uint32_t ITexture::array_size() const
     {
         return m_array_size;
     }
 
-    uint32_t Texture::mip_levels() const
+    uint32_t ITexture::mip_levels() const
     {
         return m_mip_levels;
     }
 
-    Format Texture::format() const
+    Format ITexture::format() const
     {
         return m_format;
     }
 
-    Dimension Texture::dimension() const
+    Dimension ITexture::dimension() const
     {
         return m_dimension;
     }
 
-    TextureUsage Texture::usage() const
+    TextureUsage ITexture::usage() const
     {
         return m_usage;
     }

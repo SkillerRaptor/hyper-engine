@@ -10,7 +10,7 @@
 
 namespace he::rhi
 {
-    Buffer::Buffer(const BufferDescriptor &descriptor)
+    IBuffer::IBuffer(const BufferDescriptor &descriptor)
         : m_label(descriptor.label)
         , m_byte_size(descriptor.byte_size)
         , m_usage(descriptor.usage)
@@ -27,22 +27,22 @@ namespace he::rhi
         }
     }
 
-    std::string_view Buffer::label() const
+    std::string_view IBuffer::label() const
     {
         return m_label;
     }
 
-    uint64_t Buffer::byte_size() const
+    uint64_t IBuffer::byte_size() const
     {
         return m_byte_size;
     }
 
-    BufferUsage Buffer::usage() const
+    BufferUsage IBuffer::usage() const
     {
         return m_usage;
     }
 
-    ResourceHandle Buffer::handle() const
+    ResourceHandle IBuffer::handle() const
     {
         return m_handle;
     }

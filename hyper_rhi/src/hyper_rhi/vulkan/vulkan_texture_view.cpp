@@ -16,7 +16,7 @@
 namespace he::rhi
 {
     VulkanTextureView::VulkanTextureView(VulkanGraphicsDevice &graphics_device, const TextureViewDescriptor &descriptor)
-        : TextureView(descriptor)
+        : ITextureView(descriptor)
         , m_graphics_device(graphics_device)
         , m_image_view(VK_NULL_HANDLE)
     {

@@ -10,7 +10,7 @@
 
 namespace he::rhi
 {
-    Surface::Surface(const uint32_t width, const uint32_t height)
+    ISurface::ISurface(const uint32_t width, const uint32_t height)
         : m_resized(false)
         , m_width(width)
         , m_height(height)
@@ -19,7 +19,7 @@ namespace he::rhi
         HE_ASSERT(height > 0);
     }
 
-    void Surface::resize(const uint32_t width, const uint32_t height)
+    void ISurface::resize(const uint32_t width, const uint32_t height)
     {
         if (m_width == width || m_height == height)
         {
@@ -31,17 +31,17 @@ namespace he::rhi
         m_height = height;
     }
 
-    bool Surface::resized() const
+    bool ISurface::resized() const
     {
         return m_resized;
     }
 
-    uint32_t Surface::width() const
+    uint32_t ISurface::width() const
     {
         return m_width;
     }
 
-    uint32_t Surface::height() const
+    uint32_t ISurface::height() const
     {
         return m_height;
     }

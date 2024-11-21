@@ -15,7 +15,7 @@
 namespace he::rhi
 {
     VulkanBuffer::VulkanBuffer(VulkanGraphicsDevice &graphics_device, const BufferDescriptor &descriptor, const bool staging)
-        : Buffer(descriptor)
+        : IBuffer(descriptor)
         , m_graphics_device(graphics_device)
         , m_buffer(VK_NULL_HANDLE)
         , m_allocation(VK_NULL_HANDLE)

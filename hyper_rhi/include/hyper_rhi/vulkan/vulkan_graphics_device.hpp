@@ -87,25 +87,25 @@ namespace he::rhi
         uint64_t semaphore_counter;
     };
 
-    class VulkanGraphicsDevice final : public GraphicsDevice
+    class VulkanGraphicsDevice final : public IGraphicsDevice
     {
     public:
         explicit VulkanGraphicsDevice(const GraphicsDeviceDescriptor &descriptor);
         ~VulkanGraphicsDevice() override;
 
-        std::shared_ptr<Surface> create_surface(const he::platform::Window &window) override;
-        std::shared_ptr<Buffer> create_buffer(const BufferDescriptor &descriptor) override;
-        std::shared_ptr<Buffer> create_staging_buffer(const BufferDescriptor &descriptor);
-        std::shared_ptr<CommandList> create_command_list() override;
-        std::shared_ptr<ComputePipeline> create_compute_pipeline(const ComputePipelineDescriptor &descriptor) override;
-        std::shared_ptr<RenderPipeline> create_render_pipeline(const RenderPipelineDescriptor &descriptor) override;
-        std::shared_ptr<PipelineLayout> create_pipeline_layout(const PipelineLayoutDescriptor &descriptor) override;
-        std::shared_ptr<Sampler> create_sampler(const SamplerDescriptor &descriptor) override;
-        std::shared_ptr<ShaderModule> create_shader_module(const ShaderModuleDescriptor &descriptor) override;
-        std::shared_ptr<Texture> create_texture(const TextureDescriptor &descriptor) override;
-        std::shared_ptr<TextureView> create_texture_view(const TextureViewDescriptor &descriptor) override;
+        std::shared_ptr<ISurface> create_surface(const he::platform::Window &window) override;
+        std::shared_ptr<IBuffer> create_buffer(const BufferDescriptor &descriptor) override;
+        std::shared_ptr<IBuffer> create_staging_buffer(const BufferDescriptor &descriptor);
+        std::shared_ptr<ICommandList> create_command_list() override;
+        std::shared_ptr<IComputePipeline> create_compute_pipeline(const ComputePipelineDescriptor &descriptor) override;
+        std::shared_ptr<IRenderPipeline> create_render_pipeline(const RenderPipelineDescriptor &descriptor) override;
+        std::shared_ptr<IPipelineLayout> create_pipeline_layout(const PipelineLayoutDescriptor &descriptor) override;
+        std::shared_ptr<ISampler> create_sampler(const SamplerDescriptor &descriptor) override;
+        std::shared_ptr<IShaderModule> create_shader_module(const ShaderModuleDescriptor &descriptor) override;
+        std::shared_ptr<ITexture> create_texture(const TextureDescriptor &descriptor) override;
+        std::shared_ptr<ITextureView> create_texture_view(const TextureViewDescriptor &descriptor) override;
 
-        std::shared_ptr<ImGuiManager> create_imgui_manager() override;
+        std::shared_ptr<IImGuiManager> create_imgui_manager() override;
 
         void begin_marker(VkCommandBuffer command_buffer, MarkerType type, std::string_view name, LabelColor color) const;
         void end_marker(VkCommandBuffer command_buffer) const;
@@ -113,10 +113,10 @@ namespace he::rhi
         void set_object_name(const void *handle, ObjectType type, std::string_view name) const;
         void destroy_resources();
 
-        void begin_frame(const std::shared_ptr<Surface> &surface, uint32_t frame_index) override;
+        void begin_frame(const std::shared_ptr<ISurface> &surface, uint32_t frame_index) override;
         void end_frame() const override;
-        void execute(const std::shared_ptr<CommandList> &command_list) override;
-        void present(const std::shared_ptr<Surface> &surface) const override;
+        void execute(const std::shared_ptr<ICommandList> &command_list) override;
+        void present(const std::shared_ptr<ISurface> &surface) const override;
 
         void wait_for_idle() const override;
 
@@ -164,7 +164,7 @@ namespace he::rhi
         VulkanDescriptorManager *m_descriptor_manager;
 
         uint32_t m_current_frame_index;
-        std::array<FrameData, GraphicsDevice::s_frame_count> m_frames;
+        std::array<FrameData, IGraphicsDevice::s_frame_count> m_frames;
 
         ResourceQueue m_resource_queue;
     };

@@ -13,7 +13,7 @@ namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
-    class VulkanSampler final : public Sampler
+    class VulkanSampler final : public ISampler
     {
     public:
         VulkanSampler(VulkanGraphicsDevice &graphics_device, const SamplerDescriptor &descriptor);

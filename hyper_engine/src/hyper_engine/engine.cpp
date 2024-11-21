@@ -27,7 +27,7 @@ namespace he::engine
               .width = descriptor.width,
               .height = descriptor.height,
           })
-        , m_graphics_device(he::rhi::GraphicsDevice::create({
+        , m_graphics_device(he::rhi::IGraphicsDevice::create({
               .graphics_api = descriptor.graphics_api,
               .debug_validation = descriptor.debug_validation,
               .debug_label = descriptor.debug_label,

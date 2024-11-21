@@ -13,7 +13,7 @@ namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
-    class VulkanShaderModule final : public ShaderModule
+    class VulkanShaderModule final : public IShaderModule
     {
     public:
         VulkanShaderModule(VulkanGraphicsDevice &graphics_device, const ShaderModuleDescriptor &descriptor);

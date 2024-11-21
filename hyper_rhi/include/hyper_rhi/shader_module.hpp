@@ -22,10 +22,10 @@ namespace he::rhi
         std::vector<uint8_t> bytes = {};
     };
 
-    class ShaderModule
+    class IShaderModule
     {
     public:
-        virtual ~ShaderModule() = default;
+        virtual ~IShaderModule() = default;
 
         std::string_view label() const;
 
@@ -34,7 +34,7 @@ namespace he::rhi
         const std::vector<uint8_t> &bytes() const;
 
     protected:
-        explicit ShaderModule(const ShaderModuleDescriptor &descriptor);
+        explicit IShaderModule(const ShaderModuleDescriptor &descriptor);
 
     protected:
         std::string m_label;

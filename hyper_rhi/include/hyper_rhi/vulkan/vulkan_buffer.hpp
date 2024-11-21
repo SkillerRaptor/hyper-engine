@@ -15,7 +15,7 @@ namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
-    class VulkanBuffer final : public Buffer
+    class VulkanBuffer final : public IBuffer
     {
     public:
         VulkanBuffer(VulkanGraphicsDevice &graphics_device, const BufferDescriptor &descriptor, bool staging = false);

@@ -16,7 +16,7 @@
 namespace he::rhi
 {
     VulkanSampler::VulkanSampler(VulkanGraphicsDevice &graphics_device, const SamplerDescriptor &descriptor)
-        : Sampler(descriptor)
+        : ISampler(descriptor)
         , m_graphics_device(graphics_device)
         , m_sampler(VK_NULL_HANDLE)
     {

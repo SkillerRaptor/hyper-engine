@@ -39,10 +39,10 @@ namespace he::rhi
         TextureUsage usage = TextureUsage::None;
     };
 
-    class Texture
+    class ITexture
     {
     public:
-        virtual ~Texture() = default;
+        virtual ~ITexture() = default;
 
         std::string_view label() const;
 
@@ -56,7 +56,7 @@ namespace he::rhi
         TextureUsage usage() const;
 
     protected:
-        explicit Texture(const TextureDescriptor &descriptor);
+        explicit ITexture(const TextureDescriptor &descriptor);
 
     protected:
         std::string m_label;

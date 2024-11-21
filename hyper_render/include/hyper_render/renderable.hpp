@@ -18,12 +18,12 @@ namespace he
 {
     namespace rhi
     {
-        class Buffer;
-        class CommandList;
-        class GraphicsDevice;
-        class Sampler;
-        class Texture;
-        class TextureView;
+        class IBuffer;
+        class ICommandList;
+        class IGraphicsDevice;
+        class ISampler;
+        class ITexture;
+        class ITextureView;
     } // namespace rhi
 
     namespace render
@@ -35,12 +35,12 @@ namespace he
         {
             uint32_t index_count = 0;
             uint32_t first_index = 0;
-            std::shared_ptr<he::rhi::Buffer> index_buffer = nullptr;
+            std::shared_ptr<he::rhi::IBuffer> index_buffer = nullptr;
 
             MaterialInstance *material;
 
             glm::mat4 transform;
-            std::shared_ptr<he::rhi::Buffer> mesh_buffer = nullptr;
+            std::shared_ptr<he::rhi::IBuffer> mesh_buffer = nullptr;
         };
 
         struct DrawContext
@@ -49,15 +49,15 @@ namespace he
             std::vector<RenderObject> transparent_surfaces;
         };
 
-        class Renderable
+        class IRenderable
         {
         public:
-            virtual ~Renderable() = default;
+            virtual ~IRenderable() = default;
 
             virtual void draw(const glm::mat4 &top_matrix, DrawContext &draw_context) const = 0;
         };
 
-        class Node : public Renderable
+        class Node : public IRenderable
         {
         public:
             void refresh_transform(const glm::mat4 &parent_matrix);
@@ -83,37 +83,37 @@ namespace he
             std::shared_ptr<Mesh> mesh;
         };
 
-        class LoadedGltf final : public Renderable
+        class LoadedGltf final : public IRenderable
         {
         public:
             LoadedGltf(
                 std::vector<std::shared_ptr<Mesh>> meshes,
                 std::vector<std::shared_ptr<Node>> nodes,
-                std::vector<std::shared_ptr<he::rhi::Texture>> textures,
-                std::vector<std::shared_ptr<he::rhi::TextureView>> texture_views,
+                std::vector<std::shared_ptr<he::rhi::ITexture>> textures,
+                std::vector<std::shared_ptr<he::rhi::ITextureView>> texture_views,
                 std::vector<std::shared_ptr<GltfMaterial>> materials,
                 std::vector<std::shared_ptr<Node>> top_nodes,
-                std::vector<std::shared_ptr<he::rhi::Sampler>> samplers);
+                std::vector<std::shared_ptr<he::rhi::ISampler>> samplers);
 
             void draw(const glm::mat4 &top_matrix, DrawContext &draw_context) const override;
 
         private:
             std::vector<std::shared_ptr<Mesh>> m_meshes;
             std::vector<std::shared_ptr<Node>> m_nodes;
-            std::vector<std::shared_ptr<he::rhi::Texture>> m_textures;
-            std::vector<std::shared_ptr<he::rhi::TextureView>> m_texture_views;
+            std::vector<std::shared_ptr<he::rhi::ITexture>> m_textures;
+            std::vector<std::shared_ptr<he::rhi::ITextureView>> m_texture_views;
             std::vector<std::shared_ptr<GltfMaterial>> m_materials;
             std::vector<std::shared_ptr<Node>> m_top_nodes;
-            std::vector<std::shared_ptr<he::rhi::Sampler>> m_samplers;
+            std::vector<std::shared_ptr<he::rhi::ISampler>> m_samplers;
         };
 
         std::shared_ptr<LoadedGltf> load_gltf(
-            const std::shared_ptr<he::rhi::GraphicsDevice> &graphics_device,
-            const std::shared_ptr<he::rhi::CommandList> &command_list,
-            const std::shared_ptr<he::rhi::TextureView> &white_texture_view,
-            const std::shared_ptr<he::rhi::Texture> &error_texture,
-            const std::shared_ptr<he::rhi::TextureView> &error_texture_view,
-            const std::shared_ptr<he::rhi::Sampler> &default_sampler_linear,
+            const std::shared_ptr<he::rhi::IGraphicsDevice> &graphics_device,
+            const std::shared_ptr<he::rhi::ICommandList> &command_list,
+            const std::shared_ptr<he::rhi::ITextureView> &white_texture_view,
+            const std::shared_ptr<he::rhi::ITexture> &error_texture,
+            const std::shared_ptr<he::rhi::ITextureView> &error_texture_view,
+            const std::shared_ptr<he::rhi::ISampler> &default_sampler_linear,
             const GltfMetallicRoughness &metallic_roughness_material,
             const std::string &path);
     } // namespace render

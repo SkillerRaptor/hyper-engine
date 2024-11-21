@@ -22,7 +22,7 @@ namespace he
     {
         class VulkanGraphicsDevice;
 
-        class VulkanSurface final : public Surface
+        class VulkanSurface final : public ISurface
         {
         public:
             VulkanSurface(VulkanGraphicsDevice &graphics_device, const he::platform::Window &window);
@@ -36,8 +36,8 @@ namespace he
             uint32_t min_image_count() const override;
             uint32_t image_count() const override;
             Format format() const override;
-            std::shared_ptr<Texture> current_texture() const override;
-            std::shared_ptr<TextureView> current_texture_view() const override;
+            std::shared_ptr<ITexture> current_texture() const override;
+            std::shared_ptr<ITextureView> current_texture_view() const override;
 
         private:
             void create_surface(const he::platform::Window &window);
@@ -59,8 +59,8 @@ namespace he
             VkFormat m_format;
 
             uint32_t m_texture_index;
-            std::vector<std::shared_ptr<Texture>> m_textures;
-            std::vector<std::shared_ptr<TextureView>> m_texture_views;
+            std::vector<std::shared_ptr<ITexture>> m_textures;
+            std::vector<std::shared_ptr<ITextureView>> m_texture_views;
         };
     } // namespace rhi
 } // namespace he

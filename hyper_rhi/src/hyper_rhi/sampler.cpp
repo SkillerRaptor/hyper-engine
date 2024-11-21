@@ -10,7 +10,7 @@
 
 namespace he::rhi
 {
-    Sampler::Sampler(const SamplerDescriptor &descriptor)
+    ISampler::ISampler(const SamplerDescriptor &descriptor)
         : m_label(descriptor.label)
         , m_mag_filter(descriptor.mag_filter)
         , m_min_filter(descriptor.min_filter)
@@ -30,67 +30,67 @@ namespace he::rhi
         // TODO: Add assertions
     }
 
-    std::string_view Sampler::label() const
+    std::string_view ISampler::label() const
     {
         return m_label;
     }
 
-    Filter Sampler::mag_filter() const
+    Filter ISampler::mag_filter() const
     {
         return m_mag_filter;
     }
 
-    Filter Sampler::min_filter() const
+    Filter ISampler::min_filter() const
     {
         return m_min_filter;
     }
 
-    Filter Sampler::mipmap_filter() const
+    Filter ISampler::mipmap_filter() const
     {
         return m_mipmap_filter;
     }
 
-    AddressMode Sampler::address_mode_u() const
+    AddressMode ISampler::address_mode_u() const
     {
         return m_address_mode_u;
     }
 
-    AddressMode Sampler::address_mode_v() const
+    AddressMode ISampler::address_mode_v() const
     {
         return m_address_mode_v;
     }
 
-    AddressMode Sampler::address_mode_w() const
+    AddressMode ISampler::address_mode_w() const
     {
         return m_address_mode_w;
     }
 
-    float Sampler::mip_lod_bias() const
+    float ISampler::mip_lod_bias() const
     {
         return m_mip_lod_bias;
     }
 
-    CompareOperation Sampler::compare_operation() const
+    CompareOperation ISampler::compare_operation() const
     {
         return m_compare_operation;
     }
 
-    float Sampler::min_lod() const
+    float ISampler::min_lod() const
     {
         return m_min_lod;
     }
 
-    float Sampler::max_lod() const
+    float ISampler::max_lod() const
     {
         return m_max_lod;
     }
 
-    BorderColor Sampler::border_color() const
+    BorderColor ISampler::border_color() const
     {
         return m_border_color;
     }
 
-    ResourceHandle Sampler::handle() const
+    ResourceHandle ISampler::handle() const
     {
         return m_handle;
     }

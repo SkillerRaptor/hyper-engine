@@ -10,7 +10,7 @@
 
 namespace he::rhi
 {
-    RenderPipeline::RenderPipeline(const RenderPipelineDescriptor &descriptor)
+    IRenderPipeline::IRenderPipeline(const RenderPipelineDescriptor &descriptor)
         : m_label(descriptor.label)
         , m_layout(descriptor.layout)
         , m_vertex_shader(descriptor.vertex_shader)
@@ -37,37 +37,37 @@ namespace he::rhi
         }
     }
 
-    std::string_view RenderPipeline::label() const
+    std::string_view IRenderPipeline::label() const
     {
         return m_label;
     }
 
-    const std::shared_ptr<PipelineLayout> &RenderPipeline::layout() const
+    const std::shared_ptr<IPipelineLayout> &IRenderPipeline::layout() const
     {
         return m_layout;
     }
 
-    const std::shared_ptr<ShaderModule> &RenderPipeline::vertex_shader() const
+    const std::shared_ptr<IShaderModule> &IRenderPipeline::vertex_shader() const
     {
         return m_vertex_shader;
     }
 
-    const std::shared_ptr<ShaderModule> &RenderPipeline::fragment_shader() const
+    const std::shared_ptr<IShaderModule> &IRenderPipeline::fragment_shader() const
     {
         return m_fragment_shader;
     }
 
-    const std::vector<ColorAttachmentState> &RenderPipeline::color_attachment_states() const
+    const std::vector<ColorAttachmentState> &IRenderPipeline::color_attachment_states() const
     {
         return m_color_attachment_states;
     }
 
-    PrimitiveState RenderPipeline::primitive_state() const
+    PrimitiveState IRenderPipeline::primitive_state() const
     {
         return m_primitive_state;
     }
 
-    DepthStencilState RenderPipeline::depth_stencil_state() const
+    DepthStencilState IRenderPipeline::depth_stencil_state() const
     {
         return m_depth_stencil_state;
     }

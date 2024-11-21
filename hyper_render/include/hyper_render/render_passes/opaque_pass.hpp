@@ -14,9 +14,9 @@ namespace he
 {
     namespace rhi
     {
-        class Buffer;
-        class CommandList;
-        class TextureView;
+        class IBuffer;
+        class ICommandList;
+        class ITextureView;
     } // namespace rhi
 
     namespace render
@@ -27,16 +27,16 @@ namespace he
         {
         public:
             OpaquePass(
-                const std::shared_ptr<he::rhi::TextureView> &render_texture_view,
-                const std::shared_ptr<he::rhi::TextureView> &depth_texture_view,
-                const std::shared_ptr<he::rhi::Buffer> &scene_buffer);
+                const std::shared_ptr<he::rhi::ITextureView> &render_texture_view,
+                const std::shared_ptr<he::rhi::ITextureView> &depth_texture_view,
+                const std::shared_ptr<he::rhi::IBuffer> &scene_buffer);
 
-            void render(const std::shared_ptr<he::rhi::CommandList> &command_list, const DrawContext &draw_context) const;
+            void render(const std::shared_ptr<he::rhi::ICommandList> &command_list, const DrawContext &draw_context) const;
 
         private:
-            const std::shared_ptr<he::rhi::TextureView> &m_render_texture_view;
-            const std::shared_ptr<he::rhi::TextureView> &m_depth_texture_view;
-            const std::shared_ptr<he::rhi::Buffer> &m_scene_buffer;
+            const std::shared_ptr<he::rhi::ITextureView> &m_render_texture_view;
+            const std::shared_ptr<he::rhi::ITextureView> &m_depth_texture_view;
+            const std::shared_ptr<he::rhi::IBuffer> &m_scene_buffer;
         };
     } // namespace render
 } // namespace he

@@ -10,7 +10,7 @@
 
 namespace he::rhi
 {
-    TextureView::TextureView(const TextureViewDescriptor &descriptor)
+    ITextureView::ITextureView(const TextureViewDescriptor &descriptor)
         : m_label(descriptor.label)
         , m_texture(descriptor.texture)
         , m_subresource_range(descriptor.subresource_range)
@@ -24,27 +24,27 @@ namespace he::rhi
         HE_ASSERT(m_subresource_range.array_layer_count > 0);
     }
 
-    std::string_view TextureView::label() const
+    std::string_view ITextureView::label() const
     {
         return m_label;
     }
 
-    const std::shared_ptr<Texture> &TextureView::texture() const
+    const std::shared_ptr<ITexture> &ITextureView::texture() const
     {
         return m_texture;
     }
 
-    SubresourceRange TextureView::subresource_range() const
+    SubresourceRange ITextureView::subresource_range() const
     {
         return m_subresource_range;
     }
 
-    ComponentMapping TextureView::component_mapping() const
+    ComponentMapping ITextureView::component_mapping() const
     {
         return m_component_mapping;
     }
 
-    ResourceHandle TextureView::handle() const
+    ResourceHandle ITextureView::handle() const
     {
         return m_handle;
     }

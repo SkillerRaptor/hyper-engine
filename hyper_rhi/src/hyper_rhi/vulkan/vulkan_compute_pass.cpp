@@ -19,7 +19,7 @@ namespace he::rhi
         VulkanGraphicsDevice &graphics_device,
         const VkCommandBuffer command_buffer,
         const ComputePassDescriptor &descriptor)
-        : ComputePass(descriptor)
+        : IComputePass(descriptor)
         , m_graphics_device(graphics_device)
         , m_command_buffer(command_buffer)
         , m_pipeline(nullptr)
@@ -32,7 +32,7 @@ namespace he::rhi
         m_graphics_device.end_marker(m_command_buffer);
     }
 
-    void VulkanComputePass::set_pipeline(const std::shared_ptr<ComputePipeline> &pipeline)
+    void VulkanComputePass::set_pipeline(const std::shared_ptr<IComputePipeline> &pipeline)
     {
         m_pipeline = pipeline;
 

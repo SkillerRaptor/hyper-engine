@@ -10,7 +10,7 @@
 
 namespace he::rhi
 {
-    PipelineLayout::PipelineLayout(const PipelineLayoutDescriptor &descriptor)
+    IPipelineLayout::IPipelineLayout(const PipelineLayoutDescriptor &descriptor)
         : m_label(descriptor.label)
         , m_push_constant_size(descriptor.push_constant_size)
     {
@@ -19,12 +19,12 @@ namespace he::rhi
         HE_ASSERT((m_push_constant_size % 4) == 0);
     }
 
-    std::string_view PipelineLayout::label() const
+    std::string_view IPipelineLayout::label() const
     {
         return m_label;
     }
 
-    uint32_t PipelineLayout::push_constant_size() const
+    uint32_t IPipelineLayout::push_constant_size() const
     {
         return m_push_constant_size;
     }

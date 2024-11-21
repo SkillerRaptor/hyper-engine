@@ -16,7 +16,7 @@
 namespace he::rhi
 {
     VulkanComputePipeline::VulkanComputePipeline(VulkanGraphicsDevice &graphics_device, const ComputePipelineDescriptor &descriptor)
-        : ComputePipeline(descriptor)
+        : IComputePipeline(descriptor)
         , m_graphics_device(graphics_device)
         , m_pipeline(VK_NULL_HANDLE)
     {

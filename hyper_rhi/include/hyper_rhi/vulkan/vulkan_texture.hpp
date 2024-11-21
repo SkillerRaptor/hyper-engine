@@ -15,7 +15,7 @@ namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
-    class VulkanTexture final : public Texture
+    class VulkanTexture final : public ITexture
     {
     public:
         VulkanTexture(VulkanGraphicsDevice &graphics_device, const TextureDescriptor &descriptor, VkImage image = VK_NULL_HANDLE);

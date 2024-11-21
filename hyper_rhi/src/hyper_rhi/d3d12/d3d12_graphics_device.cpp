@@ -13,7 +13,7 @@
 namespace he::rhi
 {
     D3D12GraphicsDevice::D3D12GraphicsDevice(const GraphicsDeviceDescriptor &descriptor)
-        : GraphicsDevice(descriptor)
+        : IGraphicsDevice(descriptor)
         , m_factory(nullptr)
         , m_adapter(nullptr)
         , m_device(nullptr)
@@ -40,80 +40,80 @@ namespace he::rhi
         HE_INFO("Created D3D12 Graphics Device");
     }
 
-    std::shared_ptr<Surface> D3D12GraphicsDevice::create_surface(const he::platform::Window &window)
+    std::shared_ptr<ISurface> D3D12GraphicsDevice::create_surface(const he::platform::Window &window)
     {
         HE_UNUSED(window);
 
         HE_UNREACHABLE();
     }
 
-    std::shared_ptr<Buffer> D3D12GraphicsDevice::create_buffer(const BufferDescriptor &descriptor)
+    std::shared_ptr<IBuffer> D3D12GraphicsDevice::create_buffer(const BufferDescriptor &descriptor)
     {
         HE_UNUSED(descriptor);
 
         HE_UNREACHABLE();
     }
 
-    std::shared_ptr<CommandList> D3D12GraphicsDevice::create_command_list()
+    std::shared_ptr<ICommandList> D3D12GraphicsDevice::create_command_list()
     {
         HE_UNREACHABLE();
     }
 
-    std::shared_ptr<ComputePipeline> D3D12GraphicsDevice::create_compute_pipeline(const ComputePipelineDescriptor &descriptor)
-    {
-        HE_UNUSED(descriptor);
-
-        HE_UNREACHABLE();
-    }
-
-    std::shared_ptr<RenderPipeline> D3D12GraphicsDevice::create_render_pipeline(const RenderPipelineDescriptor &descriptor)
+    std::shared_ptr<IComputePipeline> D3D12GraphicsDevice::create_compute_pipeline(const ComputePipelineDescriptor &descriptor)
     {
         HE_UNUSED(descriptor);
 
         HE_UNREACHABLE();
     }
 
-    std::shared_ptr<PipelineLayout> D3D12GraphicsDevice::create_pipeline_layout(const PipelineLayoutDescriptor &descriptor)
+    std::shared_ptr<IRenderPipeline> D3D12GraphicsDevice::create_render_pipeline(const RenderPipelineDescriptor &descriptor)
     {
         HE_UNUSED(descriptor);
 
         HE_UNREACHABLE();
     }
 
-    std::shared_ptr<Sampler> D3D12GraphicsDevice::create_sampler(const SamplerDescriptor &descriptor)
+    std::shared_ptr<IPipelineLayout> D3D12GraphicsDevice::create_pipeline_layout(const PipelineLayoutDescriptor &descriptor)
     {
         HE_UNUSED(descriptor);
 
         HE_UNREACHABLE();
     }
 
-    std::shared_ptr<ShaderModule> D3D12GraphicsDevice::create_shader_module(const ShaderModuleDescriptor &descriptor)
+    std::shared_ptr<ISampler> D3D12GraphicsDevice::create_sampler(const SamplerDescriptor &descriptor)
     {
         HE_UNUSED(descriptor);
 
         HE_UNREACHABLE();
     }
 
-    std::shared_ptr<Texture> D3D12GraphicsDevice::create_texture(const TextureDescriptor &descriptor)
+    std::shared_ptr<IShaderModule> D3D12GraphicsDevice::create_shader_module(const ShaderModuleDescriptor &descriptor)
     {
         HE_UNUSED(descriptor);
 
         HE_UNREACHABLE();
     }
 
-    std::shared_ptr<TextureView> D3D12GraphicsDevice::create_texture_view(const TextureViewDescriptor &descriptor)
+    std::shared_ptr<ITexture> D3D12GraphicsDevice::create_texture(const TextureDescriptor &descriptor)
     {
         HE_UNUSED(descriptor);
 
         HE_UNREACHABLE();
     }
 
-    std::shared_ptr<ImGuiManager> D3D12GraphicsDevice::create_imgui_manager()
+    std::shared_ptr<ITextureView> D3D12GraphicsDevice::create_texture_view(const TextureViewDescriptor &descriptor)
+    {
+        HE_UNUSED(descriptor);
+
+        HE_UNREACHABLE();
+    }
+
+    std::shared_ptr<IImGuiManager> D3D12GraphicsDevice::create_imgui_manager()
     {
         HE_UNREACHABLE();
     }
 
-    void D3D12GraphicsDevice::begin_frame(const std::shared_ptr<Surface> &surface, const uint32_t frame_index)
+    void D3D12GraphicsDevice::begin_frame(const std::shared_ptr<ISurface> &surface, const uint32_t frame_index)
     {
         HE_UNUSED(surface);
         HE_UNUSED(frame_index);
@@ -126,14 +126,14 @@ namespace he::rhi
         HE_UNREACHABLE();
     }
 
-    void D3D12GraphicsDevice::execute(const std::shared_ptr<CommandList> &command_list)
+    void D3D12GraphicsDevice::execute(const std::shared_ptr<ICommandList> &command_list)
     {
         HE_UNUSED(command_list);
 
         HE_UNREACHABLE();
     }
 
-    void D3D12GraphicsDevice::present(const std::shared_ptr<Surface> &surface) const
+    void D3D12GraphicsDevice::present(const std::shared_ptr<ISurface> &surface) const
     {
         HE_UNUSED(surface);
 

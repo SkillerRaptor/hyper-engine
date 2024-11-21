@@ -15,7 +15,7 @@
 namespace he::rhi
 {
     VulkanPipelineLayout::VulkanPipelineLayout(VulkanGraphicsDevice &graphics_device, const PipelineLayoutDescriptor &descriptor)
-        : PipelineLayout(descriptor)
+        : IPipelineLayout(descriptor)
         , m_graphics_device(graphics_device)
         , m_pipeline_layout(VK_NULL_HANDLE)
     {

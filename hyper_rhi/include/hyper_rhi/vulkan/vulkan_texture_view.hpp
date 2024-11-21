@@ -15,7 +15,7 @@ namespace he::rhi
 {
     class VulkanGraphicsDevice;
 
-    class VulkanTextureView final : public TextureView
+    class VulkanTextureView final : public ITextureView
     {
     public:
         VulkanTextureView(VulkanGraphicsDevice &graphics_device, const TextureViewDescriptor &descriptor);

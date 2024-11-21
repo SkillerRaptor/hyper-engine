@@ -17,17 +17,17 @@ namespace he::rhi
         uint32_t push_constant_size = 0;
     };
 
-    class PipelineLayout
+    class IPipelineLayout
     {
     public:
-        virtual ~PipelineLayout() = default;
+        virtual ~IPipelineLayout() = default;
 
         std::string_view label() const;
 
         uint32_t push_constant_size() const;
 
     protected:
-        explicit PipelineLayout(const PipelineLayoutDescriptor &descriptor);
+        explicit IPipelineLayout(const PipelineLayoutDescriptor &descriptor);
 
     protected:
         std::string m_label;

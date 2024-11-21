@@ -54,10 +54,10 @@ namespace he::rhi
         ResourceHandle handle;
     };
 
-    class Sampler
+    class ISampler
     {
     public:
-        virtual ~Sampler() = default;
+        virtual ~ISampler() = default;
 
         std::string_view label() const;
 
@@ -76,7 +76,7 @@ namespace he::rhi
         ResourceHandle handle() const;
 
     protected:
-        explicit Sampler(const SamplerDescriptor &descriptor);
+        explicit ISampler(const SamplerDescriptor &descriptor);
 
     protected:
         std::string m_label;
