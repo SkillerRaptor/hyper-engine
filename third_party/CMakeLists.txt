@@ -13,7 +13,7 @@ FetchContent_Declare(
         argparse
         SYSTEM
         GIT_REPOSITORY https://github.com/p-ranav/argparse.git
-        GIT_TAG v3.1)
+        GIT_TAG 68fd0277eea5412aff9b91c0b70efc698359dae0)
 
 set(ARGPARSE_INSTALL OFF CACHE INTERNAL "")
 set(ARGPARSE_BUILD_TESTS OFF CACHE INTERNAL "")
@@ -33,7 +33,7 @@ FetchContent_Declare(
         D3D12MemoryAllocator
         SYSTEM
         GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git
-        GIT_TAG master)
+        GIT_TAG da380f69bd4547cd776c525ae225bb9d13df94e2)
 
 set(D3D12MA_BUILD_SAMPLE OFF CACHE INTERNAL "")
 
@@ -77,7 +77,7 @@ FetchContent_Declare(
         fastgltf
         SYSTEM
         GIT_REPOSITORY https://github.com/spnda/fastgltf.git
-        GIT_TAG v0.8.0)
+        GIT_TAG d4734a7e55d8d25155e755d895e018e423845cd0)
 
 set(FASTGLTF_USE_CUSTOM_SMALLVECTOR ON CACHE INTERNAL "")
 set(FASTGLTF_ENABLE_TESTS OFF CACHE INTERNAL "")
@@ -106,7 +106,7 @@ FetchContent_Declare(
         fmt
         SYSTEM
         GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-        GIT_TAG 11.0.2)
+        GIT_TAG 0c9fce2ffefecfdce794e1859584e25877b7b592)
 
 set(FMT_DOC OFF CACHE INTERNAL "")
 set(FMT_INSTALL OFF CACHE INTERNAL "")
@@ -132,7 +132,7 @@ FetchContent_Declare(
         glm
         SYSTEM
         GIT_REPOSITORY https://github.com/g-truc/glm.git
-        GIT_TAG 1.0.1)
+        GIT_TAG 0af55ccecd98d4e5a8d1fad7de25ba429d60e863)
 
 set(GLM_BUILD_LIBRARY OFF CACHE INTERNAL "")
 set(GLM_BUILD_TESTS OFF CACHE INTERNAL "")
@@ -157,7 +157,7 @@ FetchContent_Declare(
         imgui
         SYSTEM
         GIT_REPOSITORY https://github.com/ocornut/imgui.git
-        GIT_TAG origin/docking)
+        GIT_TAG dad1047b04e335454d17cd546c29a44173da8eb8)
 
 FetchContent_MakeAvailable(imgui)
 
@@ -219,7 +219,7 @@ FetchContent_Declare(
         libassert
         SYSTEM
         GIT_REPOSITORY https://github.com/jeremy-rifkin/libassert.git
-        GIT_TAG v2.1.2)
+        GIT_TAG df3a4bdfa5d6f80999ae0b381b298dfd1c277402)
 
 FetchContent_MakeAvailable(libassert)
 
@@ -241,7 +241,7 @@ FetchContent_Declare(
         meshoptimizer
         SYSTEM
         GIT_REPOSITORY https://github.com/zeux/meshoptimizer.git
-        GIT_TAG v0.22)
+        GIT_TAG 4affad044571506a5724c9a6f15424f43e86f731)
 
 set(MESHOPT_BUILD_DEMO OFF CACHE INTERNAL "")
 set(MESHOPT_BUILD_GLTFPACK OFF CACHE INTERNAL "")
@@ -262,7 +262,7 @@ FetchContent_Declare(
         sdl
         SYSTEM
         GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-        GIT_TAG main)
+        GIT_TAG df73cae2b0da53e14668db97cea1ac083a9d5d38)
 
 set(SDL_SHARED OFF CACHE INTERNAL "")
 set(SDL_STATIC ON CACHE INTERNAL "")
@@ -286,7 +286,7 @@ FetchContent_Declare(
         spdlog
         SYSTEM
         GIT_REPOSITORY https://github.com/gabime/spdlog.git
-        GIT_TAG v1.14.1)
+        GIT_TAG 8e5613379f5140fefb0b60412fbf1f5406e7c7f8)
 
 set(SPDLOG_BUILD_ALL OFF CACHE INTERNAL "")
 set(SPDLOG_BUILD_SHARED OFF CACHE INTERNAL "")
@@ -325,7 +325,7 @@ FetchContent_Declare(
         stb
         SYSTEM
         GIT_REPOSITORY https://github.com/nothings/stb.git
-        GIT_TAG master)
+        GIT_TAG 5c205738c191bcb0abc65c4febfa9bd25ff35234)
 
 FetchContent_MakeAvailable(stb)
 
@@ -338,7 +338,7 @@ FetchContent_Declare(
         volk
         SYSTEM
         GIT_REPOSITORY https://github.com/zeux/volk.git
-        GIT_TAG 1.3.295)
+        GIT_TAG b465507a1720ea32d65163153a53ffa136ca835f)
 
 set(VOLK_PULL_IN_VULKAN ON CACHE INTERNAL "")
 set(VOLK_INSTALL OFF CACHE INTERNAL "")
@@ -358,7 +358,7 @@ FetchContent_Declare(
         VulkanMemoryAllocator
         SYSTEM
         GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-        GIT_TAG v3.1.0)
+        GIT_TAG 009ecd192c1289c7529bff248a16cfe896254816)
 
 set(VMA_ENABLE_INSTALL OFF CACHE INTERNAL "")
 

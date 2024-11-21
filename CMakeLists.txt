@@ -17,7 +17,10 @@ include(cmake/StandardProjectSettings.cmake)
 include(cmake/PreventInSourceBuilds.cmake)
 include(cmake/Doxygen.cmake)
 
-enable_doxygen()
+option(HE_ENABLE_DOXYGEN "Enabling doxygen generation" OFF)
+if (HE_ENABLE_DOXYGEN)
+    enable_doxygen()
+endif ()
 
 #-------------------------------------------------------------------------------------------
 # Project Libraries
