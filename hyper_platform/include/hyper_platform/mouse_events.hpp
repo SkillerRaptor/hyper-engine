@@ -8,7 +8,7 @@
 
 #include "hyper_platform/mouse_codes.hpp"
 
-namespace he::platform
+namespace hyper_engine
 {
     class MouseMoveEvent
     {
@@ -57,4 +57,4 @@ namespace he::platform
         float m_delta_x;
         float m_delta_y;
     };
-} // namespace he::platform
+} // namespace hyper_engine

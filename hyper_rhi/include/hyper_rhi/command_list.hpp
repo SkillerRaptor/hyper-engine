@@ -13,7 +13,7 @@
 
 #include "hyper_rhi/subresource_range.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     class IBuffer;
     class IComputePass;
@@ -177,4 +177,4 @@ namespace he::rhi
         virtual std::shared_ptr<IComputePass> begin_compute_pass(const ComputePassDescriptor &descriptor) const = 0;
         virtual std::shared_ptr<IRenderPass> begin_render_pass(const RenderPassDescriptor &descriptor) const = 0;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

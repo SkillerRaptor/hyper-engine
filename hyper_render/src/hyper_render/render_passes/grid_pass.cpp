@@ -18,15 +18,15 @@
 #include <hyper_rhi/texture.hpp>
 #include <hyper_rhi/texture_view.hpp>
 
-namespace he::render
+namespace hyper_engine
 {
     GridPass::GridPass(
-        const std::shared_ptr<he::rhi::IGraphicsDevice> &graphics_device,
-        const he::rhi::ShaderCompiler &shader_compiler,
-        const std::shared_ptr<he::rhi::ITexture> &render_texture,
-        const std::shared_ptr<he::rhi::ITextureView> &render_texture_view,
-        const std::shared_ptr<he::rhi::ITexture> &depth_texture,
-        const std::shared_ptr<he::rhi::ITextureView> &depth_texture_view)
+        const std::shared_ptr<IGraphicsDevice> &graphics_device,
+        const ShaderCompiler &shader_compiler,
+        const std::shared_ptr<ITexture> &render_texture,
+        const std::shared_ptr<ITextureView> &render_texture_view,
+        const std::shared_ptr<ITexture> &depth_texture,
+        const std::shared_ptr<ITextureView> &depth_texture_view)
         : m_render_texture(render_texture)
         , m_render_texture_view(render_texture_view)
         , m_depth_texture(depth_texture)
@@ -37,25 +37,25 @@ namespace he::render
           }))
         , m_vertex_shader(graphics_device->create_shader_module({
               .label = "Grid",
-              .type = he::rhi::ShaderType::Vertex,
+              .type = ShaderType::Vertex,
               .entry_name = "vs_main",
               .bytes = shader_compiler
                            .compile({
-                               .type = he::rhi::ShaderType::Vertex,
+                               .type = ShaderType::Vertex,
                                .entry_name = "vs_main",
-                               .data = he::core::fs::read_file("./assets/shaders/grid_shader.hlsl"),
+                               .data = filesystem::read_file("./assets/shaders/grid_shader.hlsl"),
                            })
                            .spirv,
           }))
         , m_fragment_shader(graphics_device->create_shader_module({
               .label = "Grid",
-              .type = he::rhi::ShaderType::Fragment,
+              .type = ShaderType::Fragment,
               .entry_name = "fs_main",
               .bytes = shader_compiler
                            .compile({
-                               .type = he::rhi::ShaderType::Fragment,
+                               .type = ShaderType::Fragment,
                                .entry_name = "fs_main",
-                               .data = he::core::fs::read_file("./assets/shaders/grid_shader.hlsl"),
+                               .data = filesystem::read_file("./assets/shaders/grid_shader.hlsl"),
                            })
                            .spirv,
           }))
@@ -65,66 +65,66 @@ namespace he::render
               .vertex_shader = m_vertex_shader,
               .fragment_shader = m_fragment_shader,
               .color_attachment_states = {
-                  he::rhi::ColorAttachmentState{
+                  ColorAttachmentState{
                       .format = m_render_texture->format(),
-                      .blend_state = he::rhi::BlendState {
+                      .blend_state = BlendState {
                           .blend_enable = true,
-                          .src_blend_factor = he::rhi::BlendFactor::SrcAlpha,
-                          .dst_blend_factor = he::rhi::BlendFactor::One,
-                          .operation = he::rhi::BlendOperation::Add,
-                          .alpha_src_blend_factor = he::rhi::BlendFactor::One,
-                          .alpha_dst_blend_factor = he::rhi::BlendFactor::Zero,
-                          .alpha_operation = he::rhi::BlendOperation::Add,
-                          .color_writes = he::rhi::ColorWrites::All,
+                          .src_blend_factor = BlendFactor::SrcAlpha,
+                          .dst_blend_factor = BlendFactor::One,
+                          .operation = BlendOperation::Add,
+                          .alpha_src_blend_factor = BlendFactor::One,
+                          .alpha_dst_blend_factor = BlendFactor::Zero,
+                          .alpha_operation = BlendOperation::Add,
+                          .color_writes = ColorWrites::All,
                       },
                   },
               },
               .primitive_state =
-                  he::rhi::PrimitiveState{
-                      .topology = he::rhi::PrimitiveTopology::TriangleList,
-                      .front_face = he::rhi::FrontFace::CounterClockwise,
-                      .cull_mode = he::rhi::Face::None,
-                      .polygon_mode = he::rhi::PolygonMode::Fill,
+                  PrimitiveState{
+                      .topology = PrimitiveTopology::TriangleList,
+                      .front_face = FrontFace::CounterClockwise,
+                      .cull_mode = Face::None,
+                      .polygon_mode = PolygonMode::Fill,
                   },
               .depth_stencil_state =
-                  he::rhi::DepthStencilState{
+                  DepthStencilState{
                       .depth_test_enable = true,
                       .depth_write_enable = true,
                       .depth_format = m_depth_texture->format(),
-                      .depth_compare_operation = he::rhi::CompareOperation::Less,
+                      .depth_compare_operation = CompareOperation::Less,
                       .depth_bias_state = {},
                   },
           }))
     {
     }
 
-    void GridPass::render(const std::shared_ptr<he::rhi::ICommandList> &command_list) const
+    void GridPass::render(const std::shared_ptr<ICommandList> &command_list) const
     {
-        const std::shared_ptr<he::rhi::IRenderPass> render_pass = command_list->begin_render_pass({
+        const std::shared_ptr<IRenderPass> render_pass = command_list->begin_render_pass({
             .label = "Grid",
             .label_color =
-                he::rhi::LabelColor{
+                LabelColor{
                     .red = 51,
                     .green = 187,
                     .blue = 255,
                 },
             .color_attachments = {
-                he::rhi::ColorAttachment{
+                ColorAttachment{
                     .view = m_render_texture_view,
                     .operation =
-                        he::rhi::Operations{
-                            .load_operation = he::rhi::LoadOperation::Load,
-                            .store_operation = he::rhi::StoreOperation::Store,
+                        Operations{
+                            .load_operation = LoadOperation::Load,
+                            .store_operation = StoreOperation::Store,
                         },
                 },
             },
             .depth_stencil_attachment =
-                he::rhi::DepthStencilAttachment{
+                DepthStencilAttachment{
                     .view = m_depth_texture_view,
                     .depth_operation =
-                        he::rhi::Operations{
-                            .load_operation = he::rhi::LoadOperation::Load,
-                            .store_operation = he::rhi::StoreOperation::Store,
+                        Operations{
+                            .load_operation = LoadOperation::Load,
+                            .store_operation = StoreOperation::Store,
                         },
                 },
         });
@@ -133,4 +133,4 @@ namespace he::render
 
         render_pass->draw(6, 1, 0, 0);
     }
-} // namespace he::render
+} // namespace hyper_engine

@@ -8,7 +8,7 @@
 
 #include <cstddef>
 
-namespace he::event
+namespace hyper_engine
 {
     class EventIdGenerator
     {
@@ -27,4 +27,4 @@ namespace he::event
             return value++;
         }
     };
-} // namespace he::event
+} // namespace hyper_engine

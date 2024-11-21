@@ -12,7 +12,7 @@
 #include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     VulkanDescriptorManager::VulkanDescriptorManager(VulkanGraphicsDevice &graphics_device)
         : m_graphics_device(graphics_device)
@@ -342,4 +342,4 @@ namespace he::rhi
         m_recycled_descriptors.pop();
         return handle;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

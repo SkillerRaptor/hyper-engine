@@ -11,7 +11,7 @@
 
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     VulkanShaderModule::VulkanShaderModule(VulkanGraphicsDevice &graphics_device, const ShaderModuleDescriptor &descriptor)
         : IShaderModule(descriptor)
@@ -60,4 +60,4 @@ namespace he::rhi
     {
         return m_shader_module;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

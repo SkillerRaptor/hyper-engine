@@ -12,7 +12,7 @@
 #include "hyper_rhi/resource_handle.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
@@ -66,4 +66,4 @@ namespace he::rhi
         std::stack<ResourceHandle> m_recycled_descriptors;
         uint32_t m_current_index;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

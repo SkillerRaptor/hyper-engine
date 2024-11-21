@@ -11,7 +11,7 @@
 
 #include "hyper_rhi/shader_type.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     struct ShaderModuleDescriptor
     {
@@ -43,4 +43,4 @@ namespace he::rhi
         std::string m_entry_name;
         std::vector<uint8_t> m_bytes;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

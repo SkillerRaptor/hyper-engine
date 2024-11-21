@@ -8,7 +8,7 @@
 
 #include "hyper_rhi/imgui_manager.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
@@ -17,7 +17,7 @@ namespace he::rhi
     public:
         explicit VulkanImGuiManager(VulkanGraphicsDevice &graphics_device);
 
-        void initialize(const he::platform::Window &window, const std::shared_ptr<ISurface> &surface) override;
+        void initialize(const Window &window, const std::shared_ptr<ISurface> &surface) override;
         void destroy() override;
 
         void new_frame() override;
@@ -28,4 +28,4 @@ namespace he::rhi
     private:
         VulkanGraphicsDevice &m_graphics_device;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

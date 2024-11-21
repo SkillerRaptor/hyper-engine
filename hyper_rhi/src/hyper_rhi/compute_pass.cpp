@@ -8,7 +8,7 @@
 
 #include <hyper_core/assertion.hpp>
 
-namespace he::rhi
+namespace hyper_engine
 {
     IComputePass::IComputePass(const ComputePassDescriptor &descriptor)
         : m_label(descriptor.label)
@@ -26,4 +26,4 @@ namespace he::rhi
     {
         return m_label_color;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

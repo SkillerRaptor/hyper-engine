@@ -12,7 +12,7 @@
 #include "hyper_rhi/resource_handle.hpp"
 #include "hyper_rhi/subresource_range.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     class ITexture;
 
@@ -72,4 +72,4 @@ namespace he::rhi
 
         ResourceHandle m_handle;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

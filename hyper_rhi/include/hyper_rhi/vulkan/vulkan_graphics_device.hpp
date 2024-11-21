@@ -18,7 +18,7 @@
 
 #include <vk_mem_alloc.h>
 
-namespace he::rhi
+namespace hyper_engine
 {
     class VulkanDescriptorManager;
 
@@ -93,7 +93,7 @@ namespace he::rhi
         explicit VulkanGraphicsDevice(const GraphicsDeviceDescriptor &descriptor);
         ~VulkanGraphicsDevice() override;
 
-        std::shared_ptr<ISurface> create_surface(const he::platform::Window &window) override;
+        std::shared_ptr<ISurface> create_surface(const Window &window) override;
         std::shared_ptr<IBuffer> create_buffer(const BufferDescriptor &descriptor) override;
         std::shared_ptr<IBuffer> create_staging_buffer(const BufferDescriptor &descriptor);
         std::shared_ptr<ICommandList> create_command_list() override;
@@ -168,4 +168,4 @@ namespace he::rhi
 
         ResourceQueue m_resource_queue;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

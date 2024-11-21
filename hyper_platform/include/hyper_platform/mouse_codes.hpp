@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-namespace he::platform
+namespace hyper_engine
 {
     enum class MouseCode : uint8_t
     {
@@ -18,4 +18,4 @@ namespace he::platform
         ButtonX1 = 4,
         ButtonX2 = 5,
     };
-} // namespace he::platform
+} // namespace hyper_engine

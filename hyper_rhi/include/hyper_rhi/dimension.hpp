@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-namespace he::rhi
+namespace hyper_engine
 {
     enum class Dimension : uint8_t
     {
@@ -19,4 +19,4 @@ namespace he::rhi
         Texture2DArray,
         Texture3D,
     };
-} // namespace he::rhi
+} // namespace hyper_engine

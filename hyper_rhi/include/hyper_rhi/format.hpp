@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-namespace he::rhi
+namespace hyper_engine
 {
     enum class Format : uint8_t
     {
@@ -113,4 +113,4 @@ namespace he::rhi
         D24UnormS8Uint,
         D32SfloatS8Uint
     };
-} // namespace he::rhi
+} // namespace hyper_engine

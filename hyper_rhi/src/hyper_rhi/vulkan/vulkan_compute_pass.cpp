@@ -13,7 +13,7 @@
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 #include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     VulkanComputePass::VulkanComputePass(
         VulkanGraphicsDevice &graphics_device,
@@ -70,4 +70,4 @@ namespace he::rhi
     {
         return m_command_buffer;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

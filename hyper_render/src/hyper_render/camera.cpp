@@ -10,7 +10,7 @@
 #include <hyper_platform/input.hpp>
 #include <hyper_platform/mouse_codes.hpp>
 
-namespace he::render
+namespace hyper_engine
 {
     Camera::Camera(const glm::vec3 position, const float yaw, const float pitch)
         : m_position(position)
@@ -69,7 +69,7 @@ namespace he::render
         m_last_x = x_position;
         m_last_y = y_position;
 
-        if (!he::platform::input::is_mouse_button_pressed(he::platform::MouseCode::ButtonMiddle))
+        if (!input::is_mouse_button_pressed(MouseCode::ButtonMiddle))
         {
             return;
         }
@@ -146,4 +146,4 @@ namespace he::render
         m_right = glm::normalize(glm::cross(m_front, glm::vec3(0.0, 1.0, 0.0)));
         m_up = glm::normalize(glm::cross(m_right, m_front));
     }
-} // namespace he::render
+} // namespace hyper_engine

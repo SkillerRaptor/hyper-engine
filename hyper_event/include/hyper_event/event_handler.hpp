@@ -9,7 +9,7 @@
 #include <functional>
 #include <vector>
 
-namespace he::event
+namespace hyper_engine
 {
     class IEventHandler
     {
@@ -37,4 +37,4 @@ namespace he::event
     private:
         std::vector<std::function<void(const T &)>> m_callbacks;
     };
-} // namespace he::event
+} // namespace hyper_engine

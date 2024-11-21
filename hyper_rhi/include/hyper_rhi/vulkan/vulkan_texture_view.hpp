@@ -11,7 +11,7 @@
 #include "hyper_rhi/texture_view.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
@@ -32,4 +32,4 @@ namespace he::rhi
 
         VkImageView m_image_view;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

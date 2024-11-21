@@ -8,7 +8,7 @@
 
 #include <hyper_core/assertion.hpp>
 
-namespace he::rhi
+namespace hyper_engine
 {
     ISampler::ISampler(const SamplerDescriptor &descriptor)
         : m_label(descriptor.label)
@@ -94,4 +94,4 @@ namespace he::rhi
     {
         return m_handle;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

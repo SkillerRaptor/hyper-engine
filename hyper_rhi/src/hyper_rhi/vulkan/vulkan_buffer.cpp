@@ -12,7 +12,7 @@
 #include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     VulkanBuffer::VulkanBuffer(VulkanGraphicsDevice &graphics_device, const BufferDescriptor &descriptor, const bool staging)
         : IBuffer(descriptor)
@@ -116,4 +116,4 @@ namespace he::rhi
 
         return usage_flags;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

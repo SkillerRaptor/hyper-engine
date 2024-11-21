@@ -15,7 +15,7 @@
 
 #include "hyper_rhi/shader_type.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     struct ShaderDescriptor
     {
@@ -55,4 +55,4 @@ namespace he::rhi
         Microsoft::WRL::ComPtr<IDxcCompiler3> m_compiler;
         Microsoft::WRL::ComPtr<IDxcUtils> m_utils;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

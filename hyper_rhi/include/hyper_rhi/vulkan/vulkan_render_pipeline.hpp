@@ -9,7 +9,7 @@
 #include "hyper_rhi/render_pipeline.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
@@ -35,4 +35,4 @@ namespace he::rhi
 
         VkPipeline m_pipeline;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

@@ -9,7 +9,7 @@
 #include "hyper_rhi/shader_module.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
@@ -26,4 +26,4 @@ namespace he::rhi
 
         VkShaderModule m_shader_module;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

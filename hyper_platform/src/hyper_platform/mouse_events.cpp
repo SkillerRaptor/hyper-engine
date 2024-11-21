@@ -6,7 +6,7 @@
 
 #include "hyper_platform/mouse_events.hpp"
 
-namespace he::platform
+namespace hyper_engine
 {
     MouseMoveEvent::MouseMoveEvent(const float x, const float y)
         : m_x(x)
@@ -59,4 +59,4 @@ namespace he::platform
     {
         return m_delta_y;
     }
-} // namespace he::platform
+} // namespace hyper_engine

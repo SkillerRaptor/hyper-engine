@@ -15,7 +15,7 @@
 #include "hyper_rhi/compare_operation.hpp"
 #include "hyper_rhi/format.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     class IPipelineLayout;
     class IShaderModule;
@@ -176,4 +176,4 @@ namespace he::rhi
         PrimitiveState m_primitive_state;
         DepthStencilState m_depth_stencil_state;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

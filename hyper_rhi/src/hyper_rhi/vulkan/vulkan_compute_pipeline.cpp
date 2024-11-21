@@ -13,7 +13,7 @@
 #include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
 #include "hyper_rhi/vulkan/vulkan_shader_module.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     VulkanComputePipeline::VulkanComputePipeline(VulkanGraphicsDevice &graphics_device, const ComputePipelineDescriptor &descriptor)
         : IComputePipeline(descriptor)
@@ -62,4 +62,4 @@ namespace he::rhi
     {
         return m_pipeline;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

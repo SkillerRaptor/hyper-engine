@@ -10,7 +10,7 @@
 
 #include "hyper_rhi/format.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     class ITexture;
     class ITextureView;
@@ -42,4 +42,4 @@ namespace he::rhi
         uint32_t m_width;
         uint32_t m_height;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

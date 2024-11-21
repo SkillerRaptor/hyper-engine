@@ -8,7 +8,7 @@
 
 #include <hyper_core/assertion.hpp>
 
-namespace he::rhi
+namespace hyper_engine
 {
     IRenderPass::IRenderPass(const RenderPassDescriptor &descriptor)
         : m_label(descriptor.label)
@@ -40,4 +40,4 @@ namespace he::rhi
     {
         return m_depth_stencil_attachment;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

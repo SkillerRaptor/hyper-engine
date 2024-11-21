@@ -16,45 +16,45 @@
 
 #include "shader_interop.h"
 
-namespace he::render
+namespace hyper_engine
 {
     OpaquePass::OpaquePass(
-        const std::shared_ptr<he::rhi::ITextureView> &render_texture_view,
-        const std::shared_ptr<he::rhi::ITextureView> &depth_texture_view,
-        const std::shared_ptr<he::rhi::IBuffer> &scene_buffer)
+        const std::shared_ptr<ITextureView> &render_texture_view,
+        const std::shared_ptr<ITextureView> &depth_texture_view,
+        const std::shared_ptr<IBuffer> &scene_buffer)
         : m_render_texture_view(render_texture_view)
         , m_depth_texture_view(depth_texture_view)
         , m_scene_buffer(scene_buffer)
     {
     }
 
-    void OpaquePass::render(const std::shared_ptr<he::rhi::ICommandList> &command_list, const DrawContext &draw_context) const
+    void OpaquePass::render(const std::shared_ptr<ICommandList> &command_list, const DrawContext &draw_context) const
     {
-        const std::shared_ptr<he::rhi::IRenderPass> render_pass = command_list->begin_render_pass({
+        const std::shared_ptr<IRenderPass> render_pass = command_list->begin_render_pass({
             .label = "Opaque",
             .label_color =
-                he::rhi::LabelColor{
+                LabelColor{
                     .red = 254,
                     .green = 17,
                     .blue = 85,
                 },
             .color_attachments = {
-                he::rhi::ColorAttachment{
+                ColorAttachment{
                     .view = m_render_texture_view,
                     .operation =
-                        he::rhi::Operations{
-                            .load_operation = he::rhi::LoadOperation::Clear,
-                            .store_operation = he::rhi::StoreOperation::Store,
+                        Operations{
+                            .load_operation = LoadOperation::Clear,
+                            .store_operation = StoreOperation::Store,
                         },
                 },
             },
             .depth_stencil_attachment =
-                he::rhi::DepthStencilAttachment{
+                DepthStencilAttachment{
                     .view = m_depth_texture_view,
                     .depth_operation =
-                        he::rhi::Operations{
-                            .load_operation = he::rhi::LoadOperation::Clear,
-                            .store_operation = he::rhi::StoreOperation::Store,
+                        Operations{
+                            .load_operation = LoadOperation::Clear,
+                            .store_operation = StoreOperation::Store,
                         },
                 },
         });
@@ -95,4 +95,4 @@ namespace he::render
             render_pass->draw_indexed(render_object.index_count, 1, render_object.first_index, 0, 0);
         }
     }
-} // namespace he::render
+} // namespace hyper_engine

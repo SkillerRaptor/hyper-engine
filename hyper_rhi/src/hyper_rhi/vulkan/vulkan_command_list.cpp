@@ -16,7 +16,7 @@
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture_view.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     VulkanCommandList::VulkanCommandList(VulkanGraphicsDevice &graphics_device)
         : m_graphics_device(graphics_device)
@@ -785,4 +785,4 @@ namespace he::rhi
             HE_UNREACHABLE();
         }
     }
-} // namespace he::rhi
+} // namespace hyper_engine

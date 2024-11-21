@@ -8,35 +8,26 @@
 
 #include <memory>
 
-#include "hyper_render/mesh.hpp"
-
-namespace he
+namespace hyper_engine
 {
-    namespace rhi
+    struct DrawContext;
+    class IBuffer;
+    class ICommandList;
+    class ITextureView;
+
+    class OpaquePass
     {
-        class IBuffer;
-        class ICommandList;
-        class ITextureView;
-    } // namespace rhi
+    public:
+        OpaquePass(
+            const std::shared_ptr<ITextureView> &render_texture_view,
+            const std::shared_ptr<ITextureView> &depth_texture_view,
+            const std::shared_ptr<IBuffer> &scene_buffer);
 
-    namespace render
-    {
-        struct DrawContext;
+        void render(const std::shared_ptr<ICommandList> &command_list, const DrawContext &draw_context) const;
 
-        class OpaquePass
-        {
-        public:
-            OpaquePass(
-                const std::shared_ptr<he::rhi::ITextureView> &render_texture_view,
-                const std::shared_ptr<he::rhi::ITextureView> &depth_texture_view,
-                const std::shared_ptr<he::rhi::IBuffer> &scene_buffer);
-
-            void render(const std::shared_ptr<he::rhi::ICommandList> &command_list, const DrawContext &draw_context) const;
-
-        private:
-            const std::shared_ptr<he::rhi::ITextureView> &m_render_texture_view;
-            const std::shared_ptr<he::rhi::ITextureView> &m_depth_texture_view;
-            const std::shared_ptr<he::rhi::IBuffer> &m_scene_buffer;
-        };
-    } // namespace render
-} // namespace he
+    private:
+        const std::shared_ptr<ITextureView> &m_render_texture_view;
+        const std::shared_ptr<ITextureView> &m_depth_texture_view;
+        const std::shared_ptr<IBuffer> &m_scene_buffer;
+    };
+} // namespace hyper_engine

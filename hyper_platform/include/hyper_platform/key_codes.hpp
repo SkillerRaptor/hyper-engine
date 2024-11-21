@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-namespace he::platform
+namespace hyper_engine
 {
     enum class KeyCode : uint32_t
     {
@@ -262,4 +262,4 @@ namespace he::platform
         Call = 0x40000121u,
         EndCall = 0x40000122u
     };
-} // namespace he::platform
+} // namespace hyper_engine

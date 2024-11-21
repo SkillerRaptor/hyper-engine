@@ -6,7 +6,7 @@
 
 #include "hyper_core/string.hpp"
 
-namespace he::core::string
+namespace hyper_engine::string
 {
     std::wstring to_wstring(const std::string &string)
     {
@@ -15,4 +15,4 @@ namespace he::core::string
         std::mbstowcs(wstring.data(), string.c_str(), buffer_size);
         return wstring;
     }
-} // namespace he::core::string
+} // namespace hyper_engine::string

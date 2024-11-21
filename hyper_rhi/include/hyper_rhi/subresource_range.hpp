@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-namespace he::rhi
+namespace hyper_engine
 {
     struct SubresourceRange
     {
@@ -17,4 +17,4 @@ namespace he::rhi
         uint32_t base_array_level = 0;
         uint32_t array_layer_count = 1;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

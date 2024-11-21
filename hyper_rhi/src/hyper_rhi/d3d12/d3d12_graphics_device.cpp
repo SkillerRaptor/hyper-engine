@@ -10,7 +10,7 @@
 #include <hyper_core/logger.hpp>
 #include <hyper_core/prerequisites.hpp>
 
-namespace he::rhi
+namespace hyper_engine
 {
     D3D12GraphicsDevice::D3D12GraphicsDevice(const GraphicsDeviceDescriptor &descriptor)
         : IGraphicsDevice(descriptor)
@@ -40,7 +40,7 @@ namespace he::rhi
         HE_INFO("Created D3D12 Graphics Device");
     }
 
-    std::shared_ptr<ISurface> D3D12GraphicsDevice::create_surface(const he::platform::Window &window)
+    std::shared_ptr<ISurface> D3D12GraphicsDevice::create_surface(const Window &window)
     {
         HE_UNUSED(window);
 
@@ -244,4 +244,4 @@ namespace he::rhi
 
         HE_TRACE("Created Allocator");
     }
-} // namespace he::rhi
+} // namespace hyper_engine

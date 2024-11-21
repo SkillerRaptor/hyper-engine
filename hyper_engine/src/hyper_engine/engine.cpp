@@ -16,7 +16,7 @@
 #include <hyper_rhi/graphics_device.hpp>
 #include <hyper_rhi/surface.hpp>
 
-namespace he::engine
+namespace hyper_engine
 {
     Engine::Engine(const EngineDescriptor &descriptor)
         : m_start_time(std::chrono::steady_clock::now())
@@ -27,7 +27,7 @@ namespace he::engine
               .width = descriptor.width,
               .height = descriptor.height,
           })
-        , m_graphics_device(he::rhi::IGraphicsDevice::create({
+        , m_graphics_device(IGraphicsDevice::create({
               .graphics_api = descriptor.graphics_api,
               .debug_validation = descriptor.debug_validation,
               .debug_label = descriptor.debug_label,
@@ -42,10 +42,10 @@ namespace he::engine
                   .surface = m_surface,
               })
     {
-        he::platform::input::initialize(m_event_bus);
+        input::initialize(m_event_bus);
 
-        m_event_bus.subscribe<he::platform::WindowCloseEvent>(HE_BIND_FUNCTION(Engine::on_close));
-        m_event_bus.subscribe<he::platform::WindowResizeEvent>(HE_BIND_FUNCTION(Engine::on_resize));
+        m_event_bus.subscribe<WindowCloseEvent>(HE_BIND_FUNCTION(Engine::on_close));
+        m_event_bus.subscribe<WindowResizeEvent>(HE_BIND_FUNCTION(Engine::on_resize));
 
         m_running = true;
 
@@ -71,11 +71,11 @@ namespace he::engine
 
             accumulator += frame_time;
 
-            he::platform::Window::process_events(m_event_bus);
+            Window::process_events(m_event_bus);
 
             while (m_window.width() == 0 || m_window.height() == 0)
             {
-                he::platform::Window::wait_events();
+                Window::wait_events();
             }
 
             while (accumulator >= delta_time)
@@ -94,13 +94,13 @@ namespace he::engine
         }
     }
 
-    void Engine::on_close(const he::platform::WindowCloseEvent &)
+    void Engine::on_close(const WindowCloseEvent &)
     {
         m_running = false;
     }
 
-    void Engine::on_resize(const he::platform::WindowResizeEvent &event) const
+    void Engine::on_resize(const WindowResizeEvent &event) const
     {
         m_surface->resize(event.width(), event.height());
     }
-} // namespace he::engine
+} // namespace hyper_engine

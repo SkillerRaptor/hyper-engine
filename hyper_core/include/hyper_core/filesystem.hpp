@@ -9,7 +9,7 @@
 #include <string_view>
 #include <vector>
 
-namespace he::core::fs
+namespace hyper_engine::filesystem
 {
     std::vector<uint8_t> read_file(std::string_view file_path);
-} // namespace he::core::fs
+} // namespace hyper_engine::filesystem

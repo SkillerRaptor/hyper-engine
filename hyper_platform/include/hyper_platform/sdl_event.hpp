@@ -8,7 +8,7 @@
 
 union SDL_Event;
 
-namespace he::platform
+namespace hyper_engine
 {
     class SdlEvent
     {
@@ -20,4 +20,4 @@ namespace he::platform
     private:
         const SDL_Event *m_event;
     };
-} // namespace he::platform
+} // namespace hyper_engine

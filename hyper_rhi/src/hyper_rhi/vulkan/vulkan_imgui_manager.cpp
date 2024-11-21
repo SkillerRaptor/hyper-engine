@@ -20,14 +20,14 @@
 #include "hyper_rhi/vulkan/vulkan_surface.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     VulkanImGuiManager::VulkanImGuiManager(VulkanGraphicsDevice &graphics_device)
         : m_graphics_device(graphics_device)
     {
     }
 
-    void VulkanImGuiManager::initialize(const he::platform::Window &window, const std::shared_ptr<ISurface> &surface)
+    void VulkanImGuiManager::initialize(const Window &window, const std::shared_ptr<ISurface> &surface)
     {
         const VkDescriptorPoolSize pool_sizes[] = {
             { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
@@ -121,4 +121,4 @@ namespace he::rhi
         io.DisplaySize = ImVec2(static_cast<float>(width), static_cast<float>(height));
         io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
     }
-} // namespace he::rhi
+} // namespace hyper_engine

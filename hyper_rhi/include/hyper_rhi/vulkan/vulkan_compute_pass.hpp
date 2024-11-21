@@ -9,7 +9,7 @@
 #include "hyper_rhi/compute_pass.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
@@ -33,4 +33,4 @@ namespace he::rhi
 
         std::shared_ptr<IComputePipeline> m_pipeline;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

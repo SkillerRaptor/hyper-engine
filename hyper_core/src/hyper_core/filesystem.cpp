@@ -8,7 +8,7 @@
 
 #include <fstream>
 
-namespace he::core::fs
+namespace hyper_engine::filesystem
 {
     std::vector<uint8_t> read_file(const std::string_view file_path)
     {
@@ -26,4 +26,4 @@ namespace he::core::fs
 
         return data;
     }
-} // namespace he::core::fs
+} // namespace hyper_engine::filesystem

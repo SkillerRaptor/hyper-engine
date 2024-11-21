@@ -18,9 +18,9 @@
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture_view.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
-    VulkanSurface::VulkanSurface(VulkanGraphicsDevice &graphics_device, const he::platform::Window &window)
+    VulkanSurface::VulkanSurface(VulkanGraphicsDevice &graphics_device, const Window &window)
         : ISurface(window.width(), window.height())
         , m_graphics_device(graphics_device)
         , m_surface(VK_NULL_HANDLE)
@@ -96,7 +96,7 @@ namespace he::rhi
         return m_texture_views[m_texture_index];
     }
 
-    void VulkanSurface::create_surface(const he::platform::Window &window)
+    void VulkanSurface::create_surface(const Window &window)
     {
         HE_ASSERT(SDL_Vulkan_CreateSurface(window.native_window(), m_graphics_device.instance(), nullptr, &m_surface));
         HE_ASSERT(m_surface != VK_NULL_HANDLE);
@@ -263,4 +263,4 @@ namespace he::rhi
 
         return VK_PRESENT_MODE_FIFO_KHR;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

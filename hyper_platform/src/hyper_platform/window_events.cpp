@@ -6,7 +6,7 @@
 
 #include "hyper_platform/window_events.hpp"
 
-namespace he::platform
+namespace hyper_engine
 {
     WindowMoveEvent::WindowMoveEvent(const uint32_t x, const uint32_t y)
         : m_x(x)
@@ -39,4 +39,4 @@ namespace he::platform
     {
         return m_height;
     }
-} // namespace he::platform
+} // namespace hyper_engine

@@ -13,7 +13,7 @@
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 #include "hyper_rhi/vulkan/vulkan_render_pipeline.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     VulkanSampler::VulkanSampler(VulkanGraphicsDevice &graphics_device, const SamplerDescriptor &descriptor)
         : ISampler(descriptor)
@@ -135,4 +135,4 @@ namespace he::rhi
             HE_UNREACHABLE();
         }
     }
-} // namespace he::rhi
+} // namespace hyper_engine

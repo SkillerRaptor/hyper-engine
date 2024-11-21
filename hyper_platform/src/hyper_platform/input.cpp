@@ -12,7 +12,7 @@
 
 #include "hyper_platform/key_events.hpp"
 
-namespace he::platform::input
+namespace hyper_engine::input
 {
     static std::unordered_map<KeyCode, bool> g_keys;
 
@@ -26,7 +26,7 @@ namespace he::platform::input
         g_keys[event.key_code()] = false;
     }
 
-    void initialize(he::event::EventBus &event_bus)
+    void initialize(EventBus &event_bus)
     {
         event_bus.subscribe<KeyPressEvent>(on_key_press);
         event_bus.subscribe<KeyReleaseEvent>(on_key_release);
@@ -51,4 +51,4 @@ namespace he::platform::input
 
         return { x, y };
     }
-} // namespace he::platform::input
+} // namespace hyper_engine::input

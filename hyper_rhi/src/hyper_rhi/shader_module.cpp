@@ -8,7 +8,7 @@
 
 #include <hyper_core/assertion.hpp>
 
-namespace he::rhi
+namespace hyper_engine
 {
     IShaderModule::IShaderModule(const ShaderModuleDescriptor &descriptor)
         : m_label(descriptor.label)
@@ -42,4 +42,4 @@ namespace he::rhi
     {
         return m_bytes;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

@@ -6,7 +6,7 @@
 
 #include "hyper_platform/sdl_event.hpp"
 
-namespace he::platform
+namespace hyper_engine
 {
     SdlEvent::SdlEvent(const SDL_Event *event)
         : m_event(event)
@@ -17,4 +17,4 @@ namespace he::platform
     {
         return m_event;
     }
-} // namespace he::platform
+} // namespace hyper_engine

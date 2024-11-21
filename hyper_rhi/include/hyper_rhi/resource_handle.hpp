@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-namespace he::rhi
+namespace hyper_engine
 {
     class ResourceHandle
     {
@@ -22,4 +22,4 @@ namespace he::rhi
     private:
         uint32_t m_handle;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

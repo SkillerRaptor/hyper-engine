@@ -11,14 +11,14 @@
 #include "hyper_rhi/graphics_device.hpp"
 #include "hyper_rhi/d3d12/d3d12_common.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     class D3D12GraphicsDevice final : public IGraphicsDevice
     {
     public:
         explicit D3D12GraphicsDevice(const GraphicsDeviceDescriptor &descriptor);
 
-        std::shared_ptr<ISurface> create_surface(const he::platform::Window &window) override;
+        std::shared_ptr<ISurface> create_surface(const Window &window) override;
         std::shared_ptr<IBuffer> create_buffer(const BufferDescriptor &descriptor) override;
         std::shared_ptr<ICommandList> create_command_list() override;
         std::shared_ptr<IComputePipeline> create_compute_pipeline(const ComputePipelineDescriptor &descriptor) override;
@@ -56,4 +56,4 @@ namespace he::rhi
         ComPtr<ID3D12CommandQueue> m_command_queue;
         ComPtr<D3D12MA::Allocator> m_allocator;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

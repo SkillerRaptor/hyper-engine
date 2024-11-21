@@ -13,90 +13,75 @@
 #include "hyper_render/camera.hpp"
 #include "hyper_render/renderable.hpp"
 
-namespace he
+namespace hyper_engine
 {
-    namespace event
+    class EventBus;
+    class GridPass;
+    class ImGuiPass;
+    class ISurface;
+    class MouseMoveEvent;
+    class MouseScrollEvent;
+    class OpaquePass;
+    class Window;
+    class WindowResizeEvent;
+
+    struct RendererDescriptor
     {
-        class EventBus;
-    } // namespace event
+        std::shared_ptr<IGraphicsDevice> graphics_device;
+        std::shared_ptr<ISurface> surface;
+    };
 
-    namespace platform
+    class Renderer
     {
-        class MouseMoveEvent;
-        class MouseScrollEvent;
-        class Window;
-        class WindowResizeEvent;
-    } // namespace platform
+    public:
+        Renderer(EventBus &event_bus, const Window &window, const RendererDescriptor &descriptor);
+        ~Renderer();
 
-    namespace rhi
-    {
-        class ISurface;
-    } // namespace rhi
+        // NOTE: This shouldn't be in the renderer
+        void update(float delta_time);
+        void render();
 
-    namespace render
-    {
-        class GridPass;
-        class ImGuiPass;
-        class OpaquePass;
+    private:
+        void create_textures(uint32_t width, uint32_t height);
 
-        struct RendererDescriptor
-        {
-            std::shared_ptr<he::rhi::IGraphicsDevice> graphics_device;
-            std::shared_ptr<he::rhi::ISurface> surface;
-        };
+        void update_scene();
 
-        class Renderer
-        {
-        public:
-            Renderer(he::event::EventBus &event_bus, const he::platform::Window &window, const RendererDescriptor &descriptor);
-            ~Renderer();
+        void on_resize(const WindowResizeEvent &event);
+        void on_mouse_move(const MouseMoveEvent &event);
+        void on_mouse_scroll(const MouseScrollEvent &event);
 
-            // NOTE: This shouldn't be in the renderer
-            void update(float delta_time);
-            void render();
+    private:
+        std::shared_ptr<IGraphicsDevice> m_graphics_device;
+        std::shared_ptr<ISurface> m_surface;
+        ShaderCompiler m_shader_compiler;
+        std::shared_ptr<ICommandList> m_command_list;
 
-        private:
-            void create_textures(uint32_t width, uint32_t height);
+        std::shared_ptr<ITexture> m_render_texture;
+        std::shared_ptr<ITextureView> m_render_texture_view;
+        std::shared_ptr<ITexture> m_depth_texture;
+        std::shared_ptr<ITextureView> m_depth_texture_view;
 
-            void update_scene();
+        Camera m_editor_camera;
+        std::shared_ptr<IBuffer> m_camera_buffer;
 
-            void on_resize(const he::platform::WindowResizeEvent &event);
-            void on_mouse_move(const he::platform::MouseMoveEvent &event);
-            void on_mouse_scroll(const he::platform::MouseScrollEvent &event);
+        std::shared_ptr<IBuffer> m_scene_buffer;
 
-        private:
-            std::shared_ptr<he::rhi::IGraphicsDevice> m_graphics_device;
-            std::shared_ptr<he::rhi::ISurface> m_surface;
-            he::rhi::ShaderCompiler m_shader_compiler;
-            std::shared_ptr<he::rhi::ICommandList> m_command_list;
+        std::shared_ptr<ITexture> m_white_texture;
+        std::shared_ptr<ITextureView> m_white_texture_view;
+        std::shared_ptr<ITexture> m_error_texture;
+        std::shared_ptr<ITextureView> m_error_texture_view;
+        std::shared_ptr<ISampler> m_default_sampler_nearest;
+        std::shared_ptr<ISampler> m_default_sampler_linear;
 
-            std::shared_ptr<he::rhi::ITexture> m_render_texture;
-            std::shared_ptr<he::rhi::ITextureView> m_render_texture_view;
-            std::shared_ptr<he::rhi::ITexture> m_depth_texture;
-            std::shared_ptr<he::rhi::ITextureView> m_depth_texture_view;
+        GltfMetallicRoughness m_metallic_roughness_material;
 
-            Camera m_editor_camera;
-            std::shared_ptr<he::rhi::IBuffer> m_camera_buffer;
+        DrawContext m_draw_context;
+        std::unordered_map<std::string, std::shared_ptr<LoadedGltf>> m_scenes;
 
-            std::shared_ptr<he::rhi::IBuffer> m_scene_buffer;
+        std::unique_ptr<OpaquePass> m_opaque_pass;
+        std::unique_ptr<GridPass> m_grid_pass;
+        std::unique_ptr<ImGuiPass> m_imgui_pass;
 
-            std::shared_ptr<he::rhi::ITexture> m_white_texture;
-            std::shared_ptr<he::rhi::ITextureView> m_white_texture_view;
-            std::shared_ptr<he::rhi::ITexture> m_error_texture;
-            std::shared_ptr<he::rhi::ITextureView> m_error_texture_view;
-            std::shared_ptr<he::rhi::ISampler> m_default_sampler_nearest;
-            std::shared_ptr<he::rhi::ISampler> m_default_sampler_linear;
-
-            GltfMetallicRoughness m_metallic_roughness_material;
-
-            DrawContext m_draw_context;
-            std::unordered_map<std::string, std::shared_ptr<LoadedGltf>> m_scenes;
-
-            std::unique_ptr<OpaquePass> m_opaque_pass;
-            std::unique_ptr<GridPass> m_grid_pass;
-            std::unique_ptr<ImGuiPass> m_imgui_pass;
-
-            uint32_t m_frame_index;
-        };
-    } // namespace render
-} // namespace he
+        uint32_t m_frame_index;
+    };
+} // namespace hyper_engine

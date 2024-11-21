@@ -10,37 +10,31 @@
 
 struct SDL_Window;
 
-namespace he
+namespace hyper_engine
 {
-    namespace event
+    class EventBus;
+
+    struct WindowDescriptor
     {
-        class EventBus;
-    } // namespace event
+        std::string_view title;
+        uint32_t width;
+        uint32_t height;
+    };
 
-    namespace platform
+    class Window
     {
-        struct WindowDescriptor
-        {
-            std::string_view title;
-            uint32_t width;
-            uint32_t height;
-        };
+    public:
+        explicit Window(const WindowDescriptor &descriptor);
+        ~Window();
 
-        class Window
-        {
-        public:
-            explicit Window(const WindowDescriptor &descriptor);
-            ~Window();
+        uint32_t width() const;
+        uint32_t height() const;
+        SDL_Window *native_window() const;
 
-            uint32_t width() const;
-            uint32_t height() const;
-            SDL_Window *native_window() const;
+        static void process_events(EventBus &event_bus);
+        static void wait_events();
 
-            static void process_events(he::event::EventBus &event_bus);
-            static void wait_events();
-
-        private:
-            SDL_Window *m_native_window;
-        };
-    } // namespace platform
-} // namespace he
+    private:
+        SDL_Window *m_native_window;
+    };
+} // namespace hyper_engine

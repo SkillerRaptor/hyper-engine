@@ -8,7 +8,7 @@
 
 #include <hyper_core/assertion.hpp>
 
-namespace he::rhi
+namespace hyper_engine
 {
     IRenderPipeline::IRenderPipeline(const RenderPipelineDescriptor &descriptor)
         : m_label(descriptor.label)
@@ -71,4 +71,4 @@ namespace he::rhi
     {
         return m_depth_stencil_state;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

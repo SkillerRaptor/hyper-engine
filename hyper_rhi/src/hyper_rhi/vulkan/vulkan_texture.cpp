@@ -12,7 +12,7 @@
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture_view.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     VulkanTexture::VulkanTexture(VulkanGraphicsDevice &graphics_device, const TextureDescriptor &descriptor, const VkImage image)
         : ITexture(descriptor)
@@ -556,4 +556,4 @@ namespace he::rhi
 
         return usage;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

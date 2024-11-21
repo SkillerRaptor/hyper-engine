@@ -14,52 +14,42 @@
 #include <hyper_render/renderer.hpp>
 #include <hyper_rhi/graphics_device.hpp>
 
-namespace he
+namespace hyper_engine
 {
-    namespace platform
+    class WindowCloseEvent;
+    class WindowResizeEvent;
+    class IGraphicsDevice;
+    class ISurface;
+
+    struct EngineDescriptor
     {
-        class WindowCloseEvent;
-        class WindowResizeEvent;
-    } // namespace platform
+        uint32_t width;
+        uint32_t height;
+        GraphicsApi graphics_api;
+        bool debug_validation;
+        bool debug_label;
+        bool debug_marker;
+    };
 
-    namespace rhi
+    class Engine
     {
-        class IGraphicsDevice;
-        class ISurface;
-    } // namespace rhi
+    public:
+        explicit Engine(const EngineDescriptor &descriptor);
 
-    namespace engine
-    {
-        struct EngineDescriptor
-        {
-            uint32_t width;
-            uint32_t height;
-            he::rhi::GraphicsApi graphics_api;
-            bool debug_validation;
-            bool debug_label;
-            bool debug_marker;
-        };
+        void run();
 
-        class Engine
-        {
-        public:
-            explicit Engine(const EngineDescriptor &descriptor);
+    private:
+        void on_close(const WindowCloseEvent &event);
+        void on_resize(const WindowResizeEvent &event) const;
 
-            void run();
+    private:
+        std::chrono::steady_clock::time_point m_start_time;
 
-        private:
-            void on_close(const he::platform::WindowCloseEvent &event);
-            void on_resize(const he::platform::WindowResizeEvent &event) const;
-
-        private:
-            std::chrono::steady_clock::time_point m_start_time;
-
-            bool m_running;
-            he::event::EventBus m_event_bus;
-            he::platform::Window m_window;
-            std::shared_ptr<he::rhi::IGraphicsDevice> m_graphics_device;
-            std::shared_ptr<he::rhi::ISurface> m_surface;
-            he::render::Renderer m_renderer;
-        };
-    } // namespace engine
-} // namespace he
+        bool m_running;
+        EventBus m_event_bus;
+        Window m_window;
+        std::shared_ptr<IGraphicsDevice> m_graphics_device;
+        std::shared_ptr<ISurface> m_surface;
+        Renderer m_renderer;
+    };
+} // namespace hyper_engine

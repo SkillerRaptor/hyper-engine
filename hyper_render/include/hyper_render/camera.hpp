@@ -8,7 +8,7 @@
 
 #include <hyper_core/math.hpp>
 
-namespace he::render
+namespace hyper_engine
 {
     class Camera
     {
@@ -62,4 +62,4 @@ namespace he::render
         float m_last_x;
         float m_last_y;
     };
-} // namespace he::render
+} // namespace hyper_engine

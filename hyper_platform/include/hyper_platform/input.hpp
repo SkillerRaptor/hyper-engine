@@ -11,20 +11,17 @@
 #include "hyper_platform/key_codes.hpp"
 #include "hyper_platform/mouse_codes.hpp"
 
-namespace he
+namespace hyper_engine
 {
-    namespace event
-    {
-        class EventBus;
-    } // namespace event
+    class EventBus;
 
-    namespace platform::input
+    namespace input
     {
-        void initialize(he::event::EventBus &event_bus);
+        void initialize(EventBus &event_bus);
 
         bool is_key_pressed(KeyCode key_code);
         bool is_mouse_button_pressed(MouseCode mouse_code);
 
         glm::vec2 mouse_position();
-    } // namespace platform::input
-} // namespace he
+    } // namespace input
+} // namespace hyper_engine

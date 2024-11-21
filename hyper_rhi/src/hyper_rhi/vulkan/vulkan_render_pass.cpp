@@ -17,7 +17,7 @@
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture_view.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     VulkanRenderPass::VulkanRenderPass(
         VulkanGraphicsDevice &graphics_device,
@@ -271,4 +271,4 @@ namespace he::rhi
             HE_UNREACHABLE();
         }
     }
-} // namespace he::rhi
+} // namespace hyper_engine

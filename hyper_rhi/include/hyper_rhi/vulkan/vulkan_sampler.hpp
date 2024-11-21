@@ -9,7 +9,7 @@
 #include "hyper_rhi/sampler.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
@@ -31,4 +31,4 @@ namespace he::rhi
 
         VkSampler m_sampler;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

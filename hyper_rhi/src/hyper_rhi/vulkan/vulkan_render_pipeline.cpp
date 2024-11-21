@@ -14,7 +14,7 @@
 #include "hyper_rhi/vulkan/vulkan_shader_module.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     VulkanRenderPipeline::VulkanRenderPipeline(VulkanGraphicsDevice &graphics_device, const RenderPipelineDescriptor &descriptor)
         : IRenderPipeline(descriptor)
@@ -429,4 +429,4 @@ namespace he::rhi
 
         return color_component_flags;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

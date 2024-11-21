@@ -12,7 +12,7 @@
 
 #include "hyper_rhi/label_color.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     class IBuffer;
     class IRenderPipeline;
@@ -95,4 +95,4 @@ namespace he::rhi
         std::vector<ColorAttachment> m_color_attachments;
         DepthStencilAttachment m_depth_stencil_attachment;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

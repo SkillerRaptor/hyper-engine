@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-namespace he::platform
+namespace hyper_engine
 {
     class WindowCloseEvent
     {
@@ -41,4 +41,4 @@ namespace he::platform
         uint32_t m_width;
         uint32_t m_height;
     };
-} // namespace he::platform
+} // namespace hyper_engine

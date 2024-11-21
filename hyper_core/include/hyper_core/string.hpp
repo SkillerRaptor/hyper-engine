@@ -8,7 +8,7 @@
 
 #include <string>
 
-namespace he::core::string
+namespace hyper_engine::string
 {
     std::wstring to_wstring(const std::string &string);
-} // namespace he::core::string
+} // namespace hyper_engine::string

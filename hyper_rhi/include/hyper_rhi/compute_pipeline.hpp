@@ -9,7 +9,7 @@
 #include <memory>
 #include <string>
 
-namespace he::rhi
+namespace hyper_engine
 {
     class IPipelineLayout;
     class IShaderModule;
@@ -41,4 +41,4 @@ namespace he::rhi
         std::shared_ptr<IPipelineLayout> m_layout;
         std::shared_ptr<IShaderModule> m_shader;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

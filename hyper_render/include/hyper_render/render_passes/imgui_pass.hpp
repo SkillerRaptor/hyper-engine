@@ -8,49 +8,33 @@
 
 #include <memory>
 
-namespace he
+namespace hyper_engine
 {
-    namespace event
+    class EventBus;
+    class ICommandList;
+    class IGraphicsDevice;
+    class IImGuiManager;
+    class ISurface;
+    class ITextureView;
+    class SdlEvent;
+    class Window;
+
+    class ImGuiPass
     {
-        class EventBus;
-    }
+    public:
+        ImGuiPass(
+            EventBus &event_bus,
+            const Window &window,
+            const std::shared_ptr<IGraphicsDevice> &graphics_device,
+            const std::shared_ptr<ISurface> &surface);
+        ~ImGuiPass();
 
-    namespace platform
-    {
-        class SdlEvent;
-        class Window;
-    } // namespace platform
+        void render(const std::shared_ptr<ICommandList> &command_list, const std::shared_ptr<ITextureView> &swapchain_texture_view) const;
 
-    namespace rhi
-    {
-        class ICommandList;
-        class IGraphicsDevice;
-        class IImGuiManager;
-        class ISurface;
-        class ITextureView;
-    } // namespace rhi
+    private:
+        static void on_sdl_event(const SdlEvent &event);
 
-    namespace render
-    {
-        class ImGuiPass
-        {
-        public:
-            ImGuiPass(
-                he::event::EventBus &event_bus,
-                const he::platform::Window &window,
-                const std::shared_ptr<he::rhi::IGraphicsDevice> &graphics_device,
-                const std::shared_ptr<he::rhi::ISurface> &surface);
-            ~ImGuiPass();
-
-            void render(
-                const std::shared_ptr<he::rhi::ICommandList> &command_list,
-                const std::shared_ptr<he::rhi::ITextureView> &swapchain_texture_view) const;
-
-        private:
-            static void on_sdl_event(const he::platform::SdlEvent &event);
-
-        private:
-            std::shared_ptr<he::rhi::IImGuiManager> m_imgui_manager;
-        };
-    } // namespace render
-} // namespace he
+    private:
+        std::shared_ptr<IImGuiManager> m_imgui_manager;
+    };
+} // namespace hyper_engine

@@ -6,7 +6,7 @@
 
 #include "hyper_rhi/resource_handle.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     ResourceHandle::ResourceHandle()
         : m_handle(0xffffffff)
@@ -27,4 +27,4 @@ namespace he::rhi
     {
         return m_handle;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

@@ -11,7 +11,7 @@
 #include "hyper_rhi/compare_operation.hpp"
 #include "hyper_rhi/resource_handle.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     enum class Filter : uint8_t
     {
@@ -95,4 +95,4 @@ namespace he::rhi
 
         ResourceHandle m_handle;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

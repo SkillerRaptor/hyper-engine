@@ -12,7 +12,7 @@
 #include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     VulkanPipelineLayout::VulkanPipelineLayout(VulkanGraphicsDevice &graphics_device, const PipelineLayoutDescriptor &descriptor)
         : IPipelineLayout(descriptor)
@@ -55,4 +55,4 @@ namespace he::rhi
     {
         return m_pipeline_layout;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

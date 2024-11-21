@@ -12,7 +12,7 @@
 
 using Microsoft::WRL::ComPtr;
 
-namespace he::rhi
+namespace hyper_engine
 {
     ShaderCompiler::ShaderCompiler()
     {
@@ -48,7 +48,7 @@ namespace he::rhi
         arguments.emplace_back(shader_model);
 
         arguments.emplace_back(L"-E");
-        arguments.emplace_back(he::core::string::to_wstring(descriptor.entry_name));
+        arguments.emplace_back(string::to_wstring(descriptor.entry_name));
 
         std::vector<const wchar_t *> arguments_wchar = {};
         arguments_wchar.reserve(arguments.size() + s_compiler_args.size() + s_spirv_args.size());
@@ -165,4 +165,4 @@ namespace he::rhi
             .spirv = spirv,
         };
     }
-} // namespace he::rhi
+} // namespace hyper_engine

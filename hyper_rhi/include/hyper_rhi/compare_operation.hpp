@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-namespace he::rhi
+namespace hyper_engine
 {
     enum class CompareOperation : uint8_t
     {
@@ -21,4 +21,4 @@ namespace he::rhi
         GreaterEqual,
         Always,
     };
-} // namespace he::rhi
+} // namespace hyper_engine

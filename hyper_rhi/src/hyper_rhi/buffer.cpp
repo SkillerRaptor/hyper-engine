@@ -8,7 +8,7 @@
 
 #include <hyper_core/assertion.hpp>
 
-namespace he::rhi
+namespace hyper_engine
 {
     IBuffer::IBuffer(const BufferDescriptor &descriptor)
         : m_label(descriptor.label)
@@ -46,4 +46,4 @@ namespace he::rhi
     {
         return m_handle;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

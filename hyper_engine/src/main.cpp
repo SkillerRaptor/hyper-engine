@@ -16,7 +16,7 @@
 
 int main(const int argc, const char **argv)
 {
-    he::core::logger::initialize();
+    hyper_engine::logger::initialize();
 
     argparse::ArgumentParser program("HyperEngine");
 
@@ -56,39 +56,40 @@ int main(const int argc, const char **argv)
 
     if (log_level == "trace")
     {
-        he::core::logger::set_level(spdlog::level::trace);
+        hyper_engine::logger::set_level(spdlog::level::trace);
     }
     else if (log_level == "debug")
     {
-        he::core::logger::set_level(spdlog::level::debug);
+        hyper_engine::logger::set_level(spdlog::level::debug);
     }
     else if (log_level == "info")
     {
-        he::core::logger::set_level(spdlog::level::info);
+        hyper_engine::logger::set_level(spdlog::level::info);
     }
     else if (log_level == "warning")
     {
-        he::core::logger::set_level(spdlog::level::warn);
+        hyper_engine::logger::set_level(spdlog::level::warn);
     }
     else if (log_level == "error")
     {
-        he::core::logger::set_level(spdlog::level::err);
+        hyper_engine::logger::set_level(spdlog::level::err);
     }
     else if (log_level == "critical")
     {
-        he::core::logger::set_level(spdlog::level::critical);
+        hyper_engine::logger::set_level(spdlog::level::critical);
     }
 
-    const he::rhi::GraphicsApi graphics_api = renderer == "d3d12" ? he::rhi::GraphicsApi::D3D12 : he::rhi::GraphicsApi::Vulkan;
+    const hyper_engine::GraphicsApi graphics_api = renderer == "d3d12" ? hyper_engine::GraphicsApi::D3D12 : hyper_engine::GraphicsApi::Vulkan;
 
-    auto engine = he::engine::Engine({
-        .width = width,
-        .height = height,
-        .graphics_api = graphics_api,
-        .debug_validation = debug_validation,
-        .debug_label = debug_label,
-        .debug_marker = debug_marker,
-    });
+    auto engine = hyper_engine::Engine(
+        {
+            .width = width,
+            .height = height,
+            .graphics_api = graphics_api,
+            .debug_validation = debug_validation,
+            .debug_label = debug_label,
+            .debug_marker = debug_marker,
+        });
     engine.run();
 
     return 0;

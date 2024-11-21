@@ -13,7 +13,7 @@
 #include <spdlog/sinks/ansicolor_sink.h>
 #include <spdlog/sinks/ansicolor_sink-inl.h>
 
-namespace he::core::logger
+namespace hyper_engine::logger
 {
     static std::unique_ptr<spdlog::logger> g_logger = nullptr;
 
@@ -56,4 +56,4 @@ namespace he::core::logger
     {
         return g_logger;
     }
-} // namespace he::core::logger
+} // namespace hyper_engine::logger

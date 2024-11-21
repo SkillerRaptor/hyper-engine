@@ -8,7 +8,7 @@
 
 #include <hyper_core/assertion.hpp>
 
-namespace he::rhi
+namespace hyper_engine
 {
     IPipelineLayout::IPipelineLayout(const PipelineLayoutDescriptor &descriptor)
         : m_label(descriptor.label)
@@ -28,4 +28,4 @@ namespace he::rhi
     {
         return m_push_constant_size;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

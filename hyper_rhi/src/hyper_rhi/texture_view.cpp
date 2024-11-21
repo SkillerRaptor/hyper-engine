@@ -8,7 +8,7 @@
 
 #include <hyper_core/assertion.hpp>
 
-namespace he::rhi
+namespace hyper_engine
 {
     ITextureView::ITextureView(const TextureViewDescriptor &descriptor)
         : m_label(descriptor.label)
@@ -48,4 +48,4 @@ namespace he::rhi
     {
         return m_handle;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

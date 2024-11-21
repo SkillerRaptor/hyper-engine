@@ -8,7 +8,7 @@
 
 #include <hyper_core/assertion.hpp>
 
-namespace he::rhi
+namespace hyper_engine
 {
     IComputePipeline::IComputePipeline(const ComputePipelineDescriptor &descriptor)
         : m_label(descriptor.label)
@@ -35,4 +35,4 @@ namespace he::rhi
     {
         return m_shader;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

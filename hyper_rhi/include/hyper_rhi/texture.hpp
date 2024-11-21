@@ -13,7 +13,7 @@
 #include "hyper_rhi/dimension.hpp"
 #include "hyper_rhi/format.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     enum class TextureUsage : uint8_t
     {
@@ -70,4 +70,4 @@ namespace he::rhi
         Dimension m_dimension;
         TextureUsage m_usage;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

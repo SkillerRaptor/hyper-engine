@@ -14,7 +14,7 @@
 
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     IGraphicsDevice::IGraphicsDevice(const GraphicsDeviceDescriptor &descriptor)
         : m_graphics_api(descriptor.graphics_api)
@@ -60,4 +60,4 @@ namespace he::rhi
     {
         return m_debug_marker;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

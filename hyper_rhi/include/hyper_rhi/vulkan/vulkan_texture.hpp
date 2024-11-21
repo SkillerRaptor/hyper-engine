@@ -11,7 +11,7 @@
 
 #include <vk_mem_alloc.h>
 
-namespace he::rhi
+namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
@@ -35,4 +35,4 @@ namespace he::rhi
         VkImage m_image;
         VmaAllocation m_allocation;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

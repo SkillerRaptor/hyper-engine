@@ -8,7 +8,7 @@
 
 #include <string>
 
-namespace he::rhi
+namespace hyper_engine
 {
     struct PipelineLayoutDescriptor
     {
@@ -34,4 +34,4 @@ namespace he::rhi
 
         uint32_t m_push_constant_size;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

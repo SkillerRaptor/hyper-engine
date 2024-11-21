@@ -9,7 +9,7 @@
 #include "hyper_rhi/command_list.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
@@ -84,4 +84,4 @@ namespace he::rhi
 
         VkCommandBuffer m_command_buffer;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

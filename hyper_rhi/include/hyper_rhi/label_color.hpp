@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-namespace he::rhi
+namespace hyper_engine
 {
     struct LabelColor
     {
@@ -16,4 +16,4 @@ namespace he::rhi
         uint8_t green = 255;
         uint8_t blue = 255;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

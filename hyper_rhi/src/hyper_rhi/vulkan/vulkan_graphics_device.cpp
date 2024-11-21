@@ -32,7 +32,7 @@
 #include "hyper_rhi/vulkan/vulkan_texture.hpp"
 #include "hyper_rhi/vulkan/vulkan_texture_view.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     static constexpr std::array<const char *, 1> g_validation_layers = {
         "VK_LAYER_KHRONOS_validation",
@@ -121,7 +121,7 @@ namespace he::rhi
         vkDestroyInstance(m_instance, nullptr);
     }
 
-    std::shared_ptr<ISurface> VulkanGraphicsDevice::create_surface(const he::platform::Window &window)
+    std::shared_ptr<ISurface> VulkanGraphicsDevice::create_surface(const Window &window)
     {
         return std::make_shared<VulkanSurface>(*this, window);
     }
@@ -1125,4 +1125,4 @@ namespace he::rhi
 
         return VK_FALSE;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

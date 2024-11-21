@@ -26,7 +26,7 @@
 
 #include "shader_interop.h"
 
-namespace he::render
+namespace hyper_engine
 {
     void Node::refresh_transform(const glm::mat4 &parent_matrix)
     {
@@ -82,11 +82,11 @@ namespace he::render
     LoadedGltf::LoadedGltf(
         std::vector<std::shared_ptr<Mesh>> meshes,
         std::vector<std::shared_ptr<Node>> nodes,
-        std::vector<std::shared_ptr<he::rhi::ITexture>> textures,
-        std::vector<std::shared_ptr<he::rhi::ITextureView>> texture_views,
+        std::vector<std::shared_ptr<ITexture>> textures,
+        std::vector<std::shared_ptr<ITextureView>> texture_views,
         std::vector<std::shared_ptr<GltfMaterial>> materials,
         std::vector<std::shared_ptr<Node>> top_nodes,
-        std::vector<std::shared_ptr<he::rhi::ISampler>> samplers)
+        std::vector<std::shared_ptr<ISampler>> samplers)
         : m_meshes(std::move(meshes))
         , m_nodes(std::move(nodes))
         , m_textures(std::move(textures))
@@ -106,12 +106,12 @@ namespace he::render
     }
 
     std::shared_ptr<LoadedGltf> load_gltf(
-        const std::shared_ptr<he::rhi::IGraphicsDevice> &graphics_device,
-        const std::shared_ptr<he::rhi::ICommandList> &command_list,
-        const std::shared_ptr<he::rhi::ITextureView> &white_texture_view,
-        const std::shared_ptr<he::rhi::ITexture> &error_texture,
-        const std::shared_ptr<he::rhi::ITextureView> &error_texture_view,
-        const std::shared_ptr<he::rhi::ISampler> &default_sampler_linear,
+        const std::shared_ptr<IGraphicsDevice> &graphics_device,
+        const std::shared_ptr<ICommandList> &command_list,
+        const std::shared_ptr<ITextureView> &white_texture_view,
+        const std::shared_ptr<ITexture> &error_texture,
+        const std::shared_ptr<ITextureView> &error_texture_view,
+        const std::shared_ptr<ISampler> &default_sampler_linear,
         const GltfMetallicRoughness &metallic_roughness_material,
         const std::string &path)
     {
@@ -131,29 +131,29 @@ namespace he::render
         fastgltf::Expected<fastgltf::Asset> asset = parser.loadGltf(data.get(), file_path.parent_path(), options);
         HE_ASSERT(asset.error() == fastgltf::Error::None);
 
-        std::vector<std::shared_ptr<he::rhi::ISampler>> samplers;
+        std::vector<std::shared_ptr<ISampler>> samplers;
         for (const fastgltf::Sampler &sampler : asset->samplers)
         {
-            const auto extract_filter = [](const fastgltf::Filter filter) -> he::rhi::Filter
+            const auto extract_filter = [](const fastgltf::Filter filter) -> Filter
             {
                 switch (filter)
                 {
                 case fastgltf::Filter::Nearest:
                 case fastgltf::Filter::NearestMipMapNearest:
                 case fastgltf::Filter::NearestMipMapLinear:
-                    return he::rhi::Filter::Nearest;
+                    return Filter::Nearest;
                 case fastgltf::Filter::Linear:
                 case fastgltf::Filter::LinearMipMapNearest:
                 case fastgltf::Filter::LinearMipMapLinear:
-                    return he::rhi::Filter::Linear;
+                    return Filter::Linear;
                 default:
                     HE_UNREACHABLE();
                 }
             };
 
-            const he::rhi::Filter mag_filter = extract_filter(sampler.magFilter.value_or(fastgltf::Filter::Nearest));
-            const he::rhi::Filter min_filter = extract_filter(sampler.minFilter.value_or(fastgltf::Filter::Nearest));
-            const he::rhi::Filter mipmap_filter = extract_filter(sampler.minFilter.value_or(fastgltf::Filter::Nearest));
+            const Filter mag_filter = extract_filter(sampler.magFilter.value_or(fastgltf::Filter::Nearest));
+            const Filter min_filter = extract_filter(sampler.minFilter.value_or(fastgltf::Filter::Nearest));
+            const Filter mipmap_filter = extract_filter(sampler.minFilter.value_or(fastgltf::Filter::Nearest));
 
             samplers.push_back(graphics_device->create_sampler(
                 {
@@ -161,19 +161,19 @@ namespace he::render
                     .mag_filter = mag_filter,
                     .min_filter = min_filter,
                     .mipmap_filter = mipmap_filter,
-                    .address_mode_u = he::rhi::AddressMode::Repeat,
-                    .address_mode_v = he::rhi::AddressMode::Repeat,
-                    .address_mode_w = he::rhi::AddressMode::Repeat,
+                    .address_mode_u = AddressMode::Repeat,
+                    .address_mode_v = AddressMode::Repeat,
+                    .address_mode_w = AddressMode::Repeat,
                     .mip_lod_bias = 0.0,
-                    .compare_operation = he::rhi::CompareOperation::Never,
+                    .compare_operation = CompareOperation::Never,
                     .min_lod = 0.0,
                     .max_lod = 1000.0f,
-                    .border_color = he::rhi::BorderColor::TransparentBlack,
+                    .border_color = BorderColor::TransparentBlack,
                 }));
         }
 
-        std::vector<std::shared_ptr<he::rhi::ITexture>> textures;
-        std::vector<std::shared_ptr<he::rhi::ITextureView>> texture_views;
+        std::vector<std::shared_ptr<ITexture>> textures;
+        std::vector<std::shared_ptr<ITextureView>> texture_views;
         for (const fastgltf::Image &image : asset->images)
         {
             int32_t width = 0;
@@ -234,7 +234,7 @@ namespace he::render
 
             if (image_data)
             {
-                std::shared_ptr<he::rhi::ITexture> texture = graphics_device->create_texture(
+                std::shared_ptr<ITexture> texture = graphics_device->create_texture(
                     {
                         .label = image.name.empty() ? file_name : std::string(image.name),
                         .width = static_cast<uint32_t>(width),
@@ -242,28 +242,28 @@ namespace he::render
                         .depth = 1,
                         .array_size = 1,
                         .mip_levels = 1,
-                        .format = he::rhi::Format::Rgba8Srgb,
-                        .dimension = he::rhi::Dimension::Texture2D,
-                        .usage = he::rhi::TextureUsage::ShaderResource,
+                        .format = Format::Rgba8Srgb,
+                        .dimension = Dimension::Texture2D,
+                        .usage = TextureUsage::ShaderResource,
                     });
 
-                std::shared_ptr<he::rhi::ITextureView> texture_view = graphics_device->create_texture_view(
+                std::shared_ptr<ITextureView> texture_view = graphics_device->create_texture_view(
                     {
                         .label = image.name.empty() ? file_name : std::string(image.name),
                         .texture = texture,
                         .subresource_range =
-                            he::rhi::SubresourceRange{
+                            SubresourceRange{
                                 .base_mip_level = 0,
                                 .mip_level_count = 1,
                                 .base_array_level = 0,
                                 .array_layer_count = 1,
                             },
                         .component_mapping =
-                            he::rhi::ComponentMapping{
-                                .r = he::rhi::ComponentSwizzle::Identity,
-                                .g = he::rhi::ComponentSwizzle::Identity,
-                                .b = he::rhi::ComponentSwizzle::Identity,
-                                .a = he::rhi::ComponentSwizzle::Identity,
+                            ComponentMapping{
+                                .r = ComponentSwizzle::Identity,
+                                .g = ComponentSwizzle::Identity,
+                                .b = ComponentSwizzle::Identity,
+                                .a = ComponentSwizzle::Identity,
                             },
                     });
 
@@ -271,15 +271,15 @@ namespace he::render
                     .memory_barriers = {},
                     .buffer_memory_barriers = {},
                     .texture_memory_barriers = {
-                        he::rhi::TextureMemoryBarrier{
-                            .stage_before = he::rhi::BarrierPipelineStage::AllCommands,
-                            .stage_after = he::rhi::BarrierPipelineStage::AllCommands,
-                            .access_before = he::rhi::BarrierAccess::None,
-                            .access_after = he::rhi::BarrierAccess::TransferWrite,
-                            .layout_before = he::rhi::BarrierTextureLayout::Undefined,
-                            .layout_after = he::rhi::BarrierTextureLayout::TransferDst,
+                        TextureMemoryBarrier{
+                            .stage_before = BarrierPipelineStage::AllCommands,
+                            .stage_after = BarrierPipelineStage::AllCommands,
+                            .access_before = BarrierAccess::None,
+                            .access_after = BarrierAccess::TransferWrite,
+                            .layout_before = BarrierTextureLayout::Undefined,
+                            .layout_after = BarrierTextureLayout::TransferDst,
                             .texture = texture,
-                            .subresource_range = he::rhi::SubresourceRange{
+                            .subresource_range = SubresourceRange{
                                 .base_mip_level = 0,
                                 .mip_level_count = 1,
                                 .base_array_level = 0,
@@ -291,12 +291,12 @@ namespace he::render
 
                 command_list->write_texture(
                     texture,
-                    he::rhi::Offset3d{
+                    Offset3d{
                         .x = 0,
                         .y = 0,
                         .z = 0,
                     },
-                    he::rhi::Extent3d{
+                    Extent3d{
                         .width = static_cast<uint32_t>(width),
                         .height = static_cast<uint32_t>(height),
                         .depth = 1,
@@ -461,43 +461,43 @@ namespace he::render
                 surfaces.push_back(surface);
             }
 
-            const std::shared_ptr<he::rhi::IBuffer> positions_buffer = graphics_device->create_buffer(
+            const std::shared_ptr<IBuffer> positions_buffer = graphics_device->create_buffer(
                 {
                     .label = fmt::format("{} Positions", mesh.name),
                     .byte_size = positions.size() * sizeof(glm::vec4),
-                    .usage = he::rhi::BufferUsage::Storage | he::rhi::BufferUsage::ShaderResource,
+                    .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
                 });
             command_list->write_buffer(positions_buffer, positions.data(), positions.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<he::rhi::IBuffer> normals_buffer = graphics_device->create_buffer(
+            const std::shared_ptr<IBuffer> normals_buffer = graphics_device->create_buffer(
                 {
                     .label = fmt::format("{} Normals", mesh.name),
                     .byte_size = normals.size() * sizeof(glm::vec4),
-                    .usage = he::rhi::BufferUsage::Storage | he::rhi::BufferUsage::ShaderResource,
+                    .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
                 });
             command_list->write_buffer(normals_buffer, normals.data(), normals.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<he::rhi::IBuffer> colors_buffer = graphics_device->create_buffer(
+            const std::shared_ptr<IBuffer> colors_buffer = graphics_device->create_buffer(
                 {
                     .label = fmt::format("{} Colors", mesh.name),
                     .byte_size = colors.size() * sizeof(glm::vec4),
-                    .usage = he::rhi::BufferUsage::Storage | he::rhi::BufferUsage::ShaderResource,
+                    .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
                 });
             command_list->write_buffer(colors_buffer, colors.data(), colors.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<he::rhi::IBuffer> tex_coords_buffer = graphics_device->create_buffer(
+            const std::shared_ptr<IBuffer> tex_coords_buffer = graphics_device->create_buffer(
                 {
                     .label = fmt::format("{} Tex Coords", mesh.name),
                     .byte_size = tex_coords.size() * sizeof(glm::vec4),
-                    .usage = he::rhi::BufferUsage::Storage | he::rhi::BufferUsage::ShaderResource,
+                    .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
                 });
             command_list->write_buffer(tex_coords_buffer, tex_coords.data(), tex_coords.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<he::rhi::IBuffer> mesh_buffer = graphics_device->create_buffer(
+            const std::shared_ptr<IBuffer> mesh_buffer = graphics_device->create_buffer(
                 {
                     .label = fmt::format("{} Mesh Data", mesh.name),
                     .byte_size = sizeof(ShaderMesh),
-                    .usage = he::rhi::BufferUsage::Storage | he::rhi::BufferUsage::ShaderResource,
+                    .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
                 });
 
             const ShaderMesh shader_mesh = {
@@ -509,11 +509,11 @@ namespace he::render
 
             command_list->write_buffer(mesh_buffer, &shader_mesh, sizeof(ShaderMesh), 0);
 
-            const std::shared_ptr<he::rhi::IBuffer> indices_buffer = graphics_device->create_buffer(
+            const std::shared_ptr<IBuffer> indices_buffer = graphics_device->create_buffer(
                 {
                     .label = fmt::format("{} Indices", mesh.name),
                     .byte_size = indices.size() * sizeof(uint32_t),
-                    .usage = he::rhi::BufferUsage::Index,
+                    .usage = BufferUsage::Index,
                 });
             command_list->write_buffer(indices_buffer, indices.data(), indices.size() * sizeof(uint32_t), 0);
 
@@ -592,4 +592,4 @@ namespace he::render
         auto scene = std::make_shared<LoadedGltf>(meshes, nodes, textures, texture_views, materials, top_nodes, samplers);
         return scene;
     }
-} // namespace he::render
+} // namespace hyper_engine

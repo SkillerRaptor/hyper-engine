@@ -17,7 +17,7 @@
 #include "hyper_platform/sdl_event.hpp"
 #include "hyper_platform/window_events.hpp"
 
-namespace he::platform
+namespace hyper_engine
 {
     Window::Window(const WindowDescriptor &descriptor)
         : m_native_window(nullptr)
@@ -60,7 +60,7 @@ namespace he::platform
         return m_native_window;
     }
 
-    void Window::process_events(he::event::EventBus &event_bus)
+    void Window::process_events(EventBus &event_bus)
     {
         SDL_Event event;
         while (SDL_PollEvent(&event))
@@ -109,4 +109,4 @@ namespace he::platform
     {
         SDL_WaitEvent(nullptr);
     }
-} // namespace he::platform
+} // namespace hyper_engine

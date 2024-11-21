@@ -8,7 +8,7 @@
 
 #include "hyper_platform/key_codes.hpp"
 
-namespace he::platform
+namespace hyper_engine
 {
     KeyPressEvent::KeyPressEvent(const KeyCode key_code)
         : m_key_code(key_code)
@@ -29,4 +29,4 @@ namespace he::platform
     {
         return m_key_code;
     }
-} // namespace he::platform
+} // namespace hyper_engine

@@ -8,7 +8,7 @@
 
 #include <hyper_core/assertion.hpp>
 
-namespace he::rhi
+namespace hyper_engine
 {
     ITexture::ITexture(const TextureDescriptor &descriptor)
         : m_label(descriptor.label)
@@ -77,4 +77,4 @@ namespace he::rhi
     {
         return m_usage;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

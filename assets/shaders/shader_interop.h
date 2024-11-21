@@ -11,21 +11,21 @@
 #    include <hyper_core/math.hpp>
 #    include <hyper_rhi/resource_handle.hpp>
 
-#    define float2 glm::vec2
-#    define float3 glm::vec3
-#    define float4 glm::vec4
-#    define float4x4 glm::mat4
+#    define float2 ::glm::vec2
+#    define float3 ::glm::vec3
+#    define float4 ::glm::vec4
+#    define float4x4 ::glm::mat4
 
-#    define int2 glm::i32vec2
-#    define int3 glm::i32vec3
-#    define int4 glm::i32vec4
+#    define int2 ::glm::i32vec2
+#    define int3 ::glm::i32vec3
+#    define int4 ::glm::i32vec4
 
 #    define uint uint32_t
-#    define uint2 glm::u32vec2
-#    define uint3 glm::u32vec3
-#    define uint4 glm::u32vec4
+#    define uint2 ::glm::u32vec2
+#    define uint3 ::glm::u32vec3
+#    define uint4 ::glm::u32vec4
 
-#    define RESOURCE_HANDLE ::he::rhi::ResourceHandle
+#    define RESOURCE_HANDLE ::hyper_engine::ResourceHandle
 #    define SIMPLE_BUFFER RESOURCE_HANDLE
 #    define RW_SIMPLE_BUFFER RESOURCE_HANDLE
 #    define ARRAY_BUFFER RESOURCE_HANDLE

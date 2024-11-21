@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-namespace he::rhi
+namespace hyper_engine
 {
     enum class ShaderType : uint8_t
     {
@@ -17,4 +17,4 @@ namespace he::rhi
         Fragment,
         Vertex
     };
-} // namespace he::rhi
+} // namespace hyper_engine

@@ -12,7 +12,7 @@
 
 #include "hyper_rhi/resource_handle.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     enum class BufferUsage : uint8_t
     {
@@ -58,4 +58,4 @@ namespace he::rhi
 
         ResourceHandle m_handle;
     };
-} // namespace he::rhi
+} // namespace hyper_engine

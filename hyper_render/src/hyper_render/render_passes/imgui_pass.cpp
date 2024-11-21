@@ -18,16 +18,16 @@
 
 #include <hyper_event/event_bus.hpp>
 
-namespace he::render
+namespace hyper_engine
 {
     ImGuiPass::ImGuiPass(
-        he::event::EventBus &event_bus,
-        const he::platform::Window &window,
-        const std::shared_ptr<he::rhi::IGraphicsDevice> &graphics_device,
-        const std::shared_ptr<he::rhi::ISurface> &surface)
+        EventBus &event_bus,
+        const Window &window,
+        const std::shared_ptr<IGraphicsDevice> &graphics_device,
+        const std::shared_ptr<ISurface> &surface)
         : m_imgui_manager(graphics_device->create_imgui_manager())
     {
-        event_bus.subscribe<he::platform::SdlEvent>(ImGuiPass::on_sdl_event);
+        event_bus.subscribe<SdlEvent>(ImGuiPass::on_sdl_event);
 
         ImGui::CreateContext();
         ImGuiIO &io = ImGui::GetIO();
@@ -48,8 +48,8 @@ namespace he::render
     }
 
     void ImGuiPass::render(
-        const std::shared_ptr<he::rhi::ICommandList> &command_list,
-        const std::shared_ptr<he::rhi::ITextureView> &swapchain_texture_view) const
+        const std::shared_ptr<ICommandList> &command_list,
+        const std::shared_ptr<ITextureView> &swapchain_texture_view) const
     {
         m_imgui_manager->new_frame();
         ImGui_ImplSDL3_NewFrame();
@@ -59,31 +59,31 @@ namespace he::render
 
         ImGui::Render();
 
-        const std::shared_ptr<he::rhi::IRenderPass> render_pass = command_list->begin_render_pass({
+        const std::shared_ptr<IRenderPass> render_pass = command_list->begin_render_pass({
             .label = "ImGui",
             .label_color =
-                he::rhi::LabelColor{
+                LabelColor{
                     .red = 17,
                     .green = 255,
                     .blue = 170,
                 },
             .color_attachments = {
-                he::rhi::ColorAttachment{
+                ColorAttachment{
                     .view = swapchain_texture_view,
                     .operation =
-                        he::rhi::Operations{
-                            .load_operation = he::rhi::LoadOperation::Load,
-                            .store_operation = he::rhi::StoreOperation::Store,
+                        Operations{
+                            .load_operation = LoadOperation::Load,
+                            .store_operation = StoreOperation::Store,
                         },
                 },
             },
             .depth_stencil_attachment =
-                he::rhi::DepthStencilAttachment{
+                DepthStencilAttachment{
                     .view = nullptr,
                     .depth_operation =
-                        he::rhi::Operations{
-                            .load_operation = he::rhi::LoadOperation::DontCare,
-                            .store_operation = he::rhi::StoreOperation::DontCare,
+                        Operations{
+                            .load_operation = LoadOperation::DontCare,
+                            .store_operation = StoreOperation::DontCare,
                         },
                 },
             });
@@ -91,8 +91,8 @@ namespace he::render
         m_imgui_manager->render(command_list);
     }
 
-    void ImGuiPass::on_sdl_event(const he::platform::SdlEvent &event)
+    void ImGuiPass::on_sdl_event(const SdlEvent &event)
     {
         ImGui_ImplSDL3_ProcessEvent(event.event());
     }
-} // namespace he::render
+} // namespace hyper_engine

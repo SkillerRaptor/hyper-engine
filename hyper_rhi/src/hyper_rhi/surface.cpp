@@ -8,7 +8,7 @@
 
 #include <hyper_core/assertion.hpp>
 
-namespace he::rhi
+namespace hyper_engine
 {
     ISurface::ISurface(const uint32_t width, const uint32_t height)
         : m_resized(false)
@@ -45,4 +45,4 @@ namespace he::rhi
     {
         return m_height;
     }
-} // namespace he::rhi
+} // namespace hyper_engine

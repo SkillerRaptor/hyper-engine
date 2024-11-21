@@ -11,7 +11,7 @@
 
 #include "hyper_rhi/label_color.hpp"
 
-namespace he::rhi
+namespace hyper_engine
 {
     class IComputePipeline;
 
@@ -43,4 +43,4 @@ namespace he::rhi
         std::string m_label;
         LabelColor m_label_color;
     };
-} // namespace he::rhi
+} // namespace hyper_engine
