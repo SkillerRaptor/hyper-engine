@@ -40,10 +40,8 @@ namespace hyper_engine
         HE_INFO("Created D3D12 Graphics Device");
     }
 
-    std::shared_ptr<ISurface> D3D12GraphicsDevice::create_surface(const Window &window)
+    std::shared_ptr<ISurface> D3D12GraphicsDevice::create_surface()
     {
-        HE_UNUSED(window);
-
         HE_UNREACHABLE();
     }
 

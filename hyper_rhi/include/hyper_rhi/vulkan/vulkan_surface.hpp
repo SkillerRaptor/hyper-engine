@@ -19,7 +19,7 @@ namespace hyper_engine
     class VulkanSurface final : public ISurface
     {
     public:
-        VulkanSurface(VulkanGraphicsDevice &graphics_device, const Window &window);
+        VulkanSurface(VulkanGraphicsDevice &graphics_device);
         ~VulkanSurface() override;
 
         void rebuild();
@@ -34,7 +34,7 @@ namespace hyper_engine
         std::shared_ptr<ITextureView> current_texture_view() const override;
 
     private:
-        void create_surface(const Window &window);
+        void create_surface();
         void create_swapchain();
         void create_textures();
         void destroy();

@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: MIT
 #-------------------------------------------------------------------------------------------
 set(SOURCES
+        src/hyper_platform/hyper_platform.cpp
         src/hyper_platform/input.cpp
         src/hyper_platform/key_events.cpp
         src/hyper_platform/mouse_events.cpp
@@ -12,6 +13,7 @@ set(SOURCES
         src/hyper_platform/window_events.cpp)
 
 set(HEADERS
+        include/hyper_platform/hyper_platform.hpp
         include/hyper_platform/input.hpp
         include/hyper_platform/key_codes.hpp
         include/hyper_platform/key_events.hpp

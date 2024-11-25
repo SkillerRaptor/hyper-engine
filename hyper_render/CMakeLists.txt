@@ -5,6 +5,7 @@
 #-------------------------------------------------------------------------------------------
 set(SOURCES
         src/hyper_render/camera.cpp
+        src/hyper_render/hyper_render.cpp
         src/hyper_render/material.cpp
         src/hyper_render/mesh.cpp
         src/hyper_render/renderable.cpp
@@ -15,6 +16,7 @@ set(SOURCES
 
 set(HEADERS
         include/hyper_render/camera.hpp
+        include/hyper_render/hyper_render.hpp
         include/hyper_render/material.hpp
         include/hyper_render/mesh.hpp
         include/hyper_render/renderable.hpp

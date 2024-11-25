@@ -17,7 +17,7 @@ namespace hyper_engine
     public:
         explicit VulkanImGuiManager(VulkanGraphicsDevice &graphics_device);
 
-        void initialize(const Window &window, const std::shared_ptr<ISurface> &surface) override;
+        void initialize(const std::shared_ptr<ISurface> &surface) override;
         void destroy() override;
 
         void new_frame() override;

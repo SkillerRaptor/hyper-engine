@@ -9,6 +9,8 @@
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
 
+#include <hyper_core/global_environment.hpp>
+#include <hyper_event/event_bus.hpp>
 #include <hyper_platform/sdl_event.hpp>
 #include <hyper_rhi/command_list.hpp>
 #include <hyper_rhi/graphics_device.hpp>
@@ -16,18 +18,12 @@
 #include <hyper_rhi/render_pass.hpp>
 #include <hyper_rhi/texture_view.hpp>
 
-#include <hyper_event/event_bus.hpp>
-
 namespace hyper_engine
 {
-    ImGuiPass::ImGuiPass(
-        EventBus &event_bus,
-        const Window &window,
-        const std::shared_ptr<IGraphicsDevice> &graphics_device,
-        const std::shared_ptr<ISurface> &surface)
+    ImGuiPass::ImGuiPass(const std::shared_ptr<IGraphicsDevice> &graphics_device, const std::shared_ptr<ISurface> &surface)
         : m_imgui_manager(graphics_device->create_imgui_manager())
     {
-        event_bus.subscribe<SdlEvent>(ImGuiPass::on_sdl_event);
+        g_environment.event_bus->subscribe<SdlEvent>(ImGuiPass::on_sdl_event);
 
         ImGui::CreateContext();
         ImGuiIO &io = ImGui::GetIO();
@@ -37,7 +33,7 @@ namespace hyper_engine
 
         ImGui::StyleColorsDark();
 
-        m_imgui_manager->initialize(window, surface);
+        m_imgui_manager->initialize(surface);
     }
 
     ImGuiPass::~ImGuiPass()
@@ -47,9 +43,7 @@ namespace hyper_engine
         ImGui::DestroyContext();
     }
 
-    void ImGuiPass::render(
-        const std::shared_ptr<ICommandList> &command_list,
-        const std::shared_ptr<ITextureView> &swapchain_texture_view) const
+    void ImGuiPass::render(const std::shared_ptr<ICommandList> &command_list, const std::shared_ptr<ITextureView> &swapchain_texture_view) const
     {
         m_imgui_manager->new_frame();
         ImGui_ImplSDL3_NewFrame();

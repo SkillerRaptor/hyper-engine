@@ -57,7 +57,7 @@ namespace hyper_engine
 
         static std::shared_ptr<IGraphicsDevice> create(const GraphicsDeviceDescriptor &descriptor);
 
-        virtual std::shared_ptr<ISurface> create_surface(const Window &window) = 0;
+        virtual std::shared_ptr<ISurface> create_surface() = 0;
         virtual std::shared_ptr<IBuffer> create_buffer(const BufferDescriptor &descriptor) = 0;
         virtual std::shared_ptr<ICommandList> create_command_list() = 0;
         virtual std::shared_ptr<IComputePipeline> create_compute_pipeline(const ComputePipelineDescriptor &descriptor) = 0;

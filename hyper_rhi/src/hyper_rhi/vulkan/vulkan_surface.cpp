@@ -11,6 +11,7 @@
 #include <SDL3/SDL_vulkan.h>
 
 #include <hyper_core/assertion.hpp>
+#include <hyper_core/global_environment.hpp>
 #include <hyper_core/logger.hpp>
 #include <hyper_platform/window.hpp>
 
@@ -20,19 +21,19 @@
 
 namespace hyper_engine
 {
-    VulkanSurface::VulkanSurface(VulkanGraphicsDevice &graphics_device, const Window &window)
-        : ISurface(window.width(), window.height())
+    VulkanSurface::VulkanSurface(VulkanGraphicsDevice &graphics_device)
+        : ISurface(g_environment.window->width(), g_environment.window->height())
         , m_graphics_device(graphics_device)
         , m_surface(VK_NULL_HANDLE)
         , m_swapchain(VK_NULL_HANDLE)
         , m_min_image_count(0)
         , m_image_count(0)
         , m_format(VK_FORMAT_UNDEFINED)
+        , m_texture_index(0)
         , m_textures({})
         , m_texture_views({})
-        , m_texture_index(0)
     {
-        this->create_surface(window);
+        this->create_surface();
         this->create_swapchain();
         this->create_textures();
 
@@ -96,9 +97,9 @@ namespace hyper_engine
         return m_texture_views[m_texture_index];
     }
 
-    void VulkanSurface::create_surface(const Window &window)
+    void VulkanSurface::create_surface()
     {
-        HE_ASSERT(SDL_Vulkan_CreateSurface(window.native_window(), m_graphics_device.instance(), nullptr, &m_surface));
+        HE_ASSERT(SDL_Vulkan_CreateSurface(g_environment.window->native_window(), m_graphics_device.instance(), nullptr, &m_surface));
         HE_ASSERT(m_surface != VK_NULL_HANDLE);
 
         HE_TRACE("Created Surface");
@@ -177,39 +178,41 @@ namespace hyper_engine
         uint32_t index = 0;
         for (const VkImage &image : images)
         {
-            m_textures.push_back(std::make_shared<VulkanTexture>(
-                m_graphics_device,
-                TextureDescriptor{
-                    .label = fmt::format("Swapchain #{}", index),
-                    .width = m_width,
-                    .height = m_height,
-                    .depth = 1,
-                    .array_size = 1,
-                    .mip_levels = 1,
-                    .format = VulkanTexture::format_to_texture_format(m_format),
-                    .dimension = Dimension::Texture2D,
-                    .usage = TextureUsage::RenderAttachment,
-                },
-                image));
+            m_textures.push_back(
+                std::make_shared<VulkanTexture>(
+                    m_graphics_device,
+                    TextureDescriptor{
+                        .label = fmt::format("Swapchain #{}", index),
+                        .width = m_width,
+                        .height = m_height,
+                        .depth = 1,
+                        .array_size = 1,
+                        .mip_levels = 1,
+                        .format = VulkanTexture::format_to_texture_format(m_format),
+                        .dimension = Dimension::Texture2D,
+                        .usage = TextureUsage::RenderAttachment,
+                    },
+                    image));
 
-            m_texture_views.push_back(m_graphics_device.create_texture_view({
-                .label = fmt::format("Swapchain #{}", index),
-                .texture = m_textures[index],
-                .subresource_range =
-                    SubresourceRange{
-                        .base_mip_level = 0,
-                        .mip_level_count = 1,
-                        .base_array_level = 0,
-                        .array_layer_count = 1,
-                    },
-                .component_mapping =
-                    ComponentMapping{
-                        .r = ComponentSwizzle::Identity,
-                        .g = ComponentSwizzle::Identity,
-                        .b = ComponentSwizzle::Identity,
-                        .a = ComponentSwizzle::Identity,
-                    },
-            }));
+            m_texture_views.push_back(m_graphics_device.create_texture_view(
+                {
+                    .label = fmt::format("Swapchain #{}", index),
+                    .texture = m_textures[index],
+                    .subresource_range =
+                        SubresourceRange{
+                            .base_mip_level = 0,
+                            .mip_level_count = 1,
+                            .base_array_level = 0,
+                            .array_layer_count = 1,
+                        },
+                    .component_mapping =
+                        ComponentMapping{
+                            .r = ComponentSwizzle::Identity,
+                            .g = ComponentSwizzle::Identity,
+                            .b = ComponentSwizzle::Identity,
+                            .a = ComponentSwizzle::Identity,
+                        },
+                }));
 
             ++index;
         }

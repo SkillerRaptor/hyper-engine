@@ -19,7 +19,7 @@ namespace hyper_engine
     public:
         virtual ~IImGuiManager() = default;
 
-        virtual void initialize(const Window &window, const std::shared_ptr<ISurface> &surface) = 0;
+        virtual void initialize(const std::shared_ptr<ISurface> &surface) = 0;
         virtual void destroy() = 0;
 
         virtual void new_frame() = 0;

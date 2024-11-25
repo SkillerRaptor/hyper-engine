@@ -18,7 +18,7 @@ namespace hyper_engine
     public:
         explicit D3D12GraphicsDevice(const GraphicsDeviceDescriptor &descriptor);
 
-        std::shared_ptr<ISurface> create_surface(const Window &window) override;
+        std::shared_ptr<ISurface> create_surface() override;
         std::shared_ptr<IBuffer> create_buffer(const BufferDescriptor &descriptor) override;
         std::shared_ptr<ICommandList> create_command_list() override;
         std::shared_ptr<IComputePipeline> create_compute_pipeline(const ComputePipelineDescriptor &descriptor) override;

@@ -8,6 +8,7 @@
 
 #include <array>
 
+#include <hyper_core/global_environment.hpp>
 #include <hyper_core/logger.hpp>
 #include <hyper_core/prerequisites.hpp>
 #include <hyper_event/event_bus.hpp>
@@ -32,9 +33,16 @@
 
 namespace hyper_engine
 {
-    Renderer::Renderer(EventBus &event_bus, const Window &window, const RendererDescriptor &descriptor)
-        : m_graphics_device(descriptor.graphics_device)
-        , m_surface(descriptor.surface)
+    Renderer::Renderer(const RendererDescriptor &descriptor)
+        : m_graphics_device(
+              IGraphicsDevice::create(
+                  {
+                      .graphics_api = descriptor.graphics_api,
+                      .debug_validation = descriptor.debug_validation_enabled,
+                      .debug_label = descriptor.debug_label_enabled,
+                      .debug_marker = descriptor.debug_marker_enabled,
+                  }))
+        , m_surface(m_graphics_device->create_surface())
         , m_shader_compiler()
         , m_command_list(m_graphics_device->create_command_list())
         , m_render_texture(m_graphics_device->create_texture(
@@ -212,9 +220,9 @@ namespace hyper_engine
         , m_imgui_pass(nullptr)
         , m_frame_index(1)
     {
-        event_bus.subscribe<WindowResizeEvent>(HE_BIND_FUNCTION(Renderer::on_resize));
-        event_bus.subscribe<MouseMoveEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_move));
-        event_bus.subscribe<MouseScrollEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_scroll));
+        g_environment.event_bus->subscribe<WindowResizeEvent>(HE_BIND_FUNCTION(Renderer::on_resize));
+        g_environment.event_bus->subscribe<MouseMoveEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_move));
+        g_environment.event_bus->subscribe<MouseScrollEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_scroll));
 
         const GltfMetallicRoughness::MaterialResources material_resources = {
             .color_factors = glm::vec4(1.0, 1.0, 1.0, 1.0),
@@ -346,7 +354,7 @@ namespace hyper_engine
         m_grid_pass = std::make_unique<GridPass>(
             m_graphics_device, m_shader_compiler, m_render_texture, m_render_texture_view, m_depth_texture, m_depth_texture_view);
 
-        m_imgui_pass = std::make_unique<ImGuiPass>(event_bus, window, m_graphics_device, m_surface);
+        m_imgui_pass = std::make_unique<ImGuiPass>(m_graphics_device, m_surface);
 
         HE_INFO("Created Renderer");
     }
@@ -357,22 +365,22 @@ namespace hyper_engine
 
     void Renderer::update(const float delta_time)
     {
-        if (input::is_key_pressed(KeyCode::W))
+        if (g_environment.input->is_key_pressed(KeyCode::W))
         {
             m_editor_camera.process_keyboard(Camera::Movement::Forward, delta_time);
         }
 
-        if (input::is_key_pressed(KeyCode::S))
+        if (g_environment.input->is_key_pressed(KeyCode::S))
         {
             m_editor_camera.process_keyboard(Camera::Movement::Backward, delta_time);
         }
 
-        if (input::is_key_pressed(KeyCode::A))
+        if (g_environment.input->is_key_pressed(KeyCode::A))
         {
             m_editor_camera.process_keyboard(Camera::Movement::Left, delta_time);
         }
 
-        if (input::is_key_pressed(KeyCode::D))
+        if (g_environment.input->is_key_pressed(KeyCode::D))
         {
             m_editor_camera.process_keyboard(Camera::Movement::Right, delta_time);
         }
@@ -694,6 +702,8 @@ namespace hyper_engine
 
     void Renderer::on_resize(const WindowResizeEvent &event)
     {
+        m_surface->resize(event.width(), event.height());
+
         m_editor_camera.set_aspect_ratio(static_cast<float>(event.width()) / static_cast<float>(event.height()));
 
         this->create_textures(event.width(), event.height());

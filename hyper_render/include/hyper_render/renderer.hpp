@@ -8,6 +8,7 @@
 
 #include <unordered_map>
 
+#include <hyper_rhi/graphics_device.hpp>
 #include <hyper_rhi/shader_compiler.hpp>
 
 #include "hyper_render/camera.hpp"
@@ -27,14 +28,16 @@ namespace hyper_engine
 
     struct RendererDescriptor
     {
-        std::shared_ptr<IGraphicsDevice> graphics_device;
-        std::shared_ptr<ISurface> surface;
+        GraphicsApi graphics_api;
+        bool debug_validation_enabled;
+        bool debug_label_enabled;
+        bool debug_marker_enabled;
     };
 
     class Renderer
     {
     public:
-        Renderer(EventBus &event_bus, const Window &window, const RendererDescriptor &descriptor);
+        explicit Renderer(const RendererDescriptor &renderer_descriptor);
         ~Renderer();
 
         // NOTE: This shouldn't be in the renderer

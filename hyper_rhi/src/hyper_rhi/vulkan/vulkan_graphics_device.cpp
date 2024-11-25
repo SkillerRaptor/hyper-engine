@@ -121,9 +121,9 @@ namespace hyper_engine
         vkDestroyInstance(m_instance, nullptr);
     }
 
-    std::shared_ptr<ISurface> VulkanGraphicsDevice::create_surface(const Window &window)
+    std::shared_ptr<ISurface> VulkanGraphicsDevice::create_surface()
     {
-        return std::make_shared<VulkanSurface>(*this, window);
+        return std::make_shared<VulkanSurface>(*this);
     }
 
     std::shared_ptr<IBuffer> VulkanGraphicsDevice::create_buffer(const BufferDescriptor &descriptor)

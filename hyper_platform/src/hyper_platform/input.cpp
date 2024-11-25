@@ -8,47 +8,69 @@
 
 #include <SDL3/SDL.h>
 
+#include <hyper_core/global_environment.hpp>
+#include <hyper_core/prerequisites.hpp>
 #include <hyper_event/event_bus.hpp>
 
 #include "hyper_platform/key_events.hpp"
+#include "hyper_platform/mouse_events.hpp"
 
-namespace hyper_engine::input
+namespace hyper_engine
 {
-    static std::unordered_map<KeyCode, bool> g_keys;
-
-    void on_key_press(const KeyPressEvent &event)
+    Input::Input()
+        : m_keys()
+        , m_mouse_buttons()
+        , m_mouse_position()
     {
-        g_keys[event.key_code()] = true;
+        g_environment.event_bus->subscribe<MouseMoveEvent>(HE_BIND_FUNCTION(Input::on_mouse_move));
+        g_environment.event_bus->subscribe<MouseButtonPressEvent>(HE_BIND_FUNCTION(Input::on_mouse_button_press));
+        g_environment.event_bus->subscribe<MouseButtonReleaseEvent>(HE_BIND_FUNCTION(Input::on_mouse_button_release));
+        g_environment.event_bus->subscribe<KeyPressEvent>(HE_BIND_FUNCTION(Input::on_key_press));
+        g_environment.event_bus->subscribe<KeyReleaseEvent>(HE_BIND_FUNCTION(Input::on_key_release));
     }
 
-    void on_key_release(const KeyReleaseEvent &event)
+    Input::~Input()
     {
-        g_keys[event.key_code()] = false;
+        // TODO: Unsubscribe event handlers
     }
 
-    void initialize(EventBus &event_bus)
+    bool Input::is_key_pressed(const KeyCode key_code) const
     {
-        event_bus.subscribe<KeyPressEvent>(on_key_press);
-        event_bus.subscribe<KeyReleaseEvent>(on_key_release);
+        return m_keys.contains(key_code) ? m_keys.at(key_code) : false;
     }
 
-    bool is_key_pressed(const KeyCode key_code)
+    bool Input::is_mouse_button_pressed(const MouseCode mouse_code) const
     {
-        return g_keys[key_code];
+        return m_mouse_buttons.contains(mouse_code) ? m_mouse_buttons.at(mouse_code) : false;
     }
 
-    bool is_mouse_button_pressed(const MouseCode mouse_code)
+    glm::vec2 Input::mouse_position() const
     {
-        const SDL_MouseButtonFlags mouse_button_flags = SDL_GetMouseState(nullptr, nullptr);
-        return (mouse_button_flags & SDL_BUTTON_MASK(static_cast<int32_t>(mouse_code))) != 0;
+        return m_mouse_position;
     }
 
-    glm::vec2 mouse_position()
+    void Input::on_mouse_move(const MouseMoveEvent &event)
     {
-        float x = 0.0;
-        float y = 0.0;
-        SDL_GetMouseState(&x, &y);
-
-        return { x, y };
+        m_mouse_position = { event.x(), event.y() };
     }
-} // namespace hyper_engine::input
+
+    void Input::on_mouse_button_press(const MouseButtonPressEvent &event)
+    {
+        m_mouse_buttons[event.mouse_code()] = true;
+    }
+
+    void Input::on_mouse_button_release(const MouseButtonReleaseEvent &event)
+    {
+        m_mouse_buttons[event.mouse_code()] = false;
+    }
+
+    void Input::on_key_press(const KeyPressEvent &event)
+    {
+        m_keys[event.key_code()] = true;
+    }
+
+    void Input::on_key_release(const KeyReleaseEvent &event)
+    {
+        m_keys[event.key_code()] = false;
+    }
+} // namespace hyper_engine

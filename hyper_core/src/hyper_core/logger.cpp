@@ -6,18 +6,14 @@
 
 #include "hyper_core/logger.hpp"
 
-#include <memory>
-
 #include <fmt/color.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/ansicolor_sink.h>
 #include <spdlog/sinks/ansicolor_sink-inl.h>
 
-namespace hyper_engine::logger
+namespace hyper_engine
 {
-    static std::unique_ptr<spdlog::logger> g_logger = nullptr;
-
-    void initialize()
+    Logger::Logger()
     {
         const auto stdout_sink = std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>();
         stdout_sink->set_color(spdlog::level::info, "\033[38;2;0;128;0m");
@@ -32,28 +28,23 @@ namespace hyper_engine::logger
         const auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("latest.log", true);
         file_sink->set_pattern("%Y-%m-%d%H:%M:%S.%f %l %s:%#: %v");
 
-        g_logger = std::make_unique<spdlog::logger>(
+        m_internal_logger = std::make_unique<spdlog::logger>(
             "HyperEngine",
             spdlog::sinks_init_list{
                 stdout_sink,
                 file_sink,
             });
-        g_logger->set_level(spdlog::level::info);
-        g_logger->flush_on(spdlog::level::info);
+        m_internal_logger->set_level(spdlog::level::info);
+        m_internal_logger->flush_on(spdlog::level::info);
     }
 
-    void shutdown()
+    void Logger::set_level(const spdlog::level::level_enum level) const
     {
-        g_logger = nullptr;
+        m_internal_logger->set_level(level);
     }
 
-    void set_level(const spdlog::level::level_enum level)
+    const std::unique_ptr<spdlog::logger> &Logger::internal_logger() const
     {
-        g_logger->set_level(level);
+        return m_internal_logger;
     }
-
-    const std::unique_ptr<spdlog::logger> &internal_logger()
-    {
-        return g_logger;
-    }
-} // namespace hyper_engine::logger
+} // namespace hyper_engine

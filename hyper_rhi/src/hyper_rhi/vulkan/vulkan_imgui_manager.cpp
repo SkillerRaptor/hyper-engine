@@ -12,6 +12,7 @@
 #include <imgui_impl_vulkan.h>
 
 #include <hyper_core/assertion.hpp>
+#include <hyper_core/global_environment.hpp>
 #include <hyper_core/logger.hpp>
 #include <hyper_platform/window.hpp>
 
@@ -27,7 +28,7 @@ namespace hyper_engine
     {
     }
 
-    void VulkanImGuiManager::initialize(const Window &window, const std::shared_ptr<ISurface> &surface)
+    void VulkanImGuiManager::initialize(const std::shared_ptr<ISurface> &surface)
     {
         const VkDescriptorPoolSize pool_sizes[] = {
             { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
@@ -56,7 +57,7 @@ namespace hyper_engine
         const Format format = surface->format();
         const VkFormat vk_format = VulkanTexture::get_format(format);
 
-        ImGui_ImplSDL3_InitForVulkan(window.native_window());
+        ImGui_ImplSDL3_InitForVulkan(g_environment.window->native_window());
 
         ImGui_ImplVulkan_InitInfo init_info = {
             .Instance = m_graphics_device.instance(),

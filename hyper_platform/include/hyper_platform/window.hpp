@@ -27,12 +27,12 @@ namespace hyper_engine
         explicit Window(const WindowDescriptor &descriptor);
         ~Window();
 
+        void process_events();
+        void wait_events();
+
         uint32_t width() const;
         uint32_t height() const;
         SDL_Window *native_window() const;
-
-        static void process_events(EventBus &event_bus);
-        static void wait_events();
 
     private:
         SDL_Window *m_native_window;
