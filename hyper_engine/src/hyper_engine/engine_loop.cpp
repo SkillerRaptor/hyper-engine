@@ -6,8 +6,6 @@
 
 #include "hyper_engine/engine_loop.hpp"
 
-#include "hyper_core/prerequisites.hpp"
-
 #include <chrono>
 #include <exception>
 #include <ranges>
@@ -20,6 +18,7 @@
 #include <hyper_core/global_environment.hpp>
 #include <hyper_core/hyper_core.hpp>
 #include <hyper_core/logger.hpp>
+#include <hyper_core/prerequisites.hpp>
 #include <hyper_event/event_bus.hpp>
 #include <hyper_event/hyper_event.hpp>
 #include <hyper_platform/hyper_platform.hpp>

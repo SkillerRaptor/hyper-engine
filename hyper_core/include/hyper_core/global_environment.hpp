@@ -9,6 +9,7 @@
 namespace hyper_engine
 {
     class EventBus;
+    class JobSystem;
     class Input;
     class Logger;
     class Renderer;
@@ -18,6 +19,7 @@ namespace hyper_engine
     struct GlobalEnvironment
     {
         Logger *logger;
+        JobSystem *job_system;
         EventBus *event_bus;
         Input *input;
         Window *window;
