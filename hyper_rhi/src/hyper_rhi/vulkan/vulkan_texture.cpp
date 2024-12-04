@@ -35,7 +35,7 @@ namespace hyper_engine
             .imageType = image_type,
             .format = format,
             .extent =
-                VkExtent3D{
+                {
                     .width = m_width,
                     .height = m_height,
                     .depth = m_depth,

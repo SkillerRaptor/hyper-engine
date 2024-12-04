@@ -39,7 +39,7 @@ namespace hyper_engine
             const size_t event_id = EventIdGenerator::type<T>();
             if (!m_handlers.contains(event_id))
             {
-                m_handlers.insert({ event_id, std::make_unique<EventHandler<T>>() });
+                m_handlers.insert({event_id, std::make_unique<EventHandler<T>>()});
             }
 
             const std::unique_ptr<IEventHandler> &handler = m_handlers[event_id];

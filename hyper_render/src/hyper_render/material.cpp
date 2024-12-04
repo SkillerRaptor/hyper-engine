@@ -29,116 +29,115 @@ namespace hyper_engine
         const std::shared_ptr<ITexture> &render_texture,
         const std::shared_ptr<ITexture> &depth_texture)
     {
-        const std::shared_ptr<IShaderModule> vertex_shader = graphics_device->create_shader_module(
-            {
-                .label = "Mesh",
-                .type = ShaderType::Vertex,
-                .entry_name = "vs_main",
-                .bytes = shader_compiler
-                             .compile(
-                                 {
-                                     .type = ShaderType::Vertex,
-                                     .entry_name = "vs_main",
-                                     .data = filesystem::read_file("./assets/shaders/mesh_shader.hlsl"),
-                                 })
-                             .spirv,
-            });
+        const std::shared_ptr<IShaderModule> vertex_shader = graphics_device->create_shader_module({
+            .label = "Mesh",
+            .type = ShaderType::Vertex,
+            .entry_name = "vs_main",
+            .bytes = shader_compiler
+                         .compile({
+                             .type = ShaderType::Vertex,
+                             .entry_name = "vs_main",
+                             .data = filesystem::read_file("./assets/shaders/mesh_shader.hlsl"),
+                         })
+                         .spirv,
+        });
 
-        const std::shared_ptr<IShaderModule> fragment_shader = graphics_device->create_shader_module(
-            {
-                .label = "Mesh",
-                .type = ShaderType::Fragment,
-                .entry_name = "fs_main",
-                .bytes = shader_compiler
-                             .compile(
-                                 {
-                                     .type = ShaderType::Fragment,
-                                     .entry_name = "fs_main",
-                                     .data = filesystem::read_file("./assets/shaders/mesh_shader.hlsl"),
-                                 })
-                             .spirv,
-            });
+        const std::shared_ptr<IShaderModule> fragment_shader = graphics_device->create_shader_module({
+            .label = "Mesh",
+            .type = ShaderType::Fragment,
+            .entry_name = "fs_main",
+            .bytes = shader_compiler
+                         .compile({
+                             .type = ShaderType::Fragment,
+                             .entry_name = "fs_main",
+                             .data = filesystem::read_file("./assets/shaders/mesh_shader.hlsl"),
+                         })
+                         .spirv,
+        });
 
-        const std::shared_ptr<IPipelineLayout> pipeline_layout = graphics_device->create_pipeline_layout(
-            {
-                .label = "Mesh",
-                .push_constant_size = sizeof(ObjectPushConstants),
-            });
+        const std::shared_ptr<IPipelineLayout> pipeline_layout = graphics_device->create_pipeline_layout({
+            .label = "Mesh",
+            .push_constant_size = sizeof(ObjectPushConstants),
+        });
 
         m_opaque_pipeline = graphics_device->create_render_pipeline({
-              .label = "Opaque",
-              .layout = pipeline_layout,
-              .vertex_shader = vertex_shader,
-              .fragment_shader = fragment_shader,
-              .color_attachment_states = {
-                  ColorAttachmentState{
-                      .format = render_texture->format(),
-                      .blend_state = BlendState {
-                          .blend_enable = false,
-                          .src_blend_factor = BlendFactor::One,
-                          .dst_blend_factor = BlendFactor::Zero,
-                          .operation = BlendOperation::Add,
-                          .alpha_src_blend_factor = BlendFactor::One,
-                          .alpha_dst_blend_factor = BlendFactor::Zero,
-                          .alpha_operation = BlendOperation::Add,
-                          .color_writes = ColorWrites::All,
-                      },
-                  },
-              },
-              .primitive_state =
-                  PrimitiveState{
-                      .topology = PrimitiveTopology::TriangleList,
-                      .front_face = FrontFace::CounterClockwise,
-                      .cull_mode = Face::Back,
-                      .polygon_mode = PolygonMode::Fill,
-                  },
-              .depth_stencil_state =
-                  DepthStencilState{
-                      .depth_test_enable = true,
-                      .depth_write_enable = true,
-                      .depth_format = depth_texture->format(),
-                      .depth_compare_operation = CompareOperation::Less,
-                      .depth_bias_state = {},
-                  },
-          });
+            .label = "Opaque",
+            .layout = pipeline_layout,
+            .vertex_shader = vertex_shader,
+            .fragment_shader = fragment_shader,
+            .color_attachment_states =
+                {
+                    {
+                        .format = render_texture->format(),
+                        .blend_state =
+                            BlendState{
+                                .blend_enable = false,
+                                .src_blend_factor = BlendFactor::One,
+                                .dst_blend_factor = BlendFactor::Zero,
+                                .operation = BlendOperation::Add,
+                                .alpha_src_blend_factor = BlendFactor::One,
+                                .alpha_dst_blend_factor = BlendFactor::Zero,
+                                .alpha_operation = BlendOperation::Add,
+                                .color_writes = ColorWrites::All,
+                            },
+                    },
+                },
+            .primitive_state =
+                {
+                    .topology = PrimitiveTopology::TriangleList,
+                    .front_face = FrontFace::CounterClockwise,
+                    .cull_mode = Face::Back,
+                    .polygon_mode = PolygonMode::Fill,
+                },
+            .depth_stencil_state =
+                {
+                    .depth_test_enable = true,
+                    .depth_write_enable = true,
+                    .depth_format = depth_texture->format(),
+                    .depth_compare_operation = CompareOperation::Less,
+                    .depth_bias_state = {},
+                },
+        });
 
         m_transparent_pipeline = graphics_device->create_render_pipeline({
-              .label = "Transparent",
-              .layout = pipeline_layout,
-              .vertex_shader = vertex_shader,
-              .fragment_shader = fragment_shader,
-              .color_attachment_states = {
-                  ColorAttachmentState{
-                      .format = render_texture->format(),
-                      .blend_state = BlendState {
-                          .blend_enable = true,
-                          .src_blend_factor = BlendFactor::SrcAlpha,
-                          .dst_blend_factor = BlendFactor::OneMinusSrcAlpha,
-                          .operation = BlendOperation::Add,
-                          .alpha_src_blend_factor = BlendFactor::One,
-                          .alpha_dst_blend_factor = BlendFactor::Zero,
-                          .alpha_operation = BlendOperation::Add,
-                          .color_writes = ColorWrites::All,
-                      },
-                  },
-              },
-              .primitive_state =
-                  PrimitiveState{
-                      .topology = PrimitiveTopology::TriangleList,
-                      .front_face = FrontFace::CounterClockwise,
-                      .cull_mode = Face::Back,
-                      .polygon_mode = PolygonMode::Fill,
-                  },
-              .depth_stencil_state =
-                  DepthStencilState{
-                      .depth_test_enable = true,
-                      .depth_write_enable = true,
-                      // TODO: Add 2nd pass for transparent stuff
-                      .depth_format = depth_texture->format(),
-                      .depth_compare_operation = CompareOperation::Less,
-                      .depth_bias_state = {},
-                  },
-          });
+            .label = "Transparent",
+            .layout = pipeline_layout,
+            .vertex_shader = vertex_shader,
+            .fragment_shader = fragment_shader,
+            .color_attachment_states =
+                {
+                    {
+                        .format = render_texture->format(),
+                        .blend_state =
+                            {
+                                .blend_enable = true,
+                                .src_blend_factor = BlendFactor::SrcAlpha,
+                                .dst_blend_factor = BlendFactor::OneMinusSrcAlpha,
+                                .operation = BlendOperation::Add,
+                                .alpha_src_blend_factor = BlendFactor::One,
+                                .alpha_dst_blend_factor = BlendFactor::Zero,
+                                .alpha_operation = BlendOperation::Add,
+                                .color_writes = ColorWrites::All,
+                            },
+                    },
+                },
+            .primitive_state =
+                {
+                    .topology = PrimitiveTopology::TriangleList,
+                    .front_face = FrontFace::CounterClockwise,
+                    .cull_mode = Face::Back,
+                    .polygon_mode = PolygonMode::Fill,
+                },
+            .depth_stencil_state =
+                {
+                    .depth_test_enable = true,
+                    .depth_write_enable = true,
+                    // TODO: Add 2nd pass for transparent stuff
+                    .depth_format = depth_texture->format(),
+                    .depth_compare_operation = CompareOperation::Less,
+                    .depth_bias_state = {},
+                },
+        });
     }
 
     MaterialInstance GltfMetallicRoughness::write_material(
@@ -147,12 +146,11 @@ namespace hyper_engine
         const MaterialPassType pass_type,
         const MaterialResources &resources) const
     {
-        const std::shared_ptr<IBuffer> buffer = graphics_device->create_buffer(
-            {
-                .label = "Material",
-                .byte_size = sizeof(ShaderMaterial),
-                .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
-            });
+        const std::shared_ptr<IBuffer> buffer = graphics_device->create_buffer({
+            .label = "Material",
+            .byte_size = sizeof(ShaderMaterial),
+            .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
+        });
 
         const ShaderMaterial shader_material = {
             .color_factors = resources.color_factors,

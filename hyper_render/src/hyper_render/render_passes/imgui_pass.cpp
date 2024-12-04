@@ -56,31 +56,32 @@ namespace hyper_engine
         const std::shared_ptr<IRenderPass> render_pass = command_list->begin_render_pass({
             .label = "ImGui",
             .label_color =
-                LabelColor{
+                {
                     .red = 17,
                     .green = 255,
                     .blue = 170,
                 },
-            .color_attachments = {
-                ColorAttachment{
-                    .view = swapchain_texture_view,
-                    .operation =
-                        Operations{
-                            .load_operation = LoadOperation::Load,
-                            .store_operation = StoreOperation::Store,
-                        },
+            .color_attachments =
+                {
+                    {
+                        .view = swapchain_texture_view,
+                        .operation =
+                            {
+                                .load_operation = LoadOperation::Load,
+                                .store_operation = StoreOperation::Store,
+                            },
+                    },
                 },
-            },
             .depth_stencil_attachment =
-                DepthStencilAttachment{
+                {
                     .view = nullptr,
                     .depth_operation =
-                        Operations{
+                        {
                             .load_operation = LoadOperation::DontCare,
                             .store_operation = StoreOperation::DontCare,
                         },
                 },
-            });
+        });
 
         m_imgui_manager->render(command_list);
     }

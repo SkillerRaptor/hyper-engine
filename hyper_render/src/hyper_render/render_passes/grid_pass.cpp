@@ -64,30 +64,32 @@ namespace hyper_engine
               .layout = m_pipeline_layout,
               .vertex_shader = m_vertex_shader,
               .fragment_shader = m_fragment_shader,
-              .color_attachment_states = {
-                  ColorAttachmentState{
-                      .format = m_render_texture->format(),
-                      .blend_state = BlendState {
-                          .blend_enable = true,
-                          .src_blend_factor = BlendFactor::SrcAlpha,
-                          .dst_blend_factor = BlendFactor::One,
-                          .operation = BlendOperation::Add,
-                          .alpha_src_blend_factor = BlendFactor::One,
-                          .alpha_dst_blend_factor = BlendFactor::Zero,
-                          .alpha_operation = BlendOperation::Add,
-                          .color_writes = ColorWrites::All,
+              .color_attachment_states =
+                  {
+                      {
+                          .format = m_render_texture->format(),
+                          .blend_state =
+                              BlendState{
+                                  .blend_enable = true,
+                                  .src_blend_factor = BlendFactor::SrcAlpha,
+                                  .dst_blend_factor = BlendFactor::One,
+                                  .operation = BlendOperation::Add,
+                                  .alpha_src_blend_factor = BlendFactor::One,
+                                  .alpha_dst_blend_factor = BlendFactor::Zero,
+                                  .alpha_operation = BlendOperation::Add,
+                                  .color_writes = ColorWrites::All,
+                              },
                       },
                   },
-              },
               .primitive_state =
-                  PrimitiveState{
+                  {
                       .topology = PrimitiveTopology::TriangleList,
                       .front_face = FrontFace::CounterClockwise,
                       .cull_mode = Face::None,
                       .polygon_mode = PolygonMode::Fill,
                   },
               .depth_stencil_state =
-                  DepthStencilState{
+                  {
                       .depth_test_enable = true,
                       .depth_write_enable = true,
                       .depth_format = m_depth_texture->format(),
@@ -108,21 +110,22 @@ namespace hyper_engine
                     .green = 187,
                     .blue = 255,
                 },
-            .color_attachments = {
-                ColorAttachment{
-                    .view = m_render_texture_view,
-                    .operation =
-                        Operations{
-                            .load_operation = LoadOperation::Load,
-                            .store_operation = StoreOperation::Store,
-                        },
+            .color_attachments =
+                {
+                    {
+                        .view = m_render_texture_view,
+                        .operation =
+                            {
+                                .load_operation = LoadOperation::Load,
+                                .store_operation = StoreOperation::Store,
+                            },
+                    },
                 },
-            },
             .depth_stencil_attachment =
-                DepthStencilAttachment{
+                {
                     .view = m_depth_texture_view,
                     .depth_operation =
-                        Operations{
+                        {
                             .load_operation = LoadOperation::Load,
                             .store_operation = StoreOperation::Store,
                         },

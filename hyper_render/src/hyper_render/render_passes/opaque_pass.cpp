@@ -33,26 +33,27 @@ namespace hyper_engine
         const std::shared_ptr<IRenderPass> render_pass = command_list->begin_render_pass({
             .label = "Opaque",
             .label_color =
-                LabelColor{
+                {
                     .red = 254,
                     .green = 17,
                     .blue = 85,
                 },
-            .color_attachments = {
-                ColorAttachment{
-                    .view = m_render_texture_view,
-                    .operation =
-                        Operations{
-                            .load_operation = LoadOperation::Clear,
-                            .store_operation = StoreOperation::Store,
-                        },
+            .color_attachments =
+                {
+                    {
+                        .view = m_render_texture_view,
+                        .operation =
+                            {
+                                .load_operation = LoadOperation::Clear,
+                                .store_operation = StoreOperation::Store,
+                            },
+                    },
                 },
-            },
             .depth_stencil_attachment =
-                DepthStencilAttachment{
+                {
                     .view = m_depth_texture_view,
                     .depth_operation =
-                        Operations{
+                        {
                             .load_operation = LoadOperation::Clear,
                             .store_operation = StoreOperation::Store,
                         },

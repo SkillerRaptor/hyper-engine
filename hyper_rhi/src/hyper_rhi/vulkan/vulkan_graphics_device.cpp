@@ -216,12 +216,13 @@ namespace hyper_engine
                 .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT,
                 .pNext = nullptr,
                 .pLabelName = label.c_str(),
-                .color = {
-                    r,
-                    g,
-                    b,
-                    1.0f,
-                },
+                .color =
+                    {
+                        r,
+                        g,
+                        b,
+                        1.0f,
+                    },
             };
 
             vkCmdBeginDebugUtilsLabelEXT(command_buffer, &debug_label);
@@ -643,7 +644,7 @@ namespace hyper_engine
         for (const VkPhysicalDevice &physical_device : physical_devices)
         {
             const uint32_t score = VulkanGraphicsDevice::rate_physical_device(physical_device);
-            possible_physical_devices.insert({ score, physical_device });
+            possible_physical_devices.insert({score, physical_device});
         }
 
         HE_ASSERT(possible_physical_devices.rbegin()->first != 0);

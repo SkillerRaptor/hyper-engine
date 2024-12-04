@@ -51,7 +51,7 @@ namespace hyper_engine
 
     void Input::on_mouse_move(const MouseMoveEvent &event)
     {
-        m_mouse_position = { event.x(), event.y() };
+        m_mouse_position = {event.x(), event.y()};
     }
 
     void Input::on_mouse_button_press(const MouseButtonPressEvent &event)

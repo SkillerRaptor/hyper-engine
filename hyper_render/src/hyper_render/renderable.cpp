@@ -155,21 +155,20 @@ namespace hyper_engine
             const Filter min_filter = extract_filter(sampler.minFilter.value_or(fastgltf::Filter::Nearest));
             const Filter mipmap_filter = extract_filter(sampler.minFilter.value_or(fastgltf::Filter::Nearest));
 
-            samplers.push_back(graphics_device->create_sampler(
-                {
-                    .label = sampler.name.empty() ? file_name : std::string(sampler.name),
-                    .mag_filter = mag_filter,
-                    .min_filter = min_filter,
-                    .mipmap_filter = mipmap_filter,
-                    .address_mode_u = AddressMode::Repeat,
-                    .address_mode_v = AddressMode::Repeat,
-                    .address_mode_w = AddressMode::Repeat,
-                    .mip_lod_bias = 0.0,
-                    .compare_operation = CompareOperation::Never,
-                    .min_lod = 0.0,
-                    .max_lod = 1000.0f,
-                    .border_color = BorderColor::TransparentBlack,
-                }));
+            samplers.push_back(graphics_device->create_sampler({
+                .label = sampler.name.empty() ? file_name : std::string(sampler.name),
+                .mag_filter = mag_filter,
+                .min_filter = min_filter,
+                .mipmap_filter = mipmap_filter,
+                .address_mode_u = AddressMode::Repeat,
+                .address_mode_v = AddressMode::Repeat,
+                .address_mode_w = AddressMode::Repeat,
+                .mip_lod_bias = 0.0,
+                .compare_operation = CompareOperation::Never,
+                .min_lod = 0.0,
+                .max_lod = 1000.0f,
+                .border_color = BorderColor::TransparentBlack,
+            }));
         }
 
         std::vector<std::shared_ptr<ITexture>> textures;
@@ -234,59 +233,59 @@ namespace hyper_engine
 
             if (image_data)
             {
-                std::shared_ptr<ITexture> texture = graphics_device->create_texture(
-                    {
-                        .label = image.name.empty() ? file_name : std::string(image.name),
-                        .width = static_cast<uint32_t>(width),
-                        .height = static_cast<uint32_t>(height),
-                        .depth = 1,
-                        .array_size = 1,
-                        .mip_levels = 1,
-                        .format = Format::Rgba8Srgb,
-                        .dimension = Dimension::Texture2D,
-                        .usage = TextureUsage::ShaderResource,
-                    });
+                std::shared_ptr<ITexture> texture = graphics_device->create_texture({
+                    .label = image.name.empty() ? file_name : std::string(image.name),
+                    .width = static_cast<uint32_t>(width),
+                    .height = static_cast<uint32_t>(height),
+                    .depth = 1,
+                    .array_size = 1,
+                    .mip_levels = 1,
+                    .format = Format::Rgba8Srgb,
+                    .dimension = Dimension::Texture2D,
+                    .usage = TextureUsage::ShaderResource,
+                });
 
-                std::shared_ptr<ITextureView> texture_view = graphics_device->create_texture_view(
-                    {
-                        .label = image.name.empty() ? file_name : std::string(image.name),
-                        .texture = texture,
-                        .subresource_range =
-                            SubresourceRange{
-                                .base_mip_level = 0,
-                                .mip_level_count = 1,
-                                .base_array_level = 0,
-                                .array_layer_count = 1,
-                            },
-                        .component_mapping =
-                            ComponentMapping{
-                                .r = ComponentSwizzle::Identity,
-                                .g = ComponentSwizzle::Identity,
-                                .b = ComponentSwizzle::Identity,
-                                .a = ComponentSwizzle::Identity,
-                            },
-                    });
+                std::shared_ptr<ITextureView> texture_view = graphics_device->create_texture_view({
+                    .label = image.name.empty() ? file_name : std::string(image.name),
+                    .texture = texture,
+                    .subresource_range =
+                        SubresourceRange{
+                            .base_mip_level = 0,
+                            .mip_level_count = 1,
+                            .base_array_level = 0,
+                            .array_layer_count = 1,
+                        },
+                    .component_mapping =
+                        ComponentMapping{
+                            .r = ComponentSwizzle::Identity,
+                            .g = ComponentSwizzle::Identity,
+                            .b = ComponentSwizzle::Identity,
+                            .a = ComponentSwizzle::Identity,
+                        },
+                });
 
                 command_list->insert_barriers({
                     .memory_barriers = {},
                     .buffer_memory_barriers = {},
-                    .texture_memory_barriers = {
-                        TextureMemoryBarrier{
-                            .stage_before = BarrierPipelineStage::AllCommands,
-                            .stage_after = BarrierPipelineStage::AllCommands,
-                            .access_before = BarrierAccess::None,
-                            .access_after = BarrierAccess::TransferWrite,
-                            .layout_before = BarrierTextureLayout::Undefined,
-                            .layout_after = BarrierTextureLayout::TransferDst,
-                            .texture = texture,
-                            .subresource_range = SubresourceRange{
-                                .base_mip_level = 0,
-                                .mip_level_count = 1,
-                                .base_array_level = 0,
-                                .array_layer_count = 1,
+                    .texture_memory_barriers =
+                        {
+                            TextureMemoryBarrier{
+                                .stage_before = BarrierPipelineStage::AllCommands,
+                                .stage_after = BarrierPipelineStage::AllCommands,
+                                .access_before = BarrierAccess::None,
+                                .access_after = BarrierAccess::TransferWrite,
+                                .layout_before = BarrierTextureLayout::Undefined,
+                                .layout_after = BarrierTextureLayout::TransferDst,
+                                .texture = texture,
+                                .subresource_range =
+                                    SubresourceRange{
+                                        .base_mip_level = 0,
+                                        .mip_level_count = 1,
+                                        .base_array_level = 0,
+                                        .array_layer_count = 1,
+                                    },
                             },
                         },
-                    },
                 });
 
                 command_list->write_texture(
@@ -461,44 +460,39 @@ namespace hyper_engine
                 surfaces.push_back(surface);
             }
 
-            const std::shared_ptr<IBuffer> positions_buffer = graphics_device->create_buffer(
-                {
-                    .label = fmt::format("{} Positions", mesh.name),
-                    .byte_size = positions.size() * sizeof(glm::vec4),
-                    .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
-                });
+            const std::shared_ptr<IBuffer> positions_buffer = graphics_device->create_buffer({
+                .label = fmt::format("{} Positions", mesh.name),
+                .byte_size = positions.size() * sizeof(glm::vec4),
+                .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
+            });
             command_list->write_buffer(positions_buffer, positions.data(), positions.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<IBuffer> normals_buffer = graphics_device->create_buffer(
-                {
-                    .label = fmt::format("{} Normals", mesh.name),
-                    .byte_size = normals.size() * sizeof(glm::vec4),
-                    .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
-                });
+            const std::shared_ptr<IBuffer> normals_buffer = graphics_device->create_buffer({
+                .label = fmt::format("{} Normals", mesh.name),
+                .byte_size = normals.size() * sizeof(glm::vec4),
+                .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
+            });
             command_list->write_buffer(normals_buffer, normals.data(), normals.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<IBuffer> colors_buffer = graphics_device->create_buffer(
-                {
-                    .label = fmt::format("{} Colors", mesh.name),
-                    .byte_size = colors.size() * sizeof(glm::vec4),
-                    .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
-                });
+            const std::shared_ptr<IBuffer> colors_buffer = graphics_device->create_buffer({
+                .label = fmt::format("{} Colors", mesh.name),
+                .byte_size = colors.size() * sizeof(glm::vec4),
+                .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
+            });
             command_list->write_buffer(colors_buffer, colors.data(), colors.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<IBuffer> tex_coords_buffer = graphics_device->create_buffer(
-                {
-                    .label = fmt::format("{} Tex Coords", mesh.name),
-                    .byte_size = tex_coords.size() * sizeof(glm::vec4),
-                    .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
-                });
+            const std::shared_ptr<IBuffer> tex_coords_buffer = graphics_device->create_buffer({
+                .label = fmt::format("{} Tex Coords", mesh.name),
+                .byte_size = tex_coords.size() * sizeof(glm::vec4),
+                .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
+            });
             command_list->write_buffer(tex_coords_buffer, tex_coords.data(), tex_coords.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<IBuffer> mesh_buffer = graphics_device->create_buffer(
-                {
-                    .label = fmt::format("{} Mesh Data", mesh.name),
-                    .byte_size = sizeof(ShaderMesh),
-                    .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
-                });
+            const std::shared_ptr<IBuffer> mesh_buffer = graphics_device->create_buffer({
+                .label = fmt::format("{} Mesh Data", mesh.name),
+                .byte_size = sizeof(ShaderMesh),
+                .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
+            });
 
             const ShaderMesh shader_mesh = {
                 .positions = positions_buffer->handle(),
@@ -509,12 +503,11 @@ namespace hyper_engine
 
             command_list->write_buffer(mesh_buffer, &shader_mesh, sizeof(ShaderMesh), 0);
 
-            const std::shared_ptr<IBuffer> indices_buffer = graphics_device->create_buffer(
-                {
-                    .label = fmt::format("{} Indices", mesh.name),
-                    .byte_size = indices.size() * sizeof(uint32_t),
-                    .usage = BufferUsage::Index,
-                });
+            const std::shared_ptr<IBuffer> indices_buffer = graphics_device->create_buffer({
+                .label = fmt::format("{} Indices", mesh.name),
+                .byte_size = indices.size() * sizeof(uint32_t),
+                .usage = BufferUsage::Index,
+            });
             command_list->write_buffer(indices_buffer, indices.data(), indices.size() * sizeof(uint32_t), 0);
 
             auto new_mesh = std::make_shared<Mesh>(

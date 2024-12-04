@@ -256,12 +256,13 @@ namespace hyper_engine
         case Format::Rgba64Sfloat:
         {
             constexpr VkClearColorValue clear_color_value = {
-                .float32 = {
-                    0.0,
-                    0.0,
-                    0.0,
-                    1.0,
-                },
+                .float32 =
+                    {
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0,
+                    },
             };
 
             vkCmdClearColorImage(
@@ -364,13 +365,13 @@ namespace hyper_engine
             .bufferImageHeight = 0,
             .imageSubresource = subresource_layers,
             .imageOffset =
-                VkOffset3D{
+                {
                     .x = dst_offset.x,
                     .y = dst_offset.y,
                     .z = dst_offset.z,
                 },
             .imageExtent =
-                VkExtent3D{
+                {
                     .width = dst_extent.width,
                     .height = dst_extent.height,
                     .depth = dst_extent.depth,
@@ -422,13 +423,13 @@ namespace hyper_engine
             .bufferImageHeight = 0,
             .imageSubresource = subresource_layers,
             .imageOffset =
-                VkOffset3D{
+                {
                     .x = src_offset.x,
                     .y = src_offset.y,
                     .z = src_offset.z,
                 },
             .imageExtent =
-                VkExtent3D{
+                {
                     .width = src_extent.width,
                     .height = src_extent.height,
                     .depth = src_extent.depth,
@@ -471,33 +472,33 @@ namespace hyper_engine
             .sType = VK_STRUCTURE_TYPE_IMAGE_COPY_2,
             .pNext = nullptr,
             .srcSubresource =
-                VkImageSubresourceLayers{
+                {
                     .aspectMask = VulkanTextureView::get_image_aspect_flags(vulkan_src->format()),
                     .mipLevel = src_mip_level,
                     .baseArrayLayer = src_array_index,
                     .layerCount = 1,
                 },
             .srcOffset =
-                VkOffset3D{
+                {
                     .x = src_offset.x,
                     .y = src_offset.y,
                     .z = src_offset.z,
                 },
             .dstSubresource =
-                VkImageSubresourceLayers{
+                {
                     .aspectMask = VulkanTextureView::get_image_aspect_flags(vulkan_dst->format()),
                     .mipLevel = dst_mip_level,
                     .baseArrayLayer = dst_array_index,
                     .layerCount = 1,
                 },
             .dstOffset =
-                VkOffset3D{
+                {
                     .x = dst_offset.x,
                     .y = dst_offset.y,
                     .z = dst_offset.z,
                 },
             .extent =
-                VkExtent3D{
+                {
                     .width = extent.width,
                     .height = extent.height,
                     .depth = extent.depth,
@@ -609,13 +610,13 @@ namespace hyper_engine
             .bufferImageHeight = 0,
             .imageSubresource = subresource_layers,
             .imageOffset =
-                VkOffset3D{
+                {
                     .x = offset.x,
                     .y = offset.y,
                     .z = offset.z,
                 },
             .imageExtent =
-                VkExtent3D{
+                {
                     .width = extent.width,
                     .height = extent.height,
                     .depth = extent.depth,

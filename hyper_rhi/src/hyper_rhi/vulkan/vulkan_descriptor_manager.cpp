@@ -290,7 +290,7 @@ namespace hyper_engine
                 .pNext = &descriptor_set_layout_binding_flags_info,
                 .flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT,
                 .bindingCount = 1,
-                .pBindings = &descriptor_set_layout_binding
+                .pBindings = &descriptor_set_layout_binding,
             };
 
             HE_VK_CHECK(vkCreateDescriptorSetLayout(

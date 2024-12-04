@@ -47,14 +47,16 @@ namespace hyper_engine
         };
 
         constexpr VkClearValue clear_value = {
-            .color = {
-                .float32 = {
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    1.0f,
+            .color =
+                {
+                    .float32 =
+                        {
+                            0.0f,
+                            0.0f,
+                            0.0f,
+                            1.0f,
+                        },
                 },
-            },
         };
 
         std::vector<VkRenderingAttachmentInfo> color_attachments = {};
@@ -78,10 +80,11 @@ namespace hyper_engine
         }
 
         constexpr VkClearValue depth_clear_value = {
-            .depthStencil = {
-                .depth = 1.0,
-                .stencil = 0,
-            },
+            .depthStencil =
+                {
+                    .depth = 1.0,
+                    .stencil = 0,
+                },
         };
 
         const auto &depth_attachment_view =

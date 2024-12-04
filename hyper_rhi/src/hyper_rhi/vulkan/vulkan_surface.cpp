@@ -181,7 +181,7 @@ namespace hyper_engine
             m_textures.push_back(
                 std::make_shared<VulkanTexture>(
                     m_graphics_device,
-                    TextureDescriptor{
+                    {
                         .label = fmt::format("Swapchain #{}", index),
                         .width = m_width,
                         .height = m_height,
@@ -194,25 +194,24 @@ namespace hyper_engine
                     },
                     image));
 
-            m_texture_views.push_back(m_graphics_device.create_texture_view(
-                {
-                    .label = fmt::format("Swapchain #{}", index),
-                    .texture = m_textures[index],
-                    .subresource_range =
-                        SubresourceRange{
-                            .base_mip_level = 0,
-                            .mip_level_count = 1,
-                            .base_array_level = 0,
-                            .array_layer_count = 1,
-                        },
-                    .component_mapping =
-                        ComponentMapping{
-                            .r = ComponentSwizzle::Identity,
-                            .g = ComponentSwizzle::Identity,
-                            .b = ComponentSwizzle::Identity,
-                            .a = ComponentSwizzle::Identity,
-                        },
-                }));
+            m_texture_views.push_back(m_graphics_device.create_texture_view({
+                .label = fmt::format("Swapchain #{}", index),
+                .texture = m_textures[index],
+                .subresource_range =
+                    {
+                        .base_mip_level = 0,
+                        .mip_level_count = 1,
+                        .base_array_level = 0,
+                        .array_layer_count = 1,
+                    },
+                .component_mapping =
+                    {
+                        .r = ComponentSwizzle::Identity,
+                        .g = ComponentSwizzle::Identity,
+                        .b = ComponentSwizzle::Identity,
+                        .a = ComponentSwizzle::Identity,
+                    },
+            }));
 
             ++index;
         }

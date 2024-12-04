@@ -20,12 +20,11 @@ namespace hyper_engine
         g_environment.input = new Input();
         HE_ASSERT(g_environment.input);
 
-        g_environment.window = new Window(
-            {
-                .title = "HyperEngine",
-                .width = 1280,
-                .height = 720,
-            });
+        g_environment.window = new Window({
+            .title = "HyperEngine",
+            .width = 1280,
+            .height = 720,
+        });
         HE_ASSERT(g_environment.window);
 
         HE_INFO("Initialized HyperPlatform module");

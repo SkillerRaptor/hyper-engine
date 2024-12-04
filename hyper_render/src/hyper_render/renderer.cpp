@@ -35,184 +35,171 @@ namespace hyper_engine
 {
     Renderer::Renderer(const RendererDescriptor &descriptor)
         : m_graphics_device(
-              IGraphicsDevice::create(
-                  {
-                      .graphics_api = descriptor.graphics_api,
-                      .debug_validation = descriptor.debug_validation_enabled,
-                      .debug_label = descriptor.debug_label_enabled,
-                      .debug_marker = descriptor.debug_marker_enabled,
-                  }))
+              IGraphicsDevice::create({
+                  .graphics_api = descriptor.graphics_api,
+                  .debug_validation = descriptor.debug_validation_enabled,
+                  .debug_label = descriptor.debug_label_enabled,
+                  .debug_marker = descriptor.debug_marker_enabled,
+              }))
         , m_surface(m_graphics_device->create_surface())
         , m_shader_compiler()
         , m_command_list(m_graphics_device->create_command_list())
-        , m_render_texture(m_graphics_device->create_texture(
-              {
-                  .label = "Render",
-                  .width = m_surface->width(),
-                  .height = m_surface->height(),
-                  .depth = 1,
-                  .array_size = 1,
-                  .mip_levels = 1,
-                  .format = Format::Bgra8Unorm,
-                  .dimension = Dimension::Texture2D,
-                  .usage = TextureUsage::RenderAttachment,
-              }))
-        , m_render_texture_view(m_graphics_device->create_texture_view(
-              {
-                  .label = "Render",
-                  .texture = m_render_texture,
-                  .subresource_range =
-                      SubresourceRange{
-                          .base_mip_level = 0,
-                          .mip_level_count = 1,
-                          .base_array_level = 0,
-                          .array_layer_count = 1,
-                      },
-                  .component_mapping =
-                      ComponentMapping{
-                          .r = ComponentSwizzle::Identity,
-                          .g = ComponentSwizzle::Identity,
-                          .b = ComponentSwizzle::Identity,
-                          .a = ComponentSwizzle::Identity,
-                      },
-              }))
-        , m_depth_texture(m_graphics_device->create_texture(
-              {
-                  .label = "Depth",
-                  .width = m_surface->width(),
-                  .height = m_surface->height(),
-                  .depth = 1,
-                  .array_size = 1,
-                  .mip_levels = 1,
-                  .format = Format::D32Sfloat,
-                  .dimension = Dimension::Texture2D,
-                  .usage = TextureUsage::RenderAttachment,
-              }))
-        , m_depth_texture_view(m_graphics_device->create_texture_view(
-              {
-                  .label = "Depth",
-                  .texture = m_depth_texture,
-                  .subresource_range =
-                      SubresourceRange{
-                          .base_mip_level = 0,
-                          .mip_level_count = 1,
-                          .base_array_level = 0,
-                          .array_layer_count = 1,
-                      },
-                  .component_mapping =
-                      ComponentMapping{
-                          .r = ComponentSwizzle::Identity,
-                          .g = ComponentSwizzle::Identity,
-                          .b = ComponentSwizzle::Identity,
-                          .a = ComponentSwizzle::Identity,
-                      },
-              }))
+        , m_render_texture(m_graphics_device->create_texture({
+              .label = "Render",
+              .width = m_surface->width(),
+              .height = m_surface->height(),
+              .depth = 1,
+              .array_size = 1,
+              .mip_levels = 1,
+              .format = Format::Bgra8Unorm,
+              .dimension = Dimension::Texture2D,
+              .usage = TextureUsage::RenderAttachment,
+          }))
+        , m_render_texture_view(m_graphics_device->create_texture_view({
+              .label = "Render",
+              .texture = m_render_texture,
+              .subresource_range =
+                  {
+                      .base_mip_level = 0,
+                      .mip_level_count = 1,
+                      .base_array_level = 0,
+                      .array_layer_count = 1,
+                  },
+              .component_mapping =
+                  {
+                      .r = ComponentSwizzle::Identity,
+                      .g = ComponentSwizzle::Identity,
+                      .b = ComponentSwizzle::Identity,
+                      .a = ComponentSwizzle::Identity,
+                  },
+          }))
+        , m_depth_texture(m_graphics_device->create_texture({
+              .label = "Depth",
+              .width = m_surface->width(),
+              .height = m_surface->height(),
+              .depth = 1,
+              .array_size = 1,
+              .mip_levels = 1,
+              .format = Format::D32Sfloat,
+              .dimension = Dimension::Texture2D,
+              .usage = TextureUsage::RenderAttachment,
+          }))
+        , m_depth_texture_view(m_graphics_device->create_texture_view({
+              .label = "Depth",
+              .texture = m_depth_texture,
+              .subresource_range =
+                  {
+                      .base_mip_level = 0,
+                      .mip_level_count = 1,
+                      .base_array_level = 0,
+                      .array_layer_count = 1,
+                  },
+              .component_mapping =
+                  {
+                      .r = ComponentSwizzle::Identity,
+                      .g = ComponentSwizzle::Identity,
+                      .b = ComponentSwizzle::Identity,
+                      .a = ComponentSwizzle::Identity,
+                  },
+          }))
         , m_editor_camera(glm::vec3(0.0, 2.0, 0.0), -90.0, 0.0)
-        , m_camera_buffer(m_graphics_device->create_buffer(
-              {
-                  .label = "Camera",
-                  .byte_size = sizeof(ShaderCamera),
-                  .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
-                  .handle = ResourceHandle(HE_DESCRIPTOR_SET_SLOT_CAMERA),
-              }))
-        , m_scene_buffer(m_graphics_device->create_buffer(
-              {
-                  .label = "Scene",
-                  .byte_size = sizeof(ShaderScene),
-                  .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
-              }))
-        , m_white_texture(m_graphics_device->create_texture(
-              {
-                  .label = "White",
-                  .width = 1,
-                  .height = 1,
-                  .depth = 1,
-                  .array_size = 1,
-                  .mip_levels = 1,
-                  .format = Format::Rgba8Unorm,
-                  .dimension = Dimension::Texture2D,
-                  .usage = TextureUsage::ShaderResource,
-              }))
-        , m_white_texture_view(m_graphics_device->create_texture_view(
-              {
-                  .label = "White",
-                  .texture = m_white_texture,
-                  .subresource_range =
-                      SubresourceRange{
-                          .base_mip_level = 0,
-                          .mip_level_count = 1,
-                          .base_array_level = 0,
-                          .array_layer_count = 1,
-                      },
-                  .component_mapping =
-                      ComponentMapping{
-                          .r = ComponentSwizzle::Identity,
-                          .g = ComponentSwizzle::Identity,
-                          .b = ComponentSwizzle::Identity,
-                          .a = ComponentSwizzle::Identity,
-                      },
-              }))
-        , m_error_texture(m_graphics_device->create_texture(
-              {
-                  .label = "Error",
-                  .width = 16,
-                  .height = 16,
-                  .depth = 1,
-                  .array_size = 1,
-                  .mip_levels = 1,
-                  .format = Format::Rgba8Unorm,
-                  .dimension = Dimension::Texture2D,
-                  .usage = TextureUsage::ShaderResource,
-              }))
-        , m_error_texture_view(m_graphics_device->create_texture_view(
-              {
-                  .label = "Error",
-                  .texture = m_error_texture,
-                  .subresource_range =
-                      SubresourceRange{
-                          .base_mip_level = 0,
-                          .mip_level_count = 1,
-                          .base_array_level = 0,
-                          .array_layer_count = 1,
-                      },
-                  .component_mapping =
-                      ComponentMapping{
-                          .r = ComponentSwizzle::Identity,
-                          .g = ComponentSwizzle::Identity,
-                          .b = ComponentSwizzle::Identity,
-                          .a = ComponentSwizzle::Identity,
-                      },
-              }))
-        , m_default_sampler_nearest(m_graphics_device->create_sampler(
-              {
-                  .label = "Default Nearest",
-                  .mag_filter = Filter::Nearest,
-                  .min_filter = Filter::Nearest,
-                  .mipmap_filter = Filter::Nearest,
-                  .address_mode_u = AddressMode::Repeat,
-                  .address_mode_v = AddressMode::Repeat,
-                  .address_mode_w = AddressMode::Repeat,
-                  .mip_lod_bias = 0.0,
-                  .compare_operation = CompareOperation::Never,
-                  .min_lod = 0.0,
-                  .max_lod = 1.0,
-                  .border_color = BorderColor::TransparentBlack,
-              }))
-        , m_default_sampler_linear(m_graphics_device->create_sampler(
-              {
-                  .label = "Default Linear",
-                  .mag_filter = Filter::Linear,
-                  .min_filter = Filter::Linear,
-                  .mipmap_filter = Filter::Nearest,
-                  .address_mode_u = AddressMode::Repeat,
-                  .address_mode_v = AddressMode::Repeat,
-                  .address_mode_w = AddressMode::Repeat,
-                  .mip_lod_bias = 0.0,
-                  .compare_operation = CompareOperation::Never,
-                  .min_lod = 0.0,
-                  .max_lod = 1.0,
-                  .border_color = BorderColor::TransparentBlack,
-              }))
+        , m_camera_buffer(m_graphics_device->create_buffer({
+              .label = "Camera",
+              .byte_size = sizeof(ShaderCamera),
+              .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
+              .handle = ResourceHandle(HE_DESCRIPTOR_SET_SLOT_CAMERA),
+          }))
+        , m_scene_buffer(m_graphics_device->create_buffer({
+              .label = "Scene",
+              .byte_size = sizeof(ShaderScene),
+              .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
+          }))
+        , m_white_texture(m_graphics_device->create_texture({
+              .label = "White",
+              .width = 1,
+              .height = 1,
+              .depth = 1,
+              .array_size = 1,
+              .mip_levels = 1,
+              .format = Format::Rgba8Unorm,
+              .dimension = Dimension::Texture2D,
+              .usage = TextureUsage::ShaderResource,
+          }))
+        , m_white_texture_view(m_graphics_device->create_texture_view({
+              .label = "White",
+              .texture = m_white_texture,
+              .subresource_range =
+                  {
+                      .base_mip_level = 0,
+                      .mip_level_count = 1,
+                      .base_array_level = 0,
+                      .array_layer_count = 1,
+                  },
+              .component_mapping =
+                  {
+                      .r = ComponentSwizzle::Identity,
+                      .g = ComponentSwizzle::Identity,
+                      .b = ComponentSwizzle::Identity,
+                      .a = ComponentSwizzle::Identity,
+                  },
+          }))
+        , m_error_texture(m_graphics_device->create_texture({
+              .label = "Error",
+              .width = 16,
+              .height = 16,
+              .depth = 1,
+              .array_size = 1,
+              .mip_levels = 1,
+              .format = Format::Rgba8Unorm,
+              .dimension = Dimension::Texture2D,
+              .usage = TextureUsage::ShaderResource,
+          }))
+        , m_error_texture_view(m_graphics_device->create_texture_view({
+              .label = "Error",
+              .texture = m_error_texture,
+              .subresource_range =
+                  {
+                      .base_mip_level = 0,
+                      .mip_level_count = 1,
+                      .base_array_level = 0,
+                      .array_layer_count = 1,
+                  },
+              .component_mapping =
+                  {
+                      .r = ComponentSwizzle::Identity,
+                      .g = ComponentSwizzle::Identity,
+                      .b = ComponentSwizzle::Identity,
+                      .a = ComponentSwizzle::Identity,
+                  },
+          }))
+        , m_default_sampler_nearest(m_graphics_device->create_sampler({
+              .label = "Default Nearest",
+              .mag_filter = Filter::Nearest,
+              .min_filter = Filter::Nearest,
+              .mipmap_filter = Filter::Nearest,
+              .address_mode_u = AddressMode::Repeat,
+              .address_mode_v = AddressMode::Repeat,
+              .address_mode_w = AddressMode::Repeat,
+              .mip_lod_bias = 0.0,
+              .compare_operation = CompareOperation::Never,
+              .min_lod = 0.0,
+              .max_lod = 1.0,
+              .border_color = BorderColor::TransparentBlack,
+          }))
+        , m_default_sampler_linear(m_graphics_device->create_sampler({
+              .label = "Default Linear",
+              .mag_filter = Filter::Linear,
+              .min_filter = Filter::Linear,
+              .mipmap_filter = Filter::Nearest,
+              .address_mode_u = AddressMode::Repeat,
+              .address_mode_v = AddressMode::Repeat,
+              .address_mode_w = AddressMode::Repeat,
+              .mip_lod_bias = 0.0,
+              .compare_operation = CompareOperation::Never,
+              .min_lod = 0.0,
+              .max_lod = 1.0,
+              .border_color = BorderColor::TransparentBlack,
+          }))
         , m_metallic_roughness_material(m_graphics_device, m_shader_compiler, m_render_texture, m_depth_texture)
         , m_draw_context()
         , m_opaque_pass(nullptr)
@@ -237,36 +224,37 @@ namespace hyper_engine
 
         const uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
         // TODO: Automate barrier
-        m_command_list->insert_barriers(
-        {
+        m_command_list->insert_barriers({
             .memory_barriers = {},
             .buffer_memory_barriers = {},
-            .texture_memory_barriers = {
-                TextureMemoryBarrier{
-                    .stage_before = BarrierPipelineStage::AllCommands,
-                    .stage_after = BarrierPipelineStage::AllCommands,
-                    .access_before = BarrierAccess::None,
-                    .access_after = BarrierAccess::TransferWrite,
-                    .layout_before = BarrierTextureLayout::Undefined,
-                    .layout_after = BarrierTextureLayout::TransferDst,
-                    .texture = m_white_texture,
-                    .subresource_range = SubresourceRange{
-                        .base_mip_level = 0,
-                        .mip_level_count = 1,
-                        .base_array_level = 0,
-                        .array_layer_count = 1,
+            .texture_memory_barriers =
+                {
+                    {
+                        .stage_before = BarrierPipelineStage::AllCommands,
+                        .stage_after = BarrierPipelineStage::AllCommands,
+                        .access_before = BarrierAccess::None,
+                        .access_after = BarrierAccess::TransferWrite,
+                        .layout_before = BarrierTextureLayout::Undefined,
+                        .layout_after = BarrierTextureLayout::TransferDst,
+                        .texture = m_white_texture,
+                        .subresource_range =
+                            {
+                                .base_mip_level = 0,
+                                .mip_level_count = 1,
+                                .base_array_level = 0,
+                                .array_layer_count = 1,
+                            },
                     },
                 },
-            },
         });
         m_command_list->write_texture(
             m_white_texture,
-            Offset3d{
+            {
                 .x = 0,
                 .y = 0,
                 .z = 0,
             },
-            Extent3d{
+            {
                 .width = 1,
                 .height = 1,
                 .depth = 1,
@@ -290,36 +278,37 @@ namespace hyper_engine
         }
 
         // TODO: Automate barrier
-        m_command_list->insert_barriers(
-        {
+        m_command_list->insert_barriers({
             .memory_barriers = {},
             .buffer_memory_barriers = {},
-            .texture_memory_barriers = {
-                TextureMemoryBarrier{
-                    .stage_before = BarrierPipelineStage::AllCommands,
-                    .stage_after = BarrierPipelineStage::AllCommands,
-                    .access_before = BarrierAccess::None,
-                    .access_after = BarrierAccess::TransferWrite,
-                    .layout_before = BarrierTextureLayout::Undefined,
-                    .layout_after = BarrierTextureLayout::TransferDst,
-                    .texture = m_error_texture,
-                    .subresource_range = SubresourceRange{
-                        .base_mip_level = 0,
-                        .mip_level_count = 1,
-                        .base_array_level = 0,
-                        .array_layer_count = 1,
+            .texture_memory_barriers =
+                {
+                    {
+                        .stage_before = BarrierPipelineStage::AllCommands,
+                        .stage_after = BarrierPipelineStage::AllCommands,
+                        .access_before = BarrierAccess::None,
+                        .access_after = BarrierAccess::TransferWrite,
+                        .layout_before = BarrierTextureLayout::Undefined,
+                        .layout_after = BarrierTextureLayout::TransferDst,
+                        .texture = m_error_texture,
+                        .subresource_range =
+                            {
+                                .base_mip_level = 0,
+                                .mip_level_count = 1,
+                                .base_array_level = 0,
+                                .array_layer_count = 1,
+                            },
                     },
                 },
-            },
         });
         m_command_list->write_texture(
             m_error_texture,
-            Offset3d{
+            {
                 .x = 0,
                 .y = 0,
                 .z = 0,
             },
-            Extent3d{
+            {
                 .width = 16,
                 .height = 16,
                 .depth = 1,
@@ -395,68 +384,71 @@ namespace hyper_engine
         m_command_list->begin();
 
         // Transition render texture to color attachment and depth texture to depth stencil attachment
-        m_command_list->insert_barriers(
-        {
+        m_command_list->insert_barriers({
             .memory_barriers = {},
             .buffer_memory_barriers = {},
-            .texture_memory_barriers = {
-                TextureMemoryBarrier{
-                    .stage_before = BarrierPipelineStage::AllCommands,
-                    .stage_after = BarrierPipelineStage::ColorAttachmentOutput,
-                    .access_before = BarrierAccess::None,
-                    .access_after = BarrierAccess::ColorAttachmentWrite,
-                    .layout_before = BarrierTextureLayout::Undefined,
-                    .layout_after = BarrierTextureLayout::ColorAttachment,
-                    .texture = m_render_texture,
-                    .subresource_range = SubresourceRange{
-                        .base_mip_level = 0,
-                        .mip_level_count = 1,
-                        .base_array_level = 0,
-                        .array_layer_count = 1,
+            .texture_memory_barriers =
+                {
+                    {
+                        .stage_before = BarrierPipelineStage::AllCommands,
+                        .stage_after = BarrierPipelineStage::ColorAttachmentOutput,
+                        .access_before = BarrierAccess::None,
+                        .access_after = BarrierAccess::ColorAttachmentWrite,
+                        .layout_before = BarrierTextureLayout::Undefined,
+                        .layout_after = BarrierTextureLayout::ColorAttachment,
+                        .texture = m_render_texture,
+                        .subresource_range =
+                            {
+                                .base_mip_level = 0,
+                                .mip_level_count = 1,
+                                .base_array_level = 0,
+                                .array_layer_count = 1,
+                            },
+                    },
+                    {
+                        .stage_before = BarrierPipelineStage::AllCommands,
+                        .stage_after = BarrierPipelineStage::LateFragmentTests,
+                        .access_before = BarrierAccess::None,
+                        .access_after = BarrierAccess::DepthStencilAttachmentWrite,
+                        .layout_before = BarrierTextureLayout::Undefined,
+                        .layout_after = BarrierTextureLayout::DepthStencilAttachment,
+                        .texture = m_depth_texture,
+                        .subresource_range =
+                            {
+                                .base_mip_level = 0,
+                                .mip_level_count = 1,
+                                .base_array_level = 0,
+                                .array_layer_count = 1,
+                            },
                     },
                 },
-                TextureMemoryBarrier{
-                    .stage_before = BarrierPipelineStage::AllCommands,
-                    .stage_after = BarrierPipelineStage::LateFragmentTests,
-                    .access_before = BarrierAccess::None,
-                    .access_after = BarrierAccess::DepthStencilAttachmentWrite,
-                    .layout_before = BarrierTextureLayout::Undefined,
-                    .layout_after = BarrierTextureLayout::DepthStencilAttachment,
-                    .texture = m_depth_texture,
-                    .subresource_range = SubresourceRange{
-                        .base_mip_level = 0,
-                        .mip_level_count = 1,
-                        .base_array_level = 0,
-                        .array_layer_count = 1,
-                    },
-                },
-            },
         });
 
         m_opaque_pass->render(m_command_list, m_draw_context);
 
         // NOTE: Ensure depth image was written
-        m_command_list->insert_barriers(
-        {
+        m_command_list->insert_barriers({
             .memory_barriers = {},
             .buffer_memory_barriers = {},
-            .texture_memory_barriers = {
-                TextureMemoryBarrier{
-                    .stage_before = BarrierPipelineStage::LateFragmentTests,
-                    .stage_after = BarrierPipelineStage::EarlyFragmentTests,
-                    .access_before = BarrierAccess::DepthStencilAttachmentWrite,
-                    .access_after = BarrierAccess::DepthStencilAttachmentWrite,
-                    .layout_before = BarrierTextureLayout::DepthStencilAttachment,
-                    .layout_after = BarrierTextureLayout::DepthStencilAttachment,
-                    .texture = m_depth_texture,
-                    .subresource_range = SubresourceRange{
-                        .base_mip_level = 0,
-                        .mip_level_count = 1,
-                        .base_array_level = 0,
-                        .array_layer_count = 1,
+            .texture_memory_barriers =
+                {
+                    {
+                        .stage_before = BarrierPipelineStage::LateFragmentTests,
+                        .stage_after = BarrierPipelineStage::EarlyFragmentTests,
+                        .access_before = BarrierAccess::DepthStencilAttachmentWrite,
+                        .access_after = BarrierAccess::DepthStencilAttachmentWrite,
+                        .layout_before = BarrierTextureLayout::DepthStencilAttachment,
+                        .layout_after = BarrierTextureLayout::DepthStencilAttachment,
+                        .texture = m_depth_texture,
+                        .subresource_range =
+                            {
+                                .base_mip_level = 0,
+                                .mip_level_count = 1,
+                                .base_array_level = 0,
+                                .array_layer_count = 1,
+                            },
                     },
                 },
-            },
         });
 
         m_grid_pass->render(m_command_list);
@@ -466,47 +458,49 @@ namespace hyper_engine
         const std::shared_ptr<ITextureView> swapchain_texture_view = m_surface->current_texture_view();
 
         // NOTE: Transitioning the render and swapchain image for transfer
-        m_command_list->insert_barriers(
-        {
+        m_command_list->insert_barriers({
             .memory_barriers = {},
             .buffer_memory_barriers = {},
-            .texture_memory_barriers = {
-                TextureMemoryBarrier{
-                    .stage_before = BarrierPipelineStage::ColorAttachmentOutput,
-                    .stage_after = BarrierPipelineStage::AllTransfer,
-                    .access_before = BarrierAccess::ColorAttachmentWrite,
-                    .access_after = BarrierAccess::TransferRead,
-                    .layout_before = BarrierTextureLayout::ColorAttachment,
-                    .layout_after = BarrierTextureLayout::TransferSrc,
-                    .texture = m_render_texture,
-                    .subresource_range = SubresourceRange{
-                        .base_mip_level = 0,
-                        .mip_level_count = 1,
-                        .base_array_level = 0,
-                        .array_layer_count = 1,
+            .texture_memory_barriers =
+                {
+                    {
+                        .stage_before = BarrierPipelineStage::ColorAttachmentOutput,
+                        .stage_after = BarrierPipelineStage::AllTransfer,
+                        .access_before = BarrierAccess::ColorAttachmentWrite,
+                        .access_after = BarrierAccess::TransferRead,
+                        .layout_before = BarrierTextureLayout::ColorAttachment,
+                        .layout_after = BarrierTextureLayout::TransferSrc,
+                        .texture = m_render_texture,
+                        .subresource_range =
+                            {
+                                .base_mip_level = 0,
+                                .mip_level_count = 1,
+                                .base_array_level = 0,
+                                .array_layer_count = 1,
+                            },
+                    },
+                    {
+                        .stage_before = BarrierPipelineStage::AllCommands,
+                        .stage_after = BarrierPipelineStage::AllTransfer,
+                        .access_before = BarrierAccess::None,
+                        .access_after = BarrierAccess::TransferWrite,
+                        .layout_before = BarrierTextureLayout::Undefined,
+                        .layout_after = BarrierTextureLayout::TransferDst,
+                        .texture = swapchain_texture,
+                        .subresource_range =
+                            {
+                                .base_mip_level = 0,
+                                .mip_level_count = 1,
+                                .base_array_level = 0,
+                                .array_layer_count = 1,
+                            },
                     },
                 },
-                TextureMemoryBarrier{
-                    .stage_before = BarrierPipelineStage::AllCommands,
-                    .stage_after = BarrierPipelineStage::AllTransfer,
-                    .access_before = BarrierAccess::None,
-                    .access_after = BarrierAccess::TransferWrite,
-                    .layout_before = BarrierTextureLayout::Undefined,
-                    .layout_after = BarrierTextureLayout::TransferDst,
-                    .texture = swapchain_texture,
-                    .subresource_range = SubresourceRange{
-                        .base_mip_level = 0,
-                        .mip_level_count = 1,
-                        .base_array_level = 0,
-                        .array_layer_count = 1,
-                    },
-                },
-            },
         });
 
         m_command_list->copy_texture_to_texture(
             m_render_texture,
-            Offset3d{
+            {
                 .x = 0,
                 .y = 0,
                 .z = 0,
@@ -514,65 +508,67 @@ namespace hyper_engine
             0,
             0,
             swapchain_texture,
-            Offset3d{
+            {
                 .x = 0,
                 .y = 0,
                 .z = 0,
             },
             0,
             0,
-            Extent3d{
+            {
                 .width = m_render_texture->width(),
                 .height = m_render_texture->height(),
                 .depth = m_render_texture->depth(),
             });
 
-        m_command_list->insert_barriers(
-        {
+        m_command_list->insert_barriers({
             .memory_barriers = {},
             .buffer_memory_barriers = {},
-            .texture_memory_barriers = {
-                TextureMemoryBarrier{
-                    .stage_before = BarrierPipelineStage::AllTransfer,
-                    .stage_after = BarrierPipelineStage::ColorAttachmentOutput,
-                    .access_before = BarrierAccess::TransferWrite,
-                    .access_after = BarrierAccess::ColorAttachmentWrite,
-                    .layout_before = BarrierTextureLayout::TransferDst,
-                    .layout_after = BarrierTextureLayout::ColorAttachment,
-                    .texture = swapchain_texture,
-                    .subresource_range = SubresourceRange{
-                        .base_mip_level = 0,
-                        .mip_level_count = 1,
-                        .base_array_level = 0,
-                        .array_layer_count = 1,
+            .texture_memory_barriers =
+                {
+                    {
+                        .stage_before = BarrierPipelineStage::AllTransfer,
+                        .stage_after = BarrierPipelineStage::ColorAttachmentOutput,
+                        .access_before = BarrierAccess::TransferWrite,
+                        .access_after = BarrierAccess::ColorAttachmentWrite,
+                        .layout_before = BarrierTextureLayout::TransferDst,
+                        .layout_after = BarrierTextureLayout::ColorAttachment,
+                        .texture = swapchain_texture,
+                        .subresource_range =
+                            {
+                                .base_mip_level = 0,
+                                .mip_level_count = 1,
+                                .base_array_level = 0,
+                                .array_layer_count = 1,
+                            },
                     },
                 },
-            },
         });
 
         m_imgui_pass->render(m_command_list, swapchain_texture_view);
 
-        m_command_list->insert_barriers(
-        {
+        m_command_list->insert_barriers({
             .memory_barriers = {},
             .buffer_memory_barriers = {},
-            .texture_memory_barriers = {
-                TextureMemoryBarrier{
-                    .stage_before = BarrierPipelineStage::ColorAttachmentOutput,
-                    .stage_after = BarrierPipelineStage::AllCommands,
-                    .access_before = BarrierAccess::ColorAttachmentWrite,
-                    .access_after = BarrierAccess::None,
-                    .layout_before = BarrierTextureLayout::ColorAttachment,
-                    .layout_after = BarrierTextureLayout::Present,
-                    .texture = swapchain_texture,
-                    .subresource_range = SubresourceRange{
-                        .base_mip_level = 0,
-                        .mip_level_count = 1,
-                        .base_array_level = 0,
-                        .array_layer_count = 1,
+            .texture_memory_barriers =
+                {
+                    {
+                        .stage_before = BarrierPipelineStage::ColorAttachmentOutput,
+                        .stage_after = BarrierPipelineStage::AllCommands,
+                        .access_before = BarrierAccess::ColorAttachmentWrite,
+                        .access_after = BarrierAccess::None,
+                        .layout_before = BarrierTextureLayout::ColorAttachment,
+                        .layout_after = BarrierTextureLayout::Present,
+                        .texture = swapchain_texture,
+                        .subresource_range =
+                            {
+                                .base_mip_level = 0,
+                                .mip_level_count = 1,
+                                .base_array_level = 0,
+                                .array_layer_count = 1,
+                            },
                     },
                 },
-            },
         });
 
         m_command_list->end();
@@ -587,71 +583,67 @@ namespace hyper_engine
 
     void Renderer::create_textures(const uint32_t width, const uint32_t height)
     {
-        m_render_texture = m_graphics_device->create_texture(
-            {
-                .label = "Render",
-                .width = width,
-                .height = height,
-                .depth = 1,
-                .array_size = 1,
-                .mip_levels = 1,
-                .format = Format::Bgra8Unorm,
-                .dimension = Dimension::Texture2D,
-                .usage = TextureUsage::RenderAttachment,
-            });
+        m_render_texture = m_graphics_device->create_texture({
+            .label = "Render",
+            .width = width,
+            .height = height,
+            .depth = 1,
+            .array_size = 1,
+            .mip_levels = 1,
+            .format = Format::Bgra8Unorm,
+            .dimension = Dimension::Texture2D,
+            .usage = TextureUsage::RenderAttachment,
+        });
 
-        m_render_texture_view = m_graphics_device->create_texture_view(
-            {
-                .label = "Render",
-                .texture = m_render_texture,
-                .subresource_range =
-                    SubresourceRange{
-                        .base_mip_level = 0,
-                        .mip_level_count = 1,
-                        .base_array_level = 0,
-                        .array_layer_count = 1,
-                    },
-                .component_mapping =
-                    ComponentMapping{
-                        .r = ComponentSwizzle::Identity,
-                        .g = ComponentSwizzle::Identity,
-                        .b = ComponentSwizzle::Identity,
-                        .a = ComponentSwizzle::Identity,
-                    },
-            });
+        m_render_texture_view = m_graphics_device->create_texture_view({
+            .label = "Render",
+            .texture = m_render_texture,
+            .subresource_range =
+                {
+                    .base_mip_level = 0,
+                    .mip_level_count = 1,
+                    .base_array_level = 0,
+                    .array_layer_count = 1,
+                },
+            .component_mapping =
+                {
+                    .r = ComponentSwizzle::Identity,
+                    .g = ComponentSwizzle::Identity,
+                    .b = ComponentSwizzle::Identity,
+                    .a = ComponentSwizzle::Identity,
+                },
+        });
 
-        m_depth_texture = m_graphics_device->create_texture(
-            {
-                .label = "Depth",
-                .width = width,
-                .height = height,
-                .depth = 1,
-                .array_size = 1,
-                .mip_levels = 1,
-                .format = Format::D32Sfloat,
-                .dimension = Dimension::Texture2D,
-                .usage = TextureUsage::RenderAttachment,
-            });
+        m_depth_texture = m_graphics_device->create_texture({
+            .label = "Depth",
+            .width = width,
+            .height = height,
+            .depth = 1,
+            .array_size = 1,
+            .mip_levels = 1,
+            .format = Format::D32Sfloat,
+            .dimension = Dimension::Texture2D,
+            .usage = TextureUsage::RenderAttachment,
+        });
 
-        m_depth_texture_view = m_graphics_device->create_texture_view(
-            {
-                .label = "Depth",
-                .texture = m_depth_texture,
-                .subresource_range =
-                    SubresourceRange{
-                        .base_mip_level = 0,
-                        .mip_level_count = 1,
-                        .base_array_level = 0,
-                        .array_layer_count = 1,
-                    },
-                .component_mapping =
-                    ComponentMapping{
-                        .r = ComponentSwizzle::Identity,
-                        .g = ComponentSwizzle::Identity,
-                        .b = ComponentSwizzle::Identity,
-                        .a = ComponentSwizzle::Identity,
-                    },
-            });
+        m_depth_texture_view = m_graphics_device->create_texture_view({
+            .label = "Depth",
+            .texture = m_depth_texture,
+            .subresource_range =
+                {
+                    .base_mip_level = 0,
+                    .mip_level_count = 1,
+                    .base_array_level = 0,
+                    .array_layer_count = 1,
+                },
+            .component_mapping =
+                {
+                    .r = ComponentSwizzle::Identity,
+                    .g = ComponentSwizzle::Identity,
+                    .b = ComponentSwizzle::Identity,
+                    .a = ComponentSwizzle::Identity,
+                },
+        });
     }
 
     void Renderer::update_scene()
