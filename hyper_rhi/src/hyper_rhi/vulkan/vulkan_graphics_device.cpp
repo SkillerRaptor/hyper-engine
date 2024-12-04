@@ -78,24 +78,24 @@ namespace hyper_engine
             m_debug_label = false;
         }
 
-        this->create_instance();
-        this->create_debug_messenger();
-        this->choose_physical_device();
-        this->create_device();
-        this->create_allocator();
+        create_instance();
+        create_debug_messenger();
+        choose_physical_device();
+        create_device();
+        create_allocator();
 
         m_descriptor_manager = new VulkanDescriptorManager(*this);
 
-        this->create_frames();
+        create_frames();
 
         HE_INFO("Created Vulkan Graphics Device");
     }
 
     VulkanGraphicsDevice::~VulkanGraphicsDevice()
     {
-        this->wait_for_idle();
+        wait_for_idle();
 
-        this->destroy_resources();
+        destroy_resources();
 
         for (const FrameData &frame : m_frames)
         {
@@ -392,18 +392,18 @@ namespace hyper_engine
 
         m_current_frame_index = frame_index;
 
-        const uint64_t wait_frame_index = this->current_frame().semaphore_counter;
+        const uint64_t wait_frame_index = current_frame().semaphore_counter;
         const VkSemaphoreWaitInfo semaphore_wait_info = {
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
             .pNext = nullptr,
             .flags = 0,
             .semaphoreCount = 1,
-            .pSemaphores = &this->current_frame().submit_semaphore,
+            .pSemaphores = &current_frame().submit_semaphore,
             .pValues = &wait_frame_index,
         };
         HE_VK_CHECK(vkWaitSemaphores(m_device, &semaphore_wait_info, std::numeric_limits<uint64_t>::max()));
 
-        this->destroy_resources();
+        destroy_resources();
 
         if (vulkan_surface->resized())
         {
@@ -416,7 +416,7 @@ namespace hyper_engine
             vulkan_surface->swapchain(),
             std::numeric_limits<uint64_t>::max(),
             VK_NULL_HANDLE,
-            this->current_frame().render_fence,
+            current_frame().render_fence,
             &image_index));
 
         vulkan_surface->set_texture_index(image_index);
@@ -424,8 +424,8 @@ namespace hyper_engine
 
     void VulkanGraphicsDevice::end_frame() const
     {
-        HE_VK_CHECK(vkWaitForFences(m_device, 1, &this->current_frame().render_fence, VK_TRUE, std::numeric_limits<uint64_t>::max()));
-        HE_VK_CHECK(vkResetFences(m_device, 1, &this->current_frame().render_fence));
+        HE_VK_CHECK(vkWaitForFences(m_device, 1, &current_frame().render_fence, VK_TRUE, std::numeric_limits<uint64_t>::max()));
+        HE_VK_CHECK(vkResetFences(m_device, 1, &current_frame().render_fence));
     }
 
     void VulkanGraphicsDevice::execute(const std::shared_ptr<ICommandList> &command_list)
@@ -444,8 +444,8 @@ namespace hyper_engine
         const VkSemaphoreSubmitInfo submit_semaphore_submit_info = {
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
             .pNext = nullptr,
-            .semaphore = this->current_frame().submit_semaphore,
-            .value = this->current_frame().semaphore_counter,
+            .semaphore = current_frame().submit_semaphore,
+            .value = current_frame().semaphore_counter,
             .stageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
             .deviceIndex = 0,
         };
@@ -474,8 +474,8 @@ namespace hyper_engine
             .pNext = nullptr,
             .flags = 0,
             .semaphoreCount = 1,
-            .pSemaphores = &this->current_frame().submit_semaphore,
-            .pValues = &this->current_frame().semaphore_counter,
+            .pSemaphores = &current_frame().submit_semaphore,
+            .pValues = &current_frame().semaphore_counter,
         };
         HE_VK_CHECK(vkWaitSemaphores(m_device, &semaphore_wait_info, std::numeric_limits<uint64_t>::max()));
 
@@ -691,7 +691,7 @@ namespace hyper_engine
     {
         uint32_t score = 0;
 
-        const std::optional<uint32_t> queue_family = this->find_queue_family(physical_device);
+        const std::optional<uint32_t> queue_family = find_queue_family(physical_device);
         if (!queue_family.has_value())
         {
             return 0;
@@ -862,7 +862,7 @@ namespace hyper_engine
         m_queue = queue;
 
         // TODO: Retrieve queue type
-        this->set_object_name(m_queue, ObjectType::Queue, "Graphics");
+        set_object_name(m_queue, ObjectType::Queue, "Graphics");
     }
 
     void VulkanGraphicsDevice::create_allocator()
@@ -930,7 +930,7 @@ namespace hyper_engine
             HE_VK_CHECK(vkCreateCommandPool(m_device, &command_pool_create_info, nullptr, &m_frames[index].command_pool));
             HE_ASSERT(m_frames[index].command_pool != VK_NULL_HANDLE);
 
-            this->set_object_name(m_frames[index].command_pool, ObjectType::CommandPool, fmt::format("Frame #{}", index));
+            set_object_name(m_frames[index].command_pool, ObjectType::CommandPool, fmt::format("Frame #{}", index));
 
             HE_TRACE("Created Frame Command Pool #{}", index);
 
@@ -956,7 +956,7 @@ namespace hyper_engine
             HE_VK_CHECK(vkCreateFence(m_device, &fence_create_info, nullptr, &m_frames[index].render_fence));
             HE_ASSERT(m_frames[index].render_fence != VK_NULL_HANDLE);
 
-            this->set_object_name(m_frames[index].render_fence, ObjectType::Fence, fmt::format("Frame Render #{}", index));
+            set_object_name(m_frames[index].render_fence, ObjectType::Fence, fmt::format("Frame Render #{}", index));
 
             HE_TRACE("Created Frame Render Semaphore #{}", index);
 
@@ -976,7 +976,7 @@ namespace hyper_engine
             HE_VK_CHECK(vkCreateSemaphore(m_device, &submit_semaphore_create_info, nullptr, &m_frames[index].submit_semaphore));
             HE_ASSERT(m_frames[index].submit_semaphore != VK_NULL_HANDLE);
 
-            this->set_object_name(m_frames[index].submit_semaphore, ObjectType::Semaphore, fmt::format("Frame Submit #{}", index));
+            set_object_name(m_frames[index].submit_semaphore, ObjectType::Semaphore, fmt::format("Frame Submit #{}", index));
 
             HE_TRACE("Created Frame Submit Semaphore #{}", index);
         }

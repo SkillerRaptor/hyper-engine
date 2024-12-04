@@ -23,10 +23,10 @@ namespace hyper_engine
         , m_recycled_descriptors()
         , m_current_index(0)
     {
-        this->find_descriptor_counts();
-        this->create_descriptor_pool();
-        this->create_descriptor_set_layouts();
-        this->create_descriptor_sets();
+        find_descriptor_counts();
+        create_descriptor_pool();
+        create_descriptor_set_layouts();
+        create_descriptor_sets();
     }
 
     VulkanDescriptorManager::~VulkanDescriptorManager()
@@ -137,29 +137,29 @@ namespace hyper_engine
 
     ResourceHandle VulkanDescriptorManager::allocate_buffer_handle(const VkBuffer buffer)
     {
-        const ResourceHandle handle = this->fetch_handle();
-        this->set_buffer(buffer, handle.handle());
+        const ResourceHandle handle = fetch_handle();
+        set_buffer(buffer, handle.handle());
         return handle;
     }
 
     ResourceHandle VulkanDescriptorManager::allocate_sampled_image_handle(const VkImageView image_view, const VkImageLayout image_layout)
     {
-        const ResourceHandle handle = this->fetch_handle();
-        this->set_sampled_image(image_view, image_layout, handle.handle());
+        const ResourceHandle handle = fetch_handle();
+        set_sampled_image(image_view, image_layout, handle.handle());
         return handle;
     }
 
     ResourceHandle VulkanDescriptorManager::allocate_storage_image_handle(const VkImageView image_view, const VkImageLayout image_layout)
     {
-        const ResourceHandle handle = this->fetch_handle();
-        this->set_storage_image(image_view, image_layout, handle.handle());
+        const ResourceHandle handle = fetch_handle();
+        set_storage_image(image_view, image_layout, handle.handle());
         return handle;
     }
 
     ResourceHandle VulkanDescriptorManager::allocate_sampler_handle(const VkSampler sampler)
     {
-        const ResourceHandle handle = this->fetch_handle();
-        this->set_sampler(sampler, handle.handle());
+        const ResourceHandle handle = fetch_handle();
+        set_sampler(sampler, handle.handle());
         return handle;
     }
 

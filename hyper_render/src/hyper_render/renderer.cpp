@@ -388,7 +388,7 @@ namespace hyper_engine
 
     void Renderer::render()
     {
-        this->update_scene();
+        update_scene();
 
         m_graphics_device->begin_frame(m_surface, m_frame_index);
 
@@ -706,7 +706,7 @@ namespace hyper_engine
 
         m_editor_camera.set_aspect_ratio(static_cast<float>(event.width()) / static_cast<float>(event.height()));
 
-        this->create_textures(event.width(), event.height());
+        create_textures(event.width(), event.height());
     }
 
     void Renderer::on_mouse_move(const MouseMoveEvent &event)

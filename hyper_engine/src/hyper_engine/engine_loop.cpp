@@ -43,14 +43,14 @@ namespace hyper_engine
 
     EngineLoop::~EngineLoop()
     {
-        this->unload_modules();
+        unload_modules();
     }
 
     bool EngineLoop::pre_initialize(const int32_t argc, const char **argv)
     {
         const std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
 
-        this->load_module(std::make_unique<HyperCore>());
+        load_module(std::make_unique<HyperCore>());
 
         const std::vector<std::string> arguments(argv, argv + argc);
 
@@ -123,8 +123,8 @@ namespace hyper_engine
 
         g_environment.logger->set_level(level);
 
-        this->load_module(std::make_unique<HyperEvent>());
-        this->load_module(std::make_unique<HyperPlatform>());
+        load_module(std::make_unique<HyperEvent>());
+        load_module(std::make_unique<HyperPlatform>());
 
         const GraphicsApi graphics_api = [renderer]()
         {
@@ -141,7 +141,7 @@ namespace hyper_engine
             HE_UNREACHABLE();
         }();
 
-        this->load_module(
+        load_module(
             std::make_unique<HyperRender>(HyperRenderDescriptor{
                 .graphics_api = graphics_api,
                 .debug_validation_enabled = debug_validation_enabled,

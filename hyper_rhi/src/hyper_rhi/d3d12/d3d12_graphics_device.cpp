@@ -22,7 +22,7 @@ namespace hyper_engine
     {
         if (m_debug_validation)
         {
-            this->enable_debug_layers();
+            enable_debug_layers();
         }
 
         if (!m_debug_validation)
@@ -31,11 +31,11 @@ namespace hyper_engine
             m_debug_marker = false;
         }
 
-        this->create_factory();
-        this->choose_adapter();
-        this->create_device();
-        this->create_command_queue();
-        this->create_allocator();
+        create_factory();
+        choose_adapter();
+        create_device();
+        create_command_queue();
+        create_allocator();
 
         HE_INFO("Created D3D12 Graphics Device");
     }

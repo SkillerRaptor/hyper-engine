@@ -33,26 +33,26 @@ namespace hyper_engine
         , m_textures({})
         , m_texture_views({})
     {
-        this->create_surface();
-        this->create_swapchain();
-        this->create_textures();
+        create_surface();
+        create_swapchain();
+        create_textures();
 
         HE_INFO("Created Vulkan Surface");
     }
 
     VulkanSurface::~VulkanSurface()
     {
-        this->destroy();
+        destroy();
 
         vkDestroySurfaceKHR(m_graphics_device.instance(), m_surface, nullptr);
     }
 
     void VulkanSurface::rebuild()
     {
-        this->destroy();
+        destroy();
 
-        this->create_swapchain();
-        this->create_textures();
+        create_swapchain();
+        create_textures();
 
         m_resized = false;
     }

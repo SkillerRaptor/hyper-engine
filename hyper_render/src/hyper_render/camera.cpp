@@ -30,7 +30,7 @@ namespace hyper_engine
         , m_last_x(0.0)
         , m_last_y(0.0)
     {
-        this->update_camera_vectors();
+        update_camera_vectors();
     }
 
     void Camera::process_keyboard(const Movement movement, const float delta_time)
@@ -88,7 +88,7 @@ namespace hyper_engine
             m_pitch = -89.0;
         }
 
-        this->update_camera_vectors();
+        update_camera_vectors();
     }
 
     void Camera::process_mouse_scroll(const float y_offset)
