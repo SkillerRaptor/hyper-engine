@@ -645,6 +645,8 @@ namespace hyper_engine
 
     std::shared_ptr<IRenderPass> VulkanCommandList::begin_render_pass(const RenderPassDescriptor &descriptor) const
     {
+        HE_ASSERT(!descriptor.color_attachments.empty());
+
         return std::make_shared<VulkanRenderPass>(m_graphics_device, m_command_buffer, descriptor);
     }
 

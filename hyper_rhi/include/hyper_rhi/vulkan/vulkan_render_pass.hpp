@@ -31,6 +31,12 @@ namespace hyper_engine
         void draw_indexed(uint32_t index_count, uint32_t instance_count, uint32_t first_index, int32_t vertex_offset, uint32_t first_instance)
             const override;
 
+        std::string_view label() const override;
+        LabelColor label_color() const override;
+
+        const std::vector<ColorAttachment> &color_attachments() const override;
+        DepthStencilAttachment depth_stencil_attachment() const override;
+
         VkCommandBuffer command_buffer() const;
 
         static VkAttachmentLoadOp get_attachment_load_operation(LoadOperation load_operation);
@@ -38,6 +44,12 @@ namespace hyper_engine
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
+
+        std::string m_label;
+        LabelColor m_label_color;
+
+        std::vector<ColorAttachment> m_color_attachments;
+        DepthStencilAttachment m_depth_stencil_attachment;
 
         VkCommandBuffer m_command_buffer;
 

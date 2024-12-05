@@ -22,6 +22,7 @@
 
 #include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 #include "hyper_rhi/vulkan/vulkan_command_list.hpp"
+#include "hyper_rhi/vulkan/vulkan_compute_pipeline.hpp"
 #include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
 #include "hyper_rhi/vulkan/vulkan_imgui_manager.hpp"
 #include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
@@ -43,7 +44,10 @@ namespace hyper_engine
     };
 
     VulkanGraphicsDevice::VulkanGraphicsDevice(const GraphicsDeviceDescriptor &descriptor)
-        : IGraphicsDevice(descriptor)
+        : m_graphics_api(descriptor.graphics_api)
+        , m_debug_validation(descriptor.debug_validation)
+        , m_debug_label(descriptor.debug_label)
+        , m_debug_marker(descriptor.debug_marker)
         , m_instance(VK_NULL_HANDLE)
         , m_debug_messenger(VK_NULL_HANDLE)
         , m_physical_device(VK_NULL_HANDLE)
@@ -128,6 +132,14 @@ namespace hyper_engine
 
     std::shared_ptr<IBuffer> VulkanGraphicsDevice::create_buffer(const BufferDescriptor &descriptor)
     {
+        HE_ASSERT(descriptor.byte_size > 0);
+        HE_ASSERT(descriptor.usage != BufferUsage::None);
+
+        if ((descriptor.usage & BufferUsage::ShaderResource) == BufferUsage::ShaderResource)
+        {
+            HE_ASSERT((descriptor.usage & BufferUsage::Storage) == BufferUsage::Storage);
+        }
+
         return std::make_shared<VulkanBuffer>(*this, descriptor);
     }
 
@@ -143,38 +155,75 @@ namespace hyper_engine
 
     std::shared_ptr<IComputePipeline> VulkanGraphicsDevice::create_compute_pipeline(const ComputePipelineDescriptor &descriptor)
     {
-        HE_UNUSED(descriptor);
+        HE_ASSERT(descriptor.layout != nullptr);
+        HE_ASSERT(descriptor.shader != nullptr);
 
-        HE_UNREACHABLE();
+        return std::make_shared<VulkanComputePipeline>(*this, descriptor);
     }
 
     std::shared_ptr<IRenderPipeline> VulkanGraphicsDevice::create_render_pipeline(const RenderPipelineDescriptor &descriptor)
     {
+        HE_ASSERT(descriptor.layout != nullptr);
+        HE_ASSERT(descriptor.vertex_shader != nullptr);
+        HE_ASSERT(descriptor.fragment_shader != nullptr);
+        HE_ASSERT(!descriptor.color_attachment_states.empty());
+
+        for (const ColorAttachmentState &color_attachment_state : descriptor.color_attachment_states)
+        {
+            HE_ASSERT(color_attachment_state.format != Format::Unknown);
+        }
+
+        if (descriptor.depth_stencil_state.depth_test_enable)
+        {
+            HE_ASSERT(descriptor.depth_stencil_state.depth_format != Format::Unknown);
+        }
+
         return std::make_shared<VulkanRenderPipeline>(*this, descriptor);
     }
 
     std::shared_ptr<IPipelineLayout> VulkanGraphicsDevice::create_pipeline_layout(const PipelineLayoutDescriptor &descriptor)
     {
+        HE_ASSERT((descriptor.push_constant_size % 4) == 0);
+
         return std::make_shared<VulkanPipelineLayout>(*this, descriptor);
     }
 
     std::shared_ptr<ISampler> VulkanGraphicsDevice::create_sampler(const SamplerDescriptor &descriptor)
     {
+        // TODO: Add assertions
+
         return std::make_shared<VulkanSampler>(*this, descriptor);
     }
 
     std::shared_ptr<IShaderModule> VulkanGraphicsDevice::create_shader_module(const ShaderModuleDescriptor &descriptor)
     {
+        HE_ASSERT(descriptor.type != ShaderType::None);
+        HE_ASSERT(!descriptor.entry_name.empty());
+        HE_ASSERT(!descriptor.bytes.empty());
+
         return std::make_shared<VulkanShaderModule>(*this, descriptor);
     }
 
     std::shared_ptr<ITexture> VulkanGraphicsDevice::create_texture(const TextureDescriptor &descriptor)
     {
+        HE_ASSERT(descriptor.width > 0);
+        HE_ASSERT(descriptor.height > 0);
+        HE_ASSERT(descriptor.depth > 0);
+        HE_ASSERT(descriptor.array_size > 0);
+        HE_ASSERT(descriptor.mip_levels > 0);
+        HE_ASSERT(descriptor.format != Format::Unknown);
+        HE_ASSERT(descriptor.dimension != Dimension::Unknown);
+        HE_ASSERT(descriptor.usage != TextureUsage::None);
+
         return std::make_shared<VulkanTexture>(*this, descriptor);
     }
 
     std::shared_ptr<ITextureView> VulkanGraphicsDevice::create_texture_view(const TextureViewDescriptor &descriptor)
     {
+        HE_ASSERT(descriptor.texture != nullptr);
+        HE_ASSERT(descriptor.subresource_range.mip_level_count > 0);
+        HE_ASSERT(descriptor.subresource_range.array_layer_count > 0);
+
         return std::make_shared<VulkanTextureView>(*this, descriptor);
     }
 
@@ -500,6 +549,26 @@ namespace hyper_engine
     void VulkanGraphicsDevice::wait_for_idle() const
     {
         HE_VK_CHECK(vkDeviceWaitIdle(m_device));
+    }
+
+    GraphicsApi VulkanGraphicsDevice::graphics_api() const
+    {
+        return m_graphics_api;
+    }
+
+    bool VulkanGraphicsDevice::debug_validation() const
+    {
+        return m_debug_validation;
+    }
+
+    bool VulkanGraphicsDevice::debug_label() const
+    {
+        return m_debug_label;
+    }
+
+    bool VulkanGraphicsDevice::debug_marker() const
+    {
+        return m_debug_marker;
     }
 
     VkInstance VulkanGraphicsDevice::instance() const

@@ -23,8 +23,11 @@ namespace hyper_engine
         VulkanGraphicsDevice &graphics_device,
         const VkCommandBuffer command_buffer,
         const RenderPassDescriptor &descriptor)
-        : IRenderPass(descriptor)
-        , m_graphics_device(graphics_device)
+        : m_graphics_device(graphics_device)
+        , m_label(descriptor.label)
+        , m_label_color(descriptor.label_color)
+        , m_color_attachments(descriptor.color_attachments)
+        , m_depth_stencil_attachment(descriptor.depth_stencil_attachment)
         , m_command_buffer(command_buffer)
         , m_pipeline(nullptr)
     {
@@ -240,6 +243,26 @@ namespace hyper_engine
         const uint32_t first_instance) const
     {
         vkCmdDrawIndexed(m_command_buffer, index_count, instance_count, first_index, vertex_offset, first_instance);
+    }
+
+    std::string_view VulkanRenderPass::label() const
+    {
+        return m_label;
+    }
+
+    LabelColor VulkanRenderPass::label_color() const
+    {
+        return m_label_color;
+    }
+
+    const std::vector<ColorAttachment> &VulkanRenderPass::color_attachments() const
+    {
+        return m_color_attachments;
+    }
+
+    DepthStencilAttachment VulkanRenderPass::depth_stencil_attachment() const
+    {
+        return m_depth_stencil_attachment;
     }
 
     VkCommandBuffer VulkanRenderPass::command_buffer() const

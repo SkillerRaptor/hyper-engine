@@ -27,18 +27,9 @@ namespace hyper_engine
     public:
         virtual ~IComputePipeline() = default;
 
-        std::string_view label() const;
+        virtual std::string_view label() const = 0;
 
-        const std::shared_ptr<IPipelineLayout> &layout() const;
-        const std::shared_ptr<IShaderModule> &shader() const;
-
-    protected:
-        explicit IComputePipeline(const ComputePipelineDescriptor &descriptor);
-
-    protected:
-        std::string m_label;
-
-        std::shared_ptr<IPipelineLayout> m_layout;
-        std::shared_ptr<IShaderModule> m_shader;
+        virtual const std::shared_ptr<IPipelineLayout> &layout() const = 0;
+        virtual const std::shared_ptr<IShaderModule> &shader() const = 0;
     };
 } // namespace hyper_engine

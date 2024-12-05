@@ -16,8 +16,10 @@
 namespace hyper_engine
 {
     VulkanComputePipeline::VulkanComputePipeline(VulkanGraphicsDevice &graphics_device, const ComputePipelineDescriptor &descriptor)
-        : IComputePipeline(descriptor)
-        , m_graphics_device(graphics_device)
+        : m_graphics_device(graphics_device)
+        , m_label(descriptor.label)
+        , m_layout(descriptor.layout)
+        , m_shader(descriptor.shader)
         , m_pipeline(VK_NULL_HANDLE)
     {
         const auto layout = std::dynamic_pointer_cast<VulkanPipelineLayout>(descriptor.layout);
@@ -56,6 +58,21 @@ namespace hyper_engine
     VulkanComputePipeline::~VulkanComputePipeline()
     {
         m_graphics_device.resource_queue().compute_pipelines.emplace_back(m_pipeline);
+    }
+
+    std::string_view VulkanComputePipeline::label() const
+    {
+        return m_label;
+    }
+
+    const std::shared_ptr<IPipelineLayout> &VulkanComputePipeline::layout() const
+    {
+        return m_layout;
+    }
+
+    const std::shared_ptr<IShaderModule> &VulkanComputePipeline::shader() const
+    {
+        return m_shader;
     }
 
     VkPipeline VulkanComputePipeline::pipeline() const

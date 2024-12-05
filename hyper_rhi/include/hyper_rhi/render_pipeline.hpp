@@ -154,26 +154,13 @@ namespace hyper_engine
     public:
         virtual ~IRenderPipeline() = default;
 
-        std::string_view label() const;
+        virtual std::string_view label() const = 0;
 
-        const std::shared_ptr<IPipelineLayout> &layout() const;
-        const std::shared_ptr<IShaderModule> &vertex_shader() const;
-        const std::shared_ptr<IShaderModule> &fragment_shader() const;
-        const std::vector<ColorAttachmentState> &color_attachment_states() const;
-        PrimitiveState primitive_state() const;
-        DepthStencilState depth_stencil_state() const;
-
-    protected:
-        explicit IRenderPipeline(const RenderPipelineDescriptor &descriptor);
-
-    protected:
-        std::string m_label;
-
-        std::shared_ptr<IPipelineLayout> m_layout;
-        std::shared_ptr<IShaderModule> m_vertex_shader;
-        std::shared_ptr<IShaderModule> m_fragment_shader;
-        std::vector<ColorAttachmentState> m_color_attachment_states;
-        PrimitiveState m_primitive_state;
-        DepthStencilState m_depth_stencil_state;
+        virtual const std::shared_ptr<IPipelineLayout> &layout() const = 0;
+        virtual const std::shared_ptr<IShaderModule> &vertex_shader() const = 0;
+        virtual const std::shared_ptr<IShaderModule> &fragment_shader() const = 0;
+        virtual const std::vector<ColorAttachmentState> &color_attachment_states() const = 0;
+        virtual PrimitiveState primitive_state() const = 0;
+        virtual DepthStencilState depth_stencil_state() const = 0;
     };
 } // namespace hyper_engine

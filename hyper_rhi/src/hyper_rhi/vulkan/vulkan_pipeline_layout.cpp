@@ -15,8 +15,9 @@
 namespace hyper_engine
 {
     VulkanPipelineLayout::VulkanPipelineLayout(VulkanGraphicsDevice &graphics_device, const PipelineLayoutDescriptor &descriptor)
-        : IPipelineLayout(descriptor)
-        , m_graphics_device(graphics_device)
+        : m_graphics_device(graphics_device)
+        , m_label(descriptor.label)
+        , m_push_constant_size(descriptor.push_constant_size)
         , m_pipeline_layout(VK_NULL_HANDLE)
     {
         const auto &descriptor_set_layouts = m_graphics_device.descriptor_manager().descriptor_set_layouts();
@@ -49,6 +50,16 @@ namespace hyper_engine
     VulkanPipelineLayout::~VulkanPipelineLayout()
     {
         m_graphics_device.resource_queue().pipeline_layouts.emplace_back(m_pipeline_layout);
+    }
+
+    std::string_view VulkanPipelineLayout::label() const
+    {
+        return m_label;
+    }
+
+    uint32_t VulkanPipelineLayout::push_constant_size() const
+    {
+        return m_push_constant_size;
     }
 
     VkPipelineLayout VulkanPipelineLayout::pipeline_layout() const

@@ -44,30 +44,15 @@ namespace hyper_engine
     public:
         virtual ~ITexture() = default;
 
-        std::string_view label() const;
+        virtual std::string_view label() const = 0;
 
-        uint32_t width() const;
-        uint32_t height() const;
-        uint32_t depth() const;
-        uint32_t array_size() const;
-        uint32_t mip_levels() const;
-        Format format() const;
-        Dimension dimension() const;
-        TextureUsage usage() const;
-
-    protected:
-        explicit ITexture(const TextureDescriptor &descriptor);
-
-    protected:
-        std::string m_label;
-
-        uint32_t m_width;
-        uint32_t m_height;
-        uint32_t m_depth;
-        uint32_t m_array_size;
-        uint32_t m_mip_levels;
-        Format m_format;
-        Dimension m_dimension;
-        TextureUsage m_usage;
+        virtual uint32_t width() const = 0;
+        virtual uint32_t height() const = 0;
+        virtual uint32_t depth() const = 0;
+        virtual uint32_t array_size() const = 0;
+        virtual uint32_t mip_levels() const = 0;
+        virtual Format format() const = 0;
+        virtual Dimension dimension() const = 0;
+        virtual TextureUsage usage() const = 0;
     };
 } // namespace hyper_engine

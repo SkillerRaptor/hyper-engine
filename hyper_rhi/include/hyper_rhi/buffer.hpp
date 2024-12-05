@@ -40,22 +40,11 @@ namespace hyper_engine
     public:
         virtual ~IBuffer() = default;
 
-        std::string_view label() const;
+        virtual std::string_view label() const = 0;
 
-        uint64_t byte_size() const;
-        BufferUsage usage() const;
+        virtual uint64_t byte_size() const = 0;
+        virtual BufferUsage usage() const = 0;
 
-        ResourceHandle handle() const;
-
-    protected:
-        explicit IBuffer(const BufferDescriptor &descriptor);
-
-    protected:
-        std::string m_label;
-
-        uint64_t m_byte_size;
-        BufferUsage m_usage;
-
-        ResourceHandle m_handle;
+        virtual ResourceHandle handle() const = 0;
     };
 } // namespace hyper_engine

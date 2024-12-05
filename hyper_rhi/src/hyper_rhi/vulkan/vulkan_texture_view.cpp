@@ -16,8 +16,12 @@
 namespace hyper_engine
 {
     VulkanTextureView::VulkanTextureView(VulkanGraphicsDevice &graphics_device, const TextureViewDescriptor &descriptor)
-        : ITextureView(descriptor)
-        , m_graphics_device(graphics_device)
+        : m_graphics_device(graphics_device)
+        , m_label(descriptor.label)
+        , m_texture(descriptor.texture)
+        , m_subresource_range(descriptor.subresource_range)
+        , m_component_mapping(descriptor.component_mapping)
+        , m_handle(descriptor.handle)
         , m_image_view(VK_NULL_HANDLE)
     {
         const auto &texture = std::dynamic_pointer_cast<VulkanTexture>(m_texture);
@@ -95,6 +99,31 @@ namespace hyper_engine
     VulkanTextureView::~VulkanTextureView()
     {
         m_graphics_device.resource_queue().texture_views.emplace_back(m_image_view, m_handle);
+    }
+
+    std::string_view VulkanTextureView::label() const
+    {
+        return m_label;
+    }
+
+    const std::shared_ptr<ITexture> &VulkanTextureView::texture() const
+    {
+        return m_texture;
+    }
+
+    SubresourceRange VulkanTextureView::subresource_range() const
+    {
+        return m_subresource_range;
+    }
+
+    ComponentMapping VulkanTextureView::component_mapping() const
+    {
+        return m_component_mapping;
+    }
+
+    ResourceHandle VulkanTextureView::handle() const
+    {
+        return m_handle;
     }
 
     VkImageViewType VulkanTextureView::get_image_view_type(const Dimension dimension)

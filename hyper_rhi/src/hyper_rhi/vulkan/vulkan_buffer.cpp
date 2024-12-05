@@ -15,8 +15,11 @@
 namespace hyper_engine
 {
     VulkanBuffer::VulkanBuffer(VulkanGraphicsDevice &graphics_device, const BufferDescriptor &descriptor, const bool staging)
-        : IBuffer(descriptor)
-        , m_graphics_device(graphics_device)
+        : m_graphics_device(graphics_device)
+        , m_label(descriptor.label)
+        , m_byte_size(descriptor.byte_size)
+        , m_usage(descriptor.usage)
+        , m_handle(descriptor.handle)
         , m_buffer(VK_NULL_HANDLE)
         , m_allocation(VK_NULL_HANDLE)
     {
@@ -84,6 +87,26 @@ namespace hyper_engine
     VulkanBuffer::~VulkanBuffer()
     {
         m_graphics_device.resource_queue().buffers.emplace_back(m_buffer, m_allocation, m_handle);
+    }
+
+    std::string_view VulkanBuffer::label() const
+    {
+        return m_label;
+    }
+
+    uint64_t VulkanBuffer::byte_size() const
+    {
+        return m_byte_size;
+    }
+
+    BufferUsage VulkanBuffer::usage() const
+    {
+        return m_usage;
+    }
+
+    ResourceHandle VulkanBuffer::handle() const
+    {
+        return m_handle;
     }
 
     VkBuffer VulkanBuffer::buffer() const

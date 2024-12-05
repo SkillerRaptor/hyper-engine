@@ -4,20 +4,9 @@
 # SPDX-License-Identifier: MIT
 #-------------------------------------------------------------------------------------------
 set(SOURCES
-        src/hyper_rhi/buffer.cpp
-        src/hyper_rhi/compute_pass.cpp
-        src/hyper_rhi/compute_pipeline.cpp
         src/hyper_rhi/graphics_device.cpp
-        src/hyper_rhi/pipeline_layout.cpp
-        src/hyper_rhi/render_pass.cpp
-        src/hyper_rhi/render_pipeline.cpp
         src/hyper_rhi/resource_handle.cpp
-        src/hyper_rhi/sampler.cpp
         src/hyper_rhi/shader_compiler.cpp
-        src/hyper_rhi/shader_module.cpp
-        src/hyper_rhi/surface.cpp
-        src/hyper_rhi/texture.cpp
-        src/hyper_rhi/texture_view.cpp
         src/hyper_rhi/vulkan/vulkan_buffer.cpp
         src/hyper_rhi/vulkan/vulkan_command_list.cpp
         src/hyper_rhi/vulkan/vulkan_compute_pass.cpp

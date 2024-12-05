@@ -15,8 +15,16 @@
 namespace hyper_engine
 {
     VulkanTexture::VulkanTexture(VulkanGraphicsDevice &graphics_device, const TextureDescriptor &descriptor, const VkImage image)
-        : ITexture(descriptor)
-        , m_graphics_device(graphics_device)
+        : m_graphics_device(graphics_device)
+        , m_label(descriptor.label)
+        , m_width(descriptor.width)
+        , m_height(descriptor.height)
+        , m_depth(descriptor.depth)
+        , m_array_size(descriptor.array_size)
+        , m_mip_levels(descriptor.mip_levels)
+        , m_format(descriptor.format)
+        , m_dimension(descriptor.dimension)
+        , m_usage(descriptor.usage)
         , m_image(image)
         , m_allocation(VK_NULL_HANDLE)
     {
@@ -76,6 +84,51 @@ namespace hyper_engine
     VulkanTexture::~VulkanTexture()
     {
         m_graphics_device.resource_queue().textures.emplace_back(m_image, m_allocation);
+    }
+
+    std::string_view VulkanTexture::label() const
+    {
+        return m_label;
+    }
+
+    uint32_t VulkanTexture::width() const
+    {
+        return m_width;
+    }
+
+    uint32_t VulkanTexture::height() const
+    {
+        return m_height;
+    }
+
+    uint32_t VulkanTexture::depth() const
+    {
+        return m_depth;
+    }
+
+    uint32_t VulkanTexture::array_size() const
+    {
+        return m_array_size;
+    }
+
+    uint32_t VulkanTexture::mip_levels() const
+    {
+        return m_mip_levels;
+    }
+
+    Format VulkanTexture::format() const
+    {
+        return m_format;
+    }
+
+    Dimension VulkanTexture::dimension() const
+    {
+        return m_dimension;
+    }
+
+    TextureUsage VulkanTexture::usage() const
+    {
+        return m_usage;
     }
 
     VkImage VulkanTexture::image() const

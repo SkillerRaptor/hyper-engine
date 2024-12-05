@@ -14,8 +14,11 @@
 namespace hyper_engine
 {
     VulkanShaderModule::VulkanShaderModule(VulkanGraphicsDevice &graphics_device, const ShaderModuleDescriptor &descriptor)
-        : IShaderModule(descriptor)
-        , m_graphics_device(graphics_device)
+        : m_graphics_device(graphics_device)
+        , m_label(descriptor.label)
+        , m_type(descriptor.type)
+        , m_entry_name(descriptor.entry_name)
+        , m_bytes(descriptor.bytes)
         , m_shader_module(VK_NULL_HANDLE)
     {
         const VkShaderModuleCreateInfo shader_module_create_info = {
@@ -54,6 +57,26 @@ namespace hyper_engine
     VulkanShaderModule::~VulkanShaderModule()
     {
         m_graphics_device.resource_queue().shader_modules.emplace_back(m_shader_module);
+    }
+
+    std::string_view VulkanShaderModule::label() const
+    {
+        return m_label;
+    }
+
+    ShaderType VulkanShaderModule::type() const
+    {
+        return m_type;
+    }
+
+    std::string_view VulkanShaderModule::entry_name() const
+    {
+        return m_entry_name;
+    }
+
+    const std::vector<uint8_t> &VulkanShaderModule::bytes() const
+    {
+        return m_bytes;
     }
 
     VkShaderModule VulkanShaderModule::shader_module() const

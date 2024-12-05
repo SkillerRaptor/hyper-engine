@@ -21,6 +21,14 @@ namespace hyper_engine
         VulkanTextureView(VulkanGraphicsDevice &graphics_device, const TextureViewDescriptor &descriptor);
         ~VulkanTextureView() override;
 
+        std::string_view label() const override;
+
+        const std::shared_ptr<ITexture> &texture() const override;
+        SubresourceRange subresource_range() const override;
+        ComponentMapping component_mapping() const override;
+
+        ResourceHandle handle() const override;
+
         VkImageView image_view() const;
 
         static VkImageAspectFlags get_image_aspect_flags(Format format);
@@ -29,6 +37,14 @@ namespace hyper_engine
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
+
+        std::string m_label;
+
+        std::shared_ptr<ITexture> m_texture;
+        SubresourceRange m_subresource_range;
+        ComponentMapping m_component_mapping;
+
+        ResourceHandle m_handle;
 
         VkImageView m_image_view;
     };

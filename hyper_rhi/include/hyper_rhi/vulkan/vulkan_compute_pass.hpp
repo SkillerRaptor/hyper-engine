@@ -24,10 +24,16 @@ namespace hyper_engine
 
         void dispatch(uint32_t x, uint32_t y, uint32_t z) const override;
 
+        std::string_view label() const override;
+        LabelColor label_color() const override;
+
         VkCommandBuffer command_buffer() const;
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
+
+        std::string m_label;
+        LabelColor m_label_color;
 
         VkCommandBuffer m_command_buffer;
 

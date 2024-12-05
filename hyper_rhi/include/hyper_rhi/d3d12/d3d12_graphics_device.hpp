@@ -38,6 +38,11 @@ namespace hyper_engine
 
         void wait_for_idle() const override;
 
+        GraphicsApi graphics_api() const override;
+        bool debug_validation() const override;
+        bool debug_label() const override;
+        bool debug_marker() const override;
+
         ComPtr<IDXGIFactory7> factory() const;
         ComPtr<ID3D12CommandQueue> command_queue() const;
 
@@ -50,6 +55,11 @@ namespace hyper_engine
         void create_allocator();
 
     private:
+        GraphicsApi m_graphics_api;
+        bool m_debug_validation;
+        bool m_debug_label;
+        bool m_debug_marker;
+
         ComPtr<IDXGIFactory7> m_factory;
         ComPtr<IDXGIAdapter4> m_adapter;
         ComPtr<ID3D12Device> m_device;

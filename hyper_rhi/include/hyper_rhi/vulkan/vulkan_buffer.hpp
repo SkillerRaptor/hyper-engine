@@ -21,6 +21,13 @@ namespace hyper_engine
         VulkanBuffer(VulkanGraphicsDevice &graphics_device, const BufferDescriptor &descriptor, bool staging = false);
         ~VulkanBuffer() override;
 
+        std::string_view label() const override;
+
+        uint64_t byte_size() const override;
+        BufferUsage usage() const override;
+
+        ResourceHandle handle() const override;
+
         VkBuffer buffer() const;
         VmaAllocation allocation() const;
 
@@ -28,6 +35,13 @@ namespace hyper_engine
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
+
+        std::string m_label;
+
+        uint64_t m_byte_size;
+        BufferUsage m_usage;
+
+        ResourceHandle m_handle;
 
         VkBuffer m_buffer;
         VmaAllocation m_allocation;

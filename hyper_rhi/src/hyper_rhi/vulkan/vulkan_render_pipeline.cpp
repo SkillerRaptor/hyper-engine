@@ -17,8 +17,14 @@
 namespace hyper_engine
 {
     VulkanRenderPipeline::VulkanRenderPipeline(VulkanGraphicsDevice &graphics_device, const RenderPipelineDescriptor &descriptor)
-        : IRenderPipeline(descriptor)
-        , m_graphics_device(graphics_device)
+        : m_graphics_device(graphics_device)
+        , m_label(descriptor.label)
+        , m_layout(descriptor.layout)
+        , m_vertex_shader(descriptor.vertex_shader)
+        , m_fragment_shader(descriptor.fragment_shader)
+        , m_color_attachment_states(descriptor.color_attachment_states)
+        , m_primitive_state(descriptor.primitive_state)
+        , m_depth_stencil_state(descriptor.depth_stencil_state)
         , m_pipeline(VK_NULL_HANDLE)
     {
         const auto vertex_shader_module = std::dynamic_pointer_cast<VulkanShaderModule>(descriptor.vertex_shader);
@@ -168,12 +174,13 @@ namespace hyper_engine
             .logicOp = VK_LOGIC_OP_NO_OP,
             .attachmentCount = static_cast<uint32_t>(color_blend_attachment_states.size()),
             .pAttachments = color_blend_attachment_states.data(),
-            .blendConstants = {
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-            },
+            .blendConstants =
+                {
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                },
         };
 
         constexpr std::array<VkDynamicState, 2> dynamic_states = {
@@ -242,6 +249,41 @@ namespace hyper_engine
     VulkanRenderPipeline::~VulkanRenderPipeline()
     {
         m_graphics_device.resource_queue().graphics_pipelines.emplace_back(m_pipeline);
+    }
+
+    std::string_view VulkanRenderPipeline::label() const
+    {
+        return m_label;
+    }
+
+    const std::shared_ptr<IPipelineLayout> &VulkanRenderPipeline::layout() const
+    {
+        return m_layout;
+    }
+
+    const std::shared_ptr<IShaderModule> &VulkanRenderPipeline::vertex_shader() const
+    {
+        return m_vertex_shader;
+    }
+
+    const std::shared_ptr<IShaderModule> &VulkanRenderPipeline::fragment_shader() const
+    {
+        return m_fragment_shader;
+    }
+
+    const std::vector<ColorAttachmentState> &VulkanRenderPipeline::color_attachment_states() const
+    {
+        return m_color_attachment_states;
+    }
+
+    PrimitiveState VulkanRenderPipeline::primitive_state() const
+    {
+        return m_primitive_state;
+    }
+
+    DepthStencilState VulkanRenderPipeline::depth_stencil_state() const
+    {
+        return m_depth_stencil_state;
     }
 
     VkPipeline VulkanRenderPipeline::pipeline() const

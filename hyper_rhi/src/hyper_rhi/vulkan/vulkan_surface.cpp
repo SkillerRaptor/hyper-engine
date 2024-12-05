@@ -22,8 +22,10 @@
 namespace hyper_engine
 {
     VulkanSurface::VulkanSurface(VulkanGraphicsDevice &graphics_device)
-        : ISurface(g_environment.window->width(), g_environment.window->height())
-        , m_graphics_device(graphics_device)
+        : m_graphics_device(graphics_device)
+        , m_resized(false)
+        , m_width(g_environment.window->width())
+        , m_height(g_environment.window->height())
         , m_surface(VK_NULL_HANDLE)
         , m_swapchain(VK_NULL_HANDLE)
         , m_min_image_count(0)
@@ -47,6 +49,33 @@ namespace hyper_engine
         vkDestroySurfaceKHR(m_graphics_device.instance(), m_surface, nullptr);
     }
 
+    void VulkanSurface::resize(const uint32_t width, const uint32_t height)
+    {
+        if (m_width == width || m_height == height)
+        {
+            return;
+        }
+
+        m_resized = true;
+        m_width = width;
+        m_height = height;
+    }
+
+    bool VulkanSurface::resized() const
+    {
+        return m_resized;
+    }
+
+    uint32_t VulkanSurface::width() const
+    {
+        return m_width;
+    }
+
+    uint32_t VulkanSurface::height() const
+    {
+        return m_height;
+    }
+
     void VulkanSurface::rebuild()
     {
         destroy();
@@ -55,21 +84,6 @@ namespace hyper_engine
         create_textures();
 
         m_resized = false;
-    }
-
-    VkSwapchainKHR VulkanSurface::swapchain() const
-    {
-        return m_swapchain;
-    }
-
-    void VulkanSurface::set_texture_index(const uint32_t texture_index)
-    {
-        m_texture_index = texture_index;
-    }
-
-    uint32_t VulkanSurface::texture_index() const
-    {
-        return m_texture_index;
     }
 
     uint32_t VulkanSurface::min_image_count() const
@@ -95,6 +109,21 @@ namespace hyper_engine
     std::shared_ptr<ITextureView> VulkanSurface::current_texture_view() const
     {
         return m_texture_views[m_texture_index];
+    }
+
+    VkSwapchainKHR VulkanSurface::swapchain() const
+    {
+        return m_swapchain;
+    }
+
+    void VulkanSurface::set_texture_index(const uint32_t texture_index)
+    {
+        m_texture_index = texture_index;
+    }
+
+    uint32_t VulkanSurface::texture_index() const
+    {
+        return m_texture_index;
     }
 
     void VulkanSurface::create_surface()

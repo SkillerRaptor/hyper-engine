@@ -33,14 +33,7 @@ namespace hyper_engine
 
         // TODO: Add indirect
 
-        std::string_view label() const;
-        LabelColor label_color() const;
-
-    protected:
-        explicit IComputePass(const ComputePassDescriptor &descriptor);
-
-    protected:
-        std::string m_label;
-        LabelColor m_label_color;
+        virtual std::string_view label() const = 0;
+        virtual LabelColor label_color() const = 0;
     };
 } // namespace hyper_engine

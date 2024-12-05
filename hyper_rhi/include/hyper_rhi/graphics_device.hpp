@@ -52,7 +52,6 @@ namespace hyper_engine
         static constexpr size_t s_descriptor_limit = 1000 * 1000;
 
     public:
-        explicit IGraphicsDevice(const GraphicsDeviceDescriptor &descriptor);
         virtual ~IGraphicsDevice() = default;
 
         static std::shared_ptr<IGraphicsDevice> create(const GraphicsDeviceDescriptor &descriptor);
@@ -77,15 +76,9 @@ namespace hyper_engine
 
         virtual void wait_for_idle() const = 0;
 
-        GraphicsApi graphics_api() const;
-        bool debug_validation() const;
-        bool debug_label() const;
-        bool debug_marker() const;
-
-    protected:
-        GraphicsApi m_graphics_api;
-        bool m_debug_validation;
-        bool m_debug_label;
-        bool m_debug_marker;
+        virtual GraphicsApi graphics_api() const = 0;
+        virtual bool debug_validation() const = 0;
+        virtual bool debug_label() const = 0;
+        virtual bool debug_marker() const = 0;
     };
 } // namespace hyper_engine

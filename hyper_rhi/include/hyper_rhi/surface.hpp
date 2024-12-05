@@ -20,6 +20,12 @@ namespace hyper_engine
     public:
         virtual ~ISurface() = default;
 
+        virtual void resize(uint32_t width, uint32_t height) = 0;
+
+        virtual bool resized() const = 0;
+        virtual uint32_t width() const = 0;
+        virtual uint32_t height() const = 0;
+
         virtual uint32_t min_image_count() const = 0;
         virtual uint32_t image_count() const = 0;
 
@@ -27,19 +33,5 @@ namespace hyper_engine
 
         virtual std::shared_ptr<ITexture> current_texture() const = 0;
         virtual std::shared_ptr<ITextureView> current_texture_view() const = 0;
-
-        void resize(const uint32_t width, const uint32_t height);
-
-        bool resized() const;
-        uint32_t width() const;
-        uint32_t height() const;
-
-    protected:
-        ISurface(const uint32_t width, const uint32_t height);
-
-    protected:
-        bool m_resized;
-        uint32_t m_width;
-        uint32_t m_height;
     };
 } // namespace hyper_engine

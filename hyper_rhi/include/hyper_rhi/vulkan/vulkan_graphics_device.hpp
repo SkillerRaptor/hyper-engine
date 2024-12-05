@@ -120,6 +120,11 @@ namespace hyper_engine
 
         void wait_for_idle() const override;
 
+        GraphicsApi graphics_api() const override;
+        bool debug_validation() const override;
+        bool debug_label() const override;
+        bool debug_marker() const override;
+
         VkInstance instance() const;
         VkPhysicalDevice physical_device() const;
         VkDevice device() const;
@@ -152,6 +157,11 @@ namespace hyper_engine
             void *);
 
     private:
+        GraphicsApi m_graphics_api;
+        bool m_debug_validation;
+        bool m_debug_label;
+        bool m_debug_marker;
+
         VkInstance m_instance;
         VkDebugUtilsMessengerEXT m_debug_messenger;
         VkPhysicalDevice m_physical_device;

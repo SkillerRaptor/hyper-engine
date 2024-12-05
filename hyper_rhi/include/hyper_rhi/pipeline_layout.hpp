@@ -22,16 +22,8 @@ namespace hyper_engine
     public:
         virtual ~IPipelineLayout() = default;
 
-        std::string_view label() const;
+        virtual std::string_view label() const = 0;
 
-        uint32_t push_constant_size() const;
-
-    protected:
-        explicit IPipelineLayout(const PipelineLayoutDescriptor &descriptor);
-
-    protected:
-        std::string m_label;
-
-        uint32_t m_push_constant_size;
+        virtual uint32_t push_constant_size() const = 0;
     };
 } // namespace hyper_engine

@@ -16,8 +16,20 @@
 namespace hyper_engine
 {
     VulkanSampler::VulkanSampler(VulkanGraphicsDevice &graphics_device, const SamplerDescriptor &descriptor)
-        : ISampler(descriptor)
-        , m_graphics_device(graphics_device)
+        : m_graphics_device(graphics_device)
+        , m_label(descriptor.label)
+        , m_mag_filter(descriptor.mag_filter)
+        , m_min_filter(descriptor.min_filter)
+        , m_mipmap_filter(descriptor.mipmap_filter)
+        , m_address_mode_u(descriptor.address_mode_u)
+        , m_address_mode_v(descriptor.address_mode_v)
+        , m_address_mode_w(descriptor.address_mode_w)
+        , m_mip_lod_bias(descriptor.mip_lod_bias)
+        , m_compare_operation(descriptor.compare_operation)
+        , m_min_lod(descriptor.min_lod)
+        , m_max_lod(descriptor.max_lod)
+        , m_border_color(descriptor.border_color)
+        , m_handle(descriptor.handle)
         , m_sampler(VK_NULL_HANDLE)
     {
         const VkFilter mag_filter = VulkanSampler::get_filter(descriptor.mag_filter);
@@ -69,6 +81,71 @@ namespace hyper_engine
     VulkanSampler::~VulkanSampler()
     {
         m_graphics_device.resource_queue().samplers.emplace_back(m_sampler);
+    }
+
+    std::string_view VulkanSampler::label() const
+    {
+        return m_label;
+    }
+
+    Filter VulkanSampler::mag_filter() const
+    {
+        return m_mag_filter;
+    }
+
+    Filter VulkanSampler::min_filter() const
+    {
+        return m_min_filter;
+    }
+
+    Filter VulkanSampler::mipmap_filter() const
+    {
+        return m_mipmap_filter;
+    }
+
+    AddressMode VulkanSampler::address_mode_u() const
+    {
+        return m_address_mode_u;
+    }
+
+    AddressMode VulkanSampler::address_mode_v() const
+    {
+        return m_address_mode_v;
+    }
+
+    AddressMode VulkanSampler::address_mode_w() const
+    {
+        return m_address_mode_w;
+    }
+
+    float VulkanSampler::mip_lod_bias() const
+    {
+        return m_mip_lod_bias;
+    }
+
+    CompareOperation VulkanSampler::compare_operation() const
+    {
+        return m_compare_operation;
+    }
+
+    float VulkanSampler::min_lod() const
+    {
+        return m_min_lod;
+    }
+
+    float VulkanSampler::max_lod() const
+    {
+        return m_max_lod;
+    }
+
+    BorderColor VulkanSampler::border_color() const
+    {
+        return m_border_color;
+    }
+
+    ResourceHandle VulkanSampler::handle() const
+    {
+        return m_handle;
     }
 
     VkSampler VulkanSampler::sampler() const

@@ -27,20 +27,10 @@ namespace hyper_engine
     public:
         virtual ~IShaderModule() = default;
 
-        std::string_view label() const;
+        virtual std::string_view label() const = 0;
 
-        ShaderType type() const;
-        std::string_view entry_name() const;
-        const std::vector<uint8_t> &bytes() const;
-
-    protected:
-        explicit IShaderModule(const ShaderModuleDescriptor &descriptor);
-
-    protected:
-        std::string m_label;
-
-        ShaderType m_type;
-        std::string m_entry_name;
-        std::vector<uint8_t> m_bytes;
+        virtual ShaderType type() const = 0;
+        virtual std::string_view entry_name() const = 0;
+        virtual const std::vector<uint8_t> &bytes() const = 0;
     };
 } // namespace hyper_engine

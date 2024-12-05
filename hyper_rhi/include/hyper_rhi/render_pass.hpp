@@ -79,20 +79,10 @@ namespace hyper_engine
 
         // TODO: Add indirect
 
-        std::string_view label() const;
-        LabelColor label_color() const;
+        virtual std::string_view label() const = 0;
+        virtual LabelColor label_color() const = 0;
 
-        const std::vector<ColorAttachment> &color_attachments() const;
-        DepthStencilAttachment depth_stencil_attachment() const;
-
-    protected:
-        explicit IRenderPass(const RenderPassDescriptor &descriptor);
-
-    protected:
-        std::string m_label;
-        LabelColor m_label_color;
-
-        std::vector<ColorAttachment> m_color_attachments;
-        DepthStencilAttachment m_depth_stencil_attachment;
+        virtual const std::vector<ColorAttachment> &color_attachments() const = 0;
+        virtual DepthStencilAttachment depth_stencil_attachment() const = 0;
     };
 } // namespace hyper_engine

@@ -22,16 +22,25 @@ namespace hyper_engine
         VulkanSurface(VulkanGraphicsDevice &graphics_device);
         ~VulkanSurface() override;
 
+        void resize(uint32_t width, uint32_t height) override;
+
+        bool resized() const override;
+        uint32_t width() const override;
+        uint32_t height() const override;
+
+        uint32_t min_image_count() const override;
+        uint32_t image_count() const override;
+
+        Format format() const override;
+
+        std::shared_ptr<ITexture> current_texture() const override;
+        std::shared_ptr<ITextureView> current_texture_view() const override;
+
         void rebuild();
 
         VkSwapchainKHR swapchain() const;
         void set_texture_index(uint32_t texture_index);
         uint32_t texture_index() const;
-        uint32_t min_image_count() const override;
-        uint32_t image_count() const override;
-        Format format() const override;
-        std::shared_ptr<ITexture> current_texture() const override;
-        std::shared_ptr<ITextureView> current_texture_view() const override;
 
     private:
         void create_surface();
@@ -45,6 +54,10 @@ namespace hyper_engine
 
     private:
         VulkanGraphicsDevice &m_graphics_device;
+
+        bool m_resized;
+        uint32_t m_width;
+        uint32_t m_height;
 
         VkSurfaceKHR m_surface;
         VkSwapchainKHR m_swapchain;

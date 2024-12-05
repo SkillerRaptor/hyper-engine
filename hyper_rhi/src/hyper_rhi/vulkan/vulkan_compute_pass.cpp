@@ -19,8 +19,9 @@ namespace hyper_engine
         VulkanGraphicsDevice &graphics_device,
         const VkCommandBuffer command_buffer,
         const ComputePassDescriptor &descriptor)
-        : IComputePass(descriptor)
-        , m_graphics_device(graphics_device)
+        : m_graphics_device(graphics_device)
+        , m_label(descriptor.label)
+        , m_label_color(descriptor.label_color)
         , m_command_buffer(command_buffer)
         , m_pipeline(nullptr)
     {
@@ -64,6 +65,16 @@ namespace hyper_engine
     void VulkanComputePass::dispatch(const uint32_t x, const uint32_t y, const uint32_t z) const
     {
         vkCmdDispatch(m_command_buffer, x, y, z);
+    }
+
+    std::string_view VulkanComputePass::label() const
+    {
+        return m_label;
+    }
+
+    LabelColor VulkanComputePass::label_color() const
+    {
+        return m_label_color;
     }
 
     VkCommandBuffer VulkanComputePass::command_buffer() const

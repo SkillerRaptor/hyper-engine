@@ -13,7 +13,10 @@
 namespace hyper_engine
 {
     D3D12GraphicsDevice::D3D12GraphicsDevice(const GraphicsDeviceDescriptor &descriptor)
-        : IGraphicsDevice(descriptor)
+        : m_graphics_api(descriptor.graphics_api)
+        , m_debug_validation(descriptor.debug_validation)
+        , m_debug_label(descriptor.debug_label)
+        , m_debug_marker(descriptor.debug_marker)
         , m_factory(nullptr)
         , m_adapter(nullptr)
         , m_device(nullptr)
@@ -141,6 +144,26 @@ namespace hyper_engine
     void D3D12GraphicsDevice::wait_for_idle() const
     {
         HE_UNREACHABLE();
+    }
+
+    GraphicsApi D3D12GraphicsDevice::graphics_api() const
+    {
+        return m_graphics_api;
+    }
+
+    bool D3D12GraphicsDevice::debug_validation() const
+    {
+        return m_debug_validation;
+    }
+
+    bool D3D12GraphicsDevice::debug_label() const
+    {
+        return m_debug_label;
+    }
+
+    bool D3D12GraphicsDevice::debug_marker() const
+    {
+        return m_debug_marker;
     }
 
     ComPtr<IDXGIFactory7> D3D12GraphicsDevice::factory() const

@@ -52,24 +52,12 @@ namespace hyper_engine
     public:
         virtual ~ITextureView() = default;
 
-        std::string_view label() const;
+        virtual std::string_view label() const = 0;
 
-        const std::shared_ptr<ITexture> &texture() const;
-        SubresourceRange subresource_range() const;
-        ComponentMapping component_mapping() const;
+        virtual const std::shared_ptr<ITexture> &texture() const = 0;
+        virtual SubresourceRange subresource_range() const = 0;
+        virtual ComponentMapping component_mapping() const = 0;
 
-        ResourceHandle handle() const;
-
-    protected:
-        explicit ITextureView(const TextureViewDescriptor &descriptor);
-
-    protected:
-        std::string m_label;
-
-        std::shared_ptr<ITexture> m_texture;
-        SubresourceRange m_subresource_range;
-        ComponentMapping m_component_mapping;
-
-        ResourceHandle m_handle;
+        virtual ResourceHandle handle() const = 0;
     };
 } // namespace hyper_engine
