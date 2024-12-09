@@ -64,13 +64,11 @@ set(HEADERS
 
 if (WIN32)
     set(SOURCES
-            ${SOURCES}
-            src/hyper_rhi/d3d12/d3d12_graphics_device.cpp)
+            ${SOURCES})
 
     set(HEADERS
             ${HEADERS}
-            include/hyper_rhi/d3d12/d3d12_common.hpp
-            include/hyper_rhi/d3d12/d3d12_graphics_device.hpp)
+            include/hyper_rhi/d3d12/d3d12_common.hpp)
 endif ()
 
 hyperengine_define_library(hyper_rhi)

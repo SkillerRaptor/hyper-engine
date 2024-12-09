@@ -9,7 +9,7 @@
 #include <hyper_core/assertion.hpp>
 
 #if HE_WINDOWS
-#    include "hyper_rhi/d3d12/d3d12_graphics_device.hpp"
+// #    include "hyper_rhi/d3d12/d3d12_graphics_device.hpp"
 #endif
 
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
@@ -22,7 +22,8 @@ namespace hyper_engine
         {
         case GraphicsApi::D3D12:
 #if HE_WINDOWS
-            return std::make_shared<D3D12GraphicsDevice>(descriptor);
+            // return std::make_shared<D3D12GraphicsDevice>(descriptor);
+            HE_PANIC();
 #else
             return nullptr;
 #endif
