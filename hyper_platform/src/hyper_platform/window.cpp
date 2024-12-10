@@ -47,39 +47,39 @@ namespace hyper_engine
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
-            g_environment.event_bus->dispatch<SdlEvent>(&event);
+            g_env.event_bus->dispatch<SdlEvent>(&event);
 
             switch (event.type)
             {
                 // NOTE: Window Events
             case SDL_EVENT_QUIT:
-                g_environment.event_bus->dispatch<WindowCloseEvent>();
+                g_env.event_bus->dispatch<WindowCloseEvent>();
                 break;
             case SDL_EVENT_WINDOW_MOVED:
-                g_environment.event_bus->dispatch<WindowMoveEvent>(event.window.data1, event.window.data2);
+                g_env.event_bus->dispatch<WindowMoveEvent>(event.window.data1, event.window.data2);
                 break;
             case SDL_EVENT_WINDOW_RESIZED:
-                g_environment.event_bus->dispatch<WindowResizeEvent>(event.window.data1, event.window.data2);
+                g_env.event_bus->dispatch<WindowResizeEvent>(event.window.data1, event.window.data2);
                 break;
                 // NOTE: Key Events
             case SDL_EVENT_KEY_DOWN:
-                g_environment.event_bus->dispatch<KeyPressEvent>(static_cast<KeyCode>(event.key.key));
+                g_env.event_bus->dispatch<KeyPressEvent>(static_cast<KeyCode>(event.key.key));
                 break;
             case SDL_EVENT_KEY_UP:
-                g_environment.event_bus->dispatch<KeyReleaseEvent>(static_cast<KeyCode>(event.key.key));
+                g_env.event_bus->dispatch<KeyReleaseEvent>(static_cast<KeyCode>(event.key.key));
                 break;
                 // NOTE: Mouse Events
             case SDL_EVENT_MOUSE_MOTION:
-                g_environment.event_bus->dispatch<MouseMoveEvent>(event.motion.x, event.motion.y);
+                g_env.event_bus->dispatch<MouseMoveEvent>(event.motion.x, event.motion.y);
                 break;
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                g_environment.event_bus->dispatch<MouseButtonPressEvent>(static_cast<MouseCode>(event.button.button));
+                g_env.event_bus->dispatch<MouseButtonPressEvent>(static_cast<MouseCode>(event.button.button));
                 break;
             case SDL_EVENT_MOUSE_BUTTON_UP:
-                g_environment.event_bus->dispatch<MouseButtonReleaseEvent>(static_cast<MouseCode>(event.button.button));
+                g_env.event_bus->dispatch<MouseButtonReleaseEvent>(static_cast<MouseCode>(event.button.button));
                 break;
             case SDL_EVENT_MOUSE_WHEEL:
-                g_environment.event_bus->dispatch<MouseScrollEvent>(event.wheel.x, event.wheel.y);
+                g_env.event_bus->dispatch<MouseScrollEvent>(event.wheel.x, event.wheel.y);
                 break;
             default:
                 break;

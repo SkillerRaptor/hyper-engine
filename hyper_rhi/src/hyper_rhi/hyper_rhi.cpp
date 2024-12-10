@@ -16,20 +16,20 @@ namespace hyper_engine
 {
     HyperRhi::HyperRhi(const HyperRhiDescriptor &descriptor)
     {
-        g_environment.graphics_device = GraphicsDevice::create({
+        g_env.graphics_device = GraphicsDevice::create({
             .graphics_api = descriptor.graphics_api,
             .debug_validation = descriptor.debug_validation_enabled,
             .debug_label = descriptor.debug_label_enabled,
             .debug_marker = descriptor.debug_marker_enabled,
         });
-        HE_ASSERT(g_environment.graphics_device);
+        HE_ASSERT(g_env.graphics_device);
 
         HE_INFO("Initialized HyperRhi module");
     }
 
     HyperRhi::~HyperRhi()
     {
-        delete g_environment.graphics_device;
+        delete g_env.graphics_device;
 
         HE_INFO("Shutdown HyperRhi module");
     }

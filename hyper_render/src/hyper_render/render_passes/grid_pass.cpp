@@ -31,11 +31,11 @@ namespace hyper_engine
         , m_render_texture_view(render_texture_view)
         , m_depth_texture(depth_texture)
         , m_depth_texture_view(depth_texture_view)
-        , m_pipeline_layout(g_environment.graphics_device->create_pipeline_layout({
+        , m_pipeline_layout(g_env.graphics_device->create_pipeline_layout({
               .label = "Grid",
               .push_constant_size = 0,
           }))
-        , m_vertex_shader(g_environment.graphics_device->create_shader_module({
+        , m_vertex_shader(g_env.graphics_device->create_shader_module({
               .label = "Grid",
               .type = ShaderType::Vertex,
               .entry_name = "vs_main",
@@ -47,7 +47,7 @@ namespace hyper_engine
                            })
                            .spirv,
           }))
-        , m_fragment_shader(g_environment.graphics_device->create_shader_module({
+        , m_fragment_shader(g_env.graphics_device->create_shader_module({
               .label = "Grid",
               .type = ShaderType::Fragment,
               .entry_name = "fs_main",
@@ -59,7 +59,7 @@ namespace hyper_engine
                            })
                            .spirv,
           }))
-        , m_pipeline(g_environment.graphics_device->create_render_pipeline({
+        , m_pipeline(g_env.graphics_device->create_render_pipeline({
               .label = "Grid",
               .layout = m_pipeline_layout,
               .vertex_shader = m_vertex_shader,

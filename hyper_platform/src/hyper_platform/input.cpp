@@ -22,11 +22,11 @@ namespace hyper_engine
         , m_mouse_buttons()
         , m_mouse_position()
     {
-        g_environment.event_bus->subscribe<MouseMoveEvent>(HE_BIND_FUNCTION(Input::on_mouse_move));
-        g_environment.event_bus->subscribe<MouseButtonPressEvent>(HE_BIND_FUNCTION(Input::on_mouse_button_press));
-        g_environment.event_bus->subscribe<MouseButtonReleaseEvent>(HE_BIND_FUNCTION(Input::on_mouse_button_release));
-        g_environment.event_bus->subscribe<KeyPressEvent>(HE_BIND_FUNCTION(Input::on_key_press));
-        g_environment.event_bus->subscribe<KeyReleaseEvent>(HE_BIND_FUNCTION(Input::on_key_release));
+        g_env.event_bus->subscribe<MouseMoveEvent>(HE_BIND_FUNCTION(Input::on_mouse_move));
+        g_env.event_bus->subscribe<MouseButtonPressEvent>(HE_BIND_FUNCTION(Input::on_mouse_button_press));
+        g_env.event_bus->subscribe<MouseButtonReleaseEvent>(HE_BIND_FUNCTION(Input::on_mouse_button_release));
+        g_env.event_bus->subscribe<KeyPressEvent>(HE_BIND_FUNCTION(Input::on_key_press));
+        g_env.event_bus->subscribe<KeyReleaseEvent>(HE_BIND_FUNCTION(Input::on_key_release));
     }
 
     Input::~Input()

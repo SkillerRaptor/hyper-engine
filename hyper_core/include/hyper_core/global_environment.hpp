@@ -28,5 +28,5 @@ namespace hyper_engine
         Renderer *renderer;
     };
 
-    extern GlobalEnvironment g_environment;
+    extern GlobalEnvironment g_env;
 } // namespace hyper_engine

@@ -16,15 +16,15 @@ namespace hyper_engine
 {
     HyperRender::HyperRender()
     {
-        g_environment.renderer = new Renderer();
-        HE_ASSERT(g_environment.renderer);
+        g_env.renderer = new Renderer();
+        HE_ASSERT(g_env.renderer);
 
         HE_INFO("Initialized HyperRender module");
     }
 
     HyperRender::~HyperRender()
     {
-        delete g_environment.renderer;
+        delete g_env.renderer;
 
         HE_INFO("Shutdown HyperRender module");
     }

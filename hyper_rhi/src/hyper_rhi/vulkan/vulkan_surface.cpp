@@ -24,8 +24,8 @@ namespace hyper_engine
     VulkanSurface::VulkanSurface(VulkanGraphicsDevice &graphics_device)
         : m_graphics_device(graphics_device)
         , m_resized(false)
-        , m_width(g_environment.window->width())
-        , m_height(g_environment.window->height())
+        , m_width(g_env.window->width())
+        , m_height(g_env.window->height())
         , m_surface(VK_NULL_HANDLE)
         , m_swapchain(VK_NULL_HANDLE)
         , m_min_image_count(0)
@@ -128,7 +128,7 @@ namespace hyper_engine
 
     void VulkanSurface::create_surface()
     {
-        HE_ASSERT(SDL_Vulkan_CreateSurface(g_environment.window->native_window(), m_graphics_device.instance(), nullptr, &m_surface));
+        HE_ASSERT(SDL_Vulkan_CreateSurface(g_env.window->native_window(), m_graphics_device.instance(), nullptr, &m_surface));
         HE_ASSERT(m_surface != VK_NULL_HANDLE);
 
         HE_TRACE("Created Surface");

@@ -57,7 +57,7 @@ namespace hyper_engine
         const Format format = surface->format();
         const VkFormat vk_format = VulkanTexture::get_format(format);
 
-        ImGui_ImplSDL3_InitForVulkan(g_environment.window->native_window());
+        ImGui_ImplSDL3_InitForVulkan(g_env.window->native_window());
 
         ImGui_ImplVulkan_InitInfo init_info = {
             .Instance = m_graphics_device.instance(),

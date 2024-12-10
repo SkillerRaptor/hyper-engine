@@ -8,5 +8,5 @@
 
 namespace hyper_engine
 {
-    GlobalEnvironment g_environment;
+    GlobalEnvironment g_env;
 } // namespace hyper_engine

@@ -122,7 +122,7 @@ namespace hyper_engine
             HE_UNREACHABLE();
         }();
 
-        g_environment.logger->set_level(level);
+        g_env.logger->set_level(level);
 
         load_module(std::make_unique<HyperEvent>());
         load_module(std::make_unique<HyperPlatform>());
@@ -151,7 +151,7 @@ namespace hyper_engine
             }));
         load_module(std::make_unique<HyperRender>());
 
-        g_environment.event_bus->subscribe<WindowCloseEvent>(HE_BIND_FUNCTION(EngineLoop::on_close));
+        g_env.event_bus->subscribe<WindowCloseEvent>(HE_BIND_FUNCTION(EngineLoop::on_close));
 
         const std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
         const std::chrono::duration<double> elapsed_seconds = end_time - start_time;
@@ -204,10 +204,10 @@ namespace hyper_engine
             accumulator += frame_time;
 
             // Handle Events
-            g_environment.window->process_events();
-            while (g_environment.window->width() == 0 || g_environment.window->height() == 0)
+            g_env.window->process_events();
+            while (g_env.window->width() == 0 || g_env.window->height() == 0)
             {
-                g_environment.window->wait_events();
+                g_env.window->wait_events();
             }
 
             while (accumulator >= delta_time)
@@ -220,11 +220,11 @@ namespace hyper_engine
             }
 
             // Update
-            g_environment.renderer->update(delta_time);
+            g_env.renderer->update(delta_time);
             m_engine->update(delta_time, total_time);
 
             // Render
-            g_environment.renderer->render();
+            g_env.renderer->render();
             m_engine->render();
         }
     }

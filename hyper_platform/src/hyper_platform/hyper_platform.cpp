@@ -17,23 +17,23 @@ namespace hyper_engine
 {
     HyperPlatform::HyperPlatform()
     {
-        g_environment.input = new Input();
-        HE_ASSERT(g_environment.input);
+        g_env.input = new Input();
+        HE_ASSERT(g_env.input);
 
-        g_environment.window = new Window({
+        g_env.window = new Window({
             .title = "HyperEngine",
             .width = 1280,
             .height = 720,
         });
-        HE_ASSERT(g_environment.window);
+        HE_ASSERT(g_env.window);
 
         HE_INFO("Initialized HyperPlatform module");
     }
 
     HyperPlatform::~HyperPlatform()
     {
-        delete g_environment.window;
-        delete g_environment.input;
+        delete g_env.window;
+        delete g_env.input;
 
         HE_INFO("Shutdown HyperPlatform module");
     }

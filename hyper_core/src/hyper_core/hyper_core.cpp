@@ -15,23 +15,23 @@ namespace hyper_engine
 {
     HyperCore::HyperCore()
     {
-        g_environment.logger = new Logger();
-        HE_ASSERT(g_environment.logger);
+        g_env.logger = new Logger();
+        HE_ASSERT(g_env.logger);
 
-        g_environment.job_system = new JobSystem();
-        HE_ASSERT(g_environment.job_system);
+        g_env.job_system = new JobSystem();
+        HE_ASSERT(g_env.job_system);
 
         HE_INFO("Initialized HyperCore module");
     }
 
     HyperCore::~HyperCore()
     {
-        delete g_environment.job_system;
+        delete g_env.job_system;
 
         HE_INFO("Shutdown HyperCore module");
 
         // NOTE: This is a special case, where the deleting doesn't happen before the final message, because it is the logger itself
-        delete g_environment.logger;
+        delete g_env.logger;
     }
 
     std::string_view HyperCore::module_name() const

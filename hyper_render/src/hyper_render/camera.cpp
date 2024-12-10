@@ -70,7 +70,7 @@ namespace hyper_engine
         m_last_x = x_position;
         m_last_y = y_position;
 
-        if (!g_environment.input->is_mouse_button_pressed(MouseCode::ButtonMiddle))
+        if (!g_env.input->is_mouse_button_pressed(MouseCode::ButtonMiddle))
         {
             return;
         }

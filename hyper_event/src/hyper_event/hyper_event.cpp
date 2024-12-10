@@ -16,15 +16,15 @@ namespace hyper_engine
 {
     HyperEvent::HyperEvent()
     {
-        g_environment.event_bus = new EventBus();
-        HE_ASSERT(g_environment.event_bus);
+        g_env.event_bus = new EventBus();
+        HE_ASSERT(g_env.event_bus);
 
         HE_INFO("Initialized HyperEvent module");
     }
 
     HyperEvent::~HyperEvent()
     {
-        delete g_environment.event_bus;
+        delete g_env.event_bus;
 
         HE_INFO("Shutdown HyperEvent module");
     }
