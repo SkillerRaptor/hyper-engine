@@ -23,7 +23,6 @@ namespace hyper_engine
     {
     public:
         GridPass(
-            const std::shared_ptr<GraphicsDevice> &graphics_device,
             const ShaderCompiler &shader_compiler,
             const std::shared_ptr<Texture> &render_texture,
             const std::shared_ptr<TextureView> &render_texture_view,

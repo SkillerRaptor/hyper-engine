@@ -33,18 +33,11 @@
 
 namespace hyper_engine
 {
-    Renderer::Renderer(const RendererDescriptor &descriptor)
-        : m_graphics_device(
-              GraphicsDevice::create({
-                  .graphics_api = descriptor.graphics_api,
-                  .debug_validation = descriptor.debug_validation_enabled,
-                  .debug_label = descriptor.debug_label_enabled,
-                  .debug_marker = descriptor.debug_marker_enabled,
-              }))
-        , m_surface(m_graphics_device->create_surface())
+    Renderer::Renderer()
+        : m_surface(g_environment.graphics_device->create_surface())
         , m_shader_compiler()
-        , m_command_list(m_graphics_device->create_command_list())
-        , m_render_texture(m_graphics_device->create_texture({
+        , m_command_list(g_environment.graphics_device->create_command_list())
+        , m_render_texture(g_environment.graphics_device->create_texture({
               .label = "Render",
               .width = m_surface->width(),
               .height = m_surface->height(),
@@ -55,7 +48,7 @@ namespace hyper_engine
               .dimension = Dimension::Texture2D,
               .usage = TextureUsage::RenderAttachment,
           }))
-        , m_render_texture_view(m_graphics_device->create_texture_view({
+        , m_render_texture_view(g_environment.graphics_device->create_texture_view({
               .label = "Render",
               .texture = m_render_texture,
               .subresource_range =
@@ -73,7 +66,7 @@ namespace hyper_engine
                       .a = ComponentSwizzle::Identity,
                   },
           }))
-        , m_depth_texture(m_graphics_device->create_texture({
+        , m_depth_texture(g_environment.graphics_device->create_texture({
               .label = "Depth",
               .width = m_surface->width(),
               .height = m_surface->height(),
@@ -84,7 +77,7 @@ namespace hyper_engine
               .dimension = Dimension::Texture2D,
               .usage = TextureUsage::RenderAttachment,
           }))
-        , m_depth_texture_view(m_graphics_device->create_texture_view({
+        , m_depth_texture_view(g_environment.graphics_device->create_texture_view({
               .label = "Depth",
               .texture = m_depth_texture,
               .subresource_range =
@@ -103,18 +96,18 @@ namespace hyper_engine
                   },
           }))
         , m_editor_camera(glm::vec3(0.0, 2.0, 0.0), -90.0, 0.0)
-        , m_camera_buffer(m_graphics_device->create_buffer({
+        , m_camera_buffer(g_environment.graphics_device->create_buffer({
               .label = "Camera",
               .byte_size = sizeof(ShaderCamera),
               .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
               .handle = ResourceHandle(HE_DESCRIPTOR_SET_SLOT_CAMERA),
           }))
-        , m_scene_buffer(m_graphics_device->create_buffer({
+        , m_scene_buffer(g_environment.graphics_device->create_buffer({
               .label = "Scene",
               .byte_size = sizeof(ShaderScene),
               .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
           }))
-        , m_white_texture(m_graphics_device->create_texture({
+        , m_white_texture(g_environment.graphics_device->create_texture({
               .label = "White",
               .width = 1,
               .height = 1,
@@ -125,7 +118,7 @@ namespace hyper_engine
               .dimension = Dimension::Texture2D,
               .usage = TextureUsage::ShaderResource,
           }))
-        , m_white_texture_view(m_graphics_device->create_texture_view({
+        , m_white_texture_view(g_environment.graphics_device->create_texture_view({
               .label = "White",
               .texture = m_white_texture,
               .subresource_range =
@@ -143,7 +136,7 @@ namespace hyper_engine
                       .a = ComponentSwizzle::Identity,
                   },
           }))
-        , m_error_texture(m_graphics_device->create_texture({
+        , m_error_texture(g_environment.graphics_device->create_texture({
               .label = "Error",
               .width = 16,
               .height = 16,
@@ -154,7 +147,7 @@ namespace hyper_engine
               .dimension = Dimension::Texture2D,
               .usage = TextureUsage::ShaderResource,
           }))
-        , m_error_texture_view(m_graphics_device->create_texture_view({
+        , m_error_texture_view(g_environment.graphics_device->create_texture_view({
               .label = "Error",
               .texture = m_error_texture,
               .subresource_range =
@@ -172,7 +165,7 @@ namespace hyper_engine
                       .a = ComponentSwizzle::Identity,
                   },
           }))
-        , m_default_sampler_nearest(m_graphics_device->create_sampler({
+        , m_default_sampler_nearest(g_environment.graphics_device->create_sampler({
               .label = "Default Nearest",
               .mag_filter = Filter::Nearest,
               .min_filter = Filter::Nearest,
@@ -186,7 +179,7 @@ namespace hyper_engine
               .max_lod = 1.0,
               .border_color = BorderColor::TransparentBlack,
           }))
-        , m_default_sampler_linear(m_graphics_device->create_sampler({
+        , m_default_sampler_linear(g_environment.graphics_device->create_sampler({
               .label = "Default Linear",
               .mag_filter = Filter::Linear,
               .min_filter = Filter::Linear,
@@ -200,7 +193,7 @@ namespace hyper_engine
               .max_lod = 1.0,
               .border_color = BorderColor::TransparentBlack,
           }))
-        , m_metallic_roughness_material(m_graphics_device, m_shader_compiler, m_render_texture, m_depth_texture)
+        , m_metallic_roughness_material(m_shader_compiler, m_render_texture, m_depth_texture)
         , m_draw_context()
         , m_opaque_pass(nullptr)
         , m_grid_pass(nullptr)
@@ -320,10 +313,9 @@ namespace hyper_engine
             0);
 
         MaterialInstance default_data =
-            m_metallic_roughness_material.write_material(m_graphics_device, m_command_list, MaterialPassType::MainColor, material_resources);
+            m_metallic_roughness_material.write_material(m_command_list, MaterialPassType::MainColor, material_resources);
 
         const std::shared_ptr<LoadedGltf> scene = load_gltf(
-            m_graphics_device,
             m_command_list,
             m_white_texture_view,
             m_error_texture,
@@ -335,15 +327,15 @@ namespace hyper_engine
 
         m_command_list->end();
 
-        m_graphics_device->execute(m_command_list);
-        m_graphics_device->wait_for_idle();
+        g_environment.graphics_device->execute(m_command_list);
+        g_environment.graphics_device->wait_for_idle();
 
         m_opaque_pass = std::make_unique<OpaquePass>(m_render_texture_view, m_depth_texture_view, m_scene_buffer);
 
-        m_grid_pass = std::make_unique<GridPass>(
-            m_graphics_device, m_shader_compiler, m_render_texture, m_render_texture_view, m_depth_texture, m_depth_texture_view);
+        m_grid_pass =
+            std::make_unique<GridPass>(m_shader_compiler, m_render_texture, m_render_texture_view, m_depth_texture, m_depth_texture_view);
 
-        m_imgui_pass = std::make_unique<ImGuiPass>(m_graphics_device, m_surface);
+        m_imgui_pass = std::make_unique<ImGuiPass>(m_surface);
 
         HE_INFO("Created Renderer");
     }
@@ -379,7 +371,7 @@ namespace hyper_engine
     {
         update_scene();
 
-        m_graphics_device->begin_frame(m_surface, m_frame_index);
+        g_environment.graphics_device->begin_frame(m_surface, m_frame_index);
 
         m_command_list->begin();
 
@@ -573,17 +565,17 @@ namespace hyper_engine
 
         m_command_list->end();
 
-        m_graphics_device->end_frame();
+        g_environment.graphics_device->end_frame();
 
-        m_graphics_device->execute(m_command_list);
-        m_graphics_device->present(m_surface);
+        g_environment.graphics_device->execute(m_command_list);
+        g_environment.graphics_device->present(m_surface);
 
         m_frame_index += 1;
     }
 
     void Renderer::create_textures(const uint32_t width, const uint32_t height)
     {
-        m_render_texture = m_graphics_device->create_texture({
+        m_render_texture = g_environment.graphics_device->create_texture({
             .label = "Render",
             .width = width,
             .height = height,
@@ -595,7 +587,7 @@ namespace hyper_engine
             .usage = TextureUsage::RenderAttachment,
         });
 
-        m_render_texture_view = m_graphics_device->create_texture_view({
+        m_render_texture_view = g_environment.graphics_device->create_texture_view({
             .label = "Render",
             .texture = m_render_texture,
             .subresource_range =
@@ -614,7 +606,7 @@ namespace hyper_engine
                 },
         });
 
-        m_depth_texture = m_graphics_device->create_texture({
+        m_depth_texture = g_environment.graphics_device->create_texture({
             .label = "Depth",
             .width = width,
             .height = height,
@@ -626,7 +618,7 @@ namespace hyper_engine
             .usage = TextureUsage::RenderAttachment,
         });
 
-        m_depth_texture_view = m_graphics_device->create_texture_view({
+        m_depth_texture_view = g_environment.graphics_device->create_texture_view({
             .label = "Depth",
             .texture = m_depth_texture,
             .subresource_range =
@@ -681,8 +673,8 @@ namespace hyper_engine
 
         m_command_list->end();
 
-        m_graphics_device->execute(m_command_list);
-        m_graphics_device->wait_for_idle();
+        g_environment.graphics_device->execute(m_command_list);
+        g_environment.graphics_device->wait_for_idle();
 
         // Draw meshes
 

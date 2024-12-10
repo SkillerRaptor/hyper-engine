@@ -20,8 +20,8 @@
 
 namespace hyper_engine
 {
-    ImGuiPass::ImGuiPass(const std::shared_ptr<GraphicsDevice> &graphics_device, const std::shared_ptr<Surface> &surface)
-        : m_imgui_manager(graphics_device->create_imgui_manager())
+    ImGuiPass::ImGuiPass(const std::shared_ptr<Surface> &surface)
+        : m_imgui_manager(g_environment.graphics_device->create_imgui_manager())
     {
         g_environment.event_bus->subscribe<SdlEvent>(ImGuiPass::on_sdl_event);
 

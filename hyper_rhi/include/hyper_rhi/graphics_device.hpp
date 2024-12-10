@@ -54,7 +54,7 @@ namespace hyper_engine
     public:
         virtual ~GraphicsDevice() = default;
 
-        static std::shared_ptr<GraphicsDevice> create(const GraphicsDeviceDescriptor &descriptor);
+        static GraphicsDevice *create(const GraphicsDeviceDescriptor &descriptor);
 
         virtual std::shared_ptr<Surface> create_surface() = 0;
         virtual std::shared_ptr<Buffer> create_buffer(const BufferDescriptor &descriptor) = 0;
@@ -80,5 +80,7 @@ namespace hyper_engine
         virtual bool debug_validation() const = 0;
         virtual bool debug_label() const = 0;
         virtual bool debug_marker() const = 0;
+
+    protected:
     };
 } // namespace hyper_engine

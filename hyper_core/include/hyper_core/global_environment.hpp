@@ -12,6 +12,7 @@ namespace hyper_engine
     class JobSystem;
     class Input;
     class Logger;
+    class GraphicsDevice;
     class Renderer;
     class Window;
 
@@ -23,6 +24,7 @@ namespace hyper_engine
         EventBus *event_bus;
         Input *input;
         Window *window;
+        GraphicsDevice *graphics_device;
         Renderer *renderer;
     };
 

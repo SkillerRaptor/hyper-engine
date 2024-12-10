@@ -26,18 +26,10 @@ namespace hyper_engine
     class Window;
     class WindowResizeEvent;
 
-    struct RendererDescriptor
-    {
-        GraphicsApi graphics_api;
-        bool debug_validation_enabled;
-        bool debug_label_enabled;
-        bool debug_marker_enabled;
-    };
-
     class Renderer
     {
     public:
-        explicit Renderer(const RendererDescriptor &renderer_descriptor);
+        Renderer();
         ~Renderer();
 
         // NOTE: This shouldn't be in the renderer
@@ -54,7 +46,6 @@ namespace hyper_engine
         void on_mouse_scroll(const MouseScrollEvent &event);
 
     private:
-        std::shared_ptr<GraphicsDevice> m_graphics_device;
         std::shared_ptr<Surface> m_surface;
         ShaderCompiler m_shader_compiler;
         std::shared_ptr<CommandList> m_command_list;

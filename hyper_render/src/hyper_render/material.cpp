@@ -8,6 +8,7 @@
 
 #include <hyper_core/assertion.hpp>
 #include <hyper_core/filesystem.hpp>
+#include <hyper_core/global_environment.hpp>
 #include <hyper_rhi/buffer.hpp>
 #include <hyper_rhi/command_list.hpp>
 #include <hyper_rhi/graphics_device.hpp>
@@ -24,12 +25,11 @@
 namespace hyper_engine
 {
     GltfMetallicRoughness::GltfMetallicRoughness(
-        const std::shared_ptr<GraphicsDevice> &graphics_device,
         const ShaderCompiler &shader_compiler,
         const std::shared_ptr<Texture> &render_texture,
         const std::shared_ptr<Texture> &depth_texture)
     {
-        const std::shared_ptr<ShaderModule> vertex_shader = graphics_device->create_shader_module({
+        const std::shared_ptr<ShaderModule> vertex_shader = g_environment.graphics_device->create_shader_module({
             .label = "Mesh",
             .type = ShaderType::Vertex,
             .entry_name = "vs_main",
@@ -42,7 +42,7 @@ namespace hyper_engine
                          .spirv,
         });
 
-        const std::shared_ptr<ShaderModule> fragment_shader = graphics_device->create_shader_module({
+        const std::shared_ptr<ShaderModule> fragment_shader = g_environment.graphics_device->create_shader_module({
             .label = "Mesh",
             .type = ShaderType::Fragment,
             .entry_name = "fs_main",
@@ -55,12 +55,12 @@ namespace hyper_engine
                          .spirv,
         });
 
-        const std::shared_ptr<PipelineLayout> pipeline_layout = graphics_device->create_pipeline_layout({
+        const std::shared_ptr<PipelineLayout> pipeline_layout = g_environment.graphics_device->create_pipeline_layout({
             .label = "Mesh",
             .push_constant_size = sizeof(ObjectPushConstants),
         });
 
-        m_opaque_pipeline = graphics_device->create_render_pipeline({
+        m_opaque_pipeline = g_environment.graphics_device->create_render_pipeline({
             .label = "Opaque",
             .layout = pipeline_layout,
             .vertex_shader = vertex_shader,
@@ -70,7 +70,7 @@ namespace hyper_engine
                     {
                         .format = render_texture->format(),
                         .blend_state =
-                            BlendState{
+                            {
                                 .blend_enable = false,
                                 .src_blend_factor = BlendFactor::One,
                                 .dst_blend_factor = BlendFactor::Zero,
@@ -99,7 +99,7 @@ namespace hyper_engine
                 },
         });
 
-        m_transparent_pipeline = graphics_device->create_render_pipeline({
+        m_transparent_pipeline = g_environment.graphics_device->create_render_pipeline({
             .label = "Transparent",
             .layout = pipeline_layout,
             .vertex_shader = vertex_shader,
@@ -141,12 +141,11 @@ namespace hyper_engine
     }
 
     MaterialInstance GltfMetallicRoughness::write_material(
-        const std::shared_ptr<GraphicsDevice> &graphics_device,
         const std::shared_ptr<CommandList> &command_list,
         const MaterialPassType pass_type,
         const MaterialResources &resources) const
     {
-        const std::shared_ptr<Buffer> buffer = graphics_device->create_buffer({
+        const std::shared_ptr<Buffer> buffer = g_environment.graphics_device->create_buffer({
             .label = "Material",
             .byte_size = sizeof(ShaderMaterial),
             .usage = BufferUsage::Storage | BufferUsage::ShaderResource,

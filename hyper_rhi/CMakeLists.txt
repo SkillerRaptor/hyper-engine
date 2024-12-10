@@ -5,6 +5,7 @@
 #-------------------------------------------------------------------------------------------
 set(SOURCES
         src/hyper_rhi/graphics_device.cpp
+        src/hyper_rhi/hyper_rhi.cpp
         src/hyper_rhi/resource_handle.cpp
         src/hyper_rhi/shader_compiler.cpp
         src/hyper_rhi/vulkan/vulkan_buffer.cpp
@@ -32,6 +33,7 @@ set(HEADERS
         include/hyper_rhi/dimension.hpp
         include/hyper_rhi/format.hpp
         include/hyper_rhi/graphics_device.hpp
+        include/hyper_rhi/hyper_rhi.hpp
         include/hyper_rhi/imgui_manager.hpp
         include/hyper_rhi/pipeline_layout.hpp
         include/hyper_rhi/render_pass.hpp

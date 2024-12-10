@@ -30,6 +30,7 @@
 
 #include "hyper_engine/editor_engine.hpp"
 #include "hyper_engine/game_engine.hpp"
+#include "hyper_rhi/hyper_rhi.hpp"
 
 namespace hyper_engine
 {
@@ -142,12 +143,13 @@ namespace hyper_engine
         }();
 
         load_module(
-            std::make_unique<HyperRender>(HyperRenderDescriptor{
+            std::make_unique<HyperRhi>(HyperRhiDescriptor{
                 .graphics_api = graphics_api,
                 .debug_validation_enabled = debug_validation_enabled,
                 .debug_label_enabled = debug_label_enabled,
                 .debug_marker_enabled = debug_marker_enabled,
             }));
+        load_module(std::make_unique<HyperRender>());
 
         g_environment.event_bus->subscribe<WindowCloseEvent>(HE_BIND_FUNCTION(EngineLoop::on_close));
 

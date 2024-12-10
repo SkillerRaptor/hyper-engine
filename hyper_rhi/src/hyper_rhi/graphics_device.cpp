@@ -16,19 +16,19 @@
 
 namespace hyper_engine
 {
-    std::shared_ptr<GraphicsDevice> GraphicsDevice::create(const GraphicsDeviceDescriptor &descriptor)
+    GraphicsDevice *GraphicsDevice::create(const GraphicsDeviceDescriptor &descriptor)
     {
         switch (descriptor.graphics_api)
         {
         case GraphicsApi::D3D12:
 #if HE_WINDOWS
-            // return std::make_shared<D3D12GraphicsDevice>(descriptor);
+            // return new D3D12GraphicsDevice(descriptor);
             HE_PANIC();
 #else
             return nullptr;
 #endif
         case GraphicsApi::Vulkan:
-            return std::make_shared<VulkanGraphicsDevice>(descriptor);
+            return new VulkanGraphicsDevice(descriptor);
         default:
             HE_UNREACHABLE();
         }

@@ -14,15 +14,9 @@
 
 namespace hyper_engine
 {
-    HyperRender::HyperRender(const HyperRenderDescriptor &descriptor)
+    HyperRender::HyperRender()
     {
-        g_environment.renderer = new Renderer(
-            {
-                .graphics_api = descriptor.graphics_api,
-                .debug_validation_enabled = descriptor.debug_validation_enabled,
-                .debug_label_enabled = descriptor.debug_label_enabled,
-                .debug_marker_enabled = descriptor.debug_marker_enabled,
-            });
+        g_environment.renderer = new Renderer();
         HE_ASSERT(g_environment.renderer);
 
         HE_INFO("Initialized HyperRender module");

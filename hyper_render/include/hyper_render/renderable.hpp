@@ -102,7 +102,6 @@ namespace hyper_engine
     };
 
     std::shared_ptr<LoadedGltf> load_gltf(
-        const std::shared_ptr<GraphicsDevice> &graphics_device,
         const std::shared_ptr<CommandList> &command_list,
         const std::shared_ptr<TextureView> &white_texture_view,
         const std::shared_ptr<Texture> &error_texture,

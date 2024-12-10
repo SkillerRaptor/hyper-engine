@@ -106,7 +106,6 @@ namespace hyper_engine
     }
 
     std::shared_ptr<LoadedGltf> load_gltf(
-        const std::shared_ptr<GraphicsDevice> &graphics_device,
         const std::shared_ptr<CommandList> &command_list,
         const std::shared_ptr<TextureView> &white_texture_view,
         const std::shared_ptr<Texture> &error_texture,
@@ -155,7 +154,7 @@ namespace hyper_engine
             const Filter min_filter = extract_filter(sampler.minFilter.value_or(fastgltf::Filter::Nearest));
             const Filter mipmap_filter = extract_filter(sampler.minFilter.value_or(fastgltf::Filter::Nearest));
 
-            samplers.push_back(graphics_device->create_sampler({
+            samplers.push_back(g_environment.graphics_device->create_sampler({
                 .label = sampler.name.empty() ? file_name : std::string(sampler.name),
                 .mag_filter = mag_filter,
                 .min_filter = min_filter,
@@ -233,7 +232,7 @@ namespace hyper_engine
 
             if (image_data)
             {
-                std::shared_ptr<Texture> texture = graphics_device->create_texture({
+                std::shared_ptr<Texture> texture = g_environment.graphics_device->create_texture({
                     .label = image.name.empty() ? file_name : std::string(image.name),
                     .width = static_cast<uint32_t>(width),
                     .height = static_cast<uint32_t>(height),
@@ -245,7 +244,7 @@ namespace hyper_engine
                     .usage = TextureUsage::ShaderResource,
                 });
 
-                std::shared_ptr<TextureView> texture_view = graphics_device->create_texture_view({
+                std::shared_ptr<TextureView> texture_view = g_environment.graphics_device->create_texture_view({
                     .label = image.name.empty() ? file_name : std::string(image.name),
                     .texture = texture,
                     .subresource_range =
@@ -352,7 +351,7 @@ namespace hyper_engine
                 material_resources.color_sampler = samplers[sampler];
             }
 
-            new_material->data = metallic_roughness_material.write_material(graphics_device, command_list, pass_type, material_resources);
+            new_material->data = metallic_roughness_material.write_material(command_list, pass_type, material_resources);
         }
 
         std::vector<std::shared_ptr<Mesh>> meshes;
@@ -460,35 +459,35 @@ namespace hyper_engine
                 surfaces.push_back(surface);
             }
 
-            const std::shared_ptr<Buffer> positions_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<Buffer> positions_buffer = g_environment.graphics_device->create_buffer({
                 .label = fmt::format("{} Positions", mesh.name),
                 .byte_size = positions.size() * sizeof(glm::vec4),
                 .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
             });
             command_list->write_buffer(positions_buffer, positions.data(), positions.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<Buffer> normals_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<Buffer> normals_buffer = g_environment.graphics_device->create_buffer({
                 .label = fmt::format("{} Normals", mesh.name),
                 .byte_size = normals.size() * sizeof(glm::vec4),
                 .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
             });
             command_list->write_buffer(normals_buffer, normals.data(), normals.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<Buffer> colors_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<Buffer> colors_buffer = g_environment.graphics_device->create_buffer({
                 .label = fmt::format("{} Colors", mesh.name),
                 .byte_size = colors.size() * sizeof(glm::vec4),
                 .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
             });
             command_list->write_buffer(colors_buffer, colors.data(), colors.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<Buffer> tex_coords_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<Buffer> tex_coords_buffer = g_environment.graphics_device->create_buffer({
                 .label = fmt::format("{} Tex Coords", mesh.name),
                 .byte_size = tex_coords.size() * sizeof(glm::vec4),
                 .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
             });
             command_list->write_buffer(tex_coords_buffer, tex_coords.data(), tex_coords.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<Buffer> mesh_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<Buffer> mesh_buffer = g_environment.graphics_device->create_buffer({
                 .label = fmt::format("{} Mesh Data", mesh.name),
                 .byte_size = sizeof(ShaderMesh),
                 .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
@@ -503,7 +502,7 @@ namespace hyper_engine
 
             command_list->write_buffer(mesh_buffer, &shader_mesh, sizeof(ShaderMesh), 0);
 
-            const std::shared_ptr<Buffer> indices_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<Buffer> indices_buffer = g_environment.graphics_device->create_buffer({
                 .label = fmt::format("{} Indices", mesh.name),
                 .byte_size = indices.size() * sizeof(uint32_t),
                 .usage = BufferUsage::Index,

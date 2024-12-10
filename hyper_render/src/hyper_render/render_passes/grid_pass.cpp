@@ -7,6 +7,7 @@
 #include "hyper_render/render_passes/grid_pass.hpp"
 
 #include <hyper_core/filesystem.hpp>
+#include <hyper_core/global_environment.hpp>
 #include <hyper_rhi/command_list.hpp>
 #include <hyper_rhi/graphics_device.hpp>
 #include <hyper_rhi/pipeline_layout.hpp>
@@ -21,7 +22,6 @@
 namespace hyper_engine
 {
     GridPass::GridPass(
-        const std::shared_ptr<GraphicsDevice> &graphics_device,
         const ShaderCompiler &shader_compiler,
         const std::shared_ptr<Texture> &render_texture,
         const std::shared_ptr<TextureView> &render_texture_view,
@@ -31,11 +31,11 @@ namespace hyper_engine
         , m_render_texture_view(render_texture_view)
         , m_depth_texture(depth_texture)
         , m_depth_texture_view(depth_texture_view)
-        , m_pipeline_layout(graphics_device->create_pipeline_layout({
+        , m_pipeline_layout(g_environment.graphics_device->create_pipeline_layout({
               .label = "Grid",
               .push_constant_size = 0,
           }))
-        , m_vertex_shader(graphics_device->create_shader_module({
+        , m_vertex_shader(g_environment.graphics_device->create_shader_module({
               .label = "Grid",
               .type = ShaderType::Vertex,
               .entry_name = "vs_main",
@@ -47,7 +47,7 @@ namespace hyper_engine
                            })
                            .spirv,
           }))
-        , m_fragment_shader(graphics_device->create_shader_module({
+        , m_fragment_shader(g_environment.graphics_device->create_shader_module({
               .label = "Grid",
               .type = ShaderType::Fragment,
               .entry_name = "fs_main",
@@ -59,7 +59,7 @@ namespace hyper_engine
                            })
                            .spirv,
           }))
-        , m_pipeline(graphics_device->create_render_pipeline({
+        , m_pipeline(g_environment.graphics_device->create_render_pipeline({
               .label = "Grid",
               .layout = m_pipeline_layout,
               .vertex_shader = m_vertex_shader,
@@ -69,7 +69,7 @@ namespace hyper_engine
                       {
                           .format = m_render_texture->format(),
                           .blend_state =
-                              BlendState{
+                              {
                                   .blend_enable = true,
                                   .src_blend_factor = BlendFactor::SrcAlpha,
                                   .dst_blend_factor = BlendFactor::One,

@@ -20,7 +20,7 @@ namespace hyper_engine
     class ImGuiPass
     {
     public:
-        ImGuiPass(const std::shared_ptr<GraphicsDevice> &graphics_device, const std::shared_ptr<Surface> &surface);
+        ImGuiPass(const std::shared_ptr<Surface> &surface);
         ~ImGuiPass();
 
         void render(const std::shared_ptr<CommandList> &command_list, const std::shared_ptr<TextureView> &swapchain_texture_view) const;

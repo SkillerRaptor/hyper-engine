@@ -51,13 +51,11 @@ namespace hyper_engine
 
     public:
         GltfMetallicRoughness(
-            const std::shared_ptr<GraphicsDevice> &graphics_device,
             const ShaderCompiler &shader_compiler,
             const std::shared_ptr<Texture> &render_texture,
             const std::shared_ptr<Texture> &depth_texture);
 
         MaterialInstance write_material(
-            const std::shared_ptr<GraphicsDevice> &graphics_device,
             const std::shared_ptr<CommandList> &command_list,
             MaterialPassType pass_type,
             const MaterialResources &resources) const;
