@@ -12,8 +12,8 @@
 
 namespace hyper_engine
 {
-    class IEngine;
-    class IModule;
+    class Engine;
+    class Module;
     class WindowCloseEvent;
 
     class EngineLoop
@@ -28,16 +28,16 @@ namespace hyper_engine
         void run();
 
     private:
-        void load_module(std::unique_ptr<IModule> module);
+        void load_module(std::unique_ptr<Module> module);
         void unload_modules();
 
         void on_close(const WindowCloseEvent &event);
 
     private:
-        std::stack<std::unique_ptr<IModule>> m_modules;
+        std::stack<std::unique_ptr<Module>> m_modules;
 
         bool m_editor_enabled;
-        std::unique_ptr<IEngine> m_engine;
+        std::unique_ptr<Engine> m_engine;
 
         bool m_exit_requested;
     };

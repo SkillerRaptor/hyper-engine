@@ -19,7 +19,7 @@ namespace hyper_engine
         bool debug_marker_enabled;
     };
 
-    class HyperRender final : public IModule
+    class HyperRender final : public Module
     {
     public:
         explicit HyperRender(const HyperRenderDescriptor &descriptor);

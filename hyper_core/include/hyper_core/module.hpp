@@ -12,10 +12,10 @@ namespace hyper_engine
 {
     struct GlobalEnvironment;
 
-    class IModule
+    class Module
     {
     public:
-        virtual ~IModule() = default;
+        virtual ~Module() = default;
 
         virtual std::string_view module_name() const = 0;
     };

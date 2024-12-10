@@ -15,7 +15,7 @@ namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
-    class VulkanBuffer final : public IBuffer
+    class VulkanBuffer final : public Buffer
     {
     public:
         VulkanBuffer(VulkanGraphicsDevice &graphics_device, const BufferDescriptor &descriptor, bool staging = false);

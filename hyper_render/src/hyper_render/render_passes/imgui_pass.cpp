@@ -20,7 +20,7 @@
 
 namespace hyper_engine
 {
-    ImGuiPass::ImGuiPass(const std::shared_ptr<IGraphicsDevice> &graphics_device, const std::shared_ptr<ISurface> &surface)
+    ImGuiPass::ImGuiPass(const std::shared_ptr<GraphicsDevice> &graphics_device, const std::shared_ptr<Surface> &surface)
         : m_imgui_manager(graphics_device->create_imgui_manager())
     {
         g_environment.event_bus->subscribe<SdlEvent>(ImGuiPass::on_sdl_event);
@@ -43,7 +43,7 @@ namespace hyper_engine
         ImGui::DestroyContext();
     }
 
-    void ImGuiPass::render(const std::shared_ptr<ICommandList> &command_list, const std::shared_ptr<ITextureView> &swapchain_texture_view) const
+    void ImGuiPass::render(const std::shared_ptr<CommandList> &command_list, const std::shared_ptr<TextureView> &swapchain_texture_view) const
     {
         m_imgui_manager->new_frame();
         ImGui_ImplSDL3_NewFrame();
@@ -53,7 +53,7 @@ namespace hyper_engine
 
         ImGui::Render();
 
-        const std::shared_ptr<IRenderPass> render_pass = command_list->begin_render_pass({
+        const std::shared_ptr<RenderPass> render_pass = command_list->begin_render_pass({
             .label = "ImGui",
             .label_color =
                 {

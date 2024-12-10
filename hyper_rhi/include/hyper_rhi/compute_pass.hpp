@@ -13,7 +13,7 @@
 
 namespace hyper_engine
 {
-    class IComputePipeline;
+    class ComputePipeline;
 
     struct ComputePassDescriptor
     {
@@ -21,12 +21,12 @@ namespace hyper_engine
         LabelColor label_color;
     };
 
-    class IComputePass
+    class ComputePass
     {
     public:
-        virtual ~IComputePass() = default;
+        virtual ~ComputePass() = default;
 
-        virtual void set_pipeline(const std::shared_ptr<IComputePipeline> &pipeline) = 0;
+        virtual void set_pipeline(const std::shared_ptr<ComputePipeline> &pipeline) = 0;
         virtual void set_push_constants(const void *data, size_t data_size) const = 0;
 
         virtual void dispatch(uint32_t x, uint32_t y, uint32_t z) const = 0;

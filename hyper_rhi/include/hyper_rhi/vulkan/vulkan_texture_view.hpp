@@ -15,7 +15,7 @@ namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
-    class VulkanTextureView final : public ITextureView
+    class VulkanTextureView final : public TextureView
     {
     public:
         VulkanTextureView(VulkanGraphicsDevice &graphics_device, const TextureViewDescriptor &descriptor);
@@ -23,7 +23,7 @@ namespace hyper_engine
 
         std::string_view label() const override;
 
-        const std::shared_ptr<ITexture> &texture() const override;
+        const std::shared_ptr<Texture> &texture() const override;
         SubresourceRange subresource_range() const override;
         ComponentMapping component_mapping() const override;
 
@@ -40,7 +40,7 @@ namespace hyper_engine
 
         std::string m_label;
 
-        std::shared_ptr<ITexture> m_texture;
+        std::shared_ptr<Texture> m_texture;
         SubresourceRange m_subresource_range;
         ComponentMapping m_component_mapping;
 

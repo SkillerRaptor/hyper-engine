@@ -14,7 +14,7 @@
 
 namespace hyper_engine
 {
-    class ITexture;
+    class Texture;
 
     enum class ComponentSwizzle : uint8_t
     {
@@ -39,7 +39,7 @@ namespace hyper_engine
     {
         std::string label;
 
-        std::shared_ptr<ITexture> texture = nullptr;
+        std::shared_ptr<Texture> texture = nullptr;
 
         SubresourceRange subresource_range;
         ComponentMapping component_mapping = {};
@@ -47,14 +47,14 @@ namespace hyper_engine
         ResourceHandle handle = {};
     };
 
-    class ITextureView
+    class TextureView
     {
     public:
-        virtual ~ITextureView() = default;
+        virtual ~TextureView() = default;
 
         virtual std::string_view label() const = 0;
 
-        virtual const std::shared_ptr<ITexture> &texture() const = 0;
+        virtual const std::shared_ptr<Texture> &texture() const = 0;
         virtual SubresourceRange subresource_range() const = 0;
         virtual ComponentMapping component_mapping() const = 0;
 

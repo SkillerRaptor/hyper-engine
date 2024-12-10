@@ -10,7 +10,7 @@
 
 namespace hyper_engine
 {
-    class HyperPlatform final : public IModule
+    class HyperPlatform final : public Module
     {
     public:
         HyperPlatform();

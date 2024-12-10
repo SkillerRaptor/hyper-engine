@@ -12,14 +12,14 @@
 
 namespace hyper_engine
 {
-    class IBuffer;
-    class ICommandList;
-    class IGraphicsDevice;
-    class IRenderPipeline;
-    class ISampler;
+    class Buffer;
+    class CommandList;
+    class GraphicsDevice;
+    class RenderPipeline;
+    class Sampler;
     class ShaderCompiler;
-    class ITexture;
-    class ITextureView;
+    class Texture;
+    class TextureView;
 
     enum class MaterialPassType : uint8_t
     {
@@ -29,10 +29,10 @@ namespace hyper_engine
 
     struct MaterialInstance
     {
-        std::shared_ptr<IRenderPipeline> pipeline = nullptr;
+        std::shared_ptr<RenderPipeline> pipeline = nullptr;
         MaterialPassType pass_type = MaterialPassType::MainColor;
 
-        std::shared_ptr<IBuffer> buffer = nullptr;
+        std::shared_ptr<Buffer> buffer = nullptr;
     };
 
     class GltfMetallicRoughness
@@ -41,29 +41,29 @@ namespace hyper_engine
         struct MaterialResources
         {
             glm::vec4 color_factors;
-            std::shared_ptr<ITextureView> color_texture_view = nullptr;
-            std::shared_ptr<ISampler> color_sampler = nullptr;
+            std::shared_ptr<TextureView> color_texture_view = nullptr;
+            std::shared_ptr<Sampler> color_sampler = nullptr;
 
             glm::vec4 metal_roughness_factors;
-            std::shared_ptr<ITextureView> metal_roughness_texture_view = nullptr;
-            std::shared_ptr<ISampler> metal_roughness_sampler = nullptr;
+            std::shared_ptr<TextureView> metal_roughness_texture_view = nullptr;
+            std::shared_ptr<Sampler> metal_roughness_sampler = nullptr;
         };
 
     public:
         GltfMetallicRoughness(
-            const std::shared_ptr<IGraphicsDevice> &graphics_device,
+            const std::shared_ptr<GraphicsDevice> &graphics_device,
             const ShaderCompiler &shader_compiler,
-            const std::shared_ptr<ITexture> &render_texture,
-            const std::shared_ptr<ITexture> &depth_texture);
+            const std::shared_ptr<Texture> &render_texture,
+            const std::shared_ptr<Texture> &depth_texture);
 
         MaterialInstance write_material(
-            const std::shared_ptr<IGraphicsDevice> &graphics_device,
-            const std::shared_ptr<ICommandList> &command_list,
+            const std::shared_ptr<GraphicsDevice> &graphics_device,
+            const std::shared_ptr<CommandList> &command_list,
             MaterialPassType pass_type,
             const MaterialResources &resources) const;
 
     private:
-        std::shared_ptr<IRenderPipeline> m_opaque_pipeline;
-        std::shared_ptr<IRenderPipeline> m_transparent_pipeline;
+        std::shared_ptr<RenderPipeline> m_opaque_pipeline;
+        std::shared_ptr<RenderPipeline> m_transparent_pipeline;
     };
 } // namespace hyper_engine

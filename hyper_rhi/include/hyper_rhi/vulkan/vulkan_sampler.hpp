@@ -13,7 +13,7 @@ namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
-    class VulkanSampler final : public ISampler
+    class VulkanSampler final : public Sampler
     {
     public:
         VulkanSampler(VulkanGraphicsDevice &graphics_device, const SamplerDescriptor &descriptor);

@@ -10,7 +10,7 @@
 
 namespace hyper_engine
 {
-    class GameEngine final : public IEngine
+    class GameEngine final : public Engine
     {
     public:
         bool initialize() override;

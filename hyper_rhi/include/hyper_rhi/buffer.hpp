@@ -35,10 +35,10 @@ namespace hyper_engine
         ResourceHandle handle = {};
     };
 
-    class IBuffer
+    class Buffer
     {
     public:
-        virtual ~IBuffer() = default;
+        virtual ~Buffer() = default;
 
         virtual std::string_view label() const = 0;
 

@@ -8,10 +8,10 @@
 
 namespace hyper_engine
 {
-    class IEngine
+    class Engine
     {
     public:
-        virtual ~IEngine() = default;
+        virtual ~Engine() = default;
 
         virtual bool initialize() = 0;
         virtual void shutdown() = 0;

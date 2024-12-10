@@ -150,7 +150,7 @@ namespace hyper_engine
         m_graphics_device.end_marker(m_command_buffer);
     }
 
-    void VulkanRenderPass::set_pipeline(const std::shared_ptr<IRenderPipeline> &pipeline)
+    void VulkanRenderPass::set_pipeline(const std::shared_ptr<RenderPipeline> &pipeline)
     {
         m_pipeline = pipeline;
 
@@ -172,7 +172,7 @@ namespace hyper_engine
         vkCmdBindPipeline(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkan_pipeline->pipeline());
     }
 
-    void VulkanRenderPass::set_index_buffer(const std::shared_ptr<IBuffer> &buffer) const
+    void VulkanRenderPass::set_index_buffer(const std::shared_ptr<Buffer> &buffer) const
     {
         const auto vulkan_buffer = std::dynamic_pointer_cast<VulkanBuffer>(buffer);
 

@@ -12,13 +12,13 @@
 
 namespace hyper_engine
 {
-    class ITexture;
-    class ITextureView;
+    class Texture;
+    class TextureView;
 
-    class ISurface
+    class Surface
     {
     public:
-        virtual ~ISurface() = default;
+        virtual ~Surface() = default;
 
         virtual void resize(uint32_t width, uint32_t height) = 0;
 
@@ -31,7 +31,7 @@ namespace hyper_engine
 
         virtual Format format() const = 0;
 
-        virtual std::shared_ptr<ITexture> current_texture() const = 0;
-        virtual std::shared_ptr<ITextureView> current_texture_view() const = 0;
+        virtual std::shared_ptr<Texture> current_texture() const = 0;
+        virtual std::shared_ptr<TextureView> current_texture_view() const = 0;
     };
 } // namespace hyper_engine

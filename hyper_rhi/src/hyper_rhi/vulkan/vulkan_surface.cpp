@@ -101,12 +101,12 @@ namespace hyper_engine
         return VulkanTexture::format_to_texture_format(m_format);
     }
 
-    std::shared_ptr<ITexture> VulkanSurface::current_texture() const
+    std::shared_ptr<Texture> VulkanSurface::current_texture() const
     {
         return m_textures[m_texture_index];
     }
 
-    std::shared_ptr<ITextureView> VulkanSurface::current_texture_view() const
+    std::shared_ptr<TextureView> VulkanSurface::current_texture_view() const
     {
         return m_texture_views[m_texture_index];
     }

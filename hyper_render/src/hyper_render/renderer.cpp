@@ -35,7 +35,7 @@ namespace hyper_engine
 {
     Renderer::Renderer(const RendererDescriptor &descriptor)
         : m_graphics_device(
-              IGraphicsDevice::create({
+              GraphicsDevice::create({
                   .graphics_api = descriptor.graphics_api,
                   .debug_validation = descriptor.debug_validation_enabled,
                   .debug_label = descriptor.debug_label_enabled,
@@ -454,8 +454,8 @@ namespace hyper_engine
         m_grid_pass->render(m_command_list);
 
         // TODO: Add error if current texture is asked before the frame began
-        const std::shared_ptr<ITexture> swapchain_texture = m_surface->current_texture();
-        const std::shared_ptr<ITextureView> swapchain_texture_view = m_surface->current_texture_view();
+        const std::shared_ptr<Texture> swapchain_texture = m_surface->current_texture();
+        const std::shared_ptr<TextureView> swapchain_texture_view = m_surface->current_texture_view();
 
         // NOTE: Transitioning the render and swapchain image for transfer
         m_command_list->insert_barriers({

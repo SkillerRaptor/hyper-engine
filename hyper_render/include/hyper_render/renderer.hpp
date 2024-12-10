@@ -19,7 +19,7 @@ namespace hyper_engine
     class EventBus;
     class GridPass;
     class ImGuiPass;
-    class ISurface;
+    class Surface;
     class MouseMoveEvent;
     class MouseScrollEvent;
     class OpaquePass;
@@ -54,27 +54,27 @@ namespace hyper_engine
         void on_mouse_scroll(const MouseScrollEvent &event);
 
     private:
-        std::shared_ptr<IGraphicsDevice> m_graphics_device;
-        std::shared_ptr<ISurface> m_surface;
+        std::shared_ptr<GraphicsDevice> m_graphics_device;
+        std::shared_ptr<Surface> m_surface;
         ShaderCompiler m_shader_compiler;
-        std::shared_ptr<ICommandList> m_command_list;
+        std::shared_ptr<CommandList> m_command_list;
 
-        std::shared_ptr<ITexture> m_render_texture;
-        std::shared_ptr<ITextureView> m_render_texture_view;
-        std::shared_ptr<ITexture> m_depth_texture;
-        std::shared_ptr<ITextureView> m_depth_texture_view;
+        std::shared_ptr<Texture> m_render_texture;
+        std::shared_ptr<TextureView> m_render_texture_view;
+        std::shared_ptr<Texture> m_depth_texture;
+        std::shared_ptr<TextureView> m_depth_texture_view;
 
         Camera m_editor_camera;
-        std::shared_ptr<IBuffer> m_camera_buffer;
+        std::shared_ptr<Buffer> m_camera_buffer;
 
-        std::shared_ptr<IBuffer> m_scene_buffer;
+        std::shared_ptr<Buffer> m_scene_buffer;
 
-        std::shared_ptr<ITexture> m_white_texture;
-        std::shared_ptr<ITextureView> m_white_texture_view;
-        std::shared_ptr<ITexture> m_error_texture;
-        std::shared_ptr<ITextureView> m_error_texture_view;
-        std::shared_ptr<ISampler> m_default_sampler_nearest;
-        std::shared_ptr<ISampler> m_default_sampler_linear;
+        std::shared_ptr<Texture> m_white_texture;
+        std::shared_ptr<TextureView> m_white_texture_view;
+        std::shared_ptr<Texture> m_error_texture;
+        std::shared_ptr<TextureView> m_error_texture_view;
+        std::shared_ptr<Sampler> m_default_sampler_nearest;
+        std::shared_ptr<Sampler> m_default_sampler_linear;
 
         GltfMetallicRoughness m_metallic_roughness_material;
 

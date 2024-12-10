@@ -55,7 +55,7 @@ namespace hyper_engine
     {
         const glm::mat4 node_matrix = top_matrix * world_transform;
 
-        for (const Surface &surface : mesh->surfaces())
+        for (const GltfSurface &surface : mesh->surfaces())
         {
             const RenderObject render_object = {
                 .index_count = surface.count,
@@ -82,11 +82,11 @@ namespace hyper_engine
     LoadedGltf::LoadedGltf(
         std::vector<std::shared_ptr<Mesh>> meshes,
         std::vector<std::shared_ptr<Node>> nodes,
-        std::vector<std::shared_ptr<ITexture>> textures,
-        std::vector<std::shared_ptr<ITextureView>> texture_views,
+        std::vector<std::shared_ptr<Texture>> textures,
+        std::vector<std::shared_ptr<TextureView>> texture_views,
         std::vector<std::shared_ptr<GltfMaterial>> materials,
         std::vector<std::shared_ptr<Node>> top_nodes,
-        std::vector<std::shared_ptr<ISampler>> samplers)
+        std::vector<std::shared_ptr<Sampler>> samplers)
         : m_meshes(std::move(meshes))
         , m_nodes(std::move(nodes))
         , m_textures(std::move(textures))
@@ -106,12 +106,12 @@ namespace hyper_engine
     }
 
     std::shared_ptr<LoadedGltf> load_gltf(
-        const std::shared_ptr<IGraphicsDevice> &graphics_device,
-        const std::shared_ptr<ICommandList> &command_list,
-        const std::shared_ptr<ITextureView> &white_texture_view,
-        const std::shared_ptr<ITexture> &error_texture,
-        const std::shared_ptr<ITextureView> &error_texture_view,
-        const std::shared_ptr<ISampler> &default_sampler_linear,
+        const std::shared_ptr<GraphicsDevice> &graphics_device,
+        const std::shared_ptr<CommandList> &command_list,
+        const std::shared_ptr<TextureView> &white_texture_view,
+        const std::shared_ptr<Texture> &error_texture,
+        const std::shared_ptr<TextureView> &error_texture_view,
+        const std::shared_ptr<Sampler> &default_sampler_linear,
         const GltfMetallicRoughness &metallic_roughness_material,
         const std::string &path)
     {
@@ -131,7 +131,7 @@ namespace hyper_engine
         fastgltf::Expected<fastgltf::Asset> asset = parser.loadGltf(data.get(), file_path.parent_path(), options);
         HE_ASSERT(asset.error() == fastgltf::Error::None);
 
-        std::vector<std::shared_ptr<ISampler>> samplers;
+        std::vector<std::shared_ptr<Sampler>> samplers;
         for (const fastgltf::Sampler &sampler : asset->samplers)
         {
             const auto extract_filter = [](const fastgltf::Filter filter) -> Filter
@@ -171,8 +171,8 @@ namespace hyper_engine
             }));
         }
 
-        std::vector<std::shared_ptr<ITexture>> textures;
-        std::vector<std::shared_ptr<ITextureView>> texture_views;
+        std::vector<std::shared_ptr<Texture>> textures;
+        std::vector<std::shared_ptr<TextureView>> texture_views;
         for (const fastgltf::Image &image : asset->images)
         {
             int32_t width = 0;
@@ -233,7 +233,7 @@ namespace hyper_engine
 
             if (image_data)
             {
-                std::shared_ptr<ITexture> texture = graphics_device->create_texture({
+                std::shared_ptr<Texture> texture = graphics_device->create_texture({
                     .label = image.name.empty() ? file_name : std::string(image.name),
                     .width = static_cast<uint32_t>(width),
                     .height = static_cast<uint32_t>(height),
@@ -245,7 +245,7 @@ namespace hyper_engine
                     .usage = TextureUsage::ShaderResource,
                 });
 
-                std::shared_ptr<ITextureView> texture_view = graphics_device->create_texture_view({
+                std::shared_ptr<TextureView> texture_view = graphics_device->create_texture_view({
                     .label = image.name.empty() ? file_name : std::string(image.name),
                     .texture = texture,
                     .subresource_range =
@@ -370,10 +370,10 @@ namespace hyper_engine
             tex_coords.clear();
             indices.clear();
 
-            std::vector<Surface> surfaces;
+            std::vector<GltfSurface> surfaces;
             for (const fastgltf::Primitive &primitive : mesh.primitives)
             {
-                Surface surface = {
+                GltfSurface surface = {
                     .start_index = static_cast<uint32_t>(indices.size()),
                     .count = static_cast<uint32_t>(asset->accessors[primitive.indicesAccessor.value()].count),
                     .material = nullptr,
@@ -460,35 +460,35 @@ namespace hyper_engine
                 surfaces.push_back(surface);
             }
 
-            const std::shared_ptr<IBuffer> positions_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<Buffer> positions_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Positions", mesh.name),
                 .byte_size = positions.size() * sizeof(glm::vec4),
                 .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
             });
             command_list->write_buffer(positions_buffer, positions.data(), positions.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<IBuffer> normals_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<Buffer> normals_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Normals", mesh.name),
                 .byte_size = normals.size() * sizeof(glm::vec4),
                 .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
             });
             command_list->write_buffer(normals_buffer, normals.data(), normals.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<IBuffer> colors_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<Buffer> colors_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Colors", mesh.name),
                 .byte_size = colors.size() * sizeof(glm::vec4),
                 .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
             });
             command_list->write_buffer(colors_buffer, colors.data(), colors.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<IBuffer> tex_coords_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<Buffer> tex_coords_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Tex Coords", mesh.name),
                 .byte_size = tex_coords.size() * sizeof(glm::vec4),
                 .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
             });
             command_list->write_buffer(tex_coords_buffer, tex_coords.data(), tex_coords.size() * sizeof(glm::vec4), 0);
 
-            const std::shared_ptr<IBuffer> mesh_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<Buffer> mesh_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Mesh Data", mesh.name),
                 .byte_size = sizeof(ShaderMesh),
                 .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
@@ -503,7 +503,7 @@ namespace hyper_engine
 
             command_list->write_buffer(mesh_buffer, &shader_mesh, sizeof(ShaderMesh), 0);
 
-            const std::shared_ptr<IBuffer> indices_buffer = graphics_device->create_buffer({
+            const std::shared_ptr<Buffer> indices_buffer = graphics_device->create_buffer({
                 .label = fmt::format("{} Indices", mesh.name),
                 .byte_size = indices.size() * sizeof(uint32_t),
                 .usage = BufferUsage::Index,

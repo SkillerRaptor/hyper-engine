@@ -13,7 +13,7 @@ namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
-    class VulkanPipelineLayout final : public IPipelineLayout
+    class VulkanPipelineLayout final : public PipelineLayout
     {
     public:
         VulkanPipelineLayout(VulkanGraphicsDevice &graphics_device, const PipelineLayoutDescriptor &descriptor);

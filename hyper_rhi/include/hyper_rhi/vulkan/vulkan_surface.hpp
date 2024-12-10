@@ -16,7 +16,7 @@ namespace hyper_engine
     class VulkanGraphicsDevice;
     class Window;
 
-    class VulkanSurface final : public ISurface
+    class VulkanSurface final : public Surface
     {
     public:
         VulkanSurface(VulkanGraphicsDevice &graphics_device);
@@ -33,8 +33,8 @@ namespace hyper_engine
 
         Format format() const override;
 
-        std::shared_ptr<ITexture> current_texture() const override;
-        std::shared_ptr<ITextureView> current_texture_view() const override;
+        std::shared_ptr<Texture> current_texture() const override;
+        std::shared_ptr<TextureView> current_texture_view() const override;
 
         void rebuild();
 
@@ -66,7 +66,7 @@ namespace hyper_engine
         VkFormat m_format;
 
         uint32_t m_texture_index;
-        std::vector<std::shared_ptr<ITexture>> m_textures;
-        std::vector<std::shared_ptr<ITextureView>> m_texture_views;
+        std::vector<std::shared_ptr<Texture>> m_textures;
+        std::vector<std::shared_ptr<TextureView>> m_texture_views;
     };
 } // namespace hyper_engine

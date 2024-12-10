@@ -13,16 +13,16 @@ namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
-    class VulkanRenderPass final : public IRenderPass
+    class VulkanRenderPass final : public RenderPass
     {
     public:
         VulkanRenderPass(VulkanGraphicsDevice &graphics_device, VkCommandBuffer command_buffer, const RenderPassDescriptor &descriptor);
         ~VulkanRenderPass() override;
 
-        void set_pipeline(const std::shared_ptr<IRenderPipeline> &pipeline) override;
+        void set_pipeline(const std::shared_ptr<RenderPipeline> &pipeline) override;
         void set_push_constants(const void *data, size_t data_size) const override;
 
-        void set_index_buffer(const std::shared_ptr<IBuffer> &buffer) const override;
+        void set_index_buffer(const std::shared_ptr<Buffer> &buffer) const override;
 
         void set_scissor(int32_t x, int32_t y, uint32_t width, uint32_t height) const override;
         void set_viewport(float x, float y, float width, float height, float min_depth, float max_depth) const override;
@@ -53,6 +53,6 @@ namespace hyper_engine
 
         VkCommandBuffer m_command_buffer;
 
-        std::shared_ptr<IRenderPipeline> m_pipeline;
+        std::shared_ptr<RenderPipeline> m_pipeline;
     };
 } // namespace hyper_engine

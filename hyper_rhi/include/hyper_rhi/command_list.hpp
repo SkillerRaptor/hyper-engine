@@ -15,12 +15,12 @@
 
 namespace hyper_engine
 {
-    class IBuffer;
-    class IComputePass;
+    class Buffer;
+    class ComputePass;
     struct ComputePassDescriptor;
-    class IRenderPass;
+    class RenderPass;
     struct RenderPassDescriptor;
-    class ITexture;
+    class Texture;
 
     enum class BarrierPipelineStage : uint16_t
     {
@@ -69,7 +69,7 @@ namespace hyper_engine
         BarrierPipelineStage stage_after = BarrierPipelineStage::None;
         BarrierAccess access_before = BarrierAccess::None;
         BarrierAccess access_after = BarrierAccess::None;
-        std::shared_ptr<IBuffer> &buffer;
+        std::shared_ptr<Buffer> &buffer;
     };
 
     enum class BarrierTextureLayout
@@ -92,7 +92,7 @@ namespace hyper_engine
         BarrierAccess access_after = BarrierAccess::None;
         BarrierTextureLayout layout_before = BarrierTextureLayout::Undefined;
         BarrierTextureLayout layout_after = BarrierTextureLayout::Undefined;
-        std::shared_ptr<ITexture> texture;
+        std::shared_ptr<Texture> texture;
         SubresourceRange subresource_range;
     };
 
@@ -117,55 +117,55 @@ namespace hyper_engine
         int32_t z = 0;
     };
 
-    class ICommandList
+    class CommandList
     {
     public:
-        virtual ~ICommandList() = default;
+        virtual ~CommandList() = default;
 
         virtual void begin() = 0;
         virtual void end() = 0;
 
         virtual void insert_barriers(const Barriers &barriers) const = 0;
 
-        virtual void clear_buffer(const std::shared_ptr<IBuffer> &buffer, size_t size, uint64_t offset) = 0;
-        virtual void clear_texture(const std::shared_ptr<ITexture> &texture, SubresourceRange subresource_range) = 0;
+        virtual void clear_buffer(const std::shared_ptr<Buffer> &buffer, size_t size, uint64_t offset) = 0;
+        virtual void clear_texture(const std::shared_ptr<Texture> &texture, SubresourceRange subresource_range) = 0;
 
         virtual void copy_buffer_to_buffer(
-            const std::shared_ptr<IBuffer> &src,
+            const std::shared_ptr<Buffer> &src,
             uint64_t src_offset,
-            const std::shared_ptr<IBuffer> &dst,
+            const std::shared_ptr<Buffer> &dst,
             uint64_t dst_offset,
             size_t size) = 0;
         virtual void copy_buffer_to_texture(
-            const std::shared_ptr<IBuffer> &src,
+            const std::shared_ptr<Buffer> &src,
             uint64_t src_offset,
-            const std::shared_ptr<ITexture> &dst,
+            const std::shared_ptr<Texture> &dst,
             Offset3d dst_offset,
             Extent3d dst_extent,
             uint32_t dst_mip_level,
             uint32_t dst_array_index) = 0;
         virtual void copy_texture_to_buffer(
-            const std::shared_ptr<ITexture> &src,
+            const std::shared_ptr<Texture> &src,
             Offset3d src_offset,
             Extent3d src_extent,
             uint32_t src_mip_level,
             uint32_t src_array_index,
-            const std::shared_ptr<IBuffer> &dst,
+            const std::shared_ptr<Buffer> &dst,
             uint64_t dst_offset) = 0;
         virtual void copy_texture_to_texture(
-            const std::shared_ptr<ITexture> &src,
+            const std::shared_ptr<Texture> &src,
             Offset3d src_offset,
             uint32_t src_mip_level,
             uint32_t src_array_index,
-            const std::shared_ptr<ITexture> &dst,
+            const std::shared_ptr<Texture> &dst,
             Offset3d dst_offset,
             uint32_t dst_mip_level,
             uint32_t dst_array_index,
             Extent3d extent) = 0;
 
-        virtual void write_buffer(const std::shared_ptr<IBuffer> &buffer, const void *data, size_t size, uint64_t offset) = 0;
+        virtual void write_buffer(const std::shared_ptr<Buffer> &buffer, const void *data, size_t size, uint64_t offset) = 0;
         virtual void write_texture(
-            const std::shared_ptr<ITexture> &texture,
+            const std::shared_ptr<Texture> &texture,
             Offset3d offset,
             Extent3d extent,
             uint32_t mip_level,
@@ -174,7 +174,7 @@ namespace hyper_engine
             size_t data_size,
             uint64_t data_offset) = 0;
 
-        virtual std::shared_ptr<IComputePass> begin_compute_pass(const ComputePassDescriptor &descriptor) const = 0;
-        virtual std::shared_ptr<IRenderPass> begin_render_pass(const RenderPassDescriptor &descriptor) const = 0;
+        virtual std::shared_ptr<ComputePass> begin_compute_pass(const ComputePassDescriptor &descriptor) const = 0;
+        virtual std::shared_ptr<RenderPass> begin_render_pass(const RenderPassDescriptor &descriptor) const = 0;
     };
 } // namespace hyper_engine

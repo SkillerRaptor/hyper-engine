@@ -10,7 +10,7 @@
 
 namespace hyper_engine
 {
-    class HyperEvent final : public IModule
+    class HyperEvent final : public Module
     {
     public:
         HyperEvent();

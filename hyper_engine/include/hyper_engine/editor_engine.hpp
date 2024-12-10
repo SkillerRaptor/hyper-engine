@@ -10,7 +10,7 @@
 
 namespace hyper_engine
 {
-    class EditorEngine final : public IEngine
+    class EditorEngine final : public Engine
     {
     public:
         bool initialize() override;

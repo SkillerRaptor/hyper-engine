@@ -227,7 +227,7 @@ namespace hyper_engine
         }
     }
 
-    void EngineLoop::load_module(std::unique_ptr<IModule> module)
+    void EngineLoop::load_module(std::unique_ptr<Module> module)
     {
         m_modules.push(std::move(module));
     }

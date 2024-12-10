@@ -16,7 +16,7 @@
 
 namespace hyper_engine
 {
-    std::shared_ptr<IGraphicsDevice> IGraphicsDevice::create(const GraphicsDeviceDescriptor &descriptor)
+    std::shared_ptr<GraphicsDevice> GraphicsDevice::create(const GraphicsDeviceDescriptor &descriptor)
     {
         switch (descriptor.graphics_api)
         {

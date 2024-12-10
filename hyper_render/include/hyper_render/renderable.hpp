@@ -17,24 +17,24 @@
 namespace hyper_engine
 {
     struct GltfMaterial;
-    class IBuffer;
-    class ICommandList;
-    class IGraphicsDevice;
-    class ISampler;
-    class ITexture;
-    class ITextureView;
+    class Buffer;
+    class CommandList;
+    class GraphicsDevice;
+    class Sampler;
+    class Texture;
+    class TextureView;
     class Mesh;
 
     struct RenderObject
     {
         uint32_t index_count = 0;
         uint32_t first_index = 0;
-        std::shared_ptr<IBuffer> index_buffer = nullptr;
+        std::shared_ptr<Buffer> index_buffer = nullptr;
 
         MaterialInstance *material;
 
         glm::mat4 transform;
-        std::shared_ptr<IBuffer> mesh_buffer = nullptr;
+        std::shared_ptr<Buffer> mesh_buffer = nullptr;
     };
 
     struct DrawContext
@@ -43,15 +43,15 @@ namespace hyper_engine
         std::vector<RenderObject> transparent_surfaces;
     };
 
-    class IRenderable
+    class Renderable
     {
     public:
-        virtual ~IRenderable() = default;
+        virtual ~Renderable() = default;
 
         virtual void draw(const glm::mat4 &top_matrix, DrawContext &draw_context) const = 0;
     };
 
-    class Node : public IRenderable
+    class Node : public Renderable
     {
     public:
         void refresh_transform(const glm::mat4 &parent_matrix);
@@ -77,37 +77,37 @@ namespace hyper_engine
         std::shared_ptr<Mesh> mesh;
     };
 
-    class LoadedGltf final : public IRenderable
+    class LoadedGltf final : public Renderable
     {
     public:
         LoadedGltf(
             std::vector<std::shared_ptr<Mesh>> meshes,
             std::vector<std::shared_ptr<Node>> nodes,
-            std::vector<std::shared_ptr<ITexture>> textures,
-            std::vector<std::shared_ptr<ITextureView>> texture_views,
+            std::vector<std::shared_ptr<Texture>> textures,
+            std::vector<std::shared_ptr<TextureView>> texture_views,
             std::vector<std::shared_ptr<GltfMaterial>> materials,
             std::vector<std::shared_ptr<Node>> top_nodes,
-            std::vector<std::shared_ptr<ISampler>> samplers);
+            std::vector<std::shared_ptr<Sampler>> samplers);
 
         void draw(const glm::mat4 &top_matrix, DrawContext &draw_context) const override;
 
     private:
         std::vector<std::shared_ptr<Mesh>> m_meshes;
         std::vector<std::shared_ptr<Node>> m_nodes;
-        std::vector<std::shared_ptr<ITexture>> m_textures;
-        std::vector<std::shared_ptr<ITextureView>> m_texture_views;
+        std::vector<std::shared_ptr<Texture>> m_textures;
+        std::vector<std::shared_ptr<TextureView>> m_texture_views;
         std::vector<std::shared_ptr<GltfMaterial>> m_materials;
         std::vector<std::shared_ptr<Node>> m_top_nodes;
-        std::vector<std::shared_ptr<ISampler>> m_samplers;
+        std::vector<std::shared_ptr<Sampler>> m_samplers;
     };
 
     std::shared_ptr<LoadedGltf> load_gltf(
-        const std::shared_ptr<IGraphicsDevice> &graphics_device,
-        const std::shared_ptr<ICommandList> &command_list,
-        const std::shared_ptr<ITextureView> &white_texture_view,
-        const std::shared_ptr<ITexture> &error_texture,
-        const std::shared_ptr<ITextureView> &error_texture_view,
-        const std::shared_ptr<ISampler> &default_sampler_linear,
+        const std::shared_ptr<GraphicsDevice> &graphics_device,
+        const std::shared_ptr<CommandList> &command_list,
+        const std::shared_ptr<TextureView> &white_texture_view,
+        const std::shared_ptr<Texture> &error_texture,
+        const std::shared_ptr<TextureView> &error_texture_view,
+        const std::shared_ptr<Sampler> &default_sampler_linear,
         const GltfMetallicRoughness &metallic_roughness_material,
         const std::string &path);
 } // namespace hyper_engine

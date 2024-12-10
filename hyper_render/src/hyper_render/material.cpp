@@ -24,12 +24,12 @@
 namespace hyper_engine
 {
     GltfMetallicRoughness::GltfMetallicRoughness(
-        const std::shared_ptr<IGraphicsDevice> &graphics_device,
+        const std::shared_ptr<GraphicsDevice> &graphics_device,
         const ShaderCompiler &shader_compiler,
-        const std::shared_ptr<ITexture> &render_texture,
-        const std::shared_ptr<ITexture> &depth_texture)
+        const std::shared_ptr<Texture> &render_texture,
+        const std::shared_ptr<Texture> &depth_texture)
     {
-        const std::shared_ptr<IShaderModule> vertex_shader = graphics_device->create_shader_module({
+        const std::shared_ptr<ShaderModule> vertex_shader = graphics_device->create_shader_module({
             .label = "Mesh",
             .type = ShaderType::Vertex,
             .entry_name = "vs_main",
@@ -42,7 +42,7 @@ namespace hyper_engine
                          .spirv,
         });
 
-        const std::shared_ptr<IShaderModule> fragment_shader = graphics_device->create_shader_module({
+        const std::shared_ptr<ShaderModule> fragment_shader = graphics_device->create_shader_module({
             .label = "Mesh",
             .type = ShaderType::Fragment,
             .entry_name = "fs_main",
@@ -55,7 +55,7 @@ namespace hyper_engine
                          .spirv,
         });
 
-        const std::shared_ptr<IPipelineLayout> pipeline_layout = graphics_device->create_pipeline_layout({
+        const std::shared_ptr<PipelineLayout> pipeline_layout = graphics_device->create_pipeline_layout({
             .label = "Mesh",
             .push_constant_size = sizeof(ObjectPushConstants),
         });
@@ -141,12 +141,12 @@ namespace hyper_engine
     }
 
     MaterialInstance GltfMetallicRoughness::write_material(
-        const std::shared_ptr<IGraphicsDevice> &graphics_device,
-        const std::shared_ptr<ICommandList> &command_list,
+        const std::shared_ptr<GraphicsDevice> &graphics_device,
+        const std::shared_ptr<CommandList> &command_list,
         const MaterialPassType pass_type,
         const MaterialResources &resources) const
     {
-        const std::shared_ptr<IBuffer> buffer = graphics_device->create_buffer({
+        const std::shared_ptr<Buffer> buffer = graphics_device->create_buffer({
             .label = "Material",
             .byte_size = sizeof(ShaderMaterial),
             .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
@@ -167,7 +167,7 @@ namespace hyper_engine
 
         command_list->write_buffer(buffer, &shader_material, sizeof(ShaderMaterial), 0);
 
-        const std::shared_ptr<IRenderPipeline> pipeline = [&]()
+        const std::shared_ptr<RenderPipeline> pipeline = [&]()
         {
             switch (pass_type)
             {

@@ -10,13 +10,13 @@ namespace hyper_engine
 {
     Mesh::Mesh(
         std::string name,
-        std::vector<Surface> surfaces,
-        std::shared_ptr<IBuffer> positions_buffer,
-        std::shared_ptr<IBuffer> normals_buffer,
-        std::shared_ptr<IBuffer> colors_buffer,
-        std::shared_ptr<IBuffer> tex_coords_buffer,
-        std::shared_ptr<IBuffer> mesh_buffer,
-        std::shared_ptr<IBuffer> indices_buffer)
+        std::vector<GltfSurface> surfaces,
+        std::shared_ptr<Buffer> positions_buffer,
+        std::shared_ptr<Buffer> normals_buffer,
+        std::shared_ptr<Buffer> colors_buffer,
+        std::shared_ptr<Buffer> tex_coords_buffer,
+        std::shared_ptr<Buffer> mesh_buffer,
+        std::shared_ptr<Buffer> indices_buffer)
         : m_name(std::move(name))
         , m_surfaces(std::move(surfaces))
         , m_positions_buffer(std::move(positions_buffer))
@@ -33,37 +33,37 @@ namespace hyper_engine
         return m_name;
     }
 
-    const std::vector<Surface> &Mesh::surfaces() const
+    const std::vector<GltfSurface> &Mesh::surfaces() const
     {
         return m_surfaces;
     }
 
-    const std::shared_ptr<IBuffer> &Mesh::positions_buffer() const
+    const std::shared_ptr<Buffer> &Mesh::positions_buffer() const
     {
         return m_positions_buffer;
     }
 
-    const std::shared_ptr<IBuffer> &Mesh::normals_buffer() const
+    const std::shared_ptr<Buffer> &Mesh::normals_buffer() const
     {
         return m_normals_buffer;
     }
 
-    const std::shared_ptr<IBuffer> &Mesh::colors_buffer() const
+    const std::shared_ptr<Buffer> &Mesh::colors_buffer() const
     {
         return m_colors_buffer;
     }
 
-    const std::shared_ptr<IBuffer> &Mesh::tex_coords_buffer() const
+    const std::shared_ptr<Buffer> &Mesh::tex_coords_buffer() const
     {
         return m_tex_coords_buffer;
     }
 
-    const std::shared_ptr<IBuffer> &Mesh::mesh_buffer() const
+    const std::shared_ptr<Buffer> &Mesh::mesh_buffer() const
     {
         return m_mesh_buffer;
     }
 
-    const std::shared_ptr<IBuffer> &Mesh::indices_buffer() const
+    const std::shared_ptr<Buffer> &Mesh::indices_buffer() const
     {
         return m_indices_buffer;
     }

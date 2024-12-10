@@ -39,10 +39,10 @@ namespace hyper_engine
         TextureUsage usage = TextureUsage::None;
     };
 
-    class ITexture
+    class Texture
     {
     public:
-        virtual ~ITexture() = default;
+        virtual ~Texture() = default;
 
         virtual std::string_view label() const = 0;
 

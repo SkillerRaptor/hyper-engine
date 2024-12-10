@@ -13,7 +13,7 @@ namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
-    class VulkanRenderPipeline final : public IRenderPipeline
+    class VulkanRenderPipeline final : public RenderPipeline
     {
     public:
         VulkanRenderPipeline(VulkanGraphicsDevice &graphics_device, const RenderPipelineDescriptor &descriptor);
@@ -21,9 +21,9 @@ namespace hyper_engine
 
         std::string_view label() const override;
 
-        const std::shared_ptr<IPipelineLayout> &layout() const override;
-        const std::shared_ptr<IShaderModule> &vertex_shader() const override;
-        const std::shared_ptr<IShaderModule> &fragment_shader() const override;
+        const std::shared_ptr<PipelineLayout> &layout() const override;
+        const std::shared_ptr<ShaderModule> &vertex_shader() const override;
+        const std::shared_ptr<ShaderModule> &fragment_shader() const override;
         const std::vector<ColorAttachmentState> &color_attachment_states() const override;
         PrimitiveState primitive_state() const override;
         DepthStencilState depth_stencil_state() const override;
@@ -44,9 +44,9 @@ namespace hyper_engine
 
         std::string m_label;
 
-        std::shared_ptr<IPipelineLayout> m_layout;
-        std::shared_ptr<IShaderModule> m_vertex_shader;
-        std::shared_ptr<IShaderModule> m_fragment_shader;
+        std::shared_ptr<PipelineLayout> m_layout;
+        std::shared_ptr<ShaderModule> m_vertex_shader;
+        std::shared_ptr<ShaderModule> m_fragment_shader;
         std::vector<ColorAttachmentState> m_color_attachment_states;
         PrimitiveState m_primitive_state;
         DepthStencilState m_depth_stencil_state;

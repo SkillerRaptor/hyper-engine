@@ -125,12 +125,12 @@ namespace hyper_engine
         vkDestroyInstance(m_instance, nullptr);
     }
 
-    std::shared_ptr<ISurface> VulkanGraphicsDevice::create_surface()
+    std::shared_ptr<Surface> VulkanGraphicsDevice::create_surface()
     {
         return std::make_shared<VulkanSurface>(*this);
     }
 
-    std::shared_ptr<IBuffer> VulkanGraphicsDevice::create_buffer(const BufferDescriptor &descriptor)
+    std::shared_ptr<Buffer> VulkanGraphicsDevice::create_buffer(const BufferDescriptor &descriptor)
     {
         HE_ASSERT(descriptor.byte_size > 0);
         HE_ASSERT(descriptor.usage != BufferUsage::None);
@@ -143,17 +143,17 @@ namespace hyper_engine
         return std::make_shared<VulkanBuffer>(*this, descriptor);
     }
 
-    std::shared_ptr<IBuffer> VulkanGraphicsDevice::create_staging_buffer(const BufferDescriptor &descriptor)
+    std::shared_ptr<Buffer> VulkanGraphicsDevice::create_staging_buffer(const BufferDescriptor &descriptor)
     {
         return std::make_shared<VulkanBuffer>(*this, descriptor, true);
     }
 
-    std::shared_ptr<ICommandList> VulkanGraphicsDevice::create_command_list()
+    std::shared_ptr<CommandList> VulkanGraphicsDevice::create_command_list()
     {
         return std::make_shared<VulkanCommandList>(*this);
     }
 
-    std::shared_ptr<IComputePipeline> VulkanGraphicsDevice::create_compute_pipeline(const ComputePipelineDescriptor &descriptor)
+    std::shared_ptr<ComputePipeline> VulkanGraphicsDevice::create_compute_pipeline(const ComputePipelineDescriptor &descriptor)
     {
         HE_ASSERT(descriptor.layout != nullptr);
         HE_ASSERT(descriptor.shader != nullptr);
@@ -161,7 +161,7 @@ namespace hyper_engine
         return std::make_shared<VulkanComputePipeline>(*this, descriptor);
     }
 
-    std::shared_ptr<IRenderPipeline> VulkanGraphicsDevice::create_render_pipeline(const RenderPipelineDescriptor &descriptor)
+    std::shared_ptr<RenderPipeline> VulkanGraphicsDevice::create_render_pipeline(const RenderPipelineDescriptor &descriptor)
     {
         HE_ASSERT(descriptor.layout != nullptr);
         HE_ASSERT(descriptor.vertex_shader != nullptr);
@@ -181,21 +181,21 @@ namespace hyper_engine
         return std::make_shared<VulkanRenderPipeline>(*this, descriptor);
     }
 
-    std::shared_ptr<IPipelineLayout> VulkanGraphicsDevice::create_pipeline_layout(const PipelineLayoutDescriptor &descriptor)
+    std::shared_ptr<PipelineLayout> VulkanGraphicsDevice::create_pipeline_layout(const PipelineLayoutDescriptor &descriptor)
     {
         HE_ASSERT((descriptor.push_constant_size % 4) == 0);
 
         return std::make_shared<VulkanPipelineLayout>(*this, descriptor);
     }
 
-    std::shared_ptr<ISampler> VulkanGraphicsDevice::create_sampler(const SamplerDescriptor &descriptor)
+    std::shared_ptr<Sampler> VulkanGraphicsDevice::create_sampler(const SamplerDescriptor &descriptor)
     {
         // TODO: Add assertions
 
         return std::make_shared<VulkanSampler>(*this, descriptor);
     }
 
-    std::shared_ptr<IShaderModule> VulkanGraphicsDevice::create_shader_module(const ShaderModuleDescriptor &descriptor)
+    std::shared_ptr<ShaderModule> VulkanGraphicsDevice::create_shader_module(const ShaderModuleDescriptor &descriptor)
     {
         HE_ASSERT(descriptor.type != ShaderType::None);
         HE_ASSERT(!descriptor.entry_name.empty());
@@ -204,7 +204,7 @@ namespace hyper_engine
         return std::make_shared<VulkanShaderModule>(*this, descriptor);
     }
 
-    std::shared_ptr<ITexture> VulkanGraphicsDevice::create_texture(const TextureDescriptor &descriptor)
+    std::shared_ptr<Texture> VulkanGraphicsDevice::create_texture(const TextureDescriptor &descriptor)
     {
         HE_ASSERT(descriptor.width > 0);
         HE_ASSERT(descriptor.height > 0);
@@ -218,7 +218,7 @@ namespace hyper_engine
         return std::make_shared<VulkanTexture>(*this, descriptor);
     }
 
-    std::shared_ptr<ITextureView> VulkanGraphicsDevice::create_texture_view(const TextureViewDescriptor &descriptor)
+    std::shared_ptr<TextureView> VulkanGraphicsDevice::create_texture_view(const TextureViewDescriptor &descriptor)
     {
         HE_ASSERT(descriptor.texture != nullptr);
         HE_ASSERT(descriptor.subresource_range.mip_level_count > 0);
@@ -227,7 +227,7 @@ namespace hyper_engine
         return std::make_shared<VulkanTextureView>(*this, descriptor);
     }
 
-    std::shared_ptr<IImGuiManager> VulkanGraphicsDevice::create_imgui_manager()
+    std::shared_ptr<ImGuiManager> VulkanGraphicsDevice::create_imgui_manager()
     {
         return std::make_shared<VulkanImGuiManager>(*this);
     }
@@ -436,7 +436,7 @@ namespace hyper_engine
         m_resource_queue.texture_views.clear();
     }
 
-    void VulkanGraphicsDevice::begin_frame(const std::shared_ptr<ISurface> &surface, const uint32_t frame_index)
+    void VulkanGraphicsDevice::begin_frame(const std::shared_ptr<Surface> &surface, const uint32_t frame_index)
     {
         const auto vulkan_surface = std::dynamic_pointer_cast<VulkanSurface>(surface);
 
@@ -478,9 +478,9 @@ namespace hyper_engine
         HE_VK_CHECK(vkResetFences(m_device, 1, &current_frame().render_fence));
     }
 
-    void VulkanGraphicsDevice::execute(const std::shared_ptr<ICommandList> &command_list)
+    void VulkanGraphicsDevice::execute(const std::shared_ptr<CommandList> &command_list)
     {
-        m_frames[m_current_frame_index % IGraphicsDevice::s_frame_count].semaphore_counter += 1;
+        m_frames[m_current_frame_index % GraphicsDevice::s_frame_count].semaphore_counter += 1;
 
         const std::shared_ptr<VulkanCommandList> vulkan_command_list = std::dynamic_pointer_cast<VulkanCommandList>(command_list);
 
@@ -515,7 +515,7 @@ namespace hyper_engine
         HE_VK_CHECK(vkQueueSubmit2(m_queue, 1, &submit_info, VK_NULL_HANDLE));
     }
 
-    void VulkanGraphicsDevice::present(const std::shared_ptr<ISurface> &surface) const
+    void VulkanGraphicsDevice::present(const std::shared_ptr<Surface> &surface) const
     {
         const auto vulkan_surface = std::dynamic_pointer_cast<VulkanSurface>(surface);
 
@@ -613,7 +613,7 @@ namespace hyper_engine
 
     const FrameData &VulkanGraphicsDevice::current_frame() const
     {
-        return m_frames[m_current_frame_index % IGraphicsDevice::s_frame_count];
+        return m_frames[m_current_frame_index % GraphicsDevice::s_frame_count];
     }
 
     uint32_t VulkanGraphicsDevice::current_frame_index() const
@@ -988,7 +988,7 @@ namespace hyper_engine
 
     void VulkanGraphicsDevice::create_frames()
     {
-        for (size_t index = 0; index < IGraphicsDevice::s_frame_count; ++index)
+        for (size_t index = 0; index < GraphicsDevice::s_frame_count; ++index)
         {
             const VkCommandPoolCreateInfo command_pool_create_info = {
                 .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,

@@ -28,7 +28,7 @@ namespace hyper_engine
     {
     }
 
-    void VulkanImGuiManager::initialize(const std::shared_ptr<ISurface> &surface)
+    void VulkanImGuiManager::initialize(const std::shared_ptr<Surface> &surface)
     {
         const VkDescriptorPoolSize pool_sizes[] = {
             {VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
@@ -110,7 +110,7 @@ namespace hyper_engine
         ImGui_ImplVulkan_NewFrame();
     }
 
-    void VulkanImGuiManager::render(const std::shared_ptr<ICommandList> &command_list)
+    void VulkanImGuiManager::render(const std::shared_ptr<CommandList> &command_list)
     {
         const auto vulkan_command_list = std::dynamic_pointer_cast<VulkanCommandList>(command_list);
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vulkan_command_list->command_buffer());

@@ -11,25 +11,25 @@
 
 namespace hyper_engine
 {
-    class IPipelineLayout;
-    class IShaderModule;
+    class PipelineLayout;
+    class ShaderModule;
 
     struct ComputePipelineDescriptor
     {
         std::string label;
 
-        std::shared_ptr<IPipelineLayout> layout = nullptr;
-        std::shared_ptr<IShaderModule> shader = nullptr;
+        std::shared_ptr<PipelineLayout> layout = nullptr;
+        std::shared_ptr<ShaderModule> shader = nullptr;
     };
 
-    class IComputePipeline
+    class ComputePipeline
     {
     public:
-        virtual ~IComputePipeline() = default;
+        virtual ~ComputePipeline() = default;
 
         virtual std::string_view label() const = 0;
 
-        virtual const std::shared_ptr<IPipelineLayout> &layout() const = 0;
-        virtual const std::shared_ptr<IShaderModule> &shader() const = 0;
+        virtual const std::shared_ptr<PipelineLayout> &layout() const = 0;
+        virtual const std::shared_ptr<ShaderModule> &shader() const = 0;
     };
 } // namespace hyper_engine

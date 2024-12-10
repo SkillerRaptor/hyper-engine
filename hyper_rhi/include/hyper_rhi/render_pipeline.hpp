@@ -17,8 +17,8 @@
 
 namespace hyper_engine
 {
-    class IPipelineLayout;
-    class IShaderModule;
+    class PipelineLayout;
+    class ShaderModule;
 
     enum class BlendFactor : uint8_t
     {
@@ -141,24 +141,24 @@ namespace hyper_engine
     {
         std::string label;
 
-        std::shared_ptr<IPipelineLayout> layout = nullptr;
-        std::shared_ptr<IShaderModule> vertex_shader = nullptr;
-        std::shared_ptr<IShaderModule> fragment_shader = nullptr;
+        std::shared_ptr<PipelineLayout> layout = nullptr;
+        std::shared_ptr<ShaderModule> vertex_shader = nullptr;
+        std::shared_ptr<ShaderModule> fragment_shader = nullptr;
         std::vector<ColorAttachmentState> color_attachment_states = {};
         PrimitiveState primitive_state = {};
         DepthStencilState depth_stencil_state = {};
     };
 
-    class IRenderPipeline
+    class RenderPipeline
     {
     public:
-        virtual ~IRenderPipeline() = default;
+        virtual ~RenderPipeline() = default;
 
         virtual std::string_view label() const = 0;
 
-        virtual const std::shared_ptr<IPipelineLayout> &layout() const = 0;
-        virtual const std::shared_ptr<IShaderModule> &vertex_shader() const = 0;
-        virtual const std::shared_ptr<IShaderModule> &fragment_shader() const = 0;
+        virtual const std::shared_ptr<PipelineLayout> &layout() const = 0;
+        virtual const std::shared_ptr<ShaderModule> &vertex_shader() const = 0;
+        virtual const std::shared_ptr<ShaderModule> &fragment_shader() const = 0;
         virtual const std::vector<ColorAttachmentState> &color_attachment_states() const = 0;
         virtual PrimitiveState primitive_state() const = 0;
         virtual DepthStencilState depth_stencil_state() const = 0;

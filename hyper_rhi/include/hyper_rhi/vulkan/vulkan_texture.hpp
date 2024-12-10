@@ -15,7 +15,7 @@ namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
-    class VulkanTexture final : public ITexture
+    class VulkanTexture final : public Texture
     {
     public:
         VulkanTexture(VulkanGraphicsDevice &graphics_device, const TextureDescriptor &descriptor, VkImage image = VK_NULL_HANDLE);

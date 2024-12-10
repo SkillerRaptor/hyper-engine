@@ -157,7 +157,7 @@ namespace hyper_engine
         vkCmdPipelineBarrier2(m_command_buffer, &dependency_info);
     }
 
-    void VulkanCommandList::clear_buffer(const std::shared_ptr<IBuffer> &buffer, const size_t size, const uint64_t offset)
+    void VulkanCommandList::clear_buffer(const std::shared_ptr<Buffer> &buffer, const size_t size, const uint64_t offset)
     {
         const auto vulkan_buffer = std::dynamic_pointer_cast<VulkanBuffer>(buffer);
 
@@ -166,7 +166,7 @@ namespace hyper_engine
         HE_TRACE("Clearing {} buffer", buffer->label().empty() ? "a" : fmt::format("the '{}'", buffer->label()));
     }
 
-    void VulkanCommandList::clear_texture(const std::shared_ptr<ITexture> &texture, const SubresourceRange subresource_range)
+    void VulkanCommandList::clear_texture(const std::shared_ptr<Texture> &texture, const SubresourceRange subresource_range)
     {
         const auto vulkan_texture = std::dynamic_pointer_cast<VulkanTexture>(texture);
 
@@ -304,9 +304,9 @@ namespace hyper_engine
     }
 
     void VulkanCommandList::copy_buffer_to_buffer(
-        const std::shared_ptr<IBuffer> &src,
+        const std::shared_ptr<Buffer> &src,
         const uint64_t src_offset,
-        const std::shared_ptr<IBuffer> &dst,
+        const std::shared_ptr<Buffer> &dst,
         const uint64_t dst_offset,
         const size_t size)
     {
@@ -339,9 +339,9 @@ namespace hyper_engine
     }
 
     void VulkanCommandList::copy_buffer_to_texture(
-        const std::shared_ptr<IBuffer> &src,
+        const std::shared_ptr<Buffer> &src,
         const uint64_t src_offset,
-        const std::shared_ptr<ITexture> &dst,
+        const std::shared_ptr<Texture> &dst,
         const Offset3d dst_offset,
         const Extent3d dst_extent,
         const uint32_t dst_mip_level,
@@ -397,12 +397,12 @@ namespace hyper_engine
     }
 
     void VulkanCommandList::copy_texture_to_buffer(
-        const std::shared_ptr<ITexture> &src,
+        const std::shared_ptr<Texture> &src,
         const Offset3d src_offset,
         const Extent3d src_extent,
         const uint32_t src_mip_level,
         const uint32_t src_array_index,
-        const std::shared_ptr<IBuffer> &dst,
+        const std::shared_ptr<Buffer> &dst,
         const uint64_t dst_offset)
     {
         const auto vulkan_src = std::dynamic_pointer_cast<VulkanTexture>(src);
@@ -455,11 +455,11 @@ namespace hyper_engine
     }
 
     void VulkanCommandList::copy_texture_to_texture(
-        const std::shared_ptr<ITexture> &src,
+        const std::shared_ptr<Texture> &src,
         const Offset3d src_offset,
         const uint32_t src_mip_level,
         const uint32_t src_array_index,
-        const std::shared_ptr<ITexture> &dst,
+        const std::shared_ptr<Texture> &dst,
         const Offset3d dst_offset,
         const uint32_t dst_mip_level,
         const uint32_t dst_array_index,
@@ -524,7 +524,7 @@ namespace hyper_engine
             dst->label().empty() ? "a" : fmt::format("the '{}'", dst->label()));
     }
 
-    void VulkanCommandList::write_buffer(const std::shared_ptr<IBuffer> &buffer, const void *data, const size_t size, const uint64_t offset)
+    void VulkanCommandList::write_buffer(const std::shared_ptr<Buffer> &buffer, const void *data, const size_t size, const uint64_t offset)
     {
         const auto vulkan_buffer = std::dynamic_pointer_cast<VulkanBuffer>(buffer);
 
@@ -534,7 +534,7 @@ namespace hyper_engine
         }
         else
         {
-            const std::shared_ptr<IBuffer> staging_buffer = m_graphics_device.create_staging_buffer({
+            const std::shared_ptr<Buffer> staging_buffer = m_graphics_device.create_staging_buffer({
                 .label = fmt::format("{} Staging", buffer->label()),
                 .byte_size = static_cast<uint64_t>(size),
                 .usage = BufferUsage::Storage,
@@ -571,7 +571,7 @@ namespace hyper_engine
     }
 
     void VulkanCommandList::write_texture(
-        const std::shared_ptr<ITexture> &texture,
+        const std::shared_ptr<Texture> &texture,
         const Offset3d offset,
         const Extent3d extent,
         const uint32_t mip_level,
@@ -582,7 +582,7 @@ namespace hyper_engine
     {
         const auto vulkan_texture = std::dynamic_pointer_cast<VulkanTexture>(texture);
 
-        const std::shared_ptr<IBuffer> staging_buffer = m_graphics_device.create_staging_buffer({
+        const std::shared_ptr<Buffer> staging_buffer = m_graphics_device.create_staging_buffer({
             .label = fmt::format("{} Staging", texture->label()),
             .byte_size = static_cast<uint64_t>(data_size),
             .usage = BufferUsage::Storage,
@@ -638,12 +638,12 @@ namespace hyper_engine
         HE_TRACE("Writing {} bytes to {} texture", data_size, texture->label().empty() ? "a" : fmt::format("the '{}'", texture->label()));
     }
 
-    std::shared_ptr<IComputePass> VulkanCommandList::begin_compute_pass(const ComputePassDescriptor &descriptor) const
+    std::shared_ptr<ComputePass> VulkanCommandList::begin_compute_pass(const ComputePassDescriptor &descriptor) const
     {
         return std::make_shared<VulkanComputePass>(m_graphics_device, m_command_buffer, descriptor);
     }
 
-    std::shared_ptr<IRenderPass> VulkanCommandList::begin_render_pass(const RenderPassDescriptor &descriptor) const
+    std::shared_ptr<RenderPass> VulkanCommandList::begin_render_pass(const RenderPassDescriptor &descriptor) const
     {
         HE_ASSERT(!descriptor.color_attachments.empty());
 

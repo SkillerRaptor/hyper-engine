@@ -11,14 +11,14 @@
 
 namespace hyper_engine
 {
-    class IEventHandler
+    class EventHandler
     {
     public:
-        virtual ~IEventHandler() = default;
+        virtual ~EventHandler() = default;
     };
 
     template <typename T>
-    class EventHandler final : public IEventHandler
+    class EventHandlerImpl final : public EventHandler
     {
     public:
         void subscribe(const std::function<void(const T &)> &callback)

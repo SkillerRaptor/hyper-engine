@@ -256,17 +256,17 @@ namespace hyper_engine
         return m_label;
     }
 
-    const std::shared_ptr<IPipelineLayout> &VulkanRenderPipeline::layout() const
+    const std::shared_ptr<PipelineLayout> &VulkanRenderPipeline::layout() const
     {
         return m_layout;
     }
 
-    const std::shared_ptr<IShaderModule> &VulkanRenderPipeline::vertex_shader() const
+    const std::shared_ptr<ShaderModule> &VulkanRenderPipeline::vertex_shader() const
     {
         return m_vertex_shader;
     }
 
-    const std::shared_ptr<IShaderModule> &VulkanRenderPipeline::fragment_shader() const
+    const std::shared_ptr<ShaderModule> &VulkanRenderPipeline::fragment_shader() const
     {
         return m_fragment_shader;
     }

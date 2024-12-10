@@ -106,7 +106,7 @@ namespace hyper_engine
         return m_label;
     }
 
-    const std::shared_ptr<ITexture> &VulkanTextureView::texture() const
+    const std::shared_ptr<Texture> &VulkanTextureView::texture() const
     {
         return m_texture;
     }

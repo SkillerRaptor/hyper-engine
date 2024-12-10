@@ -13,7 +13,7 @@ namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
-    class VulkanShaderModule final : public IShaderModule
+    class VulkanShaderModule final : public ShaderModule
     {
     public:
         VulkanShaderModule(VulkanGraphicsDevice &graphics_device, const ShaderModuleDescriptor &descriptor);

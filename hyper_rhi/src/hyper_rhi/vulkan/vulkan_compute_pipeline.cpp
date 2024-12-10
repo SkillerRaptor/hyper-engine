@@ -65,12 +65,12 @@ namespace hyper_engine
         return m_label;
     }
 
-    const std::shared_ptr<IPipelineLayout> &VulkanComputePipeline::layout() const
+    const std::shared_ptr<PipelineLayout> &VulkanComputePipeline::layout() const
     {
         return m_layout;
     }
 
-    const std::shared_ptr<IShaderModule> &VulkanComputePipeline::shader() const
+    const std::shared_ptr<ShaderModule> &VulkanComputePipeline::shader() const
     {
         return m_shader;
     }

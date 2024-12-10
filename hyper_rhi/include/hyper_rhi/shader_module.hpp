@@ -22,10 +22,10 @@ namespace hyper_engine
         std::vector<uint8_t> bytes = {};
     };
 
-    class IShaderModule
+    class ShaderModule
     {
     public:
-        virtual ~IShaderModule() = default;
+        virtual ~ShaderModule() = default;
 
         virtual std::string_view label() const = 0;
 

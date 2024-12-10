@@ -27,8 +27,8 @@ namespace hyper_engine
                 return;
             }
 
-            const std::unique_ptr<IEventHandler> &handler = m_handlers[event_id];
-            auto *event_handler = static_cast<EventHandler<T> *>(handler.get());
+            const std::unique_ptr<EventHandler> &handler = m_handlers[event_id];
+            auto *event_handler = static_cast<EventHandlerImpl<T> *>(handler.get());
             event_handler->dispatch(T(std::forward<Args>(args)...));
         }
 
@@ -39,15 +39,15 @@ namespace hyper_engine
             const size_t event_id = EventIdGenerator::type<T>();
             if (!m_handlers.contains(event_id))
             {
-                m_handlers.insert({event_id, std::make_unique<EventHandler<T>>()});
+                m_handlers.insert({event_id, std::make_unique<EventHandlerImpl<T>>()});
             }
 
-            const std::unique_ptr<IEventHandler> &handler = m_handlers[event_id];
-            auto *event_handler = static_cast<EventHandler<T> *>(handler.get());
+            const std::unique_ptr<EventHandler> &handler = m_handlers[event_id];
+            auto *event_handler = static_cast<EventHandlerImpl<T> *>(handler.get());
             event_handler->subscribe(callback);
         }
 
     private:
-        std::unordered_map<size_t, std::unique_ptr<IEventHandler>> m_handlers;
+        std::unordered_map<size_t, std::unique_ptr<EventHandler>> m_handlers;
     };
 } // namespace hyper_engine

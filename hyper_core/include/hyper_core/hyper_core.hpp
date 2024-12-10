@@ -10,7 +10,7 @@
 
 namespace hyper_engine
 {
-    class HyperCore final : public IModule
+    class HyperCore final : public Module
     {
     public:
         HyperCore();

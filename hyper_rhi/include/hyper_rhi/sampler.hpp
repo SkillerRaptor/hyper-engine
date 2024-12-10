@@ -54,10 +54,10 @@ namespace hyper_engine
         ResourceHandle handle;
     };
 
-    class ISampler
+    class Sampler
     {
     public:
-        virtual ~ISampler() = default;
+        virtual ~Sampler() = default;
 
         virtual std::string_view label() const = 0;
 

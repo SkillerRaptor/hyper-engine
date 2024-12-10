@@ -13,7 +13,7 @@ namespace hyper_engine
 {
     class VulkanGraphicsDevice;
 
-    class VulkanComputePipeline final : public IComputePipeline
+    class VulkanComputePipeline final : public ComputePipeline
     {
     public:
         VulkanComputePipeline(VulkanGraphicsDevice &graphics_device, const ComputePipelineDescriptor &descriptor);
@@ -21,8 +21,8 @@ namespace hyper_engine
 
         std::string_view label() const override;
 
-        const std::shared_ptr<IPipelineLayout> &layout() const override;
-        const std::shared_ptr<IShaderModule> &shader() const override;
+        const std::shared_ptr<PipelineLayout> &layout() const override;
+        const std::shared_ptr<ShaderModule> &shader() const override;
 
         VkPipeline pipeline() const;
 
@@ -31,8 +31,8 @@ namespace hyper_engine
 
         std::string m_label;
 
-        std::shared_ptr<IPipelineLayout> m_layout;
-        std::shared_ptr<IShaderModule> m_shader;
+        std::shared_ptr<PipelineLayout> m_layout;
+        std::shared_ptr<ShaderModule> m_shader;
 
         VkPipeline m_pipeline;
     };

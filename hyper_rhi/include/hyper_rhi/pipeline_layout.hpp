@@ -17,10 +17,10 @@ namespace hyper_engine
         uint32_t push_constant_size = 0;
     };
 
-    class IPipelineLayout
+    class PipelineLayout
     {
     public:
-        virtual ~IPipelineLayout() = default;
+        virtual ~PipelineLayout() = default;
 
         virtual std::string_view label() const = 0;
 
