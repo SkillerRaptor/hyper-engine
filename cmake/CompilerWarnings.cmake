@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------------------
-# Copyright (c) 2024, SkillerRaptor
+# Copyright (c) 2024-present, SkillerRaptor
 #
 # SPDX-License-Identifier: MIT
 #-------------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ function(enable_warnings project_name)
             /w14906
             /w14928
             /permissive-)
-    
+
     set(CLANG_WARNINGS
             -Wall
             -Wextra
