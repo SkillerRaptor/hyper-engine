@@ -10,8 +10,6 @@
 
 namespace hyper_engine
 {
-    struct GlobalEnvironment;
-
     class Module
     {
     public:
