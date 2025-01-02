@@ -157,7 +157,7 @@ FetchContent_Declare(
         imgui
         SYSTEM
         GIT_REPOSITORY https://github.com/ocornut/imgui.git
-        GIT_TAG dad1047b04e335454d17cd546c29a44173da8eb8)
+        GIT_TAG eb642a9535055eacca6c6f7f7310fb5b41a96424)
 
 FetchContent_MakeAvailable(imgui)
 
@@ -219,7 +219,7 @@ FetchContent_Declare(
         libassert
         SYSTEM
         GIT_REPOSITORY https://github.com/jeremy-rifkin/libassert.git
-        GIT_TAG df3a4bdfa5d6f80999ae0b381b298dfd1c277402)
+        GIT_TAG bee90cbbcbe7533b2ccfe8c1705f42010dbfeb92)
 
 FetchContent_MakeAvailable(libassert)
 
@@ -262,7 +262,7 @@ FetchContent_Declare(
         sdl
         SYSTEM
         GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-        GIT_TAG df73cae2b0da53e14668db97cea1ac083a9d5d38)
+        GIT_TAG 95d44f11c7b45eab7dbd7e68a70a09185dc1407d)
 
 set(SDL_SHARED OFF CACHE INTERNAL "")
 set(SDL_STATIC ON CACHE INTERNAL "")
@@ -358,7 +358,7 @@ FetchContent_Declare(
         VulkanMemoryAllocator
         SYSTEM
         GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-        GIT_TAG 009ecd192c1289c7529bff248a16cfe896254816)
+        GIT_TAG 3bab6924988e5f19bf36586a496156cf72f70d9f)
 
 set(VMA_ENABLE_INSTALL OFF CACHE INTERNAL "")
 
