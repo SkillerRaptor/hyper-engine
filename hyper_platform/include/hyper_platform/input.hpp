@@ -10,18 +10,12 @@
 
 #include <hyper_core/math.hpp>
 
+#include "hyper_platform/forward.hpp"
 #include "hyper_platform/key_codes.hpp"
 #include "hyper_platform/mouse_codes.hpp"
 
 namespace hyper_engine
 {
-    class EventBus;
-    class MouseMoveEvent;
-    class MouseButtonPressEvent;
-    class MouseButtonReleaseEvent;
-    class KeyPressEvent;
-    class KeyReleaseEvent;
-
     class Input
     {
     public:

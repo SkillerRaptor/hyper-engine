@@ -10,11 +10,14 @@
 #include <string>
 #include <stack>
 
+#include <hyper_core/nonnull_own_ptr.hpp>
+#include <hyper_core/own_ptr.hpp>
+#include <hyper_platform/forward.hpp>
+
 namespace hyper_engine
 {
     class Engine;
     class Module;
-    class WindowCloseEvent;
 
     class EngineLoop
     {
@@ -28,16 +31,16 @@ namespace hyper_engine
         void run();
 
     private:
-        void load_module(std::unique_ptr<Module> module);
+        void load_module(NonnullOwnPtr<Module> module);
         void unload_modules();
 
         void on_close(const WindowCloseEvent &event);
 
     private:
-        std::stack<std::unique_ptr<Module>> m_modules;
+        std::stack<NonnullOwnPtr<Module>> m_modules;
 
         bool m_editor_enabled;
-        std::unique_ptr<Engine> m_engine;
+        OwnPtr<Engine> m_engine;
 
         bool m_exit_requested;
     };

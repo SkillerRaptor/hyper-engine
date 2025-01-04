@@ -51,7 +51,7 @@ namespace hyper_engine
     {
         const std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
 
-        load_module(std::make_unique<HyperCore>());
+        load_module(make<HyperCore>());
 
         const std::vector<std::string> arguments(argv, argv + argc);
 
@@ -124,8 +124,8 @@ namespace hyper_engine
 
         g_env.logger->set_level(level);
 
-        load_module(std::make_unique<HyperEvent>());
-        load_module(std::make_unique<HyperPlatform>());
+        load_module(make<HyperEvent>());
+        load_module(make<HyperPlatform>());
 
         const GraphicsApi graphics_api = [renderer]()
         {
@@ -143,13 +143,13 @@ namespace hyper_engine
         }();
 
         load_module(
-            std::make_unique<HyperRhi>(HyperRhiDescriptor{
+            make<HyperRhi>(HyperRhiDescriptor{
                 .graphics_api = graphics_api,
                 .debug_validation_enabled = debug_validation_enabled,
                 .debug_label_enabled = debug_label_enabled,
                 .debug_marker_enabled = debug_marker_enabled,
             }));
-        load_module(std::make_unique<HyperRender>());
+        load_module(make<HyperRender>());
 
         g_env.event_bus->subscribe<WindowCloseEvent>(HE_BIND_FUNCTION(EngineLoop::on_close));
 
@@ -166,11 +166,11 @@ namespace hyper_engine
 
         if (m_editor_enabled)
         {
-            m_engine = std::make_unique<EditorEngine>();
+            m_engine = make<EditorEngine>();
         }
         else
         {
-            m_engine = std::make_unique<GameEngine>();
+            m_engine = make<GameEngine>();
         }
         HE_ASSERT(m_engine);
 
@@ -229,7 +229,7 @@ namespace hyper_engine
         }
     }
 
-    void EngineLoop::load_module(std::unique_ptr<Module> module)
+    void EngineLoop::load_module(NonnullOwnPtr<Module> module)
     {
         m_modules.push(std::move(module));
     }

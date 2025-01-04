@@ -12,8 +12,6 @@ struct SDL_Window;
 
 namespace hyper_engine
 {
-    class EventBus;
-
     struct WindowDescriptor
     {
         std::string_view title;

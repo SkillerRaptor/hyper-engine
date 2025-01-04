@@ -13,6 +13,7 @@ set(SOURCES
         src/hyper_platform/window_events.cpp)
 
 set(HEADERS
+        include/hyper_platform/forward.hpp
         include/hyper_platform/hyper_platform.hpp
         include/hyper_platform/input.hpp
         include/hyper_platform/key_codes.hpp

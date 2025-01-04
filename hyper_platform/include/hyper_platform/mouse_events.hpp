@@ -10,19 +10,6 @@
 
 namespace hyper_engine
 {
-    class MouseMoveEvent
-    {
-    public:
-        MouseMoveEvent(float x, float y);
-
-        float x() const;
-        float y() const;
-
-    private:
-        float m_x;
-        float m_y;
-    };
-
     class MouseButtonPressEvent
     {
     public:
@@ -43,6 +30,19 @@ namespace hyper_engine
 
     private:
         MouseCode m_mouse_code;
+    };
+
+    class MouseMoveEvent
+    {
+    public:
+        MouseMoveEvent(float x, float y);
+
+        float x() const;
+        float y() const;
+
+    private:
+        float m_x;
+        float m_y;
     };
 
     class MouseScrollEvent
