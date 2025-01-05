@@ -15,14 +15,14 @@ namespace hyper_engine
     struct WindowDescriptor
     {
         std::string_view title;
-        uint32_t width;
-        uint32_t height;
+        uint32_t width = 1280;
+        uint32_t height = 720;
     };
 
     class Window
     {
     public:
-        explicit Window(const WindowDescriptor &descriptor);
+        explicit Window(const WindowDescriptor &);
         ~Window();
 
         void process_events();
@@ -33,6 +33,6 @@ namespace hyper_engine
         SDL_Window *native_window() const;
 
     private:
-        SDL_Window *m_native_window;
+        SDL_Window *m_native_window = nullptr;
     };
 } // namespace hyper_engine

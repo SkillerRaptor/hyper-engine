@@ -13,25 +13,26 @@ namespace hyper_engine
     class MouseButtonPressEvent
     {
     public:
-        explicit MouseButtonPressEvent(MouseCode mouse_code);
+        explicit MouseButtonPressEvent(MouseCode );
 
         MouseCode mouse_code() const;
 
     private:
-        MouseCode m_mouse_code;
+        MouseCode m_mouse_code = MouseCode::ButtonLeft;
     };
 
     class MouseButtonReleaseEvent
     {
     public:
-        explicit MouseButtonReleaseEvent(MouseCode mouse_code);
+        explicit MouseButtonReleaseEvent(MouseCode );
 
         MouseCode mouse_code() const;
 
     private:
-        MouseCode m_mouse_code;
+        MouseCode m_mouse_code = MouseCode::ButtonLeft;
     };
 
+    // FIXME: Change individual positions to vector
     class MouseMoveEvent
     {
     public:
@@ -41,10 +42,11 @@ namespace hyper_engine
         float y() const;
 
     private:
-        float m_x;
-        float m_y;
+        float m_x = 0.0;
+        float m_y = 0.0;
     };
 
+    // FIXME: Change individual deltas to vector
     class MouseScrollEvent
     {
     public:
@@ -54,7 +56,7 @@ namespace hyper_engine
         float delta_y() const;
 
     private:
-        float m_delta_x;
-        float m_delta_y;
+        float m_delta_x = 0.0;
+        float m_delta_y = 0.0;
     };
 } // namespace hyper_engine

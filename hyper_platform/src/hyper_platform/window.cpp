@@ -21,7 +21,6 @@
 namespace hyper_engine
 {
     Window::Window(const WindowDescriptor &descriptor)
-        : m_native_window(nullptr)
     {
         HE_ASSERT(SDL_Init(SDL_INIT_VIDEO));
 

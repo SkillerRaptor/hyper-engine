@@ -33,7 +33,7 @@ namespace hyper_engine
             event_handler->dispatch(T(std::forward<Args>(args)...));
         }
 
-        // TODO: To prevent functions being called which are no longer available, add an id system to unsubscribe event handlers
+        // FIXME: To prevent functions being called which are no longer available, add an id system to unsubscribe event handlers
         template <typename T>
         void subscribe(const std::function<void(const T &)> &callback)
         {

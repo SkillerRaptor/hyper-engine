@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include <memory>
-#include <string>
 #include <stack>
 
 #include <hyper_core/nonnull_own_ptr.hpp>
@@ -22,7 +20,7 @@ namespace hyper_engine
     class EngineLoop
     {
     public:
-        EngineLoop();
+        EngineLoop() = default;
         ~EngineLoop();
 
         bool pre_initialize(int32_t argc, const char **argv);
@@ -31,17 +29,16 @@ namespace hyper_engine
         void run();
 
     private:
-        void load_module(NonnullOwnPtr<Module> module);
+        void load_module(NonnullOwnPtr<Module>);
         void unload_modules();
 
-        void on_close(const WindowCloseEvent &event);
+        void on_close(const WindowCloseEvent &);
 
     private:
         std::stack<NonnullOwnPtr<Module>> m_modules;
 
-        bool m_editor_enabled;
-        OwnPtr<Engine> m_engine;
-
-        bool m_exit_requested;
+        bool m_editor_enabled = false;
+        OwnPtr<Engine> m_engine = nullptr;
+        bool m_exit_requested = false;
     };
 } // namespace hyper_engine

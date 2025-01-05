@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "hyper_core/assertion.hpp"
+#include <type_traits>
 
 namespace hyper_engine
 {
@@ -33,13 +33,13 @@ namespace hyper_engine
         void ref() const;
 
     protected:
-        RefCountedBase();
+        RefCountedBase() = default;
         ~RefCountedBase();
 
         bool deref_base() const;
 
     private:
-        mutable uint32_t m_ref_count;
+        mutable uint32_t m_ref_count = 1;
     };
 
     template <typename T>

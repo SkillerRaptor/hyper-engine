@@ -10,9 +10,9 @@
 
 namespace hyper_engine::filesystem
 {
-    std::vector<uint8_t> read_file(const std::string_view file_path)
+    std::vector<uint8_t> read_file(const std::string_view path)
     {
-        std::ifstream file(file_path.data(), std::ios::binary | std::ios::ate);
+        std::ifstream file(path.data(), std::ios::binary | std::ios::ate);
         if (!file.is_open())
         {
             return {};

@@ -14,17 +14,10 @@
 namespace hyper_engine
 {
     JobSystem::JobSystem()
-        : m_thread_count(0)
-        , m_job_pool()
-        , m_wake_condition()
-        , m_wake_mutex()
-        , m_current_label(0)
-        , m_finished_label()
     {
         m_finished_label.store(0);
 
         const uint32_t max_threads = std::thread::hardware_concurrency();
-
         m_thread_count = std::max(1u, max_threads);
 
         for (uint32_t thread_id = 0; thread_id < m_thread_count; ++thread_id)
@@ -34,7 +27,7 @@ namespace hyper_engine
                 {
                     std::function<void()> job;
 
-                    while (true)
+                    [[noreturn]] while (true)
                     {
                         if (m_job_pool.pop_front(job))
                         {
@@ -55,8 +48,6 @@ namespace hyper_engine
 
     void JobSystem::execute(const std::function<void()> &job)
     {
-        HE_TRACE("Scheduling 1 job");
-
         m_current_label += 1;
 
         while (!m_job_pool.push_back(job))
@@ -77,8 +68,6 @@ namespace hyper_engine
 
         const uint32_t group_count = (job_count + group_size - 1) / group_size;
         m_current_label += group_count;
-
-        HE_TRACE("Scheduling {} jobs", group_count);
 
         for (uint32_t group_index = 0; group_index < group_count; ++group_index)
         {

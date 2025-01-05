@@ -13,7 +13,7 @@ namespace hyper_engine
     class SdlEvent
     {
     public:
-        explicit SdlEvent(const SDL_Event *event);
+        explicit SdlEvent(const SDL_Event *);
 
         const SDL_Event *event() const;
 

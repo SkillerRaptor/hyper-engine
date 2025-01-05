@@ -10,7 +10,7 @@ namespace hyper_engine
 {
     bool GameEngine::initialize()
     {
-        // TODO: Implement Game Engine
+        // FIXME: Implement Game Engine
         return false;
     }
 

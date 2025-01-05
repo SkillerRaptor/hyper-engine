@@ -107,6 +107,8 @@ namespace hyper_engine
             m_ptr->ref();
         }
 
+        NonnullRefPtr() = delete;
+
         ~NonnullRefPtr()
         {
             T *ptr = std::exchange(m_ptr, nullptr);
@@ -128,7 +130,7 @@ namespace hyper_engine
 
         NonnullRefPtr &operator=(const NonnullRefPtr &other)
         {
-            NonnullRefPtr tmp{other};
+            NonnullRefPtr tmp = other;
             swap(tmp);
             return *this;
         }
@@ -137,14 +139,14 @@ namespace hyper_engine
             requires(std::is_convertible_v<U *, T *>)
         NonnullRefPtr &operator=(const NonnullRefPtr<U> &other)
         {
-            NonnullRefPtr tmp{other};
+            NonnullRefPtr tmp = other;
             swap(tmp);
             return *this;
         }
 
         NonnullRefPtr &operator=(NonnullRefPtr &&other) noexcept
         {
-            NonnullRefPtr tmp{std::move(other)};
+            NonnullRefPtr tmp = std::move(other);
             swap(tmp);
             return *this;
         }
@@ -153,14 +155,14 @@ namespace hyper_engine
             requires(std::is_convertible_v<U *, T *>)
         NonnullRefPtr &operator=(NonnullRefPtr<U> &&other)
         {
-            NonnullRefPtr tmp{std::move(other)};
+            NonnullRefPtr tmp = std::move(other);
             swap(tmp);
             return *this;
         }
 
         NonnullRefPtr &operator=(const T &object)
         {
-            NonnullRefPtr tmp{object};
+            NonnullRefPtr tmp = object;
             swap(tmp);
             return *this;
         }
@@ -229,8 +231,6 @@ namespace hyper_engine
         }
 
     private:
-        NonnullRefPtr() = delete;
-
         T *as_nonnull_ptr() const
         {
             HE_ASSERT(m_ptr);
@@ -247,17 +247,17 @@ namespace hyper_engine
         return NonnullRefPtr(NonnullRefPtr<T>::Adopt, object);
     }
 
-    template <typename T, typename U>
-        requires(std::is_convertible_v<U *, T *>)
-    void swap(NonnullRefPtr<T> &a, NonnullRefPtr<U> &b)
-    {
-        a.swap(b);
-    }
-
     template <typename T, class... Args>
         requires(std::is_constructible_v<T, Args...>)
     NonnullRefPtr<T> make_ref_counted(Args &&...args)
     {
         return NonnullRefPtr(NonnullRefPtr<T>::Adopt, *new T(std::forward<Args>(args)...));
+    }
+
+    template <typename T, typename U>
+        requires(std::is_convertible_v<U *, T *>)
+    void swap(NonnullRefPtr<T> &a, NonnullRefPtr<U> &b)
+    {
+        a.swap(b);
     }
 } // namespace hyper_engine

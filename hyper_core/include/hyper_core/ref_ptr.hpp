@@ -114,7 +114,7 @@ namespace hyper_engine
         template <typename U>
         RefPtr &operator=(const OwnPtr<U> &) = delete;
 
-        void swap(RefPtr &other)
+        void swap(RefPtr &other) noexcept
         {
             using std::swap;
 
@@ -132,7 +132,7 @@ namespace hyper_engine
 
         RefPtr &operator=(RefPtr &&other) noexcept
         {
-            RefPtr tmp{std::move(other)};
+            RefPtr tmp = std::move(other);
             swap(tmp);
             return *this;
         }
@@ -141,7 +141,7 @@ namespace hyper_engine
             requires(std::is_convertible_v<U *, T *>)
         RefPtr &operator=(RefPtr<U> &&other)
         {
-            RefPtr tmp{std::move(other)};
+            RefPtr tmp = std::move(other);
             swap(tmp);
             return *this;
         }
@@ -150,14 +150,14 @@ namespace hyper_engine
             requires(std::is_convertible_v<U *, T *>)
         RefPtr &operator=(NonnullRefPtr<U> &&other)
         {
-            RefPtr tmp{std::move(other)};
+            RefPtr tmp = std::move(other);
             swap(tmp);
             return *this;
         }
 
         RefPtr &operator=(const NonnullRefPtr<T> &other)
         {
-            RefPtr tmp{other};
+            RefPtr tmp = other;
             swap(tmp);
             return *this;
         }
@@ -166,14 +166,14 @@ namespace hyper_engine
             requires(std::is_convertible_v<U *, T *>)
         RefPtr &operator=(const NonnullRefPtr<U> &other)
         {
-            RefPtr tmp{other};
+            RefPtr tmp = other;
             swap(tmp);
             return *this;
         }
 
         RefPtr &operator=(const RefPtr &other)
         {
-            RefPtr tmp{other};
+            RefPtr tmp = other;
             swap(tmp);
             return *this;
         }
@@ -182,21 +182,21 @@ namespace hyper_engine
             requires(std::is_convertible_v<U *, T *>)
         RefPtr &operator=(const RefPtr<U> &other)
         {
-            RefPtr tmp{other};
+            RefPtr tmp = other;
             swap(tmp);
             return *this;
         }
 
         RefPtr &operator=(const T *ptr)
         {
-            RefPtr tmp{ptr};
+            RefPtr tmp = ptr;
             swap(tmp);
             return *this;
         }
 
         RefPtr &operator=(const T &object)
         {
-            RefPtr tmp{object};
+            RefPtr tmp = object;
             swap(tmp);
             return *this;
         }
@@ -318,7 +318,8 @@ namespace hyper_engine
             return m_ptr;
         }
 
-        T *m_ptr{nullptr};
+    private:
+        T *m_ptr = nullptr;
     };
 
     template <typename T, typename U>
@@ -333,13 +334,6 @@ namespace hyper_engine
         return RefPtr<T>(static_cast<const T *>(ptr.ptr()));
     }
 
-    template <typename T, typename U>
-        requires(std::is_convertible_v<U *, T *>)
-    void swap(RefPtr<T> &a, RefPtr<U> &b)
-    {
-        a.swap(b);
-    }
-
     template <typename T>
     RefPtr<T> adopt_ref_if_nonnull(T *object)
     {
@@ -351,4 +345,10 @@ namespace hyper_engine
         return {};
     }
 
+    template <typename T, typename U>
+        requires(std::is_convertible_v<U *, T *>)
+    void swap(RefPtr<T> &a, RefPtr<U> &b)
+    {
+        a.swap(b);
+    }
 } // namespace hyper_engine

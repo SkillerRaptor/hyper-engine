@@ -6,13 +6,10 @@
 
 #include "hyper_core/ref_counted.hpp"
 
+#include "hyper_core/assertion.hpp"
+
 namespace hyper_engine
 {
-    RefCountedBase::RefCountedBase()
-        : m_ref_count(1)
-    {
-    }
-
     RefCountedBase::~RefCountedBase()
     {
         HE_ASSERT(!m_ref_count);

@@ -34,14 +34,6 @@
 
 namespace hyper_engine
 {
-    EngineLoop::EngineLoop()
-        : m_modules()
-        , m_editor_enabled(false)
-        , m_engine(nullptr)
-        , m_exit_requested(false)
-    {
-    }
-
     EngineLoop::~EngineLoop()
     {
         unload_modules();

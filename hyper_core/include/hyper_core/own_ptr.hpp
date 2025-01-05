@@ -14,7 +14,6 @@
 
 #pragma once
 
-#include <cstddef>
 #include <utility>
 
 #include "hyper_core/assertion.hpp"
@@ -81,7 +80,7 @@ namespace hyper_engine
 
         OwnPtr &operator=(OwnPtr &&other) noexcept
         {
-            OwnPtr ptr(std::move(other));
+            OwnPtr ptr = std::move(other);
             swap(ptr);
             return *this;
         }
@@ -89,7 +88,7 @@ namespace hyper_engine
         template <typename U>
         OwnPtr &operator=(OwnPtr<U> &&other)
         {
-            OwnPtr ptr(std::move(other));
+            OwnPtr ptr = std::move(other);
             swap(ptr);
             return *this;
         }
@@ -97,7 +96,7 @@ namespace hyper_engine
         template <typename U>
         OwnPtr &operator=(NonnullOwnPtr<U> &&other)
         {
-            OwnPtr ptr(std::move(other));
+            OwnPtr ptr = std::move(other);
             swap(ptr);
             HE_ASSERT(m_ptr);
             return *this;
@@ -186,7 +185,7 @@ namespace hyper_engine
 
         static OwnPtr lift(T *ptr)
         {
-            return OwnPtr{ptr};
+            return {ptr};
         }
 
     protected:
@@ -207,12 +206,6 @@ namespace hyper_engine
         T *m_ptr = nullptr;
     };
 
-    template <typename T, typename U>
-    void swap(OwnPtr<T> &a, OwnPtr<U> &b)
-    {
-        a.swap(b);
-    }
-
     template <typename T>
     OwnPtr<T> adopt_own_if_nonnull(T *object)
     {
@@ -222,5 +215,11 @@ namespace hyper_engine
         }
 
         return {};
+    }
+
+    template <typename T, typename U>
+    void swap(OwnPtr<T> &a, OwnPtr<U> &b)
+    {
+        a.swap(b);
     }
 } // namespace hyper_engine

@@ -11,5 +11,5 @@
 
 namespace hyper_engine::filesystem
 {
-    std::vector<uint8_t> read_file(std::string_view file_path);
+    std::vector<uint8_t> read_file(std::string_view path);
 } // namespace hyper_engine::filesystem

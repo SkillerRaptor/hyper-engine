@@ -13,22 +13,22 @@ namespace hyper_engine
     class KeyPressEvent
     {
     public:
-        explicit KeyPressEvent(KeyCode key_code);
+        explicit KeyPressEvent(KeyCode);
 
         KeyCode key_code() const;
 
     private:
-        KeyCode m_key_code;
+        KeyCode m_key_code = KeyCode::Unknown;
     };
 
     class KeyReleaseEvent
     {
     public:
-        explicit KeyReleaseEvent(KeyCode key_code);
+        explicit KeyReleaseEvent(KeyCode);
 
         KeyCode key_code() const;
 
     private:
-        KeyCode m_key_code;
+        KeyCode m_key_code = KeyCode::Unknown;
     };
 } // namespace hyper_engine
