@@ -27,7 +27,7 @@ namespace hyper_engine
     public:
         JobSystem();
 
-        void execute(const std::function<void()> &);
+        void execute(const std::function<void()> &job);
         void dispatch(uint32_t job_count, uint32_t group_size, const std::function<void(DispatchArgs)> &job);
 
         bool is_busy() const;

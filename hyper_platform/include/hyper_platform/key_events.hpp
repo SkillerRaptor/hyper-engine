@@ -13,7 +13,7 @@ namespace hyper_engine
     class KeyPressEvent
     {
     public:
-        explicit KeyPressEvent(KeyCode);
+        explicit KeyPressEvent(KeyCode key_code);
 
         KeyCode key_code() const;
 
@@ -24,7 +24,7 @@ namespace hyper_engine
     class KeyReleaseEvent
     {
     public:
-        explicit KeyReleaseEvent(KeyCode);
+        explicit KeyReleaseEvent(KeyCode key_code);
 
         KeyCode key_code() const;
 

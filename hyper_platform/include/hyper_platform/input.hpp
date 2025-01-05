@@ -24,17 +24,17 @@ namespace hyper_engine
         // FIXME: Add unsubscription event handlers
         ~Input() = default;
 
-        bool is_key_pressed(KeyCode) const;
-        bool is_mouse_button_pressed(MouseCode) const;
+        bool is_key_pressed(KeyCode key_code) const;
+        bool is_mouse_button_pressed(MouseCode mouse_code) const;
 
         glm::vec2 mouse_position() const;
 
     private:
-        void on_mouse_move(const MouseMoveEvent &);
-        void on_mouse_button_press(const MouseButtonPressEvent &);
-        void on_mouse_button_release(const MouseButtonReleaseEvent &);
-        void on_key_press(const KeyPressEvent &);
-        void on_key_release(const KeyReleaseEvent &);
+        void on_mouse_move(const MouseMoveEvent &event);
+        void on_mouse_button_press(const MouseButtonPressEvent &event);
+        void on_mouse_button_release(const MouseButtonReleaseEvent &event);
+        void on_key_press(const KeyPressEvent &event);
+        void on_key_release(const KeyReleaseEvent &event);
 
     private:
         std::unordered_map<KeyCode, bool> m_keys;

@@ -13,7 +13,7 @@ namespace hyper_engine
     class MouseButtonPressEvent
     {
     public:
-        explicit MouseButtonPressEvent(MouseCode );
+        explicit MouseButtonPressEvent(MouseCode mouse_code);
 
         MouseCode mouse_code() const;
 
@@ -24,7 +24,7 @@ namespace hyper_engine
     class MouseButtonReleaseEvent
     {
     public:
-        explicit MouseButtonReleaseEvent(MouseCode );
+        explicit MouseButtonReleaseEvent(MouseCode mouse_code);
 
         MouseCode mouse_code() const;
 

@@ -18,7 +18,7 @@ namespace hyper_engine
     public:
         Logger();
 
-        void set_level(spdlog::level::level_enum) const;
+        void set_level(spdlog::level::level_enum level) const;
 
         // FIXME: Return a reference to the logger instead of returning a OwnPtr
         const OwnPtr<spdlog::logger> &internal_logger() const;

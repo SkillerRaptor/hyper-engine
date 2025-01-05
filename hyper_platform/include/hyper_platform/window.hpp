@@ -22,7 +22,7 @@ namespace hyper_engine
     class Window
     {
     public:
-        explicit Window(const WindowDescriptor &);
+        explicit Window(const WindowDescriptor &descriptor);
         ~Window();
 
         void process_events();

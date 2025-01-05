@@ -29,10 +29,10 @@ namespace hyper_engine
         void run();
 
     private:
-        void load_module(NonnullOwnPtr<Module>);
+        void load_module(NonnullOwnPtr<Module> module);
         void unload_modules();
 
-        void on_close(const WindowCloseEvent &);
+        void on_close(const WindowCloseEvent &event);
 
     private:
         std::stack<NonnullOwnPtr<Module>> m_modules;
