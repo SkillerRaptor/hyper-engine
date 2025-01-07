@@ -27,7 +27,7 @@ namespace hyper_engine
                 {
                     std::function<void()> job;
 
-                    [[noreturn]] while (true)
+                    while (true)
                     {
                         if (m_job_pool.pop_front(job))
                         {
