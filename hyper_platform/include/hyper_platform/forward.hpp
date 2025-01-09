@@ -17,4 +17,5 @@ namespace hyper_engine
     class WindowCloseEvent;
     class WindowMoveEvent;
     class WindowResizeEvent;
+    class Window;
 } // namespace hyper_engine

@@ -26,10 +26,10 @@ namespace hyper_engine
 {
     GltfMetallicRoughness::GltfMetallicRoughness(
         const ShaderCompiler &shader_compiler,
-        const std::shared_ptr<Texture> &render_texture,
-        const std::shared_ptr<Texture> &depth_texture)
+        const NonnullRefPtr<Texture> &render_texture,
+        const NonnullRefPtr<Texture> &depth_texture)
     {
-        const std::shared_ptr<ShaderModule> vertex_shader = g_env.graphics_device->create_shader_module({
+        const NonnullRefPtr<ShaderModule> vertex_shader = g_env.graphics_device->create_shader_module({
             .label = "Mesh",
             .type = ShaderType::Vertex,
             .entry_name = "vs_main",
@@ -42,7 +42,7 @@ namespace hyper_engine
                          .spirv,
         });
 
-        const std::shared_ptr<ShaderModule> fragment_shader = g_env.graphics_device->create_shader_module({
+        const NonnullRefPtr<ShaderModule> fragment_shader = g_env.graphics_device->create_shader_module({
             .label = "Mesh",
             .type = ShaderType::Fragment,
             .entry_name = "fs_main",
@@ -55,7 +55,7 @@ namespace hyper_engine
                          .spirv,
         });
 
-        const std::shared_ptr<PipelineLayout> pipeline_layout = g_env.graphics_device->create_pipeline_layout({
+        const NonnullRefPtr<PipelineLayout> pipeline_layout = g_env.graphics_device->create_pipeline_layout({
             .label = "Mesh",
             .push_constant_size = sizeof(ObjectPushConstants),
         });
@@ -132,7 +132,7 @@ namespace hyper_engine
                 {
                     .depth_test_enable = true,
                     .depth_write_enable = true,
-                    // TODO: Add 2nd pass for transparent stuff
+                    // FIXME: Add 2nd pass for transparent stuff
                     .depth_format = depth_texture->format(),
                     .depth_compare_operation = CompareOperation::Less,
                     .depth_bias_state = {},
@@ -141,14 +141,14 @@ namespace hyper_engine
     }
 
     MaterialInstance GltfMetallicRoughness::write_material(
-        const std::shared_ptr<CommandList> &command_list,
+        const NonnullRefPtr<CommandList> &command_list,
         const MaterialPassType pass_type,
         const MaterialResources &resources) const
     {
-        const std::shared_ptr<Buffer> buffer = g_env.graphics_device->create_buffer({
+        const NonnullRefPtr<Buffer> buffer = g_env.graphics_device->create_buffer({
             .label = "Material",
             .byte_size = sizeof(ShaderMaterial),
-            .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
+            .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
         });
 
         const ShaderMaterial shader_material = {
@@ -166,7 +166,7 @@ namespace hyper_engine
 
         command_list->write_buffer(buffer, &shader_material, sizeof(ShaderMaterial), 0);
 
-        const std::shared_ptr<RenderPipeline> pipeline = [&]()
+        const RefPtr<RenderPipeline> pipeline = [&]()
         {
             switch (pass_type)
             {

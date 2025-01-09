@@ -26,7 +26,6 @@
 
 #include "hyper_render/material.hpp"
 #include "hyper_render/render_passes/grid_pass.hpp"
-#include "hyper_render/render_passes/imgui_pass.hpp"
 #include "hyper_render/render_passes/opaque_pass.hpp"
 
 #include "shader_interop.h"
@@ -96,16 +95,17 @@ namespace hyper_engine
                   },
           }))
         , m_editor_camera(glm::vec3(0.0, 2.0, 0.0), -90.0, 0.0)
-        , m_camera_buffer(g_env.graphics_device->create_buffer({
-              .label = "Camera",
-              .byte_size = sizeof(ShaderCamera),
-              .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
-              .handle = ResourceHandle(HE_DESCRIPTOR_SET_SLOT_CAMERA),
-          }))
+        , m_camera_buffer(g_env.graphics_device->create_buffer(
+              {
+                  .label = "Camera",
+                  .byte_size = sizeof(ShaderCamera),
+                  .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
+              },
+              ResourceHandle(HE_DESCRIPTOR_SET_SLOT_CAMERA)))
         , m_scene_buffer(g_env.graphics_device->create_buffer({
               .label = "Scene",
               .byte_size = sizeof(ShaderScene),
-              .usage = BufferUsage::Storage | BufferUsage::ShaderResource,
+              .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
           }))
         , m_white_texture(g_env.graphics_device->create_texture({
               .label = "White",
@@ -194,11 +194,6 @@ namespace hyper_engine
               .border_color = BorderColor::TransparentBlack,
           }))
         , m_metallic_roughness_material(m_shader_compiler, m_render_texture, m_depth_texture)
-        , m_draw_context()
-        , m_opaque_pass(nullptr)
-        , m_grid_pass(nullptr)
-        , m_imgui_pass(nullptr)
-        , m_frame_index(1)
     {
         g_env.event_bus->subscribe<WindowResizeEvent>(HE_BIND_FUNCTION(Renderer::on_resize));
         g_env.event_bus->subscribe<MouseMoveEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_move));
@@ -216,7 +211,7 @@ namespace hyper_engine
         m_command_list->begin();
 
         const uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
-        // TODO: Automate barrier
+        // FIXME: Automate barrier
         m_command_list->insert_barriers({
             .memory_barriers = {},
             .buffer_memory_barriers = {},
@@ -270,7 +265,7 @@ namespace hyper_engine
             }
         }
 
-        // TODO: Automate barrier
+        // FIXME: Automate barrier
         m_command_list->insert_barriers({
             .memory_barriers = {},
             .buffer_memory_barriers = {},
@@ -315,7 +310,7 @@ namespace hyper_engine
         MaterialInstance default_data =
             m_metallic_roughness_material.write_material(m_command_list, MaterialPassType::MainColor, material_resources);
 
-        const std::shared_ptr<LoadedGltf> scene = load_gltf(
+        const NonnullRefPtr<LoadedGltf> scene = load_gltf(
             m_command_list,
             m_white_texture_view,
             m_error_texture,
@@ -330,12 +325,11 @@ namespace hyper_engine
         g_env.graphics_device->execute(m_command_list);
         g_env.graphics_device->wait_for_idle();
 
-        m_opaque_pass = std::make_unique<OpaquePass>(m_render_texture_view, m_depth_texture_view, m_scene_buffer);
+        m_opaque_pass = make<OpaquePass>(m_render_texture_view, m_depth_texture_view, m_scene_buffer);
 
-        m_grid_pass =
-            std::make_unique<GridPass>(m_shader_compiler, m_render_texture, m_render_texture_view, m_depth_texture, m_depth_texture_view);
+        m_grid_pass = make<GridPass>(m_shader_compiler, m_render_texture, m_render_texture_view, m_depth_texture, m_depth_texture_view);
 
-        m_imgui_pass = std::make_unique<ImGuiPass>(m_surface);
+        // m_imgui_pass = make<ImGuiPass>(m_surface);
 
         HE_INFO("Created Renderer");
     }
@@ -445,9 +439,9 @@ namespace hyper_engine
 
         m_grid_pass->render(m_command_list);
 
-        // TODO: Add error if current texture is asked before the frame began
-        const std::shared_ptr<Texture> swapchain_texture = m_surface->current_texture();
-        const std::shared_ptr<TextureView> swapchain_texture_view = m_surface->current_texture_view();
+        // FIXME: Add error if current texture is asked before the frame began
+        const NonnullRefPtr<Texture> swapchain_texture = m_surface->current_texture();
+        const NonnullRefPtr<TextureView> swapchain_texture_view = m_surface->current_texture_view();
 
         // NOTE: Transitioning the render and swapchain image for transfer
         m_command_list->insert_barriers({
@@ -537,7 +531,7 @@ namespace hyper_engine
                 },
         });
 
-        m_imgui_pass->render(m_command_list, swapchain_texture_view);
+        // m_imgui_pass->render(m_command_list, swapchain_texture_view);
 
         m_command_list->insert_barriers({
             .memory_barriers = {},

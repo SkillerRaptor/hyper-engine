@@ -6,20 +6,19 @@
 
 #pragma once
 
-#include <memory>
 #include <string>
 #include <vector>
 
-#include <hyper_core/bits.hpp>
+#include <hyper_core/bit_flags.hpp>
+#include <hyper_core/nonnull_ref_ptr.hpp>
+#include <hyper_core/ref_counted.hpp>
 
 #include "hyper_rhi/compare_operation.hpp"
 #include "hyper_rhi/format.hpp"
+#include "hyper_rhi/forward.hpp"
 
 namespace hyper_engine
 {
-    class PipelineLayout;
-    class ShaderModule;
-
     enum class BlendFactor : uint8_t
     {
         Zero,
@@ -62,8 +61,6 @@ namespace hyper_engine
         All = R | G | B | A,
     };
 
-    HE_ENABLE_BITMASK_OPERATORS(ColorWrites);
-
     struct BlendState
     {
         bool blend_enable = false;
@@ -73,7 +70,7 @@ namespace hyper_engine
         BlendFactor alpha_src_blend_factor = BlendFactor::One;
         BlendFactor alpha_dst_blend_factor = BlendFactor::Zero;
         BlendOperation alpha_operation = BlendOperation::Add;
-        ColorWrites color_writes = ColorWrites::All;
+        BitFlags<ColorWrites> color_writes = ColorWrites::All;
     };
 
     struct ColorAttachmentState
@@ -134,33 +131,43 @@ namespace hyper_engine
         bool depth_write_enable = false;
         Format depth_format = Format::Unknown;
         CompareOperation depth_compare_operation = CompareOperation::Less;
-        DepthBiasState depth_bias_state = {};
+        DepthBiasState depth_bias_state;
     };
 
     struct RenderPipelineDescriptor
     {
         std::string label;
-
-        std::shared_ptr<PipelineLayout> layout = nullptr;
-        std::shared_ptr<ShaderModule> vertex_shader = nullptr;
-        std::shared_ptr<ShaderModule> fragment_shader = nullptr;
-        std::vector<ColorAttachmentState> color_attachment_states = {};
-        PrimitiveState primitive_state = {};
-        DepthStencilState depth_stencil_state = {};
+        NonnullRefPtr<PipelineLayout> layout;
+        NonnullRefPtr<ShaderModule> vertex_shader;
+        NonnullRefPtr<ShaderModule> fragment_shader;
+        std::vector<ColorAttachmentState> color_attachment_states;
+        PrimitiveState primitive_state;
+        DepthStencilState depth_stencil_state;
     };
 
-    class RenderPipeline
+    class RenderPipeline : public RefCounted<RenderPipeline>
     {
     public:
         virtual ~RenderPipeline() = default;
 
-        virtual std::string_view label() const = 0;
+        std::string_view label() const;
+        NonnullRefPtr<PipelineLayout> layout() const;
+        NonnullRefPtr<ShaderModule> vertex_shader() const;
+        NonnullRefPtr<ShaderModule> fragment_shader() const;
+        const std::vector<ColorAttachmentState> &color_attachment_states() const;
+        PrimitiveState primitive_state() const;
+        DepthStencilState depth_stencil_state() const;
 
-        virtual const std::shared_ptr<PipelineLayout> &layout() const = 0;
-        virtual const std::shared_ptr<ShaderModule> &vertex_shader() const = 0;
-        virtual const std::shared_ptr<ShaderModule> &fragment_shader() const = 0;
-        virtual const std::vector<ColorAttachmentState> &color_attachment_states() const = 0;
-        virtual PrimitiveState primitive_state() const = 0;
-        virtual DepthStencilState depth_stencil_state() const = 0;
+    protected:
+        explicit RenderPipeline(const RenderPipelineDescriptor &descriptor);
+
+    protected:
+        std::string m_label;
+        NonnullRefPtr<PipelineLayout> m_layout;
+        NonnullRefPtr<ShaderModule> m_vertex_shader;
+        NonnullRefPtr<ShaderModule> m_fragment_shader;
+        std::vector<ColorAttachmentState> m_color_attachment_states;
+        PrimitiveState m_primitive_state;
+        DepthStencilState m_depth_stencil_state;
     };
 } // namespace hyper_engine

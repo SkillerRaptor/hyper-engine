@@ -13,70 +13,36 @@
 
 namespace hyper_engine
 {
-    VulkanShaderModule::VulkanShaderModule(VulkanGraphicsDevice &graphics_device, const ShaderModuleDescriptor &descriptor)
-        : m_graphics_device(graphics_device)
-        , m_label(descriptor.label)
-        , m_type(descriptor.type)
-        , m_entry_name(descriptor.entry_name)
-        , m_bytes(descriptor.bytes)
-        , m_shader_module(VK_NULL_HANDLE)
+    NonnullRefPtr<ShaderModule> VulkanGraphicsDevice::create_shader_module_platform(const ShaderModuleDescriptor &descriptor) const
     {
         const VkShaderModuleCreateInfo shader_module_create_info = {
             .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
-            .codeSize = m_bytes.size(),
-            .pCode = reinterpret_cast<const uint32_t *>(m_bytes.data()),
+            .codeSize = descriptor.bytes.size(),
+            .pCode = reinterpret_cast<const uint32_t *>(descriptor.bytes.data()),
         };
 
-        HE_VK_CHECK(vkCreateShaderModule(m_graphics_device.device(), &shader_module_create_info, nullptr, &m_shader_module));
-        HE_ASSERT(m_shader_module != VK_NULL_HANDLE);
+        VkShaderModule shader_module = VK_NULL_HANDLE;
+        HE_VK_CHECK(vkCreateShaderModule(m_device, &shader_module_create_info, nullptr, &shader_module));
 
-        const ObjectType object_type = [this]()
-        {
-            switch (m_type)
-            {
-            case ShaderType::Compute:
-                return ObjectType::ComputeShaderModule;
-            case ShaderType::Fragment:
-                return ObjectType::FragmentShaderModule;
-            case ShaderType::Vertex:
-                return ObjectType::VertexShaderModule;
-            case ShaderType::None:
-            default:
-                HE_UNREACHABLE();
-            }
-        }();
+        HE_ASSERT(shader_module != VK_NULL_HANDLE);
 
-        m_graphics_device.set_object_name(m_shader_module, object_type, m_label);
+        set_object_name(shader_module, ObjectType::ShaderModule, descriptor.label);
 
-        // TODO: Add more trace information
-        HE_TRACE("Created Shader Module");
+        return make_ref_counted<VulkanShaderModule>(descriptor, shader_module);
+    }
+
+    VulkanShaderModule::VulkanShaderModule(const ShaderModuleDescriptor &descriptor, const VkShaderModule shader_module)
+        : ShaderModule(descriptor)
+        , m_shader_module(shader_module)
+    {
     }
 
     VulkanShaderModule::~VulkanShaderModule()
     {
-        m_graphics_device.resource_queue().shader_modules.emplace_back(m_shader_module);
-    }
-
-    std::string_view VulkanShaderModule::label() const
-    {
-        return m_label;
-    }
-
-    ShaderType VulkanShaderModule::type() const
-    {
-        return m_type;
-    }
-
-    std::string_view VulkanShaderModule::entry_name() const
-    {
-        return m_entry_name;
-    }
-
-    const std::vector<uint8_t> &VulkanShaderModule::bytes() const
-    {
-        return m_bytes;
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        graphics_device->resource_queue().shader_modules.emplace_back(m_shader_module);
     }
 
     VkShaderModule VulkanShaderModule::shader_module() const

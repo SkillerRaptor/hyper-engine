@@ -14,6 +14,7 @@ set(SOURCES
 
 set(HEADERS
         include/hyper_core/assertion.hpp
+        include/hyper_core/bit_flags.hpp
         include/hyper_core/bits.hpp
         include/hyper_core/default_delete.hpp
         include/hyper_core/filesystem.hpp
@@ -31,7 +32,9 @@ set(HEADERS
         include/hyper_core/ref_counted.hpp
         include/hyper_core/ref_ptr.hpp
         include/hyper_core/string.hpp
-        include/hyper_core/thread_safe_ring_buffer.hpp)
+        include/hyper_core/thread_safe_ring_buffer.hpp
+        include/hyper_core/weak_ptr.hpp
+        include/hyper_core/weakable.hpp)
 
 hyperengine_define_library(hyper_core)
 target_link_libraries(

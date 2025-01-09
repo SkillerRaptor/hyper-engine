@@ -18,7 +18,7 @@ namespace hyper_engine
     {
     }
 
-    bool ResourceHandle::valid() const
+    bool ResourceHandle::is_valid() const
     {
         return m_handle != 0xffffffff;
     }

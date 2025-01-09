@@ -23,10 +23,10 @@ namespace hyper_engine
 {
     GridPass::GridPass(
         const ShaderCompiler &shader_compiler,
-        const std::shared_ptr<Texture> &render_texture,
-        const std::shared_ptr<TextureView> &render_texture_view,
-        const std::shared_ptr<Texture> &depth_texture,
-        const std::shared_ptr<TextureView> &depth_texture_view)
+        const NonnullRefPtr<Texture> &render_texture,
+        const NonnullRefPtr<TextureView> &render_texture_view,
+        const NonnullRefPtr<Texture> &depth_texture,
+        const NonnullRefPtr<TextureView> &depth_texture_view)
         : m_render_texture(render_texture)
         , m_render_texture_view(render_texture_view)
         , m_depth_texture(depth_texture)
@@ -100,9 +100,9 @@ namespace hyper_engine
     {
     }
 
-    void GridPass::render(const std::shared_ptr<CommandList> &command_list) const
+    void GridPass::render(const NonnullRefPtr<CommandList> &command_list) const
     {
-        const std::shared_ptr<RenderPass> render_pass = command_list->begin_render_pass({
+        const NonnullRefPtr<RenderPass> render_pass = command_list->begin_render_pass({
             .label = "Grid",
             .label_color =
                 LabelColor{

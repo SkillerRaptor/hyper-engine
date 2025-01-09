@@ -18,15 +18,11 @@
 
 namespace hyper_engine
 {
-    VulkanCommandList::VulkanCommandList(VulkanGraphicsDevice &graphics_device)
-        : m_graphics_device(graphics_device)
-        , m_command_buffer(VK_NULL_HANDLE)
-    {
-    }
-
     void VulkanCommandList::begin()
     {
-        m_command_buffer = m_graphics_device.current_frame().command_buffer;
+        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+
+        m_command_buffer = graphics_device->current_frame().command_buffer;
 
         HE_VK_CHECK(vkResetCommandBuffer(m_command_buffer, 0));
 
@@ -75,7 +71,7 @@ namespace hyper_engine
         {
             for (const BufferMemoryBarrier &buffer_memory_barrier : barriers.buffer_memory_barriers)
             {
-                const auto buffer = std::dynamic_pointer_cast<VulkanBuffer>(buffer_memory_barrier.buffer);
+                const NonnullRefPtr<VulkanBuffer> buffer = static_ptr_cast<VulkanBuffer>(buffer_memory_barrier.buffer);
 
                 const VkPipelineStageFlags2 src_stage = VulkanCommandList::get_pipeline_stage_flags(buffer_memory_barrier.stage_before);
                 const VkAccessFlags2 src_access = VulkanCommandList::get_access_flags(buffer_memory_barrier.access_before);
@@ -105,7 +101,7 @@ namespace hyper_engine
         {
             for (const TextureMemoryBarrier &texture_memory_barrier : barriers.texture_memory_barriers)
             {
-                const auto texture = std::dynamic_pointer_cast<VulkanTexture>(texture_memory_barrier.texture);
+                const NonnullRefPtr<VulkanTexture> texture = static_ptr_cast<VulkanTexture>(texture_memory_barrier.texture);
 
                 const VkPipelineStageFlags2 src_stage = VulkanCommandList::get_pipeline_stage_flags(texture_memory_barrier.stage_before);
                 const VkAccessFlags2 src_access = VulkanCommandList::get_access_flags(texture_memory_barrier.access_before);
@@ -157,28 +153,28 @@ namespace hyper_engine
         vkCmdPipelineBarrier2(m_command_buffer, &dependency_info);
     }
 
-    void VulkanCommandList::clear_buffer(const std::shared_ptr<Buffer> &buffer, const size_t size, const uint64_t offset)
+    void VulkanCommandList::clear_buffer(const Buffer &buffer, const size_t size, const uint64_t offset)
     {
-        const auto vulkan_buffer = std::dynamic_pointer_cast<VulkanBuffer>(buffer);
+        const VulkanBuffer &vulkan_buffer = static_cast<const VulkanBuffer &>(buffer);
 
-        vkCmdFillBuffer(m_command_buffer, vulkan_buffer->buffer(), offset, size, 0);
+        vkCmdFillBuffer(m_command_buffer, vulkan_buffer.buffer(), offset, size, 0);
 
-        HE_TRACE("Clearing {} buffer", buffer->label().empty() ? "a" : fmt::format("the '{}'", buffer->label()));
+        HE_TRACE("Clearing {} buffer", buffer.label().empty() ? "a" : fmt::format("the '{}'", buffer.label()));
     }
 
-    void VulkanCommandList::clear_texture(const std::shared_ptr<Texture> &texture, const SubresourceRange subresource_range)
+    void VulkanCommandList::clear_texture(const Texture &texture, const SubresourceRange subresource_range)
     {
-        const auto vulkan_texture = std::dynamic_pointer_cast<VulkanTexture>(texture);
+        const VulkanTexture &vulkan_texture = static_cast<const VulkanTexture &>(texture);
 
         const VkImageSubresourceRange vulkan_subresource_range = {
-            .aspectMask = VulkanTextureView::get_image_aspect_flags(texture->format()),
+            .aspectMask = VulkanTextureView::get_image_aspect_flags(texture.format()),
             .baseMipLevel = subresource_range.base_mip_level,
             .levelCount = subresource_range.mip_level_count,
             .baseArrayLayer = subresource_range.base_array_level,
             .layerCount = subresource_range.array_layer_count,
         };
 
-        switch (texture->format())
+        switch (texture.format())
         {
         case Format::R8Unorm:
         case Format::R8Snorm:
@@ -267,7 +263,7 @@ namespace hyper_engine
 
             vkCmdClearColorImage(
                 m_command_buffer,
-                vulkan_texture->image(),
+                vulkan_texture.image(),
                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                 &clear_color_value,
                 1,
@@ -288,7 +284,7 @@ namespace hyper_engine
 
             vkCmdClearDepthStencilImage(
                 m_command_buffer,
-                vulkan_texture->image(),
+                vulkan_texture.image(),
                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                 &clear_depth_stencil_value,
                 1,
@@ -300,18 +296,18 @@ namespace hyper_engine
             HE_UNREACHABLE();
         }
 
-        HE_TRACE("Clearing {} texture", texture->label().empty() ? "a" : fmt::format("the '{}'", texture->label()));
+        HE_TRACE("Clearing {} texture", texture.label().empty() ? "a" : fmt::format("the '{}'", texture.label()));
     }
 
     void VulkanCommandList::copy_buffer_to_buffer(
-        const std::shared_ptr<Buffer> &src,
+        const Buffer &src,
         const uint64_t src_offset,
-        const std::shared_ptr<Buffer> &dst,
+        const Buffer &dst,
         const uint64_t dst_offset,
         const size_t size)
     {
-        const auto vulkan_src = std::dynamic_pointer_cast<VulkanBuffer>(src);
-        const auto vulkan_dst = std::dynamic_pointer_cast<VulkanBuffer>(dst);
+        const VulkanBuffer &vulkan_src = static_cast<const VulkanBuffer &>(src);
+        const VulkanBuffer &vulkan_dst = static_cast<const VulkanBuffer &>(dst);
 
         const VkBufferCopy2 region = {
             .sType = VK_STRUCTURE_TYPE_BUFFER_COPY_2,
@@ -324,8 +320,8 @@ namespace hyper_engine
         const VkCopyBufferInfo2 copy_buffer_info = {
             .sType = VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2,
             .pNext = nullptr,
-            .srcBuffer = vulkan_src->buffer(),
-            .dstBuffer = vulkan_dst->buffer(),
+            .srcBuffer = vulkan_src.buffer(),
+            .dstBuffer = vulkan_dst.buffer(),
             .regionCount = 1,
             .pRegions = &region,
         };
@@ -334,24 +330,24 @@ namespace hyper_engine
 
         HE_TRACE(
             "Copying {} buffer to {} buffer",
-            src->label().empty() ? "a" : fmt::format("the '{}'", src->label()),
-            dst->label().empty() ? "a" : fmt::format("the '{}'", dst->label()));
+            src.label().empty() ? "a" : fmt::format("the '{}'", src.label()),
+            dst.label().empty() ? "a" : fmt::format("the '{}'", dst.label()));
     }
 
     void VulkanCommandList::copy_buffer_to_texture(
-        const std::shared_ptr<Buffer> &src,
+        const Buffer &src,
         const uint64_t src_offset,
-        const std::shared_ptr<Texture> &dst,
+        const Texture &dst,
         const Offset3d dst_offset,
         const Extent3d dst_extent,
         const uint32_t dst_mip_level,
         const uint32_t dst_array_index)
     {
-        const auto vulkan_src = std::dynamic_pointer_cast<VulkanBuffer>(src);
-        const auto vulkan_dst = std::dynamic_pointer_cast<VulkanTexture>(dst);
+        const VulkanBuffer &vulkan_src = static_cast<const VulkanBuffer &>(src);
+        const VulkanTexture &vulkan_dst = static_cast<const VulkanTexture &>(dst);
 
         const VkImageSubresourceLayers subresource_layers = {
-            .aspectMask = VulkanTextureView::get_image_aspect_flags(dst->format()),
+            .aspectMask = VulkanTextureView::get_image_aspect_flags(dst.format()),
             .mipLevel = dst_mip_level,
             .baseArrayLayer = dst_array_index,
             .layerCount = 1,
@@ -381,8 +377,8 @@ namespace hyper_engine
         const VkCopyBufferToImageInfo2 copy_buffer_to_image_info = {
             .sType = VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2,
             .pNext = nullptr,
-            .srcBuffer = vulkan_src->buffer(),
-            .dstImage = vulkan_dst->image(),
+            .srcBuffer = vulkan_src.buffer(),
+            .dstImage = vulkan_dst.image(),
             .dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             .regionCount = 1,
             .pRegions = &region,
@@ -392,24 +388,24 @@ namespace hyper_engine
 
         HE_TRACE(
             "Copying {} buffer to {} texture",
-            src->label().empty() ? "a" : fmt::format("the '{}'", src->label()),
-            dst->label().empty() ? "a" : fmt::format("the '{}'", dst->label()));
+            src.label().empty() ? "a" : fmt::format("the '{}'", src.label()),
+            dst.label().empty() ? "a" : fmt::format("the '{}'", dst.label()));
     }
 
     void VulkanCommandList::copy_texture_to_buffer(
-        const std::shared_ptr<Texture> &src,
+        const Texture &src,
         const Offset3d src_offset,
         const Extent3d src_extent,
         const uint32_t src_mip_level,
         const uint32_t src_array_index,
-        const std::shared_ptr<Buffer> &dst,
+        const Buffer &dst,
         const uint64_t dst_offset)
     {
-        const auto vulkan_src = std::dynamic_pointer_cast<VulkanTexture>(src);
-        const auto vulkan_dst = std::dynamic_pointer_cast<VulkanBuffer>(dst);
+        const VulkanTexture &vulkan_src = static_cast<const VulkanTexture &>(src);
+        const VulkanBuffer &vulkan_dst = static_cast<const VulkanBuffer &>(dst);
 
         const VkImageSubresourceLayers subresource_layers = {
-            .aspectMask = VulkanTextureView::get_image_aspect_flags(src->format()),
+            .aspectMask = VulkanTextureView::get_image_aspect_flags(src.format()),
             .mipLevel = src_mip_level,
             .baseArrayLayer = src_array_index,
             .layerCount = 1,
@@ -439,9 +435,9 @@ namespace hyper_engine
         const VkCopyImageToBufferInfo2 copy_image_to_buffer_info = {
             .sType = VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2,
             .pNext = nullptr,
-            .srcImage = vulkan_src->image(),
+            .srcImage = vulkan_src.image(),
             .srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            .dstBuffer = vulkan_dst->buffer(),
+            .dstBuffer = vulkan_dst.buffer(),
             .regionCount = 1,
             .pRegions = &region,
         };
@@ -450,30 +446,30 @@ namespace hyper_engine
 
         HE_TRACE(
             "Copying {} texture to {} buffer",
-            src->label().empty() ? "a" : fmt::format("the '{}'", src->label()),
-            dst->label().empty() ? "a" : fmt::format("the '{}'", dst->label()));
+            src.label().empty() ? "a" : fmt::format("the '{}'", src.label()),
+            dst.label().empty() ? "a" : fmt::format("the '{}'", dst.label()));
     }
 
     void VulkanCommandList::copy_texture_to_texture(
-        const std::shared_ptr<Texture> &src,
+        const Texture &src,
         const Offset3d src_offset,
         const uint32_t src_mip_level,
         const uint32_t src_array_index,
-        const std::shared_ptr<Texture> &dst,
+        const Texture &dst,
         const Offset3d dst_offset,
         const uint32_t dst_mip_level,
         const uint32_t dst_array_index,
         const Extent3d extent)
     {
-        const auto vulkan_src = std::dynamic_pointer_cast<VulkanTexture>(src);
-        const auto vulkan_dst = std::dynamic_pointer_cast<VulkanTexture>(dst);
+        const VulkanTexture &vulkan_src = static_cast<const VulkanTexture &>(src);
+        const VulkanTexture &vulkan_dst = static_cast<const VulkanTexture &>(dst);
 
         const VkImageCopy2 region = {
             .sType = VK_STRUCTURE_TYPE_IMAGE_COPY_2,
             .pNext = nullptr,
             .srcSubresource =
                 {
-                    .aspectMask = VulkanTextureView::get_image_aspect_flags(vulkan_src->format()),
+                    .aspectMask = VulkanTextureView::get_image_aspect_flags(vulkan_src.format()),
                     .mipLevel = src_mip_level,
                     .baseArrayLayer = src_array_index,
                     .layerCount = 1,
@@ -486,7 +482,7 @@ namespace hyper_engine
                 },
             .dstSubresource =
                 {
-                    .aspectMask = VulkanTextureView::get_image_aspect_flags(vulkan_dst->format()),
+                    .aspectMask = VulkanTextureView::get_image_aspect_flags(vulkan_dst.format()),
                     .mipLevel = dst_mip_level,
                     .baseArrayLayer = dst_array_index,
                     .layerCount = 1,
@@ -508,9 +504,9 @@ namespace hyper_engine
         const VkCopyImageInfo2 copy_image_info = {
             .sType = VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2,
             .pNext = nullptr,
-            .srcImage = vulkan_src->image(),
+            .srcImage = vulkan_src.image(),
             .srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            .dstImage = vulkan_dst->image(),
+            .dstImage = vulkan_dst.image(),
             .dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             .regionCount = 1,
             .pRegions = &region,
@@ -520,32 +516,37 @@ namespace hyper_engine
 
         HE_TRACE(
             "Copying {} texture to {} texture",
-            src->label().empty() ? "a" : fmt::format("the '{}'", src->label()),
-            dst->label().empty() ? "a" : fmt::format("the '{}'", dst->label()));
+            src.label().empty() ? "a" : fmt::format("the '{}'", src.label()),
+            dst.label().empty() ? "a" : fmt::format("the '{}'", dst.label()));
     }
 
-    void VulkanCommandList::write_buffer(const std::shared_ptr<Buffer> &buffer, const void *data, const size_t size, const uint64_t offset)
+    void VulkanCommandList::write_buffer(const Buffer &buffer, const void *data, const size_t size, const uint64_t offset)
     {
-        const auto vulkan_buffer = std::dynamic_pointer_cast<VulkanBuffer>(buffer);
+        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
 
-        if (buffer->byte_size() <= 65535)
+        const VulkanBuffer &vulkan_buffer = static_cast<const VulkanBuffer &>(buffer);
+
+        if (buffer.byte_size() <= 65535)
         {
-            vkCmdUpdateBuffer(m_command_buffer, vulkan_buffer->buffer(), offset, size, data);
+            vkCmdUpdateBuffer(m_command_buffer, vulkan_buffer.buffer(), offset, size, data);
         }
         else
         {
-            const std::shared_ptr<Buffer> staging_buffer = m_graphics_device.create_staging_buffer({
-                .label = fmt::format("{} Staging", buffer->label()),
-                .byte_size = static_cast<uint64_t>(size),
-                .usage = BufferUsage::Storage,
-            });
+            const NonnullRefPtr<Buffer> staging_buffer = graphics_device->create_buffer_internal(
+                {
+                    .label = fmt::format("{} Staging", buffer.label()),
+                    .byte_size = static_cast<uint64_t>(size),
+                    .usage = BufferUsage::Storage,
+                },
+                ResourceHandle(),
+                true);
 
-            const auto vulkan_staging_buffer = std::dynamic_pointer_cast<VulkanBuffer>(staging_buffer);
+            const NonnullRefPtr<VulkanBuffer> vulkan_staging_buffer = static_ptr_cast<VulkanBuffer>(staging_buffer);
 
             void *mapped_ptr = nullptr;
-            vmaMapMemory(m_graphics_device.allocator(), vulkan_staging_buffer->allocation(), &mapped_ptr);
+            vmaMapMemory(graphics_device->allocator(), vulkan_staging_buffer->allocation(), &mapped_ptr);
             memcpy(mapped_ptr, data, size);
-            vmaUnmapMemory(m_graphics_device.allocator(), vulkan_staging_buffer->allocation());
+            vmaUnmapMemory(graphics_device->allocator(), vulkan_staging_buffer->allocation());
 
             const VkBufferCopy2 region = {
                 .sType = VK_STRUCTURE_TYPE_BUFFER_COPY_2,
@@ -559,7 +560,7 @@ namespace hyper_engine
                 .sType = VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2,
                 .pNext = nullptr,
                 .srcBuffer = vulkan_staging_buffer->buffer(),
-                .dstBuffer = vulkan_buffer->buffer(),
+                .dstBuffer = vulkan_buffer.buffer(),
                 .regionCount = 1,
                 .pRegions = &region,
             };
@@ -567,11 +568,11 @@ namespace hyper_engine
             vkCmdCopyBuffer2(m_command_buffer, &copy_buffer_info);
         }
 
-        HE_TRACE("Writing {} bytes to {} buffer", size, buffer->label().empty() ? "a" : fmt::format("the '{}'", buffer->label()));
+        HE_TRACE("Writing {} bytes to {} buffer", size, buffer.label().empty() ? "a" : fmt::format("the '{}'", buffer.label()));
     }
 
     void VulkanCommandList::write_texture(
-        const std::shared_ptr<Texture> &texture,
+        const Texture &texture,
         const Offset3d offset,
         const Extent3d extent,
         const uint32_t mip_level,
@@ -580,23 +581,28 @@ namespace hyper_engine
         const size_t data_size,
         const uint64_t data_offset)
     {
-        const auto vulkan_texture = std::dynamic_pointer_cast<VulkanTexture>(texture);
+        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
 
-        const std::shared_ptr<Buffer> staging_buffer = m_graphics_device.create_staging_buffer({
-            .label = fmt::format("{} Staging", texture->label()),
-            .byte_size = static_cast<uint64_t>(data_size),
-            .usage = BufferUsage::Storage,
-        });
+        const VulkanTexture &vulkan_texture = static_cast<const VulkanTexture &>(texture);
 
-        const auto vulkan_staging_buffer = std::dynamic_pointer_cast<VulkanBuffer>(staging_buffer);
+        const NonnullRefPtr<Buffer> staging_buffer = graphics_device->create_buffer_internal(
+            {
+                .label = fmt::format("{} Staging", texture.label()),
+                .byte_size = static_cast<uint64_t>(data_size),
+                .usage = BufferUsage::Storage,
+            },
+            ResourceHandle(),
+            true);
+
+        const NonnullRefPtr<VulkanBuffer> vulkan_staging_buffer = static_ptr_cast<VulkanBuffer>(staging_buffer);
 
         void *mapped_ptr = nullptr;
-        vmaMapMemory(m_graphics_device.allocator(), vulkan_staging_buffer->allocation(), &mapped_ptr);
+        vmaMapMemory(graphics_device->allocator(), vulkan_staging_buffer->allocation(), &mapped_ptr);
         memcpy(mapped_ptr, data, data_size);
-        vmaUnmapMemory(m_graphics_device.allocator(), vulkan_staging_buffer->allocation());
+        vmaUnmapMemory(graphics_device->allocator(), vulkan_staging_buffer->allocation());
 
         const VkImageSubresourceLayers subresource_layers = {
-            .aspectMask = VulkanTextureView::get_image_aspect_flags(texture->format()),
+            .aspectMask = VulkanTextureView::get_image_aspect_flags(texture.format()),
             .mipLevel = mip_level,
             .baseArrayLayer = array_index,
             .layerCount = 1,
@@ -627,7 +633,7 @@ namespace hyper_engine
             .sType = VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2,
             .pNext = nullptr,
             .srcBuffer = vulkan_staging_buffer->buffer(),
-            .dstImage = vulkan_texture->image(),
+            .dstImage = vulkan_texture.image(),
             .dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             .regionCount = 1,
             .pRegions = &region,
@@ -635,19 +641,17 @@ namespace hyper_engine
 
         vkCmdCopyBufferToImage2(m_command_buffer, &copy_buffer_to_image_info);
 
-        HE_TRACE("Writing {} bytes to {} texture", data_size, texture->label().empty() ? "a" : fmt::format("the '{}'", texture->label()));
+        HE_TRACE("Writing {} bytes to {} texture", data_size, texture.label().empty() ? "a" : fmt::format("the '{}'", texture.label()));
     }
 
-    std::shared_ptr<ComputePass> VulkanCommandList::begin_compute_pass(const ComputePassDescriptor &descriptor) const
+    NonnullRefPtr<ComputePass> VulkanCommandList::begin_compute_pass_platform(const ComputePassDescriptor &descriptor) const
     {
-        return std::make_shared<VulkanComputePass>(m_graphics_device, m_command_buffer, descriptor);
+        return make_ref_counted<VulkanComputePass>(descriptor, m_command_buffer);
     }
 
-    std::shared_ptr<RenderPass> VulkanCommandList::begin_render_pass(const RenderPassDescriptor &descriptor) const
+    NonnullRefPtr<RenderPass> VulkanCommandList::begin_render_pass_platform(const RenderPassDescriptor &descriptor) const
     {
-        HE_ASSERT(!descriptor.color_attachments.empty());
-
-        return std::make_shared<VulkanRenderPass>(m_graphics_device, m_command_buffer, descriptor);
+        return make_ref_counted<VulkanRenderPass>(descriptor, m_command_buffer);
     }
 
     VkCommandBuffer VulkanCommandList::command_buffer() const
@@ -655,61 +659,61 @@ namespace hyper_engine
         return m_command_buffer;
     }
 
-    VkPipelineStageFlags2 VulkanCommandList::get_pipeline_stage_flags(const BarrierPipelineStage barrier_pipeline_stage)
+    VkPipelineStageFlags2 VulkanCommandList::get_pipeline_stage_flags(const BitFlags<BarrierPipelineStage> barrier_pipeline_stage)
     {
         VkPipelineStageFlags2 pipeline_stage = VK_PIPELINE_STAGE_2_NONE;
 
-        if ((barrier_pipeline_stage & BarrierPipelineStage::ComputeShader) == BarrierPipelineStage::ComputeShader)
+        if (barrier_pipeline_stage & BarrierPipelineStage::ComputeShader)
         {
             pipeline_stage |= VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
         }
 
-        if ((barrier_pipeline_stage & BarrierPipelineStage::VertexShader) == BarrierPipelineStage::VertexShader)
+        if (barrier_pipeline_stage & BarrierPipelineStage::VertexShader)
         {
             pipeline_stage |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT;
         }
 
-        if ((barrier_pipeline_stage & BarrierPipelineStage::FragmentShader) == BarrierPipelineStage::FragmentShader)
+        if (barrier_pipeline_stage & BarrierPipelineStage::FragmentShader)
         {
             pipeline_stage |= VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
         }
 
-        if ((barrier_pipeline_stage & BarrierPipelineStage::EarlyFragmentTests) == BarrierPipelineStage::EarlyFragmentTests)
+        if (barrier_pipeline_stage & BarrierPipelineStage::EarlyFragmentTests)
         {
             pipeline_stage |= VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT;
         }
 
-        if ((barrier_pipeline_stage & BarrierPipelineStage::LateFragmentTests) == BarrierPipelineStage::LateFragmentTests)
+        if (barrier_pipeline_stage & BarrierPipelineStage::LateFragmentTests)
         {
             pipeline_stage |= VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT;
         }
 
-        if ((barrier_pipeline_stage & BarrierPipelineStage::ColorAttachmentOutput) == BarrierPipelineStage::ColorAttachmentOutput)
+        if (barrier_pipeline_stage & BarrierPipelineStage::ColorAttachmentOutput)
         {
             pipeline_stage |= VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
         }
 
-        if ((barrier_pipeline_stage & BarrierPipelineStage::Copy) == BarrierPipelineStage::Copy)
+        if (barrier_pipeline_stage & BarrierPipelineStage::Copy)
         {
             pipeline_stage |= VK_PIPELINE_STAGE_2_COPY_BIT;
         }
 
-        if ((barrier_pipeline_stage & BarrierPipelineStage::Clear) == BarrierPipelineStage::Clear)
+        if (barrier_pipeline_stage & BarrierPipelineStage::Clear)
         {
             pipeline_stage |= VK_PIPELINE_STAGE_2_CLEAR_BIT;
         }
 
-        if ((barrier_pipeline_stage & BarrierPipelineStage::AllGraphics) == BarrierPipelineStage::AllGraphics)
+        if (barrier_pipeline_stage & BarrierPipelineStage::AllGraphics)
         {
             pipeline_stage |= VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
         }
 
-        if ((barrier_pipeline_stage & BarrierPipelineStage::AllTransfer) == BarrierPipelineStage::AllTransfer)
+        if (barrier_pipeline_stage & BarrierPipelineStage::AllTransfer)
         {
             pipeline_stage |= VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT;
         }
 
-        if ((barrier_pipeline_stage & BarrierPipelineStage::AllCommands) == BarrierPipelineStage::AllCommands)
+        if (barrier_pipeline_stage & BarrierPipelineStage::AllCommands)
         {
             pipeline_stage |= VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
         }
@@ -717,46 +721,46 @@ namespace hyper_engine
         return pipeline_stage;
     }
 
-    VkAccessFlags2 VulkanCommandList::get_access_flags(const BarrierAccess barrier_access)
+    VkAccessFlags2 VulkanCommandList::get_access_flags(const BitFlags<BarrierAccess> barrier_access)
     {
         VkAccessFlags2 access = VK_ACCESS_2_NONE;
 
-        if ((barrier_access & BarrierAccess::ShaderRead) == BarrierAccess::ShaderRead)
+        if (barrier_access & BarrierAccess::ShaderRead)
         {
             access |= VK_ACCESS_2_SHADER_READ_BIT;
         }
 
-        if ((barrier_access & BarrierAccess::ShaderWrite) == BarrierAccess::ShaderWrite)
+        if (barrier_access & BarrierAccess::ShaderWrite)
         {
             access |= VK_ACCESS_2_SHADER_WRITE_BIT;
         }
 
-        if ((barrier_access & BarrierAccess::ColorAttachmentRead) == BarrierAccess::ColorAttachmentRead)
+        if (barrier_access & BarrierAccess::ColorAttachmentRead)
         {
             access |= VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT;
         }
 
-        if ((barrier_access & BarrierAccess::ColorAttachmentWrite) == BarrierAccess::ColorAttachmentWrite)
+        if (barrier_access & BarrierAccess::ColorAttachmentWrite)
         {
             access |= VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
         }
 
-        if ((barrier_access & BarrierAccess::DepthStencilAttachmentRead) == BarrierAccess::DepthStencilAttachmentRead)
+        if (barrier_access & BarrierAccess::DepthStencilAttachmentRead)
         {
             access |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
         }
 
-        if ((barrier_access & BarrierAccess::DepthStencilAttachmentWrite) == BarrierAccess::DepthStencilAttachmentWrite)
+        if (barrier_access & BarrierAccess::DepthStencilAttachmentWrite)
         {
             access |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
         }
 
-        if ((barrier_access & BarrierAccess::TransferRead) == BarrierAccess::TransferRead)
+        if (barrier_access & BarrierAccess::TransferRead)
         {
             access |= VK_ACCESS_2_TRANSFER_READ_BIT;
         }
 
-        if ((barrier_access & BarrierAccess::TransferWrite) == BarrierAccess::TransferWrite)
+        if (barrier_access & BarrierAccess::TransferWrite)
         {
             access |= VK_ACCESS_2_TRANSFER_WRITE_BIT;
         }

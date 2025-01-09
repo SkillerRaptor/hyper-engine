@@ -13,10 +13,10 @@ namespace hyper_engine
 {
     struct HyperRhiDescriptor
     {
-        GraphicsApi graphics_api;
-        bool debug_validation_enabled;
-        bool debug_label_enabled;
-        bool debug_marker_enabled;
+        GraphicsApi graphics_api = GraphicsApi::Vulkan;
+        bool debug_validation_enabled = false;
+        bool debug_label_enabled = false;
+        bool debug_marker_enabled = false;
     };
 
     class HyperRhi final : public Module

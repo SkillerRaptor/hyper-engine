@@ -6,22 +6,17 @@
 
 #pragma once
 
-#include <memory>
 #include <vector>
 
-#include <hyper_core/bits.hpp>
+#include <hyper_core/bit_flags.hpp>
+#include <hyper_core/nonnull_ref_ptr.hpp>
+#include <hyper_core/ref_counted.hpp>
 
+#include "hyper_rhi/forward.hpp"
 #include "hyper_rhi/subresource_range.hpp"
 
 namespace hyper_engine
 {
-    class Buffer;
-    class ComputePass;
-    struct ComputePassDescriptor;
-    class RenderPass;
-    struct RenderPassDescriptor;
-    class Texture;
-
     enum class BarrierPipelineStage : uint16_t
     {
         None = 0,
@@ -38,8 +33,6 @@ namespace hyper_engine
         AllCommands = 1 << 10,
     };
 
-    HE_ENABLE_BITMASK_OPERATORS(BarrierPipelineStage);
-
     enum class BarrierAccess : uint8_t
     {
         None = 0,
@@ -53,23 +46,21 @@ namespace hyper_engine
         TransferWrite = 1 << 7,
     };
 
-    HE_ENABLE_BITMASK_OPERATORS(BarrierAccess);
-
     struct MemoryBarrier
     {
-        BarrierPipelineStage stage_before = BarrierPipelineStage::None;
-        BarrierPipelineStage stage_after = BarrierPipelineStage::None;
-        BarrierAccess access_before = BarrierAccess::None;
-        BarrierAccess access_after = BarrierAccess::None;
+        BitFlags<BarrierPipelineStage> stage_before = BarrierPipelineStage::None;
+        BitFlags<BarrierPipelineStage> stage_after = BarrierPipelineStage::None;
+        BitFlags<BarrierAccess> access_before = BarrierAccess::None;
+        BitFlags<BarrierAccess> access_after = BarrierAccess::None;
     };
 
     struct BufferMemoryBarrier
     {
-        BarrierPipelineStage stage_before = BarrierPipelineStage::None;
-        BarrierPipelineStage stage_after = BarrierPipelineStage::None;
-        BarrierAccess access_before = BarrierAccess::None;
-        BarrierAccess access_after = BarrierAccess::None;
-        std::shared_ptr<Buffer> &buffer;
+        BitFlags<BarrierPipelineStage> stage_before = BarrierPipelineStage::None;
+        BitFlags<BarrierPipelineStage> stage_after = BarrierPipelineStage::None;
+        BitFlags<BarrierAccess> access_before = BarrierAccess::None;
+        BitFlags<BarrierAccess> access_after = BarrierAccess::None;
+        NonnullRefPtr<Buffer> buffer;
     };
 
     enum class BarrierTextureLayout
@@ -86,13 +77,13 @@ namespace hyper_engine
 
     struct TextureMemoryBarrier
     {
-        BarrierPipelineStage stage_before = BarrierPipelineStage::None;
-        BarrierPipelineStage stage_after = BarrierPipelineStage::None;
-        BarrierAccess access_before = BarrierAccess::None;
-        BarrierAccess access_after = BarrierAccess::None;
+        BitFlags<BarrierPipelineStage> stage_before = BarrierPipelineStage::None;
+        BitFlags<BarrierPipelineStage> stage_after = BarrierPipelineStage::None;
+        BitFlags<BarrierAccess> access_before = BarrierAccess::None;
+        BitFlags<BarrierAccess> access_after = BarrierAccess::None;
         BarrierTextureLayout layout_before = BarrierTextureLayout::Undefined;
         BarrierTextureLayout layout_after = BarrierTextureLayout::Undefined;
-        std::shared_ptr<Texture> texture;
+        NonnullRefPtr<Texture> texture;
         SubresourceRange subresource_range;
     };
 
@@ -117,7 +108,7 @@ namespace hyper_engine
         int32_t z = 0;
     };
 
-    class CommandList
+    class CommandList : public RefCounted<CommandList>
     {
     public:
         virtual ~CommandList() = default;
@@ -127,45 +118,40 @@ namespace hyper_engine
 
         virtual void insert_barriers(const Barriers &barriers) const = 0;
 
-        virtual void clear_buffer(const std::shared_ptr<Buffer> &buffer, size_t size, uint64_t offset) = 0;
-        virtual void clear_texture(const std::shared_ptr<Texture> &texture, SubresourceRange subresource_range) = 0;
+        virtual void clear_buffer(const Buffer &buffer, size_t size, uint64_t offset) = 0;
+        virtual void clear_texture(const Texture &texture, SubresourceRange subresource_range) = 0;
 
-        virtual void copy_buffer_to_buffer(
-            const std::shared_ptr<Buffer> &src,
-            uint64_t src_offset,
-            const std::shared_ptr<Buffer> &dst,
-            uint64_t dst_offset,
-            size_t size) = 0;
+        virtual void copy_buffer_to_buffer(const Buffer &src, uint64_t src_offset, const Buffer &dst, uint64_t dst_offset, size_t size) = 0;
         virtual void copy_buffer_to_texture(
-            const std::shared_ptr<Buffer> &src,
+            const Buffer &src,
             uint64_t src_offset,
-            const std::shared_ptr<Texture> &dst,
+            const Texture &dst,
             Offset3d dst_offset,
             Extent3d dst_extent,
             uint32_t dst_mip_level,
             uint32_t dst_array_index) = 0;
         virtual void copy_texture_to_buffer(
-            const std::shared_ptr<Texture> &src,
+            const Texture &src,
             Offset3d src_offset,
             Extent3d src_extent,
             uint32_t src_mip_level,
             uint32_t src_array_index,
-            const std::shared_ptr<Buffer> &dst,
+            const Buffer &dst,
             uint64_t dst_offset) = 0;
         virtual void copy_texture_to_texture(
-            const std::shared_ptr<Texture> &src,
+            const Texture &src,
             Offset3d src_offset,
             uint32_t src_mip_level,
             uint32_t src_array_index,
-            const std::shared_ptr<Texture> &dst,
+            const Texture &dst,
             Offset3d dst_offset,
             uint32_t dst_mip_level,
             uint32_t dst_array_index,
             Extent3d extent) = 0;
 
-        virtual void write_buffer(const std::shared_ptr<Buffer> &buffer, const void *data, size_t size, uint64_t offset) = 0;
+        virtual void write_buffer(const Buffer &buffer, const void *data, size_t size, uint64_t offset) = 0;
         virtual void write_texture(
-            const std::shared_ptr<Texture> &texture,
+            const Texture &texture,
             Offset3d offset,
             Extent3d extent,
             uint32_t mip_level,
@@ -174,7 +160,11 @@ namespace hyper_engine
             size_t data_size,
             uint64_t data_offset) = 0;
 
-        virtual std::shared_ptr<ComputePass> begin_compute_pass(const ComputePassDescriptor &descriptor) const = 0;
-        virtual std::shared_ptr<RenderPass> begin_render_pass(const RenderPassDescriptor &descriptor) const = 0;
+        NonnullRefPtr<ComputePass> begin_compute_pass(const ComputePassDescriptor &descriptor) const;
+        NonnullRefPtr<RenderPass> begin_render_pass(const RenderPassDescriptor &descriptor) const;
+
+    protected:
+        virtual NonnullRefPtr<ComputePass> begin_compute_pass_platform(const ComputePassDescriptor &descriptor) const = 0;
+        virtual NonnullRefPtr<RenderPass> begin_render_pass_platform(const RenderPassDescriptor &descriptor) const = 0;
     };
 } // namespace hyper_engine

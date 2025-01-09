@@ -8,6 +8,7 @@
 
 #include <hyper_core/assertion.hpp>
 #include <hyper_core/logger.hpp>
+#include <hyper_core/ref_ptr.hpp>
 
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 #include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
@@ -16,18 +17,10 @@
 
 namespace hyper_engine
 {
-    VulkanRenderPipeline::VulkanRenderPipeline(VulkanGraphicsDevice &graphics_device, const RenderPipelineDescriptor &descriptor)
-        : m_graphics_device(graphics_device)
-        , m_label(descriptor.label)
-        , m_layout(descriptor.layout)
-        , m_vertex_shader(descriptor.vertex_shader)
-        , m_fragment_shader(descriptor.fragment_shader)
-        , m_color_attachment_states(descriptor.color_attachment_states)
-        , m_primitive_state(descriptor.primitive_state)
-        , m_depth_stencil_state(descriptor.depth_stencil_state)
-        , m_pipeline(VK_NULL_HANDLE)
+    NonnullRefPtr<RenderPipeline> VulkanGraphicsDevice::create_render_pipeline_platform(const RenderPipelineDescriptor &descriptor) const
     {
-        const auto vertex_shader_module = std::dynamic_pointer_cast<VulkanShaderModule>(descriptor.vertex_shader);
+        const NonnullRefPtr<VulkanShaderModule> vertex_shader_module = static_ptr_cast<VulkanShaderModule>(descriptor.vertex_shader);
+
         const VkPipelineShaderStageCreateInfo vertex_shader_stage_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .pNext = nullptr,
@@ -38,7 +31,8 @@ namespace hyper_engine
             .pSpecializationInfo = nullptr,
         };
 
-        const auto fragment_shader_module = std::dynamic_pointer_cast<VulkanShaderModule>(descriptor.fragment_shader);
+        const NonnullRefPtr<VulkanShaderModule> fragment_shader_module = static_ptr_cast<VulkanShaderModule>(descriptor.fragment_shader);
+
         const VkPipelineShaderStageCreateInfo fragment_shader_stage_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .pNext = nullptr,
@@ -64,7 +58,7 @@ namespace hyper_engine
             .pVertexAttributeDescriptions = nullptr,
         };
 
-        const VkPrimitiveTopology primitive_topology = VulkanRenderPipeline::get_primitive_topology(m_primitive_state.topology);
+        const VkPrimitiveTopology primitive_topology = VulkanRenderPipeline::get_primitive_topology(descriptor.primitive_state.topology);
         const VkPipelineInputAssemblyStateCreateInfo input_assembly_state_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
             .pNext = nullptr,
@@ -90,9 +84,9 @@ namespace hyper_engine
             .pScissors = nullptr,
         };
 
-        const VkPolygonMode polygon_mode = VulkanRenderPipeline::get_polygon_mode(m_primitive_state.polygon_mode);
-        const VkCullModeFlags cull_mode = VulkanRenderPipeline::get_cull_mode_flags(m_primitive_state.cull_mode);
-        const VkFrontFace front_face = VulkanRenderPipeline::get_front_face(m_primitive_state.front_face);
+        const VkPolygonMode polygon_mode = VulkanRenderPipeline::get_polygon_mode(descriptor.primitive_state.polygon_mode);
+        const VkCullModeFlags cull_mode = VulkanRenderPipeline::get_cull_mode_flags(descriptor.primitive_state.cull_mode);
+        const VkFrontFace front_face = VulkanRenderPipeline::get_front_face(descriptor.primitive_state.front_face);
         const VkPipelineRasterizationStateCreateInfo rasterization_state_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
             .pNext = nullptr,
@@ -102,14 +96,14 @@ namespace hyper_engine
             .polygonMode = polygon_mode,
             .cullMode = cull_mode,
             .frontFace = front_face,
-            .depthBiasEnable = m_depth_stencil_state.depth_bias_state.depth_bias_enable,
-            .depthBiasConstantFactor = m_depth_stencil_state.depth_bias_state.constant,
-            .depthBiasClamp = m_depth_stencil_state.depth_bias_state.clamp,
-            .depthBiasSlopeFactor = m_depth_stencil_state.depth_bias_state.slope,
+            .depthBiasEnable = descriptor.depth_stencil_state.depth_bias_state.depth_bias_enable,
+            .depthBiasConstantFactor = descriptor.depth_stencil_state.depth_bias_state.constant,
+            .depthBiasClamp = descriptor.depth_stencil_state.depth_bias_state.clamp,
+            .depthBiasSlopeFactor = descriptor.depth_stencil_state.depth_bias_state.slope,
             .lineWidth = 1.0,
         };
 
-        // TODO: Add multisampling
+        // FIXME: Add multisampling
         constexpr VkPipelineMultisampleStateCreateInfo multisample_state_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
             .pNext = nullptr,
@@ -122,15 +116,16 @@ namespace hyper_engine
             .alphaToOneEnable = false,
         };
 
-        // TODO: Add stencil
-        // TODO: Add depth bounds
-        const VkCompareOp depth_compare_operation = VulkanRenderPipeline::get_compare_operation(m_depth_stencil_state.depth_compare_operation);
+        // FIXME: Add stencil
+        // FIXME: Add depth bounds
+        const VkCompareOp depth_compare_operation =
+            VulkanRenderPipeline::get_compare_operation(descriptor.depth_stencil_state.depth_compare_operation);
         const VkPipelineDepthStencilStateCreateInfo depth_stencil_state_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
-            .depthTestEnable = m_depth_stencil_state.depth_test_enable,
-            .depthWriteEnable = m_depth_stencil_state.depth_write_enable,
+            .depthTestEnable = descriptor.depth_stencil_state.depth_test_enable,
+            .depthWriteEnable = descriptor.depth_stencil_state.depth_write_enable,
             .depthCompareOp = depth_compare_operation,
             .depthBoundsTestEnable = false,
             .stencilTestEnable = false,
@@ -141,7 +136,7 @@ namespace hyper_engine
         };
 
         std::vector<VkPipelineColorBlendAttachmentState> color_blend_attachment_states = {};
-        for (const ColorAttachmentState &color_attachment_state : m_color_attachment_states)
+        for (const ColorAttachmentState &color_attachment_state : descriptor.color_attachment_states)
         {
             const BlendState &blend_state = color_attachment_state.blend_state;
 
@@ -197,12 +192,12 @@ namespace hyper_engine
         };
 
         std::vector<VkFormat> color_attachment_formats = {};
-        for (const ColorAttachmentState &color_attachment_state : m_color_attachment_states)
+        for (const ColorAttachmentState &color_attachment_state : descriptor.color_attachment_states)
         {
             color_attachment_formats.push_back(VulkanTexture::get_format(color_attachment_state.format));
         }
 
-        const VkFormat depth_attachment_format = VulkanTexture::get_format(m_depth_stencil_state.depth_format);
+        const VkFormat depth_attachment_format = VulkanTexture::get_format(descriptor.depth_stencil_state.depth_format);
         const VkPipelineRenderingCreateInfo rendering_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
             .pNext = nullptr,
@@ -213,7 +208,8 @@ namespace hyper_engine
             .stencilAttachmentFormat = VK_FORMAT_UNDEFINED,
         };
 
-        const auto layout = std::dynamic_pointer_cast<VulkanPipelineLayout>(descriptor.layout);
+        const NonnullRefPtr<VulkanPipelineLayout> layout = static_ptr_cast<VulkanPipelineLayout>(descriptor.layout);
+
         const VkGraphicsPipelineCreateInfo graphics_pipeline_create_info = {
             .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
             .pNext = &rendering_create_info,
@@ -236,54 +232,26 @@ namespace hyper_engine
             .basePipelineIndex = -1,
         };
 
-        HE_VK_CHECK(
-            vkCreateGraphicsPipelines(m_graphics_device.device(), VK_NULL_HANDLE, 1, &graphics_pipeline_create_info, nullptr, &m_pipeline));
-        HE_ASSERT(m_pipeline != VK_NULL_HANDLE);
+        VkPipeline pipeline = VK_NULL_HANDLE;
+        HE_VK_CHECK(vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &graphics_pipeline_create_info, nullptr, &pipeline));
 
-        m_graphics_device.set_object_name(m_pipeline, ObjectType::GraphicsPipeline, m_label);
+        HE_ASSERT(pipeline != VK_NULL_HANDLE);
 
-        // TODO: Add more trace information
-        HE_TRACE("Created Graphics Pipeline");
+        set_object_name(pipeline, ObjectType::Pipeline, descriptor.label);
+
+        return make_ref_counted<VulkanRenderPipeline>(descriptor, pipeline);
+    }
+
+    VulkanRenderPipeline::VulkanRenderPipeline(const RenderPipelineDescriptor &descriptor, const VkPipeline pipeline)
+        : RenderPipeline(descriptor)
+        , m_pipeline(pipeline)
+    {
     }
 
     VulkanRenderPipeline::~VulkanRenderPipeline()
     {
-        m_graphics_device.resource_queue().graphics_pipelines.emplace_back(m_pipeline);
-    }
-
-    std::string_view VulkanRenderPipeline::label() const
-    {
-        return m_label;
-    }
-
-    const std::shared_ptr<PipelineLayout> &VulkanRenderPipeline::layout() const
-    {
-        return m_layout;
-    }
-
-    const std::shared_ptr<ShaderModule> &VulkanRenderPipeline::vertex_shader() const
-    {
-        return m_vertex_shader;
-    }
-
-    const std::shared_ptr<ShaderModule> &VulkanRenderPipeline::fragment_shader() const
-    {
-        return m_fragment_shader;
-    }
-
-    const std::vector<ColorAttachmentState> &VulkanRenderPipeline::color_attachment_states() const
-    {
-        return m_color_attachment_states;
-    }
-
-    PrimitiveState VulkanRenderPipeline::primitive_state() const
-    {
-        return m_primitive_state;
-    }
-
-    DepthStencilState VulkanRenderPipeline::depth_stencil_state() const
-    {
-        return m_depth_stencil_state;
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        graphics_device->resource_queue().graphics_pipelines.emplace_back(m_pipeline);
     }
 
     VkPipeline VulkanRenderPipeline::pipeline() const
@@ -446,7 +414,7 @@ namespace hyper_engine
         }
     }
 
-    VkColorComponentFlags VulkanRenderPipeline::get_color_component_flags(const ColorWrites color_writes)
+    VkColorComponentFlags VulkanRenderPipeline::get_color_component_flags(const BitFlags<ColorWrites> color_writes)
     {
         VkColorComponentFlags color_component_flags = 0;
         if ((color_writes & ColorWrites::R) == ColorWrites::R)

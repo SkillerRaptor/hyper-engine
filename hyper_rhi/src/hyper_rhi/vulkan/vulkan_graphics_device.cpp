@@ -14,24 +14,17 @@
 #include <SDL3/SDL_vulkan.h>
 
 #define VMA_IMPLEMENTATION
+#include "hyper_rhi/descriptor_manager.hpp"
+
 #include <vk_mem_alloc.h>
 
 #include <hyper_core/assertion.hpp>
 #include <hyper_core/logger.hpp>
-#include <hyper_core/prerequisites.hpp>
 
 #include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 #include "hyper_rhi/vulkan/vulkan_command_list.hpp"
-#include "hyper_rhi/vulkan/vulkan_compute_pipeline.hpp"
 #include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
-#include "hyper_rhi/vulkan/vulkan_imgui_manager.hpp"
-#include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
-#include "hyper_rhi/vulkan/vulkan_render_pipeline.hpp"
-#include "hyper_rhi/vulkan/vulkan_sampler.hpp"
-#include "hyper_rhi/vulkan/vulkan_shader_module.hpp"
 #include "hyper_rhi/vulkan/vulkan_surface.hpp"
-#include "hyper_rhi/vulkan/vulkan_texture.hpp"
-#include "hyper_rhi/vulkan/vulkan_texture_view.hpp"
 
 namespace hyper_engine
 {
@@ -125,111 +118,14 @@ namespace hyper_engine
         vkDestroyInstance(m_instance, nullptr);
     }
 
-    std::shared_ptr<Surface> VulkanGraphicsDevice::create_surface()
+    NonnullRefPtr<Surface> VulkanGraphicsDevice::create_surface()
     {
-        return std::make_shared<VulkanSurface>(*this);
+        return make_ref_counted<VulkanSurface>();
     }
 
-    std::shared_ptr<Buffer> VulkanGraphicsDevice::create_buffer(const BufferDescriptor &descriptor)
+    NonnullRefPtr<CommandList> VulkanGraphicsDevice::create_command_list()
     {
-        HE_ASSERT(descriptor.byte_size > 0);
-        HE_ASSERT(descriptor.usage != BufferUsage::None);
-
-        if ((descriptor.usage & BufferUsage::ShaderResource) == BufferUsage::ShaderResource)
-        {
-            HE_ASSERT((descriptor.usage & BufferUsage::Storage) == BufferUsage::Storage);
-        }
-
-        return std::make_shared<VulkanBuffer>(*this, descriptor);
-    }
-
-    std::shared_ptr<Buffer> VulkanGraphicsDevice::create_staging_buffer(const BufferDescriptor &descriptor)
-    {
-        return std::make_shared<VulkanBuffer>(*this, descriptor, true);
-    }
-
-    std::shared_ptr<CommandList> VulkanGraphicsDevice::create_command_list()
-    {
-        return std::make_shared<VulkanCommandList>(*this);
-    }
-
-    std::shared_ptr<ComputePipeline> VulkanGraphicsDevice::create_compute_pipeline(const ComputePipelineDescriptor &descriptor)
-    {
-        HE_ASSERT(descriptor.layout != nullptr);
-        HE_ASSERT(descriptor.shader != nullptr);
-
-        return std::make_shared<VulkanComputePipeline>(*this, descriptor);
-    }
-
-    std::shared_ptr<RenderPipeline> VulkanGraphicsDevice::create_render_pipeline(const RenderPipelineDescriptor &descriptor)
-    {
-        HE_ASSERT(descriptor.layout != nullptr);
-        HE_ASSERT(descriptor.vertex_shader != nullptr);
-        HE_ASSERT(descriptor.fragment_shader != nullptr);
-        HE_ASSERT(!descriptor.color_attachment_states.empty());
-
-        for (const ColorAttachmentState &color_attachment_state : descriptor.color_attachment_states)
-        {
-            HE_ASSERT(color_attachment_state.format != Format::Unknown);
-        }
-
-        if (descriptor.depth_stencil_state.depth_test_enable)
-        {
-            HE_ASSERT(descriptor.depth_stencil_state.depth_format != Format::Unknown);
-        }
-
-        return std::make_shared<VulkanRenderPipeline>(*this, descriptor);
-    }
-
-    std::shared_ptr<PipelineLayout> VulkanGraphicsDevice::create_pipeline_layout(const PipelineLayoutDescriptor &descriptor)
-    {
-        HE_ASSERT((descriptor.push_constant_size % 4) == 0);
-
-        return std::make_shared<VulkanPipelineLayout>(*this, descriptor);
-    }
-
-    std::shared_ptr<Sampler> VulkanGraphicsDevice::create_sampler(const SamplerDescriptor &descriptor)
-    {
-        // TODO: Add assertions
-
-        return std::make_shared<VulkanSampler>(*this, descriptor);
-    }
-
-    std::shared_ptr<ShaderModule> VulkanGraphicsDevice::create_shader_module(const ShaderModuleDescriptor &descriptor)
-    {
-        HE_ASSERT(descriptor.type != ShaderType::None);
-        HE_ASSERT(!descriptor.entry_name.empty());
-        HE_ASSERT(!descriptor.bytes.empty());
-
-        return std::make_shared<VulkanShaderModule>(*this, descriptor);
-    }
-
-    std::shared_ptr<Texture> VulkanGraphicsDevice::create_texture(const TextureDescriptor &descriptor)
-    {
-        HE_ASSERT(descriptor.width > 0);
-        HE_ASSERT(descriptor.height > 0);
-        HE_ASSERT(descriptor.depth > 0);
-        HE_ASSERT(descriptor.array_size > 0);
-        HE_ASSERT(descriptor.mip_levels > 0);
-        HE_ASSERT(descriptor.format != Format::Unknown);
-        HE_ASSERT(descriptor.dimension != Dimension::Unknown);
-        HE_ASSERT(descriptor.usage != TextureUsage::None);
-
-        return std::make_shared<VulkanTexture>(*this, descriptor);
-    }
-
-    std::shared_ptr<TextureView> VulkanGraphicsDevice::create_texture_view(const TextureViewDescriptor &descriptor)
-    {
-        HE_ASSERT(descriptor.texture != nullptr);
-        HE_ASSERT(descriptor.subresource_range.mip_level_count > 0);
-        HE_ASSERT(descriptor.subresource_range.array_layer_count > 0);
-
-        return std::make_shared<VulkanTextureView>(*this, descriptor);
-    }
-
-    std::shared_ptr<ImGuiManager> VulkanGraphicsDevice::create_imgui_manager()
-    {
-        return std::make_shared<VulkanImGuiManager>(*this);
+        return make_ref_counted<VulkanCommandList>();
     }
 
     void VulkanGraphicsDevice::begin_marker(
@@ -300,23 +196,20 @@ namespace hyper_engine
                     return VK_OBJECT_TYPE_BUFFER;
                 case ObjectType::CommandPool:
                     return VK_OBJECT_TYPE_COMMAND_POOL;
-                case ObjectType::ComputePipeline:
-                case ObjectType::GraphicsPipeline:
-                    return VK_OBJECT_TYPE_PIPELINE;
-                case ObjectType::ComputeShaderModule:
-                case ObjectType::FragmentShaderModule:
-                case ObjectType::VertexShaderModule:
-                    return VK_OBJECT_TYPE_SHADER_MODULE;
+                case ObjectType::Fence:
+                    return VK_OBJECT_TYPE_FENCE;
                 case ObjectType::Image:
                     return VK_OBJECT_TYPE_IMAGE;
                 case ObjectType::ImageView:
                     return VK_OBJECT_TYPE_IMAGE_VIEW;
+                case ObjectType::Pipeline:
+                    return VK_OBJECT_TYPE_PIPELINE;
                 case ObjectType::PipelineLayout:
                     return VK_OBJECT_TYPE_PIPELINE_LAYOUT;
                 case ObjectType::Queue:
                     return VK_OBJECT_TYPE_QUEUE;
-                case ObjectType::Fence:
-                    return VK_OBJECT_TYPE_FENCE;
+                case ObjectType::ShaderModule:
+                    return VK_OBJECT_TYPE_SHADER_MODULE;
                 case ObjectType::Semaphore:
                     return VK_OBJECT_TYPE_SEMAPHORE;
                 case ObjectType::Sampler:
@@ -326,51 +219,12 @@ namespace hyper_engine
                 }
             }();
 
-            const std::string_view suffix = [&type]()
-            {
-                switch (type)
-                {
-                case ObjectType::Buffer:
-                    return "Buffer";
-                case ObjectType::CommandPool:
-                    return "Command Pool";
-                case ObjectType::ComputePipeline:
-                    return "Compute Pipeline";
-                case ObjectType::ComputeShaderModule:
-                    return "Compute Shader Module";
-                case ObjectType::Fence:
-                    return "Fence";
-                case ObjectType::FragmentShaderModule:
-                    return "Fragment Shader Module";
-                case ObjectType::GraphicsPipeline:
-                    return "Graphics Pipeline";
-                case ObjectType::Image:
-                    return "Image";
-                case ObjectType::ImageView:
-                    return "Image View";
-                case ObjectType::PipelineLayout:
-                    return "Pipeline Layout";
-                case ObjectType::Queue:
-                    return "Queue";
-                case ObjectType::Sampler:
-                    return "Sampler";
-                case ObjectType::Semaphore:
-                    return "Semaphore";
-                case ObjectType::VertexShaderModule:
-                    return "Vertex Shader Module";
-                default:
-                    HE_UNREACHABLE();
-                }
-            }();
-
-            const std::string object_name = fmt::format("{} {}", name, suffix);
-
             const VkDebugUtilsObjectNameInfoEXT debug_marker_object_name_info = {
                 .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
                 .pNext = nullptr,
                 .objectType = object_type,
                 .objectHandle = reinterpret_cast<uint64_t>(handle),
-                .pObjectName = object_name.c_str(),
+                .pObjectName = name.data(),
             };
 
             HE_VK_CHECK(vkSetDebugUtilsObjectNameEXT(m_device, &debug_marker_object_name_info));
@@ -436,9 +290,9 @@ namespace hyper_engine
         m_resource_queue.texture_views.clear();
     }
 
-    void VulkanGraphicsDevice::begin_frame(const std::shared_ptr<Surface> &surface, const uint32_t frame_index)
+    void VulkanGraphicsDevice::begin_frame(Surface &surface, const uint32_t frame_index)
     {
-        const auto vulkan_surface = std::dynamic_pointer_cast<VulkanSurface>(surface);
+        VulkanSurface &vulkan_surface = static_cast<VulkanSurface &>(surface);
 
         m_current_frame_index = frame_index;
 
@@ -455,21 +309,21 @@ namespace hyper_engine
 
         destroy_resources();
 
-        if (vulkan_surface->resized())
+        if (vulkan_surface.resized())
         {
-            vulkan_surface->rebuild();
+            vulkan_surface.rebuild();
         }
 
         uint32_t image_index = 0;
         HE_VK_CHECK(vkAcquireNextImageKHR(
             m_device,
-            vulkan_surface->swapchain(),
+            vulkan_surface.swapchain(),
             std::numeric_limits<uint64_t>::max(),
             VK_NULL_HANDLE,
             current_frame().render_fence,
             &image_index));
 
-        vulkan_surface->set_texture_index(image_index);
+        vulkan_surface.set_texture_index(image_index);
     }
 
     void VulkanGraphicsDevice::end_frame() const
@@ -478,16 +332,16 @@ namespace hyper_engine
         HE_VK_CHECK(vkResetFences(m_device, 1, &current_frame().render_fence));
     }
 
-    void VulkanGraphicsDevice::execute(const std::shared_ptr<CommandList> &command_list)
+    void VulkanGraphicsDevice::execute(const CommandList &command_list)
     {
         m_frames[m_current_frame_index % GraphicsDevice::s_frame_count].semaphore_counter += 1;
 
-        const std::shared_ptr<VulkanCommandList> vulkan_command_list = std::dynamic_pointer_cast<VulkanCommandList>(command_list);
+        const VulkanCommandList &vulkan_command_list = static_cast<const VulkanCommandList &>(command_list);
 
         const VkCommandBufferSubmitInfo command_buffer_submit_info = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
             .pNext = nullptr,
-            .commandBuffer = vulkan_command_list->command_buffer(),
+            .commandBuffer = vulkan_command_list.command_buffer(),
             .deviceMask = 0,
         };
 
@@ -515,9 +369,9 @@ namespace hyper_engine
         HE_VK_CHECK(vkQueueSubmit2(m_queue, 1, &submit_info, VK_NULL_HANDLE));
     }
 
-    void VulkanGraphicsDevice::present(const std::shared_ptr<Surface> &surface) const
+    void VulkanGraphicsDevice::present(const Surface &surface) const
     {
-        const auto vulkan_surface = std::dynamic_pointer_cast<VulkanSurface>(surface);
+        const VulkanSurface &vulkan_surface = static_cast<const VulkanSurface &>(surface);
 
         const VkSemaphoreWaitInfo semaphore_wait_info = {
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
@@ -529,8 +383,8 @@ namespace hyper_engine
         };
         HE_VK_CHECK(vkWaitSemaphores(m_device, &semaphore_wait_info, std::numeric_limits<uint64_t>::max()));
 
-        const VkSwapchainKHR swapchain = vulkan_surface->swapchain();
-        const uint32_t texture_index = vulkan_surface->texture_index();
+        const VkSwapchainKHR swapchain = vulkan_surface.swapchain();
+        const uint32_t texture_index = vulkan_surface.texture_index();
 
         const VkPresentInfoKHR present_info = {
             .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
@@ -571,6 +425,11 @@ namespace hyper_engine
         return m_debug_marker;
     }
 
+    DescriptorManager &VulkanGraphicsDevice::descriptor_manager()
+    {
+        return *static_cast<DescriptorManager *>(m_descriptor_manager);
+    }
+
     VkInstance VulkanGraphicsDevice::instance() const
     {
         return m_instance;
@@ -599,11 +458,6 @@ namespace hyper_engine
     VmaAllocator VulkanGraphicsDevice::allocator() const
     {
         return m_allocator;
-    }
-
-    VulkanDescriptorManager &VulkanGraphicsDevice::descriptor_manager() const
-    {
-        return *m_descriptor_manager;
     }
 
     ResourceQueue &VulkanGraphicsDevice::resource_queue()
@@ -742,8 +596,8 @@ namespace hyper_engine
             }
         }();
 
-        // TODO: Log queues, extensions and features
-        // TODO: Log missing criteria if no device was found
+        // FIXME: Log queues, extensions and features
+        // FIXME: Log missing criteria if no device was found
 
         HE_TRACE("Selected Physical Device with the score of {}", possible_physical_devices.rbegin()->first);
 
@@ -931,7 +785,7 @@ namespace hyper_engine
         m_queue_family = queue_family.value();
         m_queue = queue;
 
-        // TODO: Retrieve queue type
+        // FIXME: Retrieve queue type
         set_object_name(m_queue, ObjectType::Queue, "Graphics");
     }
 

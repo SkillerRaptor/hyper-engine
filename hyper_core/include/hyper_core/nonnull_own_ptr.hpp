@@ -25,6 +25,9 @@
 namespace hyper_engine
 {
     template <typename T>
+    class WeakPtr;
+
+    template <typename T>
     class NonnullOwnPtr
     {
     public:
@@ -84,6 +87,11 @@ namespace hyper_engine
         NonnullOwnPtr(const NonnullRefPtr<U> &) = delete;
         template <typename U>
         NonnullOwnPtr &operator=(const NonnullRefPtr<U> &) = delete;
+
+        template <typename U>
+        NonnullOwnPtr(WeakPtr<U> const &) = delete;
+        template <typename U>
+        NonnullOwnPtr &operator=(WeakPtr<U> const &) = delete;
 
         NonnullOwnPtr &operator=(NonnullOwnPtr &&other) noexcept
         {

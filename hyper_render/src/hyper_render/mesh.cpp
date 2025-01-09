@@ -6,17 +6,19 @@
 
 #include "hyper_render/mesh.hpp"
 
+#include <hyper_rhi/buffer.hpp>
+
 namespace hyper_engine
 {
     Mesh::Mesh(
         std::string name,
         std::vector<GltfSurface> surfaces,
-        std::shared_ptr<Buffer> positions_buffer,
-        std::shared_ptr<Buffer> normals_buffer,
-        std::shared_ptr<Buffer> colors_buffer,
-        std::shared_ptr<Buffer> tex_coords_buffer,
-        std::shared_ptr<Buffer> mesh_buffer,
-        std::shared_ptr<Buffer> indices_buffer)
+        NonnullRefPtr<Buffer> positions_buffer,
+        NonnullRefPtr<Buffer> normals_buffer,
+        NonnullRefPtr<Buffer> colors_buffer,
+        NonnullRefPtr<Buffer> tex_coords_buffer,
+        NonnullRefPtr<Buffer> mesh_buffer,
+        NonnullRefPtr<Buffer> indices_buffer)
         : m_name(std::move(name))
         , m_surfaces(std::move(surfaces))
         , m_positions_buffer(std::move(positions_buffer))
@@ -38,32 +40,32 @@ namespace hyper_engine
         return m_surfaces;
     }
 
-    const std::shared_ptr<Buffer> &Mesh::positions_buffer() const
+    NonnullRefPtr<Buffer> Mesh::positions_buffer() const
     {
         return m_positions_buffer;
     }
 
-    const std::shared_ptr<Buffer> &Mesh::normals_buffer() const
+    NonnullRefPtr<Buffer> Mesh::normals_buffer() const
     {
         return m_normals_buffer;
     }
 
-    const std::shared_ptr<Buffer> &Mesh::colors_buffer() const
+    NonnullRefPtr<Buffer> Mesh::colors_buffer() const
     {
         return m_colors_buffer;
     }
 
-    const std::shared_ptr<Buffer> &Mesh::tex_coords_buffer() const
+    NonnullRefPtr<Buffer> Mesh::tex_coords_buffer() const
     {
         return m_tex_coords_buffer;
     }
 
-    const std::shared_ptr<Buffer> &Mesh::mesh_buffer() const
+    NonnullRefPtr<Buffer> Mesh::mesh_buffer() const
     {
         return m_mesh_buffer;
     }
 
-    const std::shared_ptr<Buffer> &Mesh::indices_buffer() const
+    NonnullRefPtr<Buffer> Mesh::indices_buffer() const
     {
         return m_indices_buffer;
     }

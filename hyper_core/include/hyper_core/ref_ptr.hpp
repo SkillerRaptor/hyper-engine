@@ -31,6 +31,9 @@ namespace hyper_engine
         friend class RefPtr;
 
         template <typename U>
+        friend class WeakPtr;
+
+        template <typename U>
         friend class NonnullRefPtr;
 
     public:

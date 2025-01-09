@@ -8,6 +8,8 @@
 
 #include <string>
 
+#include <hyper_core/ref_counted.hpp>
+
 #include "hyper_rhi/compare_operation.hpp"
 #include "hyper_rhi/resource_handle.hpp"
 
@@ -38,7 +40,6 @@ namespace hyper_engine
     struct SamplerDescriptor
     {
         std::string label;
-
         Filter mag_filter = Filter::Linear;
         Filter min_filter = Filter::Linear;
         Filter mipmap_filter = Filter::Linear;
@@ -50,29 +51,43 @@ namespace hyper_engine
         float min_lod = 0.0;
         float max_lod = 1.0;
         BorderColor border_color = BorderColor::TransparentBlack;
-
-        ResourceHandle handle;
     };
 
-    class Sampler
+    class Sampler : public RefCounted<Sampler>
     {
     public:
         virtual ~Sampler() = default;
 
-        virtual std::string_view label() const = 0;
+        std::string_view label() const;
+        Filter mag_filter() const;
+        Filter min_filter() const;
+        Filter mipmap_filter() const;
+        AddressMode address_mode_u() const;
+        AddressMode address_mode_v() const;
+        AddressMode address_mode_w() const;
+        float mip_lod_bias() const;
+        CompareOperation compare_operation() const;
+        float min_lod() const;
+        float max_lod() const;
+        BorderColor border_color() const;
+        ResourceHandle handle() const;
 
-        virtual Filter mag_filter() const = 0;
-        virtual Filter min_filter() const = 0;
-        virtual Filter mipmap_filter() const = 0;
-        virtual AddressMode address_mode_u() const = 0;
-        virtual AddressMode address_mode_v() const = 0;
-        virtual AddressMode address_mode_w() const = 0;
-        virtual float mip_lod_bias() const = 0;
-        virtual CompareOperation compare_operation() const = 0;
-        virtual float min_lod() const = 0;
-        virtual float max_lod() const = 0;
-        virtual BorderColor border_color() const = 0;
+    protected:
+         Sampler(const SamplerDescriptor &descriptor, ResourceHandle handle);
 
-        virtual ResourceHandle handle() const = 0;
+    protected:
+        std::string m_label;
+        Filter m_mag_filter = Filter::Linear;
+        Filter m_min_filter = Filter::Linear;
+        Filter m_mipmap_filter = Filter::Linear;
+        AddressMode m_address_mode_u = AddressMode::ClampToEdge;
+        AddressMode m_address_mode_v = AddressMode::ClampToEdge;
+        AddressMode m_address_mode_w = AddressMode::ClampToEdge;
+        float m_mip_lod_bias = 0.0;
+        CompareOperation m_compare_operation = CompareOperation::Less;
+        float m_min_lod = 0.0;
+        float m_max_lod = 1.0;
+        BorderColor m_border_color = BorderColor::TransparentBlack;
+        ResourceHandle m_handle;
     };
 } // namespace hyper_engine

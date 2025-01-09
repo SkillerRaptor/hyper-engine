@@ -11,7 +11,6 @@ set(SOURCES
         src/hyper_render/renderable.cpp
         src/hyper_render/renderer.cpp
         src/hyper_render/render_passes/grid_pass.cpp
-        src/hyper_render/render_passes/imgui_pass.cpp
         src/hyper_render/render_passes/opaque_pass.cpp)
 
 set(HEADERS
@@ -22,7 +21,6 @@ set(HEADERS
         include/hyper_render/renderable.hpp
         include/hyper_render/renderer.hpp
         include/hyper_render/render_passes/grid_pass.hpp
-        include/hyper_render/render_passes/imgui_pass.hpp
         include/hyper_render/render_passes/opaque_pass.hpp)
 
 hyperengine_define_library(hyper_render)

@@ -7,16 +7,15 @@
 #pragma once
 
 #include <array>
-#include <stack>
 
+#include "hyper_rhi/descriptor_manager.hpp"
 #include "hyper_rhi/resource_handle.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
+#include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 
 namespace hyper_engine
 {
-    class VulkanGraphicsDevice;
-
-    class VulkanDescriptorManager
+    class VulkanDescriptorManager final : public DescriptorManager
     {
     private:
         static constexpr std::array<VkDescriptorType, 4> s_descriptor_types = {
@@ -28,18 +27,12 @@ namespace hyper_engine
 
     public:
         explicit VulkanDescriptorManager(VulkanGraphicsDevice &graphics_device);
-        ~VulkanDescriptorManager();
+        ~VulkanDescriptorManager() override;
 
-        void set_buffer(VkBuffer buffer, uint32_t slot) const;
-        void set_sampled_image(VkImageView image_view, VkImageLayout image_layout, uint32_t slot) const;
-        void set_storage_image(VkImageView image_view, VkImageLayout image_layout, uint32_t slot) const;
-        void set_sampler(VkSampler sampler, uint32_t slot) const;
-
-        ResourceHandle allocate_buffer_handle(VkBuffer buffer);
-        ResourceHandle allocate_sampled_image_handle(VkImageView image_view, VkImageLayout image_layout);
-        ResourceHandle allocate_storage_image_handle(VkImageView image_view, VkImageLayout image_layout);
-        ResourceHandle allocate_sampler_handle(VkSampler sampler);
-        void retire_handle(ResourceHandle handle);
+        void set_buffer(const Buffer &buffer, ResourceHandle handle) const override;
+        void set_storage_image(const TextureView &texture_view, ResourceHandle handle) const override;
+        void set_sampled_image(const TextureView &texture_view, ResourceHandle handle) const override;
+        void set_sampler(const Sampler &sampler, ResourceHandle handle) const override;
 
         const std::array<uint32_t, s_descriptor_types.size()> &descriptor_counts() const;
         VkDescriptorPool descriptor_pool() const;
@@ -52,18 +45,13 @@ namespace hyper_engine
         void create_descriptor_set_layouts();
         void create_descriptor_sets();
 
-        ResourceHandle fetch_handle();
-
     private:
         VulkanGraphicsDevice &m_graphics_device;
 
         std::array<uint32_t, s_descriptor_types.size()> m_descriptor_counts;
 
-        VkDescriptorPool m_descriptor_pool;
+        VkDescriptorPool m_descriptor_pool = VK_NULL_HANDLE;
         std::array<VkDescriptorSetLayout, s_descriptor_types.size()> m_descriptor_set_layouts;
         std::array<VkDescriptorSet, s_descriptor_types.size()> m_descriptor_sets;
-
-        std::stack<ResourceHandle> m_recycled_descriptors;
-        uint32_t m_current_index;
     };
 } // namespace hyper_engine

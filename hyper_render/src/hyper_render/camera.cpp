@@ -15,20 +15,8 @@ namespace hyper_engine
 {
     Camera::Camera(const glm::vec3 position, const float yaw, const float pitch)
         : m_position(position)
-        , m_front(glm::vec3(0.0, 0.0, 0.0))
-        , m_up(glm::vec3(0.0, 0.0, 0.0))
-        , m_right(glm::vec3(0.0, 0.0, 0.0))
         , m_yaw(yaw)
         , m_pitch(pitch)
-        , m_movement_speed(2.5f)
-        , m_mouse_sensitivity(0.1f)
-        , m_fov(90.0f)
-        , m_near(0.01f)
-        , m_far(1000.0f)
-        , m_aspect_ratio(1280.0f / 720.0f)
-        , m_first_mouse(true)
-        , m_last_x(0.0)
-        , m_last_y(0.0)
     {
         update_camera_vectors();
     }

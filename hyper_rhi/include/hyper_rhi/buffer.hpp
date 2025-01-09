@@ -8,7 +8,8 @@
 
 #include <string>
 
-#include <hyper_core/bits.hpp>
+#include <hyper_core/bit_flags.hpp>
+#include <hyper_core/ref_counted.hpp>
 
 #include "hyper_rhi/resource_handle.hpp"
 
@@ -23,28 +24,30 @@ namespace hyper_engine
         ShaderResource = 1 << 3,
     };
 
-    HE_ENABLE_BITMASK_OPERATORS(BufferUsage);
-
     struct BufferDescriptor
     {
         std::string label;
-
         uint64_t byte_size = 0;
-        BufferUsage usage = BufferUsage::None;
-
-        ResourceHandle handle = {};
+        BitFlags<BufferUsage> usage = BufferUsage::None;
     };
 
-    class Buffer
+    class Buffer : public RefCounted<Buffer>
     {
     public:
         virtual ~Buffer() = default;
 
-        virtual std::string_view label() const = 0;
+        std::string_view label() const;
+        uint64_t byte_size() const;
+        BitFlags<BufferUsage> usage() const;
+        ResourceHandle handle() const;
 
-        virtual uint64_t byte_size() const = 0;
-        virtual BufferUsage usage() const = 0;
+    protected:
+        Buffer(const BufferDescriptor &descriptor, ResourceHandle handle);
 
-        virtual ResourceHandle handle() const = 0;
+    protected:
+        std::string m_label;
+        uint64_t m_byte_size = 0;
+        BitFlags<BufferUsage> m_usage = BufferUsage::None;
+        ResourceHandle m_handle;
     };
 } // namespace hyper_engine

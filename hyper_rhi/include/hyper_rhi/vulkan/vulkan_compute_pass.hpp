@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <hyper_core/ref_ptr.hpp>
+
 #include "hyper_rhi/compute_pass.hpp"
 #include "hyper_rhi/vulkan/vulkan_common.hpp"
 
@@ -16,27 +18,19 @@ namespace hyper_engine
     class VulkanComputePass final : public ComputePass
     {
     public:
-        VulkanComputePass(VulkanGraphicsDevice &graphics_device, VkCommandBuffer command_buffer, const ComputePassDescriptor &descriptor);
+        VulkanComputePass(const ComputePassDescriptor &descriptor, VkCommandBuffer command_buffer);
         ~VulkanComputePass() override;
 
-        void set_pipeline(const std::shared_ptr<ComputePipeline> &pipeline) override;
+        void set_pipeline(const RefPtr<ComputePipeline> &pipeline) override;
         void set_push_constants(const void *data, size_t data_size) const override;
 
         void dispatch(uint32_t x, uint32_t y, uint32_t z) const override;
 
-        std::string_view label() const override;
-        LabelColor label_color() const override;
-
         VkCommandBuffer command_buffer() const;
 
     private:
-        VulkanGraphicsDevice &m_graphics_device;
+        VkCommandBuffer m_command_buffer = VK_NULL_HANDLE;
 
-        std::string m_label;
-        LabelColor m_label_color;
-
-        VkCommandBuffer m_command_buffer;
-
-        std::shared_ptr<ComputePipeline> m_pipeline;
+        RefPtr<ComputePipeline> m_pipeline = nullptr;
     };
 } // namespace hyper_engine

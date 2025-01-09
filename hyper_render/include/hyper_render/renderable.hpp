@@ -6,35 +6,30 @@
 
 #pragma once
 
-#include <memory>
 #include <string>
 #include <vector>
 
 #include <hyper_core/math.hpp>
+#include <hyper_core/nonnull_ref_ptr.hpp>
+#include <hyper_core/weak_ptr.hpp>
+#include <hyper_rhi/forward.hpp>
 
+#include "hyper_render/forward.hpp"
 #include "hyper_render/material.hpp"
+#include "hyper_render/mesh.hpp"
 
 namespace hyper_engine
 {
-    struct GltfMaterial;
-    class Buffer;
-    class CommandList;
-    class GraphicsDevice;
-    class Sampler;
-    class Texture;
-    class TextureView;
-    class Mesh;
-
     struct RenderObject
     {
         uint32_t index_count = 0;
         uint32_t first_index = 0;
-        std::shared_ptr<Buffer> index_buffer = nullptr;
+        NonnullRefPtr<Buffer> index_buffer;
 
-        MaterialInstance *material;
+        MaterialInstance *material = nullptr;
 
         glm::mat4 transform;
-        std::shared_ptr<Buffer> mesh_buffer = nullptr;
+        NonnullRefPtr<Buffer> mesh_buffer;
     };
 
     struct DrawContext
@@ -51,7 +46,10 @@ namespace hyper_engine
         virtual void draw(const glm::mat4 &top_matrix, DrawContext &draw_context) const = 0;
     };
 
-    class Node : public Renderable
+    class Node
+        : public Renderable
+        , public Weakable<Node>
+        , public RefCounted<Node>
     {
     public:
         void refresh_transform(const glm::mat4 &parent_matrix);
@@ -59,54 +57,56 @@ namespace hyper_engine
         void draw(const glm::mat4 &top_matrix, DrawContext &context) const override;
 
     public:
-        std::weak_ptr<Node> parent;
-        std::vector<std::shared_ptr<Node>> children;
+        WeakPtr<Node> parent;
+        std::vector<RefPtr<Node>> children;
 
-        glm::mat4 world_transform{};
-        glm::mat4 local_transform{};
+        glm::mat4 world_transform;
+        glm::mat4 local_transform;
     };
 
     class MeshNode final : public Node
     {
     public:
-        explicit MeshNode(const std::shared_ptr<Mesh> &mesh);
+        explicit MeshNode(const NonnullRefPtr<Mesh> &mesh);
 
         void draw(const glm::mat4 &top_matrix, DrawContext &context) const override;
 
     public:
-        std::shared_ptr<Mesh> mesh;
+        NonnullRefPtr<Mesh> mesh;
     };
 
-    class LoadedGltf final : public Renderable
+    class LoadedGltf final
+        : public Renderable
+        , public RefCounted<LoadedGltf>
     {
     public:
         LoadedGltf(
-            std::vector<std::shared_ptr<Mesh>> meshes,
-            std::vector<std::shared_ptr<Node>> nodes,
-            std::vector<std::shared_ptr<Texture>> textures,
-            std::vector<std::shared_ptr<TextureView>> texture_views,
-            std::vector<std::shared_ptr<GltfMaterial>> materials,
-            std::vector<std::shared_ptr<Node>> top_nodes,
-            std::vector<std::shared_ptr<Sampler>> samplers);
+            std::vector<NonnullRefPtr<Mesh>> meshes,
+            std::vector<RefPtr<Node>> nodes,
+            std::vector<NonnullRefPtr<Texture>> textures,
+            std::vector<NonnullRefPtr<TextureView>> texture_views,
+            std::vector<RefPtr<GltfMaterial>> materials,
+            std::vector<RefPtr<Node>> top_nodes,
+            std::vector<NonnullRefPtr<Sampler>> samplers);
 
         void draw(const glm::mat4 &top_matrix, DrawContext &draw_context) const override;
 
     private:
-        std::vector<std::shared_ptr<Mesh>> m_meshes;
-        std::vector<std::shared_ptr<Node>> m_nodes;
-        std::vector<std::shared_ptr<Texture>> m_textures;
-        std::vector<std::shared_ptr<TextureView>> m_texture_views;
-        std::vector<std::shared_ptr<GltfMaterial>> m_materials;
-        std::vector<std::shared_ptr<Node>> m_top_nodes;
-        std::vector<std::shared_ptr<Sampler>> m_samplers;
+        std::vector<NonnullRefPtr<Mesh>> m_meshes;
+        std::vector<RefPtr<Node>> m_nodes;
+        std::vector<NonnullRefPtr<Texture>> m_textures;
+        std::vector<NonnullRefPtr<TextureView>> m_texture_views;
+        std::vector<RefPtr<GltfMaterial>> m_materials;
+        std::vector<RefPtr<Node>> m_top_nodes;
+        std::vector<NonnullRefPtr<Sampler>> m_samplers;
     };
 
-    std::shared_ptr<LoadedGltf> load_gltf(
-        const std::shared_ptr<CommandList> &command_list,
-        const std::shared_ptr<TextureView> &white_texture_view,
-        const std::shared_ptr<Texture> &error_texture,
-        const std::shared_ptr<TextureView> &error_texture_view,
-        const std::shared_ptr<Sampler> &default_sampler_linear,
+    NonnullRefPtr<LoadedGltf> load_gltf(
+        const NonnullRefPtr<CommandList> &command_list,
+        const NonnullRefPtr<TextureView> &white_texture_view,
+        const NonnullRefPtr<Texture> &error_texture,
+        const NonnullRefPtr<TextureView> &error_texture_view,
+        const NonnullRefPtr<Sampler> &default_sampler_linear,
         const GltfMetallicRoughness &metallic_roughness_material,
         const std::string &path);
 } // namespace hyper_engine

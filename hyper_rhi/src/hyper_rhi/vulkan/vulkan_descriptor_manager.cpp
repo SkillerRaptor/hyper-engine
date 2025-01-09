@@ -11,17 +11,13 @@
 
 #include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
+#include "hyper_rhi/vulkan/vulkan_sampler.hpp"
+#include "hyper_rhi/vulkan/vulkan_texture_view.hpp"
 
 namespace hyper_engine
 {
     VulkanDescriptorManager::VulkanDescriptorManager(VulkanGraphicsDevice &graphics_device)
         : m_graphics_device(graphics_device)
-        , m_descriptor_counts({})
-        , m_descriptor_pool(nullptr)
-        , m_descriptor_set_layouts()
-        , m_descriptor_sets()
-        , m_recycled_descriptors()
-        , m_current_index(0)
     {
         find_descriptor_counts();
         create_descriptor_pool();
@@ -39,10 +35,12 @@ namespace hyper_engine
         vkDestroyDescriptorPool(m_graphics_device.device(), m_descriptor_pool, nullptr);
     }
 
-    void VulkanDescriptorManager::set_buffer(const VkBuffer buffer, const uint32_t slot) const
+    void VulkanDescriptorManager::set_buffer(const Buffer &buffer, const ResourceHandle handle) const
     {
+        const VulkanBuffer &vulkan_buffer = static_cast<const VulkanBuffer &>(buffer);
+
         const VkDescriptorBufferInfo buffer_info = {
-            .buffer = buffer,
+            .buffer = vulkan_buffer.buffer(),
             .offset = 0,
             .range = VK_WHOLE_SIZE,
         };
@@ -52,7 +50,7 @@ namespace hyper_engine
             .pNext = nullptr,
             .dstSet = m_descriptor_sets[0],
             .dstBinding = 0,
-            .dstArrayElement = slot,
+            .dstArrayElement = handle.handle(),
             .descriptorCount = 1,
             .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
             .pImageInfo = nullptr,
@@ -63,36 +61,14 @@ namespace hyper_engine
         vkUpdateDescriptorSets(m_graphics_device.device(), 1, &descriptor_write, 0, nullptr);
     }
 
-    void VulkanDescriptorManager::set_sampled_image(const VkImageView image_view, const VkImageLayout image_layout, const uint32_t slot) const
+    void VulkanDescriptorManager::set_storage_image(const TextureView &texture_view, const ResourceHandle handle) const
     {
+        const VulkanTextureView &vulkan_texture_view = static_cast<const VulkanTextureView &>(texture_view);
+
         const VkDescriptorImageInfo image_info = {
             .sampler = VK_NULL_HANDLE,
-            .imageView = image_view,
-            .imageLayout = image_layout,
-        };
-
-        const VkWriteDescriptorSet descriptor_write = {
-            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-            .pNext = nullptr,
-            .dstSet = m_descriptor_sets[1],
-            .dstBinding = 0,
-            .dstArrayElement = slot,
-            .descriptorCount = 1,
-            .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-            .pImageInfo = &image_info,
-            .pBufferInfo = nullptr,
-            .pTexelBufferView = nullptr,
-        };
-
-        vkUpdateDescriptorSets(m_graphics_device.device(), 1, &descriptor_write, 0, nullptr);
-    }
-
-    void VulkanDescriptorManager::set_storage_image(const VkImageView image_view, const VkImageLayout image_layout, const uint32_t slot) const
-    {
-        const VkDescriptorImageInfo image_info = {
-            .sampler = VK_NULL_HANDLE,
-            .imageView = image_view,
-            .imageLayout = image_layout,
+            .imageView = vulkan_texture_view.image_view(),
+            .imageLayout = VK_IMAGE_LAYOUT_GENERAL,
         };
 
         const VkWriteDescriptorSet descriptor_write = {
@@ -100,7 +76,7 @@ namespace hyper_engine
             .pNext = nullptr,
             .dstSet = m_descriptor_sets[2],
             .dstBinding = 0,
-            .dstArrayElement = slot,
+            .dstArrayElement = handle.handle(),
             .descriptorCount = 1,
             .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
             .pImageInfo = &image_info,
@@ -111,10 +87,38 @@ namespace hyper_engine
         vkUpdateDescriptorSets(m_graphics_device.device(), 1, &descriptor_write, 0, nullptr);
     }
 
-    void VulkanDescriptorManager::set_sampler(const VkSampler sampler, const uint32_t slot) const
+    void VulkanDescriptorManager::set_sampled_image(const TextureView &texture_view, const ResourceHandle handle) const
     {
+        const VulkanTextureView &vulkan_texture_view = static_cast<const VulkanTextureView &>(texture_view);
+
         const VkDescriptorImageInfo image_info = {
-            .sampler = sampler,
+            .sampler = VK_NULL_HANDLE,
+            .imageView = vulkan_texture_view.image_view(),
+            .imageLayout = VK_IMAGE_LAYOUT_GENERAL,
+        };
+
+        const VkWriteDescriptorSet descriptor_write = {
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .pNext = nullptr,
+            .dstSet = m_descriptor_sets[1],
+            .dstBinding = 0,
+            .dstArrayElement = handle.handle(),
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+            .pImageInfo = &image_info,
+            .pBufferInfo = nullptr,
+            .pTexelBufferView = nullptr,
+        };
+
+        vkUpdateDescriptorSets(m_graphics_device.device(), 1, &descriptor_write, 0, nullptr);
+    }
+
+    void VulkanDescriptorManager::set_sampler(const Sampler &sampler, const ResourceHandle handle) const
+    {
+        const VulkanSampler &vulkan_sampler = static_cast<const VulkanSampler &>(sampler);
+
+        const VkDescriptorImageInfo image_info = {
+            .sampler = vulkan_sampler.sampler(),
             .imageView = VK_NULL_HANDLE,
             .imageLayout = VK_IMAGE_LAYOUT_UNDEFINED,
         };
@@ -124,7 +128,7 @@ namespace hyper_engine
             .pNext = nullptr,
             .dstSet = m_descriptor_sets[3],
             .dstBinding = 0,
-            .dstArrayElement = slot,
+            .dstArrayElement = handle.handle(),
             .descriptorCount = 1,
             .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER,
             .pImageInfo = &image_info,
@@ -133,44 +137,6 @@ namespace hyper_engine
         };
 
         vkUpdateDescriptorSets(m_graphics_device.device(), 1, &descriptor_write, 0, nullptr);
-    }
-
-    ResourceHandle VulkanDescriptorManager::allocate_buffer_handle(const VkBuffer buffer)
-    {
-        const ResourceHandle handle = fetch_handle();
-        set_buffer(buffer, handle.handle());
-        return handle;
-    }
-
-    ResourceHandle VulkanDescriptorManager::allocate_sampled_image_handle(const VkImageView image_view, const VkImageLayout image_layout)
-    {
-        const ResourceHandle handle = fetch_handle();
-        set_sampled_image(image_view, image_layout, handle.handle());
-        return handle;
-    }
-
-    ResourceHandle VulkanDescriptorManager::allocate_storage_image_handle(const VkImageView image_view, const VkImageLayout image_layout)
-    {
-        const ResourceHandle handle = fetch_handle();
-        set_storage_image(image_view, image_layout, handle.handle());
-        return handle;
-    }
-
-    ResourceHandle VulkanDescriptorManager::allocate_sampler_handle(const VkSampler sampler)
-    {
-        const ResourceHandle handle = fetch_handle();
-        set_sampler(sampler, handle.handle());
-        return handle;
-    }
-
-    void VulkanDescriptorManager::retire_handle(const ResourceHandle handle)
-    {
-        if (handle.handle() == std::numeric_limits<uint32_t>::max())
-        {
-            return;
-        }
-
-        m_recycled_descriptors.push(handle);
     }
 
     const std::array<uint32_t, VulkanDescriptorManager::s_descriptor_types.size()> &VulkanDescriptorManager::descriptor_counts() const
@@ -254,6 +220,7 @@ namespace hyper_engine
         };
 
         HE_VK_CHECK(vkCreateDescriptorPool(m_graphics_device.device(), &descriptor_pool_create_info, nullptr, &m_descriptor_pool));
+
         HE_ASSERT(m_descriptor_pool != VK_NULL_HANDLE);
 
         HE_TRACE("Created Descriptor Pool with {} sets", s_descriptor_types.size());
@@ -295,6 +262,7 @@ namespace hyper_engine
 
             HE_VK_CHECK(vkCreateDescriptorSetLayout(
                 m_graphics_device.device(), &descriptor_set_layout_create_info, nullptr, &m_descriptor_set_layouts[index]));
+
             HE_ASSERT(m_descriptor_set_layouts[index] != VK_NULL_HANDLE);
 
             HE_TRACE("Created Descriptor Set Layout #{} for {}", index, HE_VK_TYPE_TO_STRING(VkDescriptorType, descriptor_type));
@@ -325,21 +293,10 @@ namespace hyper_engine
             };
 
             HE_VK_CHECK(vkAllocateDescriptorSets(m_graphics_device.device(), &descriptor_set_allocate_info, &m_descriptor_sets[index]));
+
             HE_ASSERT(m_descriptor_sets[index] != VK_NULL_HANDLE);
 
             HE_TRACE("Allocated Descriptor Set #{} for {}", index, HE_VK_TYPE_TO_STRING(VkDescriptorType, descriptor_type));
         }
-    }
-
-    ResourceHandle VulkanDescriptorManager::fetch_handle()
-    {
-        if (m_recycled_descriptors.empty())
-        {
-            return ResourceHandle(m_current_index++);
-        }
-
-        const ResourceHandle handle = m_recycled_descriptors.top();
-        m_recycled_descriptors.pop();
-        return handle;
     }
 } // namespace hyper_engine

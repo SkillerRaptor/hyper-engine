@@ -8,6 +8,7 @@
 
 #include <hyper_core/assertion.hpp>
 #include <hyper_core/logger.hpp>
+#include <hyper_core/ref_ptr.hpp>
 
 #include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
@@ -15,25 +16,19 @@
 
 namespace hyper_engine
 {
-    VulkanTextureView::VulkanTextureView(VulkanGraphicsDevice &graphics_device, const TextureViewDescriptor &descriptor)
-        : m_graphics_device(graphics_device)
-        , m_label(descriptor.label)
-        , m_texture(descriptor.texture)
-        , m_subresource_range(descriptor.subresource_range)
-        , m_component_mapping(descriptor.component_mapping)
-        , m_handle(descriptor.handle)
-        , m_image_view(VK_NULL_HANDLE)
+    NonnullRefPtr<TextureView>
+        VulkanGraphicsDevice::create_texture_view_platform(const TextureViewDescriptor &descriptor, ResourceHandle handle) const
     {
-        const auto &texture = std::dynamic_pointer_cast<VulkanTexture>(m_texture);
+        const NonnullRefPtr<VulkanTexture> texture = static_ptr_cast<VulkanTexture>(descriptor.texture);
 
         const VkImageViewType view_type = VulkanTextureView::get_image_view_type(texture->dimension());
 
         const VkFormat format = VulkanTexture::get_format(texture->format());
 
-        const VkComponentSwizzle r = VulkanTextureView::get_component_swizzle(m_component_mapping.r);
-        const VkComponentSwizzle g = VulkanTextureView::get_component_swizzle(m_component_mapping.g);
-        const VkComponentSwizzle b = VulkanTextureView::get_component_swizzle(m_component_mapping.b);
-        const VkComponentSwizzle a = VulkanTextureView::get_component_swizzle(m_component_mapping.a);
+        const VkComponentSwizzle r = VulkanTextureView::get_component_swizzle(descriptor.component_mapping.r);
+        const VkComponentSwizzle g = VulkanTextureView::get_component_swizzle(descriptor.component_mapping.g);
+        const VkComponentSwizzle b = VulkanTextureView::get_component_swizzle(descriptor.component_mapping.b);
+        const VkComponentSwizzle a = VulkanTextureView::get_component_swizzle(descriptor.component_mapping.a);
         const VkComponentMapping component_mapping = {
             .r = r,
             .g = g,
@@ -44,10 +39,10 @@ namespace hyper_engine
         const VkImageAspectFlags aspect_mask = VulkanTextureView::get_image_aspect_flags(texture->format());
         const VkImageSubresourceRange subresource_range = {
             .aspectMask = aspect_mask,
-            .baseMipLevel = m_subresource_range.base_mip_level,
-            .levelCount = m_subresource_range.mip_level_count,
-            .baseArrayLayer = m_subresource_range.base_array_level,
-            .layerCount = m_subresource_range.array_layer_count,
+            .baseMipLevel = descriptor.subresource_range.base_mip_level,
+            .levelCount = descriptor.subresource_range.mip_level_count,
+            .baseArrayLayer = descriptor.subresource_range.base_array_level,
+            .layerCount = descriptor.subresource_range.array_layer_count,
         };
 
         const VkImageViewCreateInfo image_view_create_info = {
@@ -61,69 +56,26 @@ namespace hyper_engine
             .subresourceRange = subresource_range,
         };
 
-        HE_VK_CHECK(vkCreateImageView(m_graphics_device.device(), &image_view_create_info, nullptr, &m_image_view));
-        HE_ASSERT(m_image_view != VK_NULL_HANDLE);
+        VkImageView image_view = VK_NULL_HANDLE;
+        HE_VK_CHECK(vkCreateImageView(m_device, &image_view_create_info, nullptr, &image_view));
 
-        m_graphics_device.set_object_name(m_image_view, ObjectType::ImageView, m_label);
+        HE_ASSERT(image_view != VK_NULL_HANDLE);
 
-        if ((m_texture->usage() & TextureUsage::ShaderResource) == TextureUsage::ShaderResource)
-        {
-            if (m_handle.valid())
-            {
-                if ((m_texture->usage() & TextureUsage::Storage) == TextureUsage::Storage)
-                {
-                    m_graphics_device.descriptor_manager().set_storage_image(m_image_view, VK_IMAGE_LAYOUT_GENERAL, m_handle.handle());
-                }
-                else
-                {
-                    m_graphics_device.descriptor_manager().set_sampled_image(m_image_view, VK_IMAGE_LAYOUT_GENERAL, m_handle.handle());
-                }
-            }
-            else
-            {
-                if ((m_texture->usage() & TextureUsage::Storage) == TextureUsage::Storage)
-                {
-                    m_handle = m_graphics_device.descriptor_manager().allocate_storage_image_handle(m_image_view, VK_IMAGE_LAYOUT_GENERAL);
-                }
-                else
-                {
-                    m_handle = m_graphics_device.descriptor_manager().allocate_sampled_image_handle(m_image_view, VK_IMAGE_LAYOUT_GENERAL);
-                }
-            }
-        }
+        set_object_name(image_view, ObjectType::ImageView, descriptor.label);
 
-        // TODO: Add more trace information
-        HE_TRACE("Created Image View");
+        return make_ref_counted<VulkanTextureView>(descriptor, handle, image_view);
+    }
+
+    VulkanTextureView::VulkanTextureView(const TextureViewDescriptor &descriptor, const ResourceHandle handle, const VkImageView image_view)
+        : TextureView(descriptor, handle)
+        , m_image_view(image_view)
+    {
     }
 
     VulkanTextureView::~VulkanTextureView()
     {
-        m_graphics_device.resource_queue().texture_views.emplace_back(m_image_view, m_handle);
-    }
-
-    std::string_view VulkanTextureView::label() const
-    {
-        return m_label;
-    }
-
-    const std::shared_ptr<Texture> &VulkanTextureView::texture() const
-    {
-        return m_texture;
-    }
-
-    SubresourceRange VulkanTextureView::subresource_range() const
-    {
-        return m_subresource_range;
-    }
-
-    ComponentMapping VulkanTextureView::component_mapping() const
-    {
-        return m_component_mapping;
-    }
-
-    ResourceHandle VulkanTextureView::handle() const
-    {
-        return m_handle;
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        graphics_device->resource_queue().texture_views.emplace_back(m_image_view, m_handle);
     }
 
     VkImageViewType VulkanTextureView::get_image_view_type(const Dimension dimension)

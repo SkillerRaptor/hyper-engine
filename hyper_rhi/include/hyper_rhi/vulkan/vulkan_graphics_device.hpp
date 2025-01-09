@@ -26,18 +26,15 @@ namespace hyper_engine
     {
         Buffer,
         CommandPool,
-        ComputePipeline,
-        ComputeShaderModule,
         Fence,
-        FragmentShaderModule,
-        GraphicsPipeline,
         Image,
         ImageView,
+        Pipeline,
         PipelineLayout,
         Queue,
         Sampler,
+        ShaderModule,
         Semaphore,
-        VertexShaderModule,
     };
 
     enum class MarkerType
@@ -93,19 +90,21 @@ namespace hyper_engine
         explicit VulkanGraphicsDevice(const GraphicsDeviceDescriptor &descriptor);
         ~VulkanGraphicsDevice() override;
 
-        std::shared_ptr<Surface> create_surface() override;
-        std::shared_ptr<Buffer> create_buffer(const BufferDescriptor &descriptor) override;
-        std::shared_ptr<Buffer> create_staging_buffer(const BufferDescriptor &descriptor);
-        std::shared_ptr<CommandList> create_command_list() override;
-        std::shared_ptr<ComputePipeline> create_compute_pipeline(const ComputePipelineDescriptor &descriptor) override;
-        std::shared_ptr<RenderPipeline> create_render_pipeline(const RenderPipelineDescriptor &descriptor) override;
-        std::shared_ptr<PipelineLayout> create_pipeline_layout(const PipelineLayoutDescriptor &descriptor) override;
-        std::shared_ptr<Sampler> create_sampler(const SamplerDescriptor &descriptor) override;
-        std::shared_ptr<ShaderModule> create_shader_module(const ShaderModuleDescriptor &descriptor) override;
-        std::shared_ptr<Texture> create_texture(const TextureDescriptor &descriptor) override;
-        std::shared_ptr<TextureView> create_texture_view(const TextureViewDescriptor &descriptor) override;
+        NonnullRefPtr<Surface> create_surface() override;
+        NonnullRefPtr<CommandList> create_command_list() override;
 
-        std::shared_ptr<ImGuiManager> create_imgui_manager() override;
+        NonnullRefPtr<Buffer> create_buffer_platform(const BufferDescriptor &descriptor, ResourceHandle handle) const override;
+        NonnullRefPtr<Buffer> create_buffer_internal(const BufferDescriptor &descriptor, ResourceHandle handle, bool staging) const;
+
+        NonnullRefPtr<ComputePipeline> create_compute_pipeline_platform(const ComputePipelineDescriptor &descriptor) const override;
+        NonnullRefPtr<RenderPipeline> create_render_pipeline_platform(const RenderPipelineDescriptor &descriptor) const override;
+        NonnullRefPtr<PipelineLayout> create_pipeline_layout_platform(const PipelineLayoutDescriptor &descriptor) const override;
+        NonnullRefPtr<ShaderModule> create_shader_module_platform(const ShaderModuleDescriptor &descriptor) const override;
+
+        NonnullRefPtr<Sampler> create_sampler_platform(const SamplerDescriptor &descriptor, ResourceHandle handle) const override;
+        NonnullRefPtr<Texture> create_texture_platform(const TextureDescriptor &descriptor) const override;
+        NonnullRefPtr<Texture> create_texture_internal(const TextureDescriptor &descriptor, VkImage image) const;
+        NonnullRefPtr<TextureView> create_texture_view_platform(const TextureViewDescriptor &descriptor, ResourceHandle handle) const override;
 
         void begin_marker(VkCommandBuffer command_buffer, MarkerType type, std::string_view name, LabelColor color) const;
         void end_marker(VkCommandBuffer command_buffer) const;
@@ -113,10 +112,10 @@ namespace hyper_engine
         void set_object_name(const void *handle, ObjectType type, std::string_view name) const;
         void destroy_resources();
 
-        void begin_frame(const std::shared_ptr<Surface> &surface, uint32_t frame_index) override;
+        void begin_frame(Surface &surface, uint32_t frame_index) override;
         void end_frame() const override;
-        void execute(const std::shared_ptr<CommandList> &command_list) override;
-        void present(const std::shared_ptr<Surface> &surface) const override;
+        void execute(const CommandList &command_list) override;
+        void present(const Surface &surface) const override;
 
         void wait_for_idle() const override;
 
@@ -125,13 +124,14 @@ namespace hyper_engine
         bool debug_label() const override;
         bool debug_marker() const override;
 
+        DescriptorManager &descriptor_manager() override;
+
         VkInstance instance() const;
         VkPhysicalDevice physical_device() const;
         VkDevice device() const;
         uint32_t queue_family() const;
         VkQueue queue() const;
         VmaAllocator allocator() const;
-        VulkanDescriptorManager &descriptor_manager() const;
         ResourceQueue &resource_queue();
         const FrameData &current_frame() const;
         uint32_t current_frame_index() const;
@@ -157,23 +157,23 @@ namespace hyper_engine
             void *);
 
     private:
-        GraphicsApi m_graphics_api;
-        bool m_debug_validation;
-        bool m_debug_label;
-        bool m_debug_marker;
+        GraphicsApi m_graphics_api = GraphicsApi::Vulkan;
+        bool m_debug_validation = false;
+        bool m_debug_label = false;
+        bool m_debug_marker = false;
 
-        VkInstance m_instance;
-        VkDebugUtilsMessengerEXT m_debug_messenger;
-        VkPhysicalDevice m_physical_device;
-        VkDevice m_device;
-        uint32_t m_queue_family;
-        VkQueue m_queue;
-        VmaAllocator m_allocator;
+        VkInstance m_instance = VK_NULL_HANDLE;
+        VkDebugUtilsMessengerEXT m_debug_messenger = VK_NULL_HANDLE;
+        VkPhysicalDevice m_physical_device = VK_NULL_HANDLE;
+        VkDevice m_device = VK_NULL_HANDLE;
+        uint32_t m_queue_family = 0;
+        VkQueue m_queue = VK_NULL_HANDLE;
+        VmaAllocator m_allocator = VK_NULL_HANDLE;
 
         // NOTE: Using raw pointer to guarantee order of destruction
-        VulkanDescriptorManager *m_descriptor_manager;
+        VulkanDescriptorManager *m_descriptor_manager = nullptr;
 
-        uint32_t m_current_frame_index;
+        uint32_t m_current_frame_index = 0;
         std::array<FrameData, GraphicsDevice::s_frame_count> m_frames;
 
         ResourceQueue m_resource_queue;

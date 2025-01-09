@@ -13,37 +13,19 @@
 
 namespace hyper_engine
 {
-    class VulkanGraphicsDevice;
-
     class VulkanBuffer final : public Buffer
     {
     public:
-        VulkanBuffer(VulkanGraphicsDevice &graphics_device, const BufferDescriptor &descriptor, bool staging = false);
+        VulkanBuffer(const BufferDescriptor &descriptor, ResourceHandle handle, VkBuffer buffer, VmaAllocation allocation);
         ~VulkanBuffer() override;
-
-        std::string_view label() const override;
-
-        uint64_t byte_size() const override;
-        BufferUsage usage() const override;
-
-        ResourceHandle handle() const override;
 
         VkBuffer buffer() const;
         VmaAllocation allocation() const;
 
-        static VkBufferUsageFlags get_buffer_usage_flags(BufferUsage buffer_usage_flags);
+        static VkBufferUsageFlags get_buffer_usage_flags(BitFlags<BufferUsage> buffer_usage_flags);
 
     private:
-        VulkanGraphicsDevice &m_graphics_device;
-
-        std::string m_label;
-
-        uint64_t m_byte_size;
-        BufferUsage m_usage;
-
-        ResourceHandle m_handle;
-
-        VkBuffer m_buffer;
-        VmaAllocation m_allocation;
+        VkBuffer m_buffer = VK_NULL_HANDLE;
+        VmaAllocation m_allocation = VK_NULL_HANDLE;
     };
 } // namespace hyper_engine

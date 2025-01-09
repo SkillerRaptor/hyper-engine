@@ -21,13 +21,13 @@ namespace hyper_engine
     {
         ShaderType type = ShaderType::None;
         std::string entry_name = "main";
-        std::vector<uint8_t> data = {};
+        std::vector<uint8_t> data;
     };
 
     struct ShaderData
     {
-        std::vector<uint8_t> dxil = {};
-        std::vector<uint8_t> spirv = {};
+        std::vector<uint8_t> dxil;
+        std::vector<uint8_t> spirv;
     };
 
     class ShaderCompiler

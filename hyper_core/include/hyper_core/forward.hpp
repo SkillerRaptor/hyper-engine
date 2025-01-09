@@ -21,4 +21,7 @@ namespace hyper_engine
 
     template <typename T, typename Deleter = DefaultDelete<T>>
     class OwnPtr;
+
+    template <typename T>
+    class WeakPtr;
 } // namespace hyper_engine

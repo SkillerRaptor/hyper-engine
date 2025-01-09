@@ -21,59 +21,19 @@
 
 namespace hyper_engine
 {
-    VulkanSurface::VulkanSurface(VulkanGraphicsDevice &graphics_device)
-        : m_graphics_device(graphics_device)
-        , m_resized(false)
-        , m_width(g_env.window->width())
-        , m_height(g_env.window->height())
-        , m_surface(VK_NULL_HANDLE)
-        , m_swapchain(VK_NULL_HANDLE)
-        , m_min_image_count(0)
-        , m_image_count(0)
-        , m_format(VK_FORMAT_UNDEFINED)
-        , m_texture_index(0)
-        , m_textures({})
-        , m_texture_views({})
+    VulkanSurface::VulkanSurface()
     {
         create_surface();
         create_swapchain();
         create_textures();
-
-        HE_INFO("Created Vulkan Surface");
     }
 
     VulkanSurface::~VulkanSurface()
     {
         destroy();
 
-        vkDestroySurfaceKHR(m_graphics_device.instance(), m_surface, nullptr);
-    }
-
-    void VulkanSurface::resize(const uint32_t width, const uint32_t height)
-    {
-        if (m_width == width || m_height == height)
-        {
-            return;
-        }
-
-        m_resized = true;
-        m_width = width;
-        m_height = height;
-    }
-
-    bool VulkanSurface::resized() const
-    {
-        return m_resized;
-    }
-
-    uint32_t VulkanSurface::width() const
-    {
-        return m_width;
-    }
-
-    uint32_t VulkanSurface::height() const
-    {
-        return m_height;
+        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        vkDestroySurfaceKHR(graphics_device->instance(), m_surface, nullptr);
     }
 
     void VulkanSurface::rebuild()
@@ -101,12 +61,12 @@ namespace hyper_engine
         return VulkanTexture::format_to_texture_format(m_format);
     }
 
-    std::shared_ptr<Texture> VulkanSurface::current_texture() const
+    NonnullRefPtr<Texture> VulkanSurface::current_texture() const
     {
         return m_textures[m_texture_index];
     }
 
-    std::shared_ptr<TextureView> VulkanSurface::current_texture_view() const
+    NonnullRefPtr<TextureView> VulkanSurface::current_texture_view() const
     {
         return m_texture_views[m_texture_index];
     }
@@ -128,7 +88,9 @@ namespace hyper_engine
 
     void VulkanSurface::create_surface()
     {
-        HE_ASSERT(SDL_Vulkan_CreateSurface(g_env.window->native_window(), m_graphics_device.instance(), nullptr, &m_surface));
+        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+
+        HE_ASSERT(SDL_Vulkan_CreateSurface(g_env.window->native_window(), graphics_device->instance(), nullptr, &m_surface));
         HE_ASSERT(m_surface != VK_NULL_HANDLE);
 
         HE_TRACE("Created Surface");
@@ -136,28 +98,30 @@ namespace hyper_engine
 
     void VulkanSurface::create_swapchain()
     {
+        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+
         VkSurfaceCapabilitiesKHR surface_capabilities = {};
-        HE_VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_graphics_device.physical_device(), m_surface, &surface_capabilities));
+        HE_VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(graphics_device->physical_device(), m_surface, &surface_capabilities));
 
         const VkExtent2D surface_extent = VulkanSurface::choose_extent(m_width, m_height, surface_capabilities);
         m_width = surface_extent.width;
         m_height = surface_extent.height;
 
         uint32_t format_count = 0;
-        HE_VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_graphics_device.physical_device(), m_surface, &format_count, nullptr));
+        HE_VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(graphics_device->physical_device(), m_surface, &format_count, nullptr));
 
         std::vector<VkSurfaceFormatKHR> formats(format_count);
-        HE_VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_graphics_device.physical_device(), m_surface, &format_count, formats.data()));
+        HE_VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(graphics_device->physical_device(), m_surface, &format_count, formats.data()));
 
         const VkSurfaceFormatKHR surface_format = VulkanSurface::choose_format(formats);
         m_format = surface_format.format;
 
         uint32_t present_mode_count = 0;
-        HE_VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_graphics_device.physical_device(), m_surface, &present_mode_count, nullptr));
+        HE_VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(graphics_device->physical_device(), m_surface, &present_mode_count, nullptr));
 
         std::vector<VkPresentModeKHR> present_modes(present_mode_count);
-        HE_VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(
-            m_graphics_device.physical_device(), m_surface, &present_mode_count, present_modes.data()));
+        HE_VK_CHECK(
+            vkGetPhysicalDeviceSurfacePresentModesKHR(graphics_device->physical_device(), m_surface, &present_mode_count, present_modes.data()));
 
         const VkPresentModeKHR surface_present_mode = VulkanSurface::choose_present_mode(present_modes);
 
@@ -189,41 +153,39 @@ namespace hyper_engine
             .oldSwapchain = VK_NULL_HANDLE,
         };
 
-        HE_VK_CHECK(vkCreateSwapchainKHR(m_graphics_device.device(), &swapchain_create_info, nullptr, &m_swapchain));
-        HE_ASSERT(m_swapchain != VK_NULL_HANDLE);
+        HE_VK_CHECK(vkCreateSwapchainKHR(graphics_device->device(), &swapchain_create_info, nullptr, &m_swapchain));
 
-        // TODO: Add more trace information
-        HE_TRACE("Created Swapchain");
+        HE_ASSERT(m_swapchain != VK_NULL_HANDLE);
     }
 
     void VulkanSurface::create_textures()
     {
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+
         uint32_t image_count = 0;
-        vkGetSwapchainImagesKHR(m_graphics_device.device(), m_swapchain, &image_count, nullptr);
+        vkGetSwapchainImagesKHR(graphics_device->device(), m_swapchain, &image_count, nullptr);
 
         std::vector<VkImage> images(image_count);
-        vkGetSwapchainImagesKHR(m_graphics_device.device(), m_swapchain, &image_count, images.data());
+        vkGetSwapchainImagesKHR(graphics_device->device(), m_swapchain, &image_count, images.data());
 
         uint32_t index = 0;
         for (const VkImage &image : images)
         {
-            m_textures.push_back(
-                std::make_shared<VulkanTexture>(
-                    m_graphics_device,
-                    TextureDescriptor{
-                        .label = fmt::format("Swapchain #{}", index),
-                        .width = m_width,
-                        .height = m_height,
-                        .depth = 1,
-                        .array_size = 1,
-                        .mip_levels = 1,
-                        .format = VulkanTexture::format_to_texture_format(m_format),
-                        .dimension = Dimension::Texture2D,
-                        .usage = TextureUsage::RenderAttachment,
-                    },
-                    image));
+            m_textures.push_back(graphics_device->create_texture_internal(
+                {
+                    .label = fmt::format("Swapchain #{}", index),
+                    .width = m_width,
+                    .height = m_height,
+                    .depth = 1,
+                    .array_size = 1,
+                    .mip_levels = 1,
+                    .format = VulkanTexture::format_to_texture_format(m_format),
+                    .dimension = Dimension::Texture2D,
+                    .usage = TextureUsage::RenderAttachment,
+                },
+                image));
 
-            m_texture_views.push_back(m_graphics_device.create_texture_view({
+            m_texture_views.push_back(graphics_device->create_texture_view({
                 .label = fmt::format("Swapchain #{}", index),
                 .texture = m_textures[index],
                 .subresource_range =
@@ -248,9 +210,11 @@ namespace hyper_engine
 
     void VulkanSurface::destroy()
     {
+        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+
         m_texture_views.clear();
         m_textures.clear();
-        vkDestroySwapchainKHR(m_graphics_device.device(), m_swapchain, nullptr);
+        vkDestroySwapchainKHR(graphics_device->device(), m_swapchain, nullptr);
     }
 
     VkExtent2D VulkanSurface::choose_extent(const uint32_t width, const uint32_t height, const VkSurfaceCapabilitiesKHR &capabilities)

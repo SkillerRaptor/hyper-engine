@@ -11,27 +11,15 @@
 
 namespace hyper_engine
 {
-    class VulkanGraphicsDevice;
-
     class VulkanPipelineLayout final : public PipelineLayout
     {
     public:
-        VulkanPipelineLayout(VulkanGraphicsDevice &graphics_device, const PipelineLayoutDescriptor &descriptor);
+        VulkanPipelineLayout(const PipelineLayoutDescriptor &descriptor, VkPipelineLayout pipeline_layout);
         ~VulkanPipelineLayout() override;
-
-        std::string_view label() const override;
-
-        uint32_t push_constant_size() const override;
 
         VkPipelineLayout pipeline_layout() const;
 
     private:
-        VulkanGraphicsDevice &m_graphics_device;
-
-        std::string m_label;
-
-        uint32_t m_push_constant_size;
-
-        VkPipelineLayout m_pipeline_layout;
+        VkPipelineLayout m_pipeline_layout = VK_NULL_HANDLE;
     };
 } // namespace hyper_engine

@@ -14,28 +14,23 @@
 
 namespace hyper_engine
 {
-    VulkanTexture::VulkanTexture(VulkanGraphicsDevice &graphics_device, const TextureDescriptor &descriptor, const VkImage image)
-        : m_graphics_device(graphics_device)
-        , m_label(descriptor.label)
-        , m_width(descriptor.width)
-        , m_height(descriptor.height)
-        , m_depth(descriptor.depth)
-        , m_array_size(descriptor.array_size)
-        , m_mip_levels(descriptor.mip_levels)
-        , m_format(descriptor.format)
-        , m_dimension(descriptor.dimension)
-        , m_usage(descriptor.usage)
-        , m_image(image)
-        , m_allocation(VK_NULL_HANDLE)
+    NonnullRefPtr<Texture> VulkanGraphicsDevice::create_texture_platform(const TextureDescriptor &descriptor) const
+    {
+        return create_texture_internal(descriptor, VK_NULL_HANDLE);
+    }
+
+    NonnullRefPtr<Texture> VulkanGraphicsDevice::create_texture_internal(const TextureDescriptor &descriptor, const VkImage image) const
     {
         if (image != VK_NULL_HANDLE)
         {
-            return;
+            set_object_name(image, ObjectType::Image, descriptor.label);
+
+            return make_ref_counted<VulkanTexture>(descriptor, image, VK_NULL_HANDLE);
         }
 
-        const VkImageType image_type = VulkanTexture::get_image_type(m_dimension);
-        const VkFormat format = VulkanTexture::get_format(m_format);
-        const VkImageUsageFlags usage = VulkanTexture::get_image_usage_flags(m_usage, m_format);
+        const VkImageType image_type = VulkanTexture::get_image_type(descriptor.dimension);
+        const VkFormat format = VulkanTexture::get_format(descriptor.format);
+        const VkImageUsageFlags usage = VulkanTexture::get_image_usage_flags(descriptor.usage, descriptor.format);
         const VkImageCreateInfo image_create_info = {
             .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
             .pNext = nullptr,
@@ -44,12 +39,12 @@ namespace hyper_engine
             .format = format,
             .extent =
                 {
-                    .width = m_width,
-                    .height = m_height,
-                    .depth = m_depth,
+                    .width = descriptor.width,
+                    .height = descriptor.height,
+                    .depth = descriptor.depth,
                 },
-            .mipLevels = m_mip_levels,
-            .arrayLayers = m_array_size,
+            .mipLevels = descriptor.mip_levels,
+            .arrayLayers = descriptor.array_size,
             .samples = VK_SAMPLE_COUNT_1_BIT,
             .tiling = VK_IMAGE_TILING_OPTIMAL,
             .usage = usage,
@@ -70,65 +65,29 @@ namespace hyper_engine
             .priority = 0,
         };
 
-        HE_VK_CHECK(
-            vmaCreateImage(m_graphics_device.allocator(), &image_create_info, &allocation_create_info, &m_image, &m_allocation, nullptr));
-        HE_ASSERT(m_image != VK_NULL_HANDLE);
-        HE_ASSERT(m_allocation != VK_NULL_HANDLE);
+        VkImage vk_image = VK_NULL_HANDLE;
+        VmaAllocation allocation = VK_NULL_HANDLE;
+        HE_VK_CHECK(vmaCreateImage(m_allocator, &image_create_info, &allocation_create_info, &vk_image, &allocation, nullptr));
 
-        m_graphics_device.set_object_name(m_image, ObjectType::Image, m_label);
+        HE_ASSERT(vk_image != VK_NULL_HANDLE);
+        HE_ASSERT(allocation != VK_NULL_HANDLE);
 
-        // TODO: Add more trace information
-        HE_TRACE("Created Image");
+        set_object_name(vk_image, ObjectType::Image, descriptor.label);
+
+        return make_ref_counted<VulkanTexture>(descriptor, vk_image, allocation);
+    }
+
+    VulkanTexture::VulkanTexture(const TextureDescriptor &descriptor, const VkImage image, const VmaAllocation allocation)
+        : Texture(descriptor)
+        , m_image(image)
+        , m_allocation(allocation)
+    {
     }
 
     VulkanTexture::~VulkanTexture()
     {
-        m_graphics_device.resource_queue().textures.emplace_back(m_image, m_allocation);
-    }
-
-    std::string_view VulkanTexture::label() const
-    {
-        return m_label;
-    }
-
-    uint32_t VulkanTexture::width() const
-    {
-        return m_width;
-    }
-
-    uint32_t VulkanTexture::height() const
-    {
-        return m_height;
-    }
-
-    uint32_t VulkanTexture::depth() const
-    {
-        return m_depth;
-    }
-
-    uint32_t VulkanTexture::array_size() const
-    {
-        return m_array_size;
-    }
-
-    uint32_t VulkanTexture::mip_levels() const
-    {
-        return m_mip_levels;
-    }
-
-    Format VulkanTexture::format() const
-    {
-        return m_format;
-    }
-
-    Dimension VulkanTexture::dimension() const
-    {
-        return m_dimension;
-    }
-
-    TextureUsage VulkanTexture::usage() const
-    {
-        return m_usage;
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        graphics_device->resource_queue().textures.emplace_back(m_image, m_allocation);
     }
 
     VkImage VulkanTexture::image() const
@@ -501,10 +460,10 @@ namespace hyper_engine
         }
     }
 
-    VkImageUsageFlags VulkanTexture::get_image_usage_flags(const TextureUsage texture_usage_flags, const Format format)
+    VkImageUsageFlags VulkanTexture::get_image_usage_flags(const BitFlags<TextureUsage> texture_usage_flags, const Format format)
     {
         VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-        if ((texture_usage_flags & TextureUsage::Storage) == TextureUsage::Storage)
+        if (texture_usage_flags & TextureUsage::Storage)
         {
             usage |= VK_IMAGE_USAGE_STORAGE_BIT;
         }
@@ -513,7 +472,7 @@ namespace hyper_engine
             usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
         }
 
-        if ((texture_usage_flags & TextureUsage::RenderAttachment) == TextureUsage::RenderAttachment)
+        if (texture_usage_flags & TextureUsage::RenderAttachment)
         {
             switch (format)
             {

@@ -15,22 +15,7 @@
 
 namespace hyper_engine
 {
-    VulkanSampler::VulkanSampler(VulkanGraphicsDevice &graphics_device, const SamplerDescriptor &descriptor)
-        : m_graphics_device(graphics_device)
-        , m_label(descriptor.label)
-        , m_mag_filter(descriptor.mag_filter)
-        , m_min_filter(descriptor.min_filter)
-        , m_mipmap_filter(descriptor.mipmap_filter)
-        , m_address_mode_u(descriptor.address_mode_u)
-        , m_address_mode_v(descriptor.address_mode_v)
-        , m_address_mode_w(descriptor.address_mode_w)
-        , m_mip_lod_bias(descriptor.mip_lod_bias)
-        , m_compare_operation(descriptor.compare_operation)
-        , m_min_lod(descriptor.min_lod)
-        , m_max_lod(descriptor.max_lod)
-        , m_border_color(descriptor.border_color)
-        , m_handle(descriptor.handle)
-        , m_sampler(VK_NULL_HANDLE)
+    NonnullRefPtr<Sampler> VulkanGraphicsDevice::create_sampler_platform(const SamplerDescriptor &descriptor, ResourceHandle handle) const
     {
         const VkFilter mag_filter = VulkanSampler::get_filter(descriptor.mag_filter);
         const VkFilter min_filter = VulkanSampler::get_filter(descriptor.min_filter);
@@ -38,8 +23,8 @@ namespace hyper_engine
         const VkSamplerAddressMode address_mode_u = VulkanSampler::get_sampler_address_mode(descriptor.address_mode_u);
         const VkSamplerAddressMode address_mode_v = VulkanSampler::get_sampler_address_mode(descriptor.address_mode_v);
         const VkSamplerAddressMode address_mode_w = VulkanSampler::get_sampler_address_mode(descriptor.address_mode_w);
-        const VkCompareOp compare_operation = VulkanRenderPipeline::get_compare_operation(m_compare_operation);
-        const VkBorderColor border_color = VulkanSampler::get_border_color(m_border_color);
+        const VkCompareOp compare_operation = VulkanRenderPipeline::get_compare_operation(descriptor.compare_operation);
+        const VkBorderColor border_color = VulkanSampler::get_border_color(descriptor.border_color);
         const VkSamplerCreateInfo sampler_create_info = {
             .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
             .pNext = nullptr,
@@ -50,102 +35,37 @@ namespace hyper_engine
             .addressModeU = address_mode_u,
             .addressModeV = address_mode_v,
             .addressModeW = address_mode_w,
-            .mipLodBias = m_mip_lod_bias,
+            .mipLodBias = descriptor.mip_lod_bias,
             .anisotropyEnable = VK_FALSE,
             .maxAnisotropy = 0.0,
             .compareEnable = VK_TRUE,
             .compareOp = compare_operation,
-            .minLod = m_min_lod,
-            .maxLod = m_max_lod,
+            .minLod = descriptor.min_lod,
+            .maxLod = descriptor.max_lod,
             .borderColor = border_color,
             .unnormalizedCoordinates = VK_FALSE,
         };
 
-        vkCreateSampler(m_graphics_device.device(), &sampler_create_info, nullptr, &m_sampler);
+        VkSampler sampler = VK_NULL_HANDLE;
+        HE_VK_CHECK(vkCreateSampler(m_device, &sampler_create_info, nullptr, &sampler));
 
-        m_graphics_device.set_object_name(m_sampler, ObjectType::Sampler, m_label);
+        HE_ASSERT(sampler != VK_NULL_HANDLE);
 
-        if (m_handle.valid())
-        {
-            m_graphics_device.descriptor_manager().set_sampler(m_sampler, m_handle.handle());
-        }
-        else
-        {
-            m_handle = m_graphics_device.descriptor_manager().allocate_sampler_handle(m_sampler);
-        }
+        set_object_name(sampler, ObjectType::Sampler, descriptor.label);
 
-        // TODO: Add more trace information
-        HE_TRACE("Created Sampler");
+        return make_ref_counted<VulkanSampler>(descriptor, handle, sampler);
+    }
+
+    VulkanSampler::VulkanSampler(const SamplerDescriptor &descriptor, const ResourceHandle handle, const VkSampler sampler)
+        : Sampler(descriptor, handle)
+        , m_sampler(sampler)
+    {
     }
 
     VulkanSampler::~VulkanSampler()
     {
-        m_graphics_device.resource_queue().samplers.emplace_back(m_sampler);
-    }
-
-    std::string_view VulkanSampler::label() const
-    {
-        return m_label;
-    }
-
-    Filter VulkanSampler::mag_filter() const
-    {
-        return m_mag_filter;
-    }
-
-    Filter VulkanSampler::min_filter() const
-    {
-        return m_min_filter;
-    }
-
-    Filter VulkanSampler::mipmap_filter() const
-    {
-        return m_mipmap_filter;
-    }
-
-    AddressMode VulkanSampler::address_mode_u() const
-    {
-        return m_address_mode_u;
-    }
-
-    AddressMode VulkanSampler::address_mode_v() const
-    {
-        return m_address_mode_v;
-    }
-
-    AddressMode VulkanSampler::address_mode_w() const
-    {
-        return m_address_mode_w;
-    }
-
-    float VulkanSampler::mip_lod_bias() const
-    {
-        return m_mip_lod_bias;
-    }
-
-    CompareOperation VulkanSampler::compare_operation() const
-    {
-        return m_compare_operation;
-    }
-
-    float VulkanSampler::min_lod() const
-    {
-        return m_min_lod;
-    }
-
-    float VulkanSampler::max_lod() const
-    {
-        return m_max_lod;
-    }
-
-    BorderColor VulkanSampler::border_color() const
-    {
-        return m_border_color;
-    }
-
-    ResourceHandle VulkanSampler::handle() const
-    {
-        return m_handle;
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        graphics_device->resource_queue().samplers.emplace_back(m_sampler);
     }
 
     VkSampler VulkanSampler::sampler() const

@@ -6,16 +6,17 @@
 
 #pragma once
 
-#include <memory>
 #include <string>
 
+#include <hyper_core/ref_counted.hpp>
+#include <hyper_core/nonnull_ref_ptr.hpp>
+
+#include "hyper_rhi/forward.hpp"
 #include "hyper_rhi/resource_handle.hpp"
 #include "hyper_rhi/subresource_range.hpp"
 
 namespace hyper_engine
 {
-    class Texture;
-
     enum class ComponentSwizzle : uint8_t
     {
         Identity,
@@ -38,26 +39,30 @@ namespace hyper_engine
     struct TextureViewDescriptor
     {
         std::string label;
-
-        std::shared_ptr<Texture> texture = nullptr;
-
+        NonnullRefPtr<Texture> texture;
         SubresourceRange subresource_range;
-        ComponentMapping component_mapping = {};
-
-        ResourceHandle handle = {};
+        ComponentMapping component_mapping;
     };
 
-    class TextureView
+    class TextureView : public RefCounted<TextureView>
     {
     public:
         virtual ~TextureView() = default;
 
-        virtual std::string_view label() const = 0;
+        std::string_view label() const;
+        NonnullRefPtr<Texture> texture() const;
+        SubresourceRange subresource_range() const;
+        ComponentMapping component_mapping() const;
+        ResourceHandle handle() const;
 
-        virtual const std::shared_ptr<Texture> &texture() const = 0;
-        virtual SubresourceRange subresource_range() const = 0;
-        virtual ComponentMapping component_mapping() const = 0;
+    protected:
+        TextureView(const TextureViewDescriptor &descriptor, ResourceHandle handle);
 
-        virtual ResourceHandle handle() const = 0;
+    protected:
+        std::string m_label;
+        NonnullRefPtr<Texture> m_texture;
+        SubresourceRange m_subresource_range;
+        ComponentMapping m_component_mapping;
+        ResourceHandle m_handle;
     };
 } // namespace hyper_engine

@@ -6,30 +6,38 @@
 
 #pragma once
 
-#include <memory>
 #include <string>
+
+#include <hyper_core/nonnull_ref_ptr.hpp>
+#include <hyper_core/ref_counted.hpp>
+
+#include "hyper_rhi/forward.hpp"
 
 namespace hyper_engine
 {
-    class PipelineLayout;
-    class ShaderModule;
-
     struct ComputePipelineDescriptor
     {
         std::string label;
 
-        std::shared_ptr<PipelineLayout> layout = nullptr;
-        std::shared_ptr<ShaderModule> shader = nullptr;
+        NonnullRefPtr<PipelineLayout> layout;
+        NonnullRefPtr<ShaderModule> shader;
     };
 
-    class ComputePipeline
+    class ComputePipeline : public RefCounted<ComputePipeline>
     {
     public:
         virtual ~ComputePipeline() = default;
 
-        virtual std::string_view label() const = 0;
+        std::string_view label() const;
+        NonnullRefPtr<PipelineLayout> layout() const;
+        NonnullRefPtr<ShaderModule> shader() const;
 
-        virtual const std::shared_ptr<PipelineLayout> &layout() const = 0;
-        virtual const std::shared_ptr<ShaderModule> &shader() const = 0;
+    protected:
+        explicit ComputePipeline(const ComputePipelineDescriptor &descriptor);
+
+    protected:
+        std::string m_label;
+        NonnullRefPtr<PipelineLayout> m_layout;
+        NonnullRefPtr<ShaderModule> m_shader;
     };
 } // namespace hyper_engine

@@ -8,6 +8,7 @@
 
 #include <hyper_core/assertion.hpp>
 #include <hyper_core/logger.hpp>
+#include <hyper_core/ref_ptr.hpp>
 
 #include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 #include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
@@ -19,21 +20,14 @@
 
 namespace hyper_engine
 {
-    VulkanRenderPass::VulkanRenderPass(
-        VulkanGraphicsDevice &graphics_device,
-        const VkCommandBuffer command_buffer,
-        const RenderPassDescriptor &descriptor)
-        : m_graphics_device(graphics_device)
-        , m_label(descriptor.label)
-        , m_label_color(descriptor.label_color)
-        , m_color_attachments(descriptor.color_attachments)
-        , m_depth_stencil_attachment(descriptor.depth_stencil_attachment)
+    VulkanRenderPass::VulkanRenderPass(const RenderPassDescriptor &descriptor, const VkCommandBuffer command_buffer)
+        : RenderPass(descriptor)
         , m_command_buffer(command_buffer)
-        , m_pipeline(nullptr)
     {
-        m_graphics_device.begin_marker(m_command_buffer, MarkerType::RenderPass, m_label, m_label_color);
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        graphics_device->begin_marker(m_command_buffer, MarkerType::RenderPass, m_label, m_label_color);
 
-        // TODO: Should this always use the first image?
+        // FIXME: Should this always use the first image?
         const VkExtent2D render_area_extent = {
             .width = m_color_attachments[0].view->texture()->width(),
             .height = m_color_attachments[0].view->texture()->height(),
@@ -65,7 +59,8 @@ namespace hyper_engine
         std::vector<VkRenderingAttachmentInfo> color_attachments = {};
         for (const ColorAttachment &color_attachment : m_color_attachments)
         {
-            const auto &color_attachment_view = std::dynamic_pointer_cast<VulkanTextureView>(color_attachment.view);
+            const NonnullRefPtr<VulkanTextureView> color_attachment_view = static_ptr_cast<VulkanTextureView>(color_attachment.view);
+
             const VkRenderingAttachmentInfo color_attachment_info = {
                 .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
                 .pNext = nullptr,
@@ -90,8 +85,8 @@ namespace hyper_engine
                 },
         };
 
-        const auto &depth_attachment_view =
-            m_depth_stencil_attachment.view == nullptr ? nullptr : std::dynamic_pointer_cast<VulkanTextureView>(m_depth_stencil_attachment.view);
+        const RefPtr<VulkanTextureView> &depth_attachment_view =
+            m_depth_stencil_attachment.view == nullptr ? nullptr : static_ptr_cast<VulkanTextureView>(m_depth_stencil_attachment.view);
 
         const VkRenderingAttachmentInfo depth_attachment_info = {
             .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
@@ -147,17 +142,20 @@ namespace hyper_engine
     {
         vkCmdEndRendering(m_command_buffer);
 
-        m_graphics_device.end_marker(m_command_buffer);
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        graphics_device->end_marker(m_command_buffer);
     }
 
-    void VulkanRenderPass::set_pipeline(const std::shared_ptr<RenderPipeline> &pipeline)
+    void VulkanRenderPass::set_pipeline(const RefPtr<RenderPipeline> &pipeline)
     {
         m_pipeline = pipeline;
 
-        const auto vulkan_pipeline = std::dynamic_pointer_cast<VulkanRenderPipeline>(m_pipeline);
-        const auto layout = std::dynamic_pointer_cast<VulkanPipelineLayout>(m_pipeline->layout());
+        const RefPtr<VulkanRenderPipeline> vulkan_pipeline = static_ptr_cast<VulkanRenderPipeline>(m_pipeline);
+        const RefPtr<VulkanPipelineLayout> layout = static_ptr_cast<VulkanPipelineLayout>(m_pipeline->layout());
 
-        const auto &descriptor_sets = m_graphics_device.descriptor_manager().descriptor_sets();
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        const VulkanDescriptorManager &descriptor_manager = static_cast<VulkanDescriptorManager &>(graphics_device->descriptor_manager());
+        const auto &descriptor_sets = descriptor_manager.descriptor_sets();
 
         vkCmdBindDescriptorSets(
             m_command_buffer,
@@ -172,11 +170,11 @@ namespace hyper_engine
         vkCmdBindPipeline(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkan_pipeline->pipeline());
     }
 
-    void VulkanRenderPass::set_index_buffer(const std::shared_ptr<Buffer> &buffer) const
+    void VulkanRenderPass::set_index_buffer(const Buffer &buffer) const
     {
-        const auto vulkan_buffer = std::dynamic_pointer_cast<VulkanBuffer>(buffer);
+        const VulkanBuffer &vulkan_buffer = static_cast<const VulkanBuffer &>(buffer);
 
-        vkCmdBindIndexBuffer(m_command_buffer, vulkan_buffer->buffer(), 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(m_command_buffer, vulkan_buffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
     }
 
     void VulkanRenderPass::set_scissor(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) const
@@ -221,7 +219,7 @@ namespace hyper_engine
 
     void VulkanRenderPass::set_push_constants(const void *data, const size_t data_size) const
     {
-        const auto layout = std::dynamic_pointer_cast<VulkanPipelineLayout>(m_pipeline->layout());
+        const RefPtr<VulkanPipelineLayout> layout = static_ptr_cast<VulkanPipelineLayout>(m_pipeline->layout());
 
         vkCmdPushConstants(m_command_buffer, layout->pipeline_layout(), VK_SHADER_STAGE_ALL, 0, static_cast<uint32_t>(data_size), data);
     }
@@ -243,26 +241,6 @@ namespace hyper_engine
         const uint32_t first_instance) const
     {
         vkCmdDrawIndexed(m_command_buffer, index_count, instance_count, first_index, vertex_offset, first_instance);
-    }
-
-    std::string_view VulkanRenderPass::label() const
-    {
-        return m_label;
-    }
-
-    LabelColor VulkanRenderPass::label_color() const
-    {
-        return m_label_color;
-    }
-
-    const std::vector<ColorAttachment> &VulkanRenderPass::color_attachments() const
-    {
-        return m_color_attachments;
-    }
-
-    DepthStencilAttachment VulkanRenderPass::depth_stencil_attachment() const
-    {
-        return m_depth_stencil_attachment;
     }
 
     VkCommandBuffer VulkanRenderPass::command_buffer() const

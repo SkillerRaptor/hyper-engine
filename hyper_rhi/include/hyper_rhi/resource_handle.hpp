@@ -14,9 +14,9 @@ namespace hyper_engine
     {
     public:
         ResourceHandle();
-        explicit ResourceHandle(const uint32_t handle);
+        explicit ResourceHandle( uint32_t handle);
 
-        bool valid() const;
+        bool is_valid() const;
         uint32_t handle() const;
 
     private:

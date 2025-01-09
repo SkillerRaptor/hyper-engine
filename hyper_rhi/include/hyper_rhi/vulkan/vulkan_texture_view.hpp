@@ -13,21 +13,11 @@
 
 namespace hyper_engine
 {
-    class VulkanGraphicsDevice;
-
     class VulkanTextureView final : public TextureView
     {
     public:
-        VulkanTextureView(VulkanGraphicsDevice &graphics_device, const TextureViewDescriptor &descriptor);
+        VulkanTextureView(const TextureViewDescriptor &descriptor, ResourceHandle handle, VkImageView image_view);
         ~VulkanTextureView() override;
-
-        std::string_view label() const override;
-
-        const std::shared_ptr<Texture> &texture() const override;
-        SubresourceRange subresource_range() const override;
-        ComponentMapping component_mapping() const override;
-
-        ResourceHandle handle() const override;
 
         VkImageView image_view() const;
 
@@ -36,16 +26,6 @@ namespace hyper_engine
         static VkImageViewType get_image_view_type(Dimension dimension);
 
     private:
-        VulkanGraphicsDevice &m_graphics_device;
-
-        std::string m_label;
-
-        std::shared_ptr<Texture> m_texture;
-        SubresourceRange m_subresource_range;
-        ComponentMapping m_component_mapping;
-
-        ResourceHandle m_handle;
-
-        VkImageView m_image_view;
+        VkImageView m_image_view = VK_NULL_HANDLE;
     };
 } // namespace hyper_engine

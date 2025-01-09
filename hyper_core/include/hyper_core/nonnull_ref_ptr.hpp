@@ -53,6 +53,9 @@ namespace hyper_engine
         template <typename U>
         friend class NonnullRefPtr;
 
+        template <typename U>
+        friend class WeakPtr;
+
     public:
         using ElementType = T;
 

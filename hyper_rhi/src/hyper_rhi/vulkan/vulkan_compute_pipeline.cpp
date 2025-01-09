@@ -7,7 +7,7 @@
 #include "hyper_rhi/vulkan/vulkan_compute_pipeline.hpp"
 
 #include <hyper_core/assertion.hpp>
-#include <hyper_core/logger.hpp>
+#include <hyper_core/ref_ptr.hpp>
 
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 #include "hyper_rhi/vulkan/vulkan_pipeline_layout.hpp"
@@ -15,15 +15,10 @@
 
 namespace hyper_engine
 {
-    VulkanComputePipeline::VulkanComputePipeline(VulkanGraphicsDevice &graphics_device, const ComputePipelineDescriptor &descriptor)
-        : m_graphics_device(graphics_device)
-        , m_label(descriptor.label)
-        , m_layout(descriptor.layout)
-        , m_shader(descriptor.shader)
-        , m_pipeline(VK_NULL_HANDLE)
+    NonnullRefPtr<ComputePipeline> VulkanGraphicsDevice::create_compute_pipeline_platform(const ComputePipelineDescriptor &descriptor) const
     {
-        const auto layout = std::dynamic_pointer_cast<VulkanPipelineLayout>(descriptor.layout);
-        const auto shader_module = std::dynamic_pointer_cast<VulkanShaderModule>(descriptor.shader);
+        const NonnullRefPtr<VulkanPipelineLayout> layout = static_ptr_cast<VulkanPipelineLayout>(descriptor.layout);
+        const NonnullRefPtr<VulkanShaderModule> shader_module = static_ptr_cast<VulkanShaderModule>(descriptor.shader);
 
         const VkPipelineShaderStageCreateInfo shader_stage_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
@@ -45,34 +40,26 @@ namespace hyper_engine
             .basePipelineIndex = -1,
         };
 
-        HE_VK_CHECK(
-            vkCreateComputePipelines(m_graphics_device.device(), VK_NULL_HANDLE, 1, &compute_pipeline_create_info, nullptr, &m_pipeline));
-        HE_ASSERT(m_pipeline != VK_NULL_HANDLE);
+        VkPipeline pipeline = VK_NULL_HANDLE;
+        HE_VK_CHECK(vkCreateComputePipelines(m_device, VK_NULL_HANDLE, 1, &compute_pipeline_create_info, nullptr, &pipeline));
 
-        m_graphics_device.set_object_name(m_pipeline, ObjectType::ComputePipeline, m_label);
+        HE_ASSERT(pipeline != VK_NULL_HANDLE);
 
-        // TODO: Add more trace information
-        HE_TRACE("Created Compute Pipeline");
+        set_object_name(pipeline, ObjectType::Pipeline, descriptor.label);
+
+        return make_ref_counted<VulkanComputePipeline>(descriptor, pipeline);
+    }
+
+    VulkanComputePipeline::VulkanComputePipeline(const ComputePipelineDescriptor &descriptor, const VkPipeline pipeline)
+        : ComputePipeline(descriptor)
+        , m_pipeline(pipeline)
+    {
     }
 
     VulkanComputePipeline::~VulkanComputePipeline()
     {
-        m_graphics_device.resource_queue().compute_pipelines.emplace_back(m_pipeline);
-    }
-
-    std::string_view VulkanComputePipeline::label() const
-    {
-        return m_label;
-    }
-
-    const std::shared_ptr<PipelineLayout> &VulkanComputePipeline::layout() const
-    {
-        return m_layout;
-    }
-
-    const std::shared_ptr<ShaderModule> &VulkanComputePipeline::shader() const
-    {
-        return m_shader;
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        graphics_device->resource_queue().compute_pipelines.emplace_back(m_pipeline);
     }
 
     VkPipeline VulkanComputePipeline::pipeline() const

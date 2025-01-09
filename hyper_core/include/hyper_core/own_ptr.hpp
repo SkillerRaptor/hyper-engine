@@ -78,6 +78,11 @@ namespace hyper_engine
         template <typename U>
         OwnPtr &operator=(const NonnullRefPtr<U> &) = delete;
 
+        template <typename U>
+        OwnPtr(WeakPtr<U> const &) = delete;
+        template <typename U>
+        OwnPtr &operator=(WeakPtr<U> const &) = delete;
+
         OwnPtr &operator=(OwnPtr &&other) noexcept
         {
             OwnPtr ptr = std::move(other);

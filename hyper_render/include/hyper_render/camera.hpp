@@ -42,24 +42,24 @@ namespace hyper_engine
         void update_camera_vectors();
 
     private:
-        glm::vec3 m_position;
-        glm::vec3 m_front;
-        glm::vec3 m_up;
-        glm::vec3 m_right;
+        glm::vec3 m_position = {0.0f, 0.0f, 0.0f};
+        glm::vec3 m_front = {0.0f, 0.0f, 0.0f};
+        glm::vec3 m_up = {0.0f, 0.0f, 0.0f};
+        glm::vec3 m_right = {0.0f, 0.0f, 0.0f};
 
-        float m_yaw;
-        float m_pitch;
+        float m_yaw = 0.0f;
+        float m_pitch = 0.0f;
 
-        float m_movement_speed;
-        float m_mouse_sensitivity;
-        float m_fov;
+        float m_movement_speed = 2.5f;
+        float m_mouse_sensitivity = 0.1f;
+        float m_fov = 90.0f;
 
-        float m_near;
-        float m_far;
-        float m_aspect_ratio;
+        float m_near = 0.01f;
+        float m_far = 1000.0f;
+        float m_aspect_ratio = 1280.0f / 720.0f;
 
-        bool m_first_mouse;
-        float m_last_x;
-        float m_last_y;
+        bool m_first_mouse = true;
+        float m_last_x = 0.0f;
+        float m_last_y = 0.0f;
     };
 } // namespace hyper_engine

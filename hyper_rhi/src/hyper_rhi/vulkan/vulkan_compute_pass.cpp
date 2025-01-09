@@ -15,32 +15,30 @@
 
 namespace hyper_engine
 {
-    VulkanComputePass::VulkanComputePass(
-        VulkanGraphicsDevice &graphics_device,
-        const VkCommandBuffer command_buffer,
-        const ComputePassDescriptor &descriptor)
-        : m_graphics_device(graphics_device)
-        , m_label(descriptor.label)
-        , m_label_color(descriptor.label_color)
+    VulkanComputePass::VulkanComputePass(const ComputePassDescriptor &descriptor, const VkCommandBuffer command_buffer)
+        : ComputePass(descriptor)
         , m_command_buffer(command_buffer)
-        , m_pipeline(nullptr)
     {
-        m_graphics_device.begin_marker(m_command_buffer, MarkerType::ComputePass, m_label, m_label_color);
+        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        graphics_device->begin_marker(m_command_buffer, MarkerType::ComputePass, m_label, m_label_color);
     }
 
     VulkanComputePass::~VulkanComputePass()
     {
-        m_graphics_device.end_marker(m_command_buffer);
+        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        graphics_device->end_marker(m_command_buffer);
     }
 
-    void VulkanComputePass::set_pipeline(const std::shared_ptr<ComputePipeline> &pipeline)
+    void VulkanComputePass::set_pipeline(const RefPtr<ComputePipeline> &pipeline)
     {
         m_pipeline = pipeline;
 
-        const auto vulkan_pipeline = std::dynamic_pointer_cast<VulkanComputePipeline>(m_pipeline);
-        const auto layout = std::dynamic_pointer_cast<VulkanPipelineLayout>(m_pipeline->layout());
+        const RefPtr<VulkanComputePipeline> vulkan_pipeline = static_ptr_cast<VulkanComputePipeline>(m_pipeline);
+        const RefPtr<VulkanPipelineLayout> layout = static_ptr_cast<VulkanPipelineLayout>(m_pipeline->layout());
 
-        const auto &descriptor_sets = m_graphics_device.descriptor_manager().descriptor_sets();
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        const VulkanDescriptorManager &descriptor_manager = static_cast<VulkanDescriptorManager &>(graphics_device->descriptor_manager());
+        const auto &descriptor_sets = descriptor_manager.descriptor_sets();
 
         vkCmdBindDescriptorSets(
             m_command_buffer,
@@ -57,7 +55,7 @@ namespace hyper_engine
 
     void VulkanComputePass::set_push_constants(const void *data, const size_t data_size) const
     {
-        const auto layout = std::dynamic_pointer_cast<VulkanPipelineLayout>(m_pipeline->layout());
+        const RefPtr<VulkanPipelineLayout> layout = static_ptr_cast<VulkanPipelineLayout>(m_pipeline->layout());
 
         vkCmdPushConstants(m_command_buffer, layout->pipeline_layout(), VK_SHADER_STAGE_ALL, 0, static_cast<uint32_t>(data_size), data);
     }
@@ -65,16 +63,6 @@ namespace hyper_engine
     void VulkanComputePass::dispatch(const uint32_t x, const uint32_t y, const uint32_t z) const
     {
         vkCmdDispatch(m_command_buffer, x, y, z);
-    }
-
-    std::string_view VulkanComputePass::label() const
-    {
-        return m_label;
-    }
-
-    LabelColor VulkanComputePass::label_color() const
-    {
-        return m_label_color;
     }
 
     VkCommandBuffer VulkanComputePass::command_buffer() const

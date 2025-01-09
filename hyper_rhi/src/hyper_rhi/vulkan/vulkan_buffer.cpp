@@ -7,42 +7,42 @@
 #include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 
 #include <hyper_core/assertion.hpp>
-#include <hyper_core/logger.hpp>
+#include <hyper_core/global_environment.hpp>
 
 #include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
 
 namespace hyper_engine
 {
-    VulkanBuffer::VulkanBuffer(VulkanGraphicsDevice &graphics_device, const BufferDescriptor &descriptor, const bool staging)
-        : m_graphics_device(graphics_device)
-        , m_label(descriptor.label)
-        , m_byte_size(descriptor.byte_size)
-        , m_usage(descriptor.usage)
-        , m_handle(descriptor.handle)
-        , m_buffer(VK_NULL_HANDLE)
-        , m_allocation(VK_NULL_HANDLE)
+    NonnullRefPtr<Buffer> VulkanGraphicsDevice::create_buffer_platform(const BufferDescriptor &descriptor, const ResourceHandle handle) const
+    {
+        return create_buffer_internal(descriptor, handle, false);
+    }
+
+    NonnullRefPtr<Buffer>
+        VulkanGraphicsDevice::create_buffer_internal(const BufferDescriptor &descriptor, const ResourceHandle handle, const bool staging) const
     {
         const VkBufferUsageFlags usage_flags = VulkanBuffer::get_buffer_usage_flags(descriptor.usage);
 
         // NOTE: To be able to use vkCmdUpdateBuffer the buffer size needs to be a multiple of 4 if the size is less than 64kb
-        if (m_byte_size < 65536)
+        size_t byte_size = descriptor.byte_size;
+        if (descriptor.byte_size < 65536)
         {
-            m_byte_size = (m_byte_size + 3) & ~3ull;
+            byte_size = (descriptor.byte_size + 3) & ~3ull;
         }
 
         const VkBufferCreateInfo buffer_create_info = {
             .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
-            .size = m_byte_size,
+            .size = byte_size,
             .usage = usage_flags,
             .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
             .queueFamilyIndexCount = 0,
             .pQueueFamilyIndices = nullptr,
         };
 
-        // TODO: Add more explicit allocation
+        // FIXME: Add more explicit allocation
         VmaAllocationCreateFlags allocation_flags = 0;
         if (staging)
         {
@@ -61,52 +61,33 @@ namespace hyper_engine
             .priority = 0,
         };
 
-        HE_VK_CHECK(
-            vmaCreateBuffer(m_graphics_device.allocator(), &buffer_create_info, &allocation_create_info, &m_buffer, &m_allocation, nullptr));
-        HE_ASSERT(m_buffer != VK_NULL_HANDLE);
-        HE_ASSERT(m_allocation != VK_NULL_HANDLE);
+        VkBuffer buffer = VK_NULL_HANDLE;
+        VmaAllocation allocation = VK_NULL_HANDLE;
+        HE_VK_CHECK(vmaCreateBuffer(m_allocator, &buffer_create_info, &allocation_create_info, &buffer, &allocation, nullptr));
 
-        m_graphics_device.set_object_name(m_buffer, ObjectType::Buffer, m_label);
+        HE_ASSERT(buffer != VK_NULL_HANDLE);
+        HE_ASSERT(allocation != VK_NULL_HANDLE);
 
-        if ((descriptor.usage & BufferUsage::ShaderResource) == BufferUsage::ShaderResource)
-        {
-            if (m_handle.valid())
-            {
-                m_graphics_device.descriptor_manager().set_buffer(m_buffer, m_handle.handle());
-            }
-            else
-            {
-                m_handle = m_graphics_device.descriptor_manager().allocate_buffer_handle(m_buffer);
-            }
-        }
+        set_object_name(buffer, ObjectType::Buffer, descriptor.label);
 
-        // TODO: Add more trace information
-        HE_TRACE("Created Buffer");
+        return make_ref_counted<VulkanBuffer>(descriptor, handle, buffer, allocation);
+    }
+
+    VulkanBuffer::VulkanBuffer(
+        const BufferDescriptor &descriptor,
+        const ResourceHandle handle,
+        const VkBuffer buffer,
+        const VmaAllocation allocation)
+        : Buffer(descriptor, handle)
+        , m_buffer(buffer)
+        , m_allocation(allocation)
+    {
     }
 
     VulkanBuffer::~VulkanBuffer()
     {
-        m_graphics_device.resource_queue().buffers.emplace_back(m_buffer, m_allocation, m_handle);
-    }
-
-    std::string_view VulkanBuffer::label() const
-    {
-        return m_label;
-    }
-
-    uint64_t VulkanBuffer::byte_size() const
-    {
-        return m_byte_size;
-    }
-
-    BufferUsage VulkanBuffer::usage() const
-    {
-        return m_usage;
-    }
-
-    ResourceHandle VulkanBuffer::handle() const
-    {
-        return m_handle;
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        graphics_device->resource_queue().buffers.emplace_back(m_buffer, m_allocation, m_handle);
     }
 
     VkBuffer VulkanBuffer::buffer() const
@@ -119,20 +100,21 @@ namespace hyper_engine
         return m_allocation;
     }
 
-    VkBufferUsageFlags VulkanBuffer::get_buffer_usage_flags(const BufferUsage buffer_usage_flags)
+    VkBufferUsageFlags VulkanBuffer::get_buffer_usage_flags(const BitFlags<BufferUsage> buffer_usage_flags)
     {
         VkBufferUsageFlags usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-        if ((buffer_usage_flags & BufferUsage::Index) == BufferUsage::Index)
+
+        if (buffer_usage_flags & BufferUsage::Index)
         {
             usage_flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
         }
 
-        if ((buffer_usage_flags & BufferUsage::Indirect) == BufferUsage::Indirect)
+        if (buffer_usage_flags & BufferUsage::Indirect)
         {
             usage_flags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
         }
 
-        if ((buffer_usage_flags & BufferUsage::Storage) == BufferUsage::Storage)
+        if (buffer_usage_flags & BufferUsage::Storage)
         {
             usage_flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
         }

@@ -39,7 +39,7 @@ namespace hyper_engine
             }
         }();
 
-        // TODO: Solve this via VFS
+        // FIXME: Solve this via VFS
 
         arguments.emplace_back(L"-I");
         arguments.emplace_back(L"./assets/shaders/");
@@ -86,7 +86,7 @@ namespace hyper_engine
         ComPtr<IDxcBlobUtf8> dxil_errors = nullptr;
         dxil_result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&dxil_errors), nullptr);
 
-        // TODO: Add more informational logging
+        // FIXME: Add more informational logging
 
         if (dxil_errors != nullptr && dxil_errors->GetStringLength() != 0)
         {
@@ -128,7 +128,7 @@ namespace hyper_engine
         ComPtr<IDxcBlobUtf8> spirv_errors = nullptr;
         spirv_result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&spirv_errors), nullptr);
 
-        // TODO: Add more informational logging
+        // FIXME: Add more informational logging
 
         if (spirv_errors != nullptr && spirv_errors->GetStringLength() != 0)
         {

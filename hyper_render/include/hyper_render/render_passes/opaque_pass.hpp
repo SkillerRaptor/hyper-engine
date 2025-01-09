@@ -6,28 +6,26 @@
 
 #pragma once
 
-#include <memory>
+#include <hyper_core/nonnull_ref_ptr.hpp>
+#include <hyper_rhi/forward.hpp>
 
 namespace hyper_engine
 {
     struct DrawContext;
-    class Buffer;
-    class CommandList;
-    class TextureView;
 
     class OpaquePass
     {
     public:
         OpaquePass(
-            const std::shared_ptr<TextureView> &render_texture_view,
-            const std::shared_ptr<TextureView> &depth_texture_view,
-            const std::shared_ptr<Buffer> &scene_buffer);
+            const NonnullRefPtr<TextureView> &render_texture_view,
+            const NonnullRefPtr<TextureView> &depth_texture_view,
+            const NonnullRefPtr<Buffer> &scene_buffer);
 
-        void render(const std::shared_ptr<CommandList> &command_list, const DrawContext &draw_context) const;
+        void render(const NonnullRefPtr<CommandList> &command_list, const DrawContext &draw_context) const;
 
     private:
-        const std::shared_ptr<TextureView> &m_render_texture_view;
-        const std::shared_ptr<TextureView> &m_depth_texture_view;
-        const std::shared_ptr<Buffer> &m_scene_buffer;
+        const NonnullRefPtr<TextureView> &m_render_texture_view;
+        const NonnullRefPtr<TextureView> &m_depth_texture_view;
+        const NonnullRefPtr<Buffer> &m_scene_buffer;
     };
 } // namespace hyper_engine
