@@ -46,7 +46,7 @@ namespace hyper_engine
         }
     }
 
-    MeshNode::MeshNode(const NonnullRefPtr<Mesh> &mesh)
+    MeshNode::MeshNode(const RefPtr<Mesh> &mesh)
         : mesh(mesh)
     {
     }
@@ -80,13 +80,13 @@ namespace hyper_engine
     }
 
     LoadedGltf::LoadedGltf(
-        std::vector<NonnullRefPtr<Mesh>> meshes,
+        std::vector<RefPtr<Mesh>> meshes,
         std::vector<RefPtr<Node>> nodes,
-        std::vector<NonnullRefPtr<Texture>> textures,
-        std::vector<NonnullRefPtr<TextureView>> texture_views,
+        std::vector<RefPtr<Texture>> textures,
+        std::vector<RefPtr<TextureView>> texture_views,
         std::vector<RefPtr<GltfMaterial>> materials,
         std::vector<RefPtr<Node>> top_nodes,
-        std::vector<NonnullRefPtr<Sampler>> samplers)
+        std::vector<RefPtr<Sampler>> samplers)
         : m_meshes(std::move(meshes))
         , m_nodes(std::move(nodes))
         , m_textures(std::move(textures))
@@ -105,12 +105,12 @@ namespace hyper_engine
         }
     }
 
-    NonnullRefPtr<LoadedGltf> load_gltf(
-        const NonnullRefPtr<CommandList> &command_list,
-        const NonnullRefPtr<TextureView> &white_texture_view,
-        const NonnullRefPtr<Texture> &error_texture,
-        const NonnullRefPtr<TextureView> &error_texture_view,
-        const NonnullRefPtr<Sampler> &default_sampler_linear,
+    RefPtr<LoadedGltf> load_gltf(
+        const RefPtr<CommandList> &command_list,
+        const RefPtr<TextureView> &white_texture_view,
+        const RefPtr<Texture> &error_texture,
+        const RefPtr<TextureView> &error_texture_view,
+        const RefPtr<Sampler> &default_sampler_linear,
         const GltfMetallicRoughness &metallic_roughness_material,
         const std::string &path)
     {
@@ -130,7 +130,7 @@ namespace hyper_engine
         fastgltf::Expected<fastgltf::Asset> asset = parser.loadGltf(data.get(), file_path.parent_path(), options);
         HE_ASSERT(asset.error() == fastgltf::Error::None);
 
-        std::vector<NonnullRefPtr<Sampler>> samplers;
+        std::vector<RefPtr<Sampler>> samplers;
         for (const fastgltf::Sampler &sampler : asset->samplers)
         {
             const auto extract_filter = [](const fastgltf::Filter filter) -> Filter
@@ -170,8 +170,8 @@ namespace hyper_engine
             }));
         }
 
-        std::vector<NonnullRefPtr<Texture>> textures;
-        std::vector<NonnullRefPtr<TextureView>> texture_views;
+        std::vector<RefPtr<Texture>> textures;
+        std::vector<RefPtr<TextureView>> texture_views;
         for (const fastgltf::Image &image : asset->images)
         {
             int32_t width = 0;
@@ -232,7 +232,7 @@ namespace hyper_engine
 
             if (image_data)
             {
-                NonnullRefPtr<Texture> texture = g_env.graphics_device->create_texture({
+                RefPtr<Texture> texture = g_env.graphics_device->create_texture({
                     .label = image.name.empty() ? file_name : std::string(image.name),
                     .width = static_cast<uint32_t>(width),
                     .height = static_cast<uint32_t>(height),
@@ -244,7 +244,7 @@ namespace hyper_engine
                     .usage = TextureUsage::ShaderResource,
                 });
 
-                NonnullRefPtr<TextureView> texture_view = g_env.graphics_device->create_texture_view({
+                RefPtr<TextureView> texture_view = g_env.graphics_device->create_texture_view({
                     .label = image.name.empty() ? file_name : std::string(image.name),
                     .texture = texture,
                     .subresource_range =
@@ -288,7 +288,7 @@ namespace hyper_engine
                 });
 
                 command_list->write_texture(
-                    texture,
+                    *texture,
                     Offset3d{
                         .x = 0,
                         .y = 0,
@@ -320,7 +320,7 @@ namespace hyper_engine
         std::vector<RefPtr<GltfMaterial>> materials;
         for (const fastgltf::Material &material : asset->materials)
         {
-            NonnullRefPtr<GltfMaterial> new_material = make_ref_counted<GltfMaterial>();
+            RefPtr<GltfMaterial> new_material = make_ref<GltfMaterial>();
             materials.push_back(new_material);
 
             MaterialPassType pass_type = MaterialPassType::MainColor;
@@ -354,7 +354,7 @@ namespace hyper_engine
             new_material->data = metallic_roughness_material.write_material(command_list, pass_type, material_resources);
         }
 
-        std::vector<NonnullRefPtr<Mesh>> meshes;
+        std::vector<RefPtr<Mesh>> meshes;
 
         std::vector<glm::vec4> positions;
         std::vector<glm::vec4> normals;
@@ -459,35 +459,35 @@ namespace hyper_engine
                 surfaces.push_back(surface);
             }
 
-            const NonnullRefPtr<Buffer> positions_buffer = g_env.graphics_device->create_buffer({
+            const RefPtr<Buffer> positions_buffer = g_env.graphics_device->create_buffer({
                 .label = fmt::format("{} Positions", mesh.name),
                 .byte_size = positions.size() * sizeof(glm::vec4),
                 .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
             });
-            command_list->write_buffer(positions_buffer, positions.data(), positions.size() * sizeof(glm::vec4), 0);
+            command_list->write_buffer(*positions_buffer, positions.data(), positions.size() * sizeof(glm::vec4), 0);
 
-            const NonnullRefPtr<Buffer> normals_buffer = g_env.graphics_device->create_buffer({
+            const RefPtr<Buffer> normals_buffer = g_env.graphics_device->create_buffer({
                 .label = fmt::format("{} Normals", mesh.name),
                 .byte_size = normals.size() * sizeof(glm::vec4),
                 .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
             });
-            command_list->write_buffer(normals_buffer, normals.data(), normals.size() * sizeof(glm::vec4), 0);
+            command_list->write_buffer(*normals_buffer, normals.data(), normals.size() * sizeof(glm::vec4), 0);
 
-            const NonnullRefPtr<Buffer> colors_buffer = g_env.graphics_device->create_buffer({
+            const RefPtr<Buffer> colors_buffer = g_env.graphics_device->create_buffer({
                 .label = fmt::format("{} Colors", mesh.name),
                 .byte_size = colors.size() * sizeof(glm::vec4),
                 .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
             });
-            command_list->write_buffer(colors_buffer, colors.data(), colors.size() * sizeof(glm::vec4), 0);
+            command_list->write_buffer(*colors_buffer, colors.data(), colors.size() * sizeof(glm::vec4), 0);
 
-            const NonnullRefPtr<Buffer> tex_coords_buffer = g_env.graphics_device->create_buffer({
+            const RefPtr<Buffer> tex_coords_buffer = g_env.graphics_device->create_buffer({
                 .label = fmt::format("{} Tex Coords", mesh.name),
                 .byte_size = tex_coords.size() * sizeof(glm::vec4),
                 .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
             });
-            command_list->write_buffer(tex_coords_buffer, tex_coords.data(), tex_coords.size() * sizeof(glm::vec4), 0);
+            command_list->write_buffer(*tex_coords_buffer, tex_coords.data(), tex_coords.size() * sizeof(glm::vec4), 0);
 
-            const NonnullRefPtr<Buffer> mesh_buffer = g_env.graphics_device->create_buffer({
+            const RefPtr<Buffer> mesh_buffer = g_env.graphics_device->create_buffer({
                 .label = fmt::format("{} Mesh Data", mesh.name),
                 .byte_size = sizeof(ShaderMesh),
                 .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
@@ -500,16 +500,16 @@ namespace hyper_engine
                 .tex_coords = tex_coords_buffer->handle(),
             };
 
-            command_list->write_buffer(mesh_buffer, &shader_mesh, sizeof(ShaderMesh), 0);
+            command_list->write_buffer(*mesh_buffer, &shader_mesh, sizeof(ShaderMesh), 0);
 
-            const NonnullRefPtr<Buffer> indices_buffer = g_env.graphics_device->create_buffer({
+            const RefPtr<Buffer> indices_buffer = g_env.graphics_device->create_buffer({
                 .label = fmt::format("{} Indices", mesh.name),
                 .byte_size = indices.size() * sizeof(uint32_t),
                 .usage = BufferUsage::Index,
             });
-            command_list->write_buffer(indices_buffer, indices.data(), indices.size() * sizeof(uint32_t), 0);
+            command_list->write_buffer(*indices_buffer, indices.data(), indices.size() * sizeof(uint32_t), 0);
 
-            auto new_mesh = make_ref_counted<Mesh>(
+            auto new_mesh = make_ref<Mesh>(
                 std::string(mesh.name),
                 surfaces,
                 positions_buffer,
@@ -524,15 +524,15 @@ namespace hyper_engine
         std::vector<RefPtr<Node>> nodes;
         for (const fastgltf::Node &node : asset->nodes)
         {
-            RefPtr<Node> new_node = nullptr;
+            RefPtr<Node> new_node;
 
             if (node.meshIndex.has_value())
             {
-                new_node = make_ref_counted<MeshNode>(meshes[node.meshIndex.value()]);
+                new_node = make_ref<MeshNode>(meshes[node.meshIndex.value()]);
             }
             else
             {
-                new_node = make_ref_counted<Node>();
+                new_node = make_ref<Node>();
             }
 
             nodes.push_back(new_node);
@@ -574,13 +574,13 @@ namespace hyper_engine
         std::vector<RefPtr<Node>> top_nodes;
         for (const RefPtr<Node> &node : nodes)
         {
-            if (node->parent == nullptr)
+            if (node->parent.lock() == nullptr)
             {
                 top_nodes.push_back(node);
                 node->refresh_transform(glm::mat4(1.0));
             }
         }
 
-        return make_ref_counted<LoadedGltf>(meshes, nodes, textures, texture_views, materials, top_nodes, samplers);
+        return make_ref<LoadedGltf>(meshes, nodes, textures, texture_views, materials, top_nodes, samplers);
     }
 } // namespace hyper_engine

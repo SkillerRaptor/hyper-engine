@@ -8,8 +8,6 @@
 
 #include <string>
 
-#include <hyper_core/ref_counted.hpp>
-
 namespace hyper_engine
 {
     struct PipelineLayoutDescriptor
@@ -18,7 +16,7 @@ namespace hyper_engine
         uint32_t push_constant_size = 0;
     };
 
-    class PipelineLayout : public RefCounted<PipelineLayout>
+    class PipelineLayout
     {
     public:
         virtual ~PipelineLayout() = default;

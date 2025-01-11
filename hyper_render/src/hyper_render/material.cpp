@@ -26,10 +26,10 @@ namespace hyper_engine
 {
     GltfMetallicRoughness::GltfMetallicRoughness(
         const ShaderCompiler &shader_compiler,
-        const NonnullRefPtr<Texture> &render_texture,
-        const NonnullRefPtr<Texture> &depth_texture)
+        const RefPtr<Texture> &render_texture,
+        const RefPtr<Texture> &depth_texture)
     {
-        const NonnullRefPtr<ShaderModule> vertex_shader = g_env.graphics_device->create_shader_module({
+        const RefPtr<ShaderModule> vertex_shader = g_env.graphics_device->create_shader_module({
             .label = "Mesh",
             .type = ShaderType::Vertex,
             .entry_name = "vs_main",
@@ -42,7 +42,7 @@ namespace hyper_engine
                          .spirv,
         });
 
-        const NonnullRefPtr<ShaderModule> fragment_shader = g_env.graphics_device->create_shader_module({
+        const RefPtr<ShaderModule> fragment_shader = g_env.graphics_device->create_shader_module({
             .label = "Mesh",
             .type = ShaderType::Fragment,
             .entry_name = "fs_main",
@@ -55,7 +55,7 @@ namespace hyper_engine
                          .spirv,
         });
 
-        const NonnullRefPtr<PipelineLayout> pipeline_layout = g_env.graphics_device->create_pipeline_layout({
+        const RefPtr<PipelineLayout> pipeline_layout = g_env.graphics_device->create_pipeline_layout({
             .label = "Mesh",
             .push_constant_size = sizeof(ObjectPushConstants),
         });
@@ -141,11 +141,11 @@ namespace hyper_engine
     }
 
     MaterialInstance GltfMetallicRoughness::write_material(
-        const NonnullRefPtr<CommandList> &command_list,
+        const RefPtr<CommandList> &command_list,
         const MaterialPassType pass_type,
         const MaterialResources &resources) const
     {
-        const NonnullRefPtr<Buffer> buffer = g_env.graphics_device->create_buffer({
+        const RefPtr<Buffer> buffer = g_env.graphics_device->create_buffer({
             .label = "Material",
             .byte_size = sizeof(ShaderMaterial),
             .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
@@ -164,7 +164,7 @@ namespace hyper_engine
             .padding_3 = 0,
         };
 
-        command_list->write_buffer(buffer, &shader_material, sizeof(ShaderMaterial), 0);
+        command_list->write_buffer(*buffer, &shader_material, sizeof(ShaderMaterial), 0);
 
         const RefPtr<RenderPipeline> pipeline = [&]()
         {

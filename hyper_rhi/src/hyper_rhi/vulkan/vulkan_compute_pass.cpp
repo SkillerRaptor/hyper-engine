@@ -33,8 +33,8 @@ namespace hyper_engine
     {
         m_pipeline = pipeline;
 
-        const RefPtr<VulkanComputePipeline> vulkan_pipeline = static_ptr_cast<VulkanComputePipeline>(m_pipeline);
-        const RefPtr<VulkanPipelineLayout> layout = static_ptr_cast<VulkanPipelineLayout>(m_pipeline->layout());
+        const RefPtr<VulkanComputePipeline> vulkan_pipeline = std::static_pointer_cast<VulkanComputePipeline>(m_pipeline);
+        const RefPtr<VulkanPipelineLayout> layout = std::static_pointer_cast<VulkanPipelineLayout>(m_pipeline->layout());
 
         VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
         const VulkanDescriptorManager &descriptor_manager = static_cast<VulkanDescriptorManager &>(graphics_device->descriptor_manager());
@@ -55,7 +55,7 @@ namespace hyper_engine
 
     void VulkanComputePass::set_push_constants(const void *data, const size_t data_size) const
     {
-        const RefPtr<VulkanPipelineLayout> layout = static_ptr_cast<VulkanPipelineLayout>(m_pipeline->layout());
+        const RefPtr<VulkanPipelineLayout> layout = std::static_pointer_cast<VulkanPipelineLayout>(m_pipeline->layout());
 
         vkCmdPushConstants(m_command_buffer, layout->pipeline_layout(), VK_SHADER_STAGE_ALL, 0, static_cast<uint32_t>(data_size), data);
     }

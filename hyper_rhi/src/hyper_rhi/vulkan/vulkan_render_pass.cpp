@@ -59,7 +59,7 @@ namespace hyper_engine
         std::vector<VkRenderingAttachmentInfo> color_attachments = {};
         for (const ColorAttachment &color_attachment : m_color_attachments)
         {
-            const NonnullRefPtr<VulkanTextureView> color_attachment_view = static_ptr_cast<VulkanTextureView>(color_attachment.view);
+            const RefPtr<VulkanTextureView> color_attachment_view = std::static_pointer_cast<VulkanTextureView>(color_attachment.view);
 
             const VkRenderingAttachmentInfo color_attachment_info = {
                 .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
@@ -86,7 +86,7 @@ namespace hyper_engine
         };
 
         const RefPtr<VulkanTextureView> &depth_attachment_view =
-            m_depth_stencil_attachment.view == nullptr ? nullptr : static_ptr_cast<VulkanTextureView>(m_depth_stencil_attachment.view);
+            m_depth_stencil_attachment.view == nullptr ? nullptr : std::static_pointer_cast<VulkanTextureView>(m_depth_stencil_attachment.view);
 
         const VkRenderingAttachmentInfo depth_attachment_info = {
             .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
@@ -150,8 +150,8 @@ namespace hyper_engine
     {
         m_pipeline = pipeline;
 
-        const RefPtr<VulkanRenderPipeline> vulkan_pipeline = static_ptr_cast<VulkanRenderPipeline>(m_pipeline);
-        const RefPtr<VulkanPipelineLayout> layout = static_ptr_cast<VulkanPipelineLayout>(m_pipeline->layout());
+        const RefPtr<VulkanRenderPipeline> vulkan_pipeline = std::static_pointer_cast<VulkanRenderPipeline>(m_pipeline);
+        const RefPtr<VulkanPipelineLayout> layout = std::static_pointer_cast<VulkanPipelineLayout>(m_pipeline->layout());
 
         VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
         const VulkanDescriptorManager &descriptor_manager = static_cast<VulkanDescriptorManager &>(graphics_device->descriptor_manager());
@@ -219,7 +219,7 @@ namespace hyper_engine
 
     void VulkanRenderPass::set_push_constants(const void *data, const size_t data_size) const
     {
-        const RefPtr<VulkanPipelineLayout> layout = static_ptr_cast<VulkanPipelineLayout>(m_pipeline->layout());
+        const RefPtr<VulkanPipelineLayout> layout = std::static_pointer_cast<VulkanPipelineLayout>(m_pipeline->layout());
 
         vkCmdPushConstants(m_command_buffer, layout->pipeline_layout(), VK_SHADER_STAGE_ALL, 0, static_cast<uint32_t>(data_size), data);
     }

@@ -8,8 +8,7 @@
 
 #include <string>
 
-#include <hyper_core/nonnull_ref_ptr.hpp>
-#include <hyper_core/ref_counted.hpp>
+#include <hyper_core/ref_ptr.hpp>
 
 #include "hyper_rhi/forward.hpp"
 
@@ -19,25 +18,25 @@ namespace hyper_engine
     {
         std::string label;
 
-        NonnullRefPtr<PipelineLayout> layout;
-        NonnullRefPtr<ShaderModule> shader;
+        RefPtr<PipelineLayout> layout;
+        RefPtr<ShaderModule> shader;
     };
 
-    class ComputePipeline : public RefCounted<ComputePipeline>
+    class ComputePipeline
     {
     public:
         virtual ~ComputePipeline() = default;
 
         std::string_view label() const;
-        NonnullRefPtr<PipelineLayout> layout() const;
-        NonnullRefPtr<ShaderModule> shader() const;
+        RefPtr<PipelineLayout> layout() const;
+        RefPtr<ShaderModule> shader() const;
 
     protected:
         explicit ComputePipeline(const ComputePipelineDescriptor &descriptor);
 
     protected:
         std::string m_label;
-        NonnullRefPtr<PipelineLayout> m_layout;
-        NonnullRefPtr<ShaderModule> m_shader;
+        RefPtr<PipelineLayout> m_layout;
+        RefPtr<ShaderModule> m_shader;
     };
 } // namespace hyper_engine

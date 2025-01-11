@@ -15,10 +15,10 @@
 
 namespace hyper_engine
 {
-    NonnullRefPtr<ComputePipeline> VulkanGraphicsDevice::create_compute_pipeline_platform(const ComputePipelineDescriptor &descriptor) const
+    RefPtr<ComputePipeline> VulkanGraphicsDevice::create_compute_pipeline_platform(const ComputePipelineDescriptor &descriptor) const
     {
-        const NonnullRefPtr<VulkanPipelineLayout> layout = static_ptr_cast<VulkanPipelineLayout>(descriptor.layout);
-        const NonnullRefPtr<VulkanShaderModule> shader_module = static_ptr_cast<VulkanShaderModule>(descriptor.shader);
+        const RefPtr<VulkanPipelineLayout> layout = std::static_pointer_cast<VulkanPipelineLayout>(descriptor.layout);
+        const RefPtr<VulkanShaderModule> shader_module = std::static_pointer_cast<VulkanShaderModule>(descriptor.shader);
 
         const VkPipelineShaderStageCreateInfo shader_stage_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
@@ -47,7 +47,7 @@ namespace hyper_engine
 
         set_object_name(pipeline, ObjectType::Pipeline, descriptor.label);
 
-        return make_ref_counted<VulkanComputePipeline>(descriptor, pipeline);
+        return make_ref<VulkanComputePipeline>(descriptor, pipeline);
     }
 
     VulkanComputePipeline::VulkanComputePipeline(const ComputePipelineDescriptor &descriptor, const VkPipeline pipeline)

@@ -19,18 +19,18 @@
 namespace hyper_engine
 {
     OpaquePass::OpaquePass(
-        const NonnullRefPtr<TextureView> &render_texture_view,
-        const NonnullRefPtr<TextureView> &depth_texture_view,
-        const NonnullRefPtr<Buffer> &scene_buffer)
+        const RefPtr<TextureView> &render_texture_view,
+        const RefPtr<TextureView> &depth_texture_view,
+        const RefPtr<Buffer> &scene_buffer)
         : m_render_texture_view(render_texture_view)
         , m_depth_texture_view(depth_texture_view)
         , m_scene_buffer(scene_buffer)
     {
     }
 
-    void OpaquePass::render(const NonnullRefPtr<CommandList> &command_list, const DrawContext &draw_context) const
+    void OpaquePass::render(const RefPtr<CommandList> &command_list, const DrawContext &draw_context) const
     {
-        const NonnullRefPtr<RenderPass> render_pass = command_list->begin_render_pass({
+        const RefPtr<RenderPass> render_pass = command_list->begin_render_pass({
             .label = "Opaque",
             .label_color =
                 {
@@ -64,7 +64,7 @@ namespace hyper_engine
         {
             render_pass->set_pipeline(render_object.material->pipeline);
 
-            render_pass->set_index_buffer(render_object.index_buffer);
+            render_pass->set_index_buffer(*render_object.index_buffer);
 
             const ObjectPushConstants mesh_push_constants = {
                 .scene = m_scene_buffer->handle(),
@@ -82,7 +82,7 @@ namespace hyper_engine
         {
             render_pass->set_pipeline(render_object.material->pipeline);
 
-            render_pass->set_index_buffer(render_object.index_buffer);
+            render_pass->set_index_buffer(*render_object.index_buffer);
 
             const ObjectPushConstants mesh_push_constants = {
                 .scene = m_scene_buffer->handle(),

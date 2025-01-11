@@ -9,7 +9,6 @@
 #include <string>
 
 #include <hyper_core/bit_flags.hpp>
-#include <hyper_core/ref_counted.hpp>
 
 #include "hyper_rhi/resource_handle.hpp"
 
@@ -31,7 +30,7 @@ namespace hyper_engine
         BitFlags<BufferUsage> usage = BufferUsage::None;
     };
 
-    class Buffer : public RefCounted<Buffer>
+    class Buffer
     {
     public:
         virtual ~Buffer() = default;

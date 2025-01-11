@@ -9,7 +9,7 @@
 #include <functional>
 #include <unordered_map>
 
-#include <hyper_core/nonnull_own_ptr.hpp>
+#include <hyper_core/own_ptr.hpp>
 
 #include "hyper_event/event_handler.hpp"
 #include "hyper_event/event_id_generator.hpp"
@@ -28,8 +28,8 @@ namespace hyper_engine
                 return;
             }
 
-            const NonnullOwnPtr<EventHandler> &handler = m_handlers.at(event_id);
-            EventHandlerImpl<T> *event_handler = static_cast<EventHandlerImpl<T> *>(handler.ptr());
+            const OwnPtr<EventHandler> &handler = m_handlers.at(event_id);
+            EventHandlerImpl<T> *event_handler = static_cast<EventHandlerImpl<T> *>(handler.get());
             event_handler->dispatch(T(std::forward<Args>(args)...));
         }
 
@@ -40,15 +40,15 @@ namespace hyper_engine
             const size_t event_id = EventIdGenerator::type<T>();
             if (!m_handlers.contains(event_id))
             {
-                m_handlers.insert({event_id, make<EventHandlerImpl<T>>()});
+                m_handlers.insert({event_id, make_own<EventHandlerImpl<T>>()});
             }
 
-            const NonnullOwnPtr<EventHandler> &handler = m_handlers.at(event_id);
-            EventHandlerImpl<T> *event_handler = static_cast<EventHandlerImpl<T> *>(handler.ptr());
+            const OwnPtr<EventHandler> &handler = m_handlers.at(event_id);
+            EventHandlerImpl<T> *event_handler = static_cast<EventHandlerImpl<T> *>(handler.get());
             event_handler->subscribe(callback);
         }
 
     private:
-        std::unordered_map<size_t, NonnullOwnPtr<EventHandler>> m_handlers;
+        std::unordered_map<size_t, OwnPtr<EventHandler>> m_handlers;
     };
 } // namespace hyper_engine

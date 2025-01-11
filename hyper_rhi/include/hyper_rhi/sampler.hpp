@@ -8,8 +8,6 @@
 
 #include <string>
 
-#include <hyper_core/ref_counted.hpp>
-
 #include "hyper_rhi/compare_operation.hpp"
 #include "hyper_rhi/resource_handle.hpp"
 
@@ -53,7 +51,7 @@ namespace hyper_engine
         BorderColor border_color = BorderColor::TransparentBlack;
     };
 
-    class Sampler : public RefCounted<Sampler>
+    class Sampler
     {
     public:
         virtual ~Sampler() = default;
@@ -73,7 +71,7 @@ namespace hyper_engine
         ResourceHandle handle() const;
 
     protected:
-         Sampler(const SamplerDescriptor &descriptor, ResourceHandle handle);
+        Sampler(const SamplerDescriptor &descriptor, ResourceHandle handle);
 
     protected:
         std::string m_label;

@@ -13,7 +13,7 @@
 
 namespace hyper_engine
 {
-    NonnullRefPtr<ShaderModule> VulkanGraphicsDevice::create_shader_module_platform(const ShaderModuleDescriptor &descriptor) const
+    RefPtr<ShaderModule> VulkanGraphicsDevice::create_shader_module_platform(const ShaderModuleDescriptor &descriptor) const
     {
         const VkShaderModuleCreateInfo shader_module_create_info = {
             .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
@@ -30,7 +30,7 @@ namespace hyper_engine
 
         set_object_name(shader_module, ObjectType::ShaderModule, descriptor.label);
 
-        return make_ref_counted<VulkanShaderModule>(descriptor, shader_module);
+        return make_ref<VulkanShaderModule>(descriptor, shader_module);
     }
 
     VulkanShaderModule::VulkanShaderModule(const ShaderModuleDescriptor &descriptor, const VkShaderModule shader_module)

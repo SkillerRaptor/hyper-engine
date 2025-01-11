@@ -8,7 +8,6 @@
 
 #include <string>
 
-#include <hyper_core/ref_counted.hpp>
 #include <hyper_core/ref_ptr.hpp>
 
 #include "hyper_rhi/forward.hpp"
@@ -22,12 +21,12 @@ namespace hyper_engine
         LabelColor label_color;
     };
 
-    class ComputePass : public RefCounted<ComputePass>
+    class ComputePass
     {
     public:
         virtual ~ComputePass() = default;
 
-        // FIXME: This should be NonnullRefPtr
+        // FIXME: This should be RefPtr
         virtual void set_pipeline(const RefPtr<ComputePipeline> &pipeline) = 0;
         virtual void set_push_constants(const void *data, size_t data_size) const = 0;
 

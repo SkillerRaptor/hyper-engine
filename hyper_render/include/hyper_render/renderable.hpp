@@ -10,8 +10,6 @@
 #include <vector>
 
 #include <hyper_core/math.hpp>
-#include <hyper_core/nonnull_ref_ptr.hpp>
-#include <hyper_core/weak_ptr.hpp>
 #include <hyper_rhi/forward.hpp>
 
 #include "hyper_render/forward.hpp"
@@ -24,12 +22,12 @@ namespace hyper_engine
     {
         uint32_t index_count = 0;
         uint32_t first_index = 0;
-        NonnullRefPtr<Buffer> index_buffer;
+        RefPtr<Buffer> index_buffer;
 
         MaterialInstance *material = nullptr;
 
         glm::mat4 transform;
-        NonnullRefPtr<Buffer> mesh_buffer;
+        RefPtr<Buffer> mesh_buffer;
     };
 
     struct DrawContext
@@ -46,10 +44,7 @@ namespace hyper_engine
         virtual void draw(const glm::mat4 &top_matrix, DrawContext &draw_context) const = 0;
     };
 
-    class Node
-        : public Renderable
-        , public Weakable<Node>
-        , public RefCounted<Node>
+    class Node : public Renderable
     {
     public:
         void refresh_transform(const glm::mat4 &parent_matrix);
@@ -67,46 +62,44 @@ namespace hyper_engine
     class MeshNode final : public Node
     {
     public:
-        explicit MeshNode(const NonnullRefPtr<Mesh> &mesh);
+        explicit MeshNode(const RefPtr<Mesh> &mesh);
 
         void draw(const glm::mat4 &top_matrix, DrawContext &context) const override;
 
     public:
-        NonnullRefPtr<Mesh> mesh;
+        RefPtr<Mesh> mesh;
     };
 
-    class LoadedGltf final
-        : public Renderable
-        , public RefCounted<LoadedGltf>
+    class LoadedGltf final : public Renderable
     {
     public:
         LoadedGltf(
-            std::vector<NonnullRefPtr<Mesh>> meshes,
+            std::vector<RefPtr<Mesh>> meshes,
             std::vector<RefPtr<Node>> nodes,
-            std::vector<NonnullRefPtr<Texture>> textures,
-            std::vector<NonnullRefPtr<TextureView>> texture_views,
+            std::vector<RefPtr<Texture>> textures,
+            std::vector<RefPtr<TextureView>> texture_views,
             std::vector<RefPtr<GltfMaterial>> materials,
             std::vector<RefPtr<Node>> top_nodes,
-            std::vector<NonnullRefPtr<Sampler>> samplers);
+            std::vector<RefPtr<Sampler>> samplers);
 
         void draw(const glm::mat4 &top_matrix, DrawContext &draw_context) const override;
 
     private:
-        std::vector<NonnullRefPtr<Mesh>> m_meshes;
+        std::vector<RefPtr<Mesh>> m_meshes;
         std::vector<RefPtr<Node>> m_nodes;
-        std::vector<NonnullRefPtr<Texture>> m_textures;
-        std::vector<NonnullRefPtr<TextureView>> m_texture_views;
+        std::vector<RefPtr<Texture>> m_textures;
+        std::vector<RefPtr<TextureView>> m_texture_views;
         std::vector<RefPtr<GltfMaterial>> m_materials;
         std::vector<RefPtr<Node>> m_top_nodes;
-        std::vector<NonnullRefPtr<Sampler>> m_samplers;
+        std::vector<RefPtr<Sampler>> m_samplers;
     };
 
-    NonnullRefPtr<LoadedGltf> load_gltf(
-        const NonnullRefPtr<CommandList> &command_list,
-        const NonnullRefPtr<TextureView> &white_texture_view,
-        const NonnullRefPtr<Texture> &error_texture,
-        const NonnullRefPtr<TextureView> &error_texture_view,
-        const NonnullRefPtr<Sampler> &default_sampler_linear,
+    RefPtr<LoadedGltf> load_gltf(
+        const RefPtr<CommandList> &command_list,
+        const RefPtr<TextureView> &white_texture_view,
+        const RefPtr<Texture> &error_texture,
+        const RefPtr<TextureView> &error_texture_view,
+        const RefPtr<Sampler> &default_sampler_linear,
         const GltfMetallicRoughness &metallic_roughness_material,
         const std::string &path);
 } // namespace hyper_engine

@@ -9,8 +9,6 @@
 #include <string>
 #include <vector>
 
-#include <hyper_core/ref_counted.hpp>
-
 #include "hyper_rhi/shader_type.hpp"
 
 namespace hyper_engine
@@ -23,7 +21,7 @@ namespace hyper_engine
         std::vector<uint8_t> bytes;
     };
 
-    class ShaderModule : public RefCounted<ShaderModule>
+    class ShaderModule
     {
     public:
         virtual ~ShaderModule() = default;

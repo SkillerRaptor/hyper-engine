@@ -9,7 +9,6 @@
 #include <string>
 
 #include <hyper_core/bit_flags.hpp>
-#include <hyper_core/ref_counted.hpp>
 
 #include "hyper_rhi/dimension.hpp"
 #include "hyper_rhi/format.hpp"
@@ -37,7 +36,7 @@ namespace hyper_engine
         BitFlags<TextureUsage> usage = TextureUsage::None;
     };
 
-    class Texture : public RefCounted<Texture>
+    class Texture
     {
     public:
         virtual ~Texture() = default;

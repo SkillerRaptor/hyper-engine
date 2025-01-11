@@ -9,8 +9,7 @@
 #include <string>
 #include <vector>
 
-#include <hyper_core/nonnull_ref_ptr.hpp>
-#include <hyper_core/ref_counted.hpp>
+#include <hyper_core/ref_ptr.hpp>
 
 #include "hyper_rhi/label_color.hpp"
 #include "hyper_rhi/forward.hpp"
@@ -38,13 +37,13 @@ namespace hyper_engine
 
     struct ColorAttachment
     {
-        NonnullRefPtr<TextureView> view;
+        RefPtr<TextureView> view;
         Operations operation;
     };
 
     struct DepthStencilAttachment
     {
-        NonnullRefPtr<TextureView> view;
+        RefPtr<TextureView> view;
         Operations depth_operation;
         // FIXME: Add stencil operation
     };
@@ -57,12 +56,12 @@ namespace hyper_engine
         DepthStencilAttachment depth_stencil_attachment;
     };
 
-    class RenderPass : public RefCounted<RenderPass>
+    class RenderPass
     {
     public:
         virtual ~RenderPass() = default;
 
-        // FIXME: This should be NonnullRefPtr
+        // FIXME: This should be RefPtr
         virtual void set_pipeline(const RefPtr<RenderPipeline> &pipeline) = 0;
         virtual void set_push_constants(const void *data, size_t data_size) const = 0;
 

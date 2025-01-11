@@ -7,7 +7,6 @@
 #pragma once
 
 #include <array>
-#include <memory>
 #include <optional>
 #include <vector>
 
@@ -90,21 +89,21 @@ namespace hyper_engine
         explicit VulkanGraphicsDevice(const GraphicsDeviceDescriptor &descriptor);
         ~VulkanGraphicsDevice() override;
 
-        NonnullRefPtr<Surface> create_surface() override;
-        NonnullRefPtr<CommandList> create_command_list() override;
+        RefPtr<Surface> create_surface() override;
+        RefPtr<CommandList> create_command_list() override;
 
-        NonnullRefPtr<Buffer> create_buffer_platform(const BufferDescriptor &descriptor, ResourceHandle handle) const override;
-        NonnullRefPtr<Buffer> create_buffer_internal(const BufferDescriptor &descriptor, ResourceHandle handle, bool staging) const;
+        RefPtr<Buffer> create_buffer_platform(const BufferDescriptor &descriptor, ResourceHandle handle) const override;
+        RefPtr<Buffer> create_buffer_internal(const BufferDescriptor &descriptor, ResourceHandle handle, bool staging) const;
 
-        NonnullRefPtr<ComputePipeline> create_compute_pipeline_platform(const ComputePipelineDescriptor &descriptor) const override;
-        NonnullRefPtr<RenderPipeline> create_render_pipeline_platform(const RenderPipelineDescriptor &descriptor) const override;
-        NonnullRefPtr<PipelineLayout> create_pipeline_layout_platform(const PipelineLayoutDescriptor &descriptor) const override;
-        NonnullRefPtr<ShaderModule> create_shader_module_platform(const ShaderModuleDescriptor &descriptor) const override;
+        RefPtr<ComputePipeline> create_compute_pipeline_platform(const ComputePipelineDescriptor &descriptor) const override;
+        RefPtr<RenderPipeline> create_render_pipeline_platform(const RenderPipelineDescriptor &descriptor) const override;
+        RefPtr<PipelineLayout> create_pipeline_layout_platform(const PipelineLayoutDescriptor &descriptor) const override;
+        RefPtr<ShaderModule> create_shader_module_platform(const ShaderModuleDescriptor &descriptor) const override;
 
-        NonnullRefPtr<Sampler> create_sampler_platform(const SamplerDescriptor &descriptor, ResourceHandle handle) const override;
-        NonnullRefPtr<Texture> create_texture_platform(const TextureDescriptor &descriptor) const override;
-        NonnullRefPtr<Texture> create_texture_internal(const TextureDescriptor &descriptor, VkImage image) const;
-        NonnullRefPtr<TextureView> create_texture_view_platform(const TextureViewDescriptor &descriptor, ResourceHandle handle) const override;
+        RefPtr<Sampler> create_sampler_platform(const SamplerDescriptor &descriptor, ResourceHandle handle) const override;
+        RefPtr<Texture> create_texture_platform(const TextureDescriptor &descriptor) const override;
+        RefPtr<Texture> create_texture_internal(const TextureDescriptor &descriptor, VkImage image) const;
+        RefPtr<TextureView> create_texture_view_platform(const TextureViewDescriptor &descriptor, ResourceHandle handle) const override;
 
         void begin_marker(VkCommandBuffer command_buffer, MarkerType type, std::string_view name, LabelColor color) const;
         void end_marker(VkCommandBuffer command_buffer) const;

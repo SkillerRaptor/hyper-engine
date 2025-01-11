@@ -236,7 +236,7 @@ namespace hyper_engine
                 },
         });
         m_command_list->write_texture(
-            m_white_texture,
+            *m_white_texture,
             {
                 .x = 0,
                 .y = 0,
@@ -290,7 +290,7 @@ namespace hyper_engine
                 },
         });
         m_command_list->write_texture(
-            m_error_texture,
+            *m_error_texture,
             {
                 .x = 0,
                 .y = 0,
@@ -310,7 +310,7 @@ namespace hyper_engine
         MaterialInstance default_data =
             m_metallic_roughness_material.write_material(m_command_list, MaterialPassType::MainColor, material_resources);
 
-        const NonnullRefPtr<LoadedGltf> scene = load_gltf(
+        const RefPtr<LoadedGltf> scene = load_gltf(
             m_command_list,
             m_white_texture_view,
             m_error_texture,
@@ -322,12 +322,12 @@ namespace hyper_engine
 
         m_command_list->end();
 
-        g_env.graphics_device->execute(m_command_list);
+        g_env.graphics_device->execute(*m_command_list);
         g_env.graphics_device->wait_for_idle();
 
-        m_opaque_pass = make<OpaquePass>(m_render_texture_view, m_depth_texture_view, m_scene_buffer);
+        m_opaque_pass = make_own<OpaquePass>(m_render_texture_view, m_depth_texture_view, m_scene_buffer);
 
-        m_grid_pass = make<GridPass>(m_shader_compiler, m_render_texture, m_render_texture_view, m_depth_texture, m_depth_texture_view);
+        m_grid_pass = make_own<GridPass>(m_shader_compiler, m_render_texture, m_render_texture_view, m_depth_texture, m_depth_texture_view);
 
         // m_imgui_pass = make<ImGuiPass>(m_surface);
 
@@ -365,7 +365,7 @@ namespace hyper_engine
     {
         update_scene();
 
-        g_env.graphics_device->begin_frame(m_surface, m_frame_index);
+        g_env.graphics_device->begin_frame(*m_surface, m_frame_index);
 
         m_command_list->begin();
 
@@ -440,8 +440,8 @@ namespace hyper_engine
         m_grid_pass->render(m_command_list);
 
         // FIXME: Add error if current texture is asked before the frame began
-        const NonnullRefPtr<Texture> swapchain_texture = m_surface->current_texture();
-        const NonnullRefPtr<TextureView> swapchain_texture_view = m_surface->current_texture_view();
+        const RefPtr<Texture> swapchain_texture = m_surface->current_texture();
+        const RefPtr<TextureView> swapchain_texture_view = m_surface->current_texture_view();
 
         // NOTE: Transitioning the render and swapchain image for transfer
         m_command_list->insert_barriers({
@@ -485,7 +485,7 @@ namespace hyper_engine
         });
 
         m_command_list->copy_texture_to_texture(
-            m_render_texture,
+            *m_render_texture,
             {
                 .x = 0,
                 .y = 0,
@@ -493,7 +493,7 @@ namespace hyper_engine
             },
             0,
             0,
-            swapchain_texture,
+            *swapchain_texture,
             {
                 .x = 0,
                 .y = 0,
@@ -561,8 +561,8 @@ namespace hyper_engine
 
         g_env.graphics_device->end_frame();
 
-        g_env.graphics_device->execute(m_command_list);
-        g_env.graphics_device->present(m_surface);
+        g_env.graphics_device->execute(*m_command_list);
+        g_env.graphics_device->present(*m_surface);
 
         m_frame_index += 1;
     }
@@ -654,7 +654,7 @@ namespace hyper_engine
             .padding_1 = 0.0,
         };
 
-        m_command_list->write_buffer(m_camera_buffer, &shader_camera, sizeof(ShaderCamera), 0);
+        m_command_list->write_buffer(*m_camera_buffer, &shader_camera, sizeof(ShaderCamera), 0);
 
         constexpr ShaderScene shader_scene = {
             .ambient_color = glm::vec4(0.1f),
@@ -663,11 +663,11 @@ namespace hyper_engine
             .padding_0 = glm::vec4(0.0f),
         };
 
-        m_command_list->write_buffer(m_scene_buffer, &shader_scene, sizeof(ShaderScene), 0);
+        m_command_list->write_buffer(*m_scene_buffer, &shader_scene, sizeof(ShaderScene), 0);
 
         m_command_list->end();
 
-        g_env.graphics_device->execute(m_command_list);
+        g_env.graphics_device->execute(*m_command_list);
         g_env.graphics_device->wait_for_idle();
 
         // Draw meshes

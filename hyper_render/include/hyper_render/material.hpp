@@ -7,7 +7,6 @@
 #pragma once
 
 #include <hyper_core/math.hpp>
-#include <hyper_core/nonnull_ref_ptr.hpp>
 #include <hyper_core/ref_ptr.hpp>
 #include <hyper_rhi/forward.hpp>
 #include <hyper_rhi/render_pipeline.hpp>
@@ -22,10 +21,10 @@ namespace hyper_engine
 
     struct MaterialInstance
     {
-        RefPtr<RenderPipeline> pipeline = nullptr;
+        RefPtr<RenderPipeline> pipeline;
         MaterialPassType pass_type = MaterialPassType::MainColor;
 
-        RefPtr<Buffer> buffer = nullptr;
+        RefPtr<Buffer> buffer;
     };
 
     class GltfMetallicRoughness
@@ -34,26 +33,26 @@ namespace hyper_engine
         struct MaterialResources
         {
             glm::vec4 color_factors = {0.0f, 0.0f, 0.0f, 0.0f};
-            NonnullRefPtr<TextureView> color_texture_view;
-            NonnullRefPtr<Sampler> color_sampler;
+            RefPtr<TextureView> color_texture_view;
+            RefPtr<Sampler> color_sampler;
 
             glm::vec4 metal_roughness_factors = {0.0f, 0.0f, 0.0f, 0.0f};
-            NonnullRefPtr<TextureView> metal_roughness_texture_view;
-            NonnullRefPtr<Sampler> metal_roughness_sampler;
+            RefPtr<TextureView> metal_roughness_texture_view;
+            RefPtr<Sampler> metal_roughness_sampler;
         };
 
     public:
         GltfMetallicRoughness(
             const ShaderCompiler &shader_compiler,
-            const NonnullRefPtr<Texture> &render_texture,
-            const NonnullRefPtr<Texture> &depth_texture);
+            const RefPtr<Texture> &render_texture,
+            const RefPtr<Texture> &depth_texture);
 
         MaterialInstance
-            write_material(const NonnullRefPtr<CommandList> &command_list, MaterialPassType pass_type, const MaterialResources &resources) const;
+            write_material(const RefPtr<CommandList> &command_list, MaterialPassType pass_type, const MaterialResources &resources) const;
 
     private:
-        // FIXME: Make this NonnullRefPtr by using a factory function
-        RefPtr<RenderPipeline> m_opaque_pipeline = nullptr;
-        RefPtr<RenderPipeline> m_transparent_pipeline = nullptr;
+        // FIXME: Make this RefPtr by using a factory function
+        RefPtr<RenderPipeline> m_opaque_pipeline;
+        RefPtr<RenderPipeline> m_transparent_pipeline;
     };
 } // namespace hyper_engine

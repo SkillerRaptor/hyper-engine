@@ -9,15 +9,14 @@
 #include <string>
 #include <vector>
 
-#include <hyper_core/ref_counted.hpp>
-#include <hyper_core/nonnull_ref_ptr.hpp>
+#include <hyper_core/ref_ptr.hpp>
 #include <hyper_rhi/forward.hpp>
 
 #include "hyper_render/material.hpp"
 
 namespace hyper_engine
 {
-    struct GltfMaterial : RefCounted<GltfMaterial>
+    struct GltfMaterial
     {
         MaterialInstance data;
     };
@@ -29,39 +28,39 @@ namespace hyper_engine
         RefPtr<GltfMaterial> material;
     };
 
-    class Mesh : public RefCounted<Mesh>
+    class Mesh
     {
     public:
         Mesh(
             std::string name,
             std::vector<GltfSurface> surfaces,
-            NonnullRefPtr<Buffer> positions_buffer,
-            NonnullRefPtr<Buffer> normals_buffer,
-            NonnullRefPtr<Buffer> colors_buffer,
-            NonnullRefPtr<Buffer> tex_coords_buffer,
-            NonnullRefPtr<Buffer> mesh_buffer,
-            NonnullRefPtr<Buffer> indices_buffer);
+            RefPtr<Buffer> positions_buffer,
+            RefPtr<Buffer> normals_buffer,
+            RefPtr<Buffer> colors_buffer,
+            RefPtr<Buffer> tex_coords_buffer,
+            RefPtr<Buffer> mesh_buffer,
+            RefPtr<Buffer> indices_buffer);
 
         std::string_view name() const;
 
         const std::vector<GltfSurface> &surfaces() const;
-        NonnullRefPtr<Buffer> positions_buffer() const;
-        NonnullRefPtr<Buffer> normals_buffer() const;
-        NonnullRefPtr<Buffer> colors_buffer() const;
-        NonnullRefPtr<Buffer> tex_coords_buffer() const;
-        NonnullRefPtr<Buffer> mesh_buffer() const;
-        NonnullRefPtr<Buffer> indices_buffer() const;
+        RefPtr<Buffer> positions_buffer() const;
+        RefPtr<Buffer> normals_buffer() const;
+        RefPtr<Buffer> colors_buffer() const;
+        RefPtr<Buffer> tex_coords_buffer() const;
+        RefPtr<Buffer> mesh_buffer() const;
+        RefPtr<Buffer> indices_buffer() const;
 
     private:
         std::string m_name;
         std::vector<GltfSurface> m_surfaces;
 
-        NonnullRefPtr<Buffer> m_positions_buffer;
-        NonnullRefPtr<Buffer> m_normals_buffer;
-        NonnullRefPtr<Buffer> m_colors_buffer;
-        NonnullRefPtr<Buffer> m_tex_coords_buffer;
+        RefPtr<Buffer> m_positions_buffer;
+        RefPtr<Buffer> m_normals_buffer;
+        RefPtr<Buffer> m_colors_buffer;
+        RefPtr<Buffer> m_tex_coords_buffer;
 
-        NonnullRefPtr<Buffer> m_mesh_buffer;
-        NonnullRefPtr<Buffer> m_indices_buffer;
+        RefPtr<Buffer> m_mesh_buffer;
+        RefPtr<Buffer> m_indices_buffer;
     };
 } // namespace hyper_engine

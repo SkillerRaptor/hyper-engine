@@ -71,7 +71,7 @@ namespace hyper_engine
         {
             for (const BufferMemoryBarrier &buffer_memory_barrier : barriers.buffer_memory_barriers)
             {
-                const NonnullRefPtr<VulkanBuffer> buffer = static_ptr_cast<VulkanBuffer>(buffer_memory_barrier.buffer);
+                const RefPtr<VulkanBuffer> buffer = std::static_pointer_cast<VulkanBuffer>(buffer_memory_barrier.buffer);
 
                 const VkPipelineStageFlags2 src_stage = VulkanCommandList::get_pipeline_stage_flags(buffer_memory_barrier.stage_before);
                 const VkAccessFlags2 src_access = VulkanCommandList::get_access_flags(buffer_memory_barrier.access_before);
@@ -101,7 +101,7 @@ namespace hyper_engine
         {
             for (const TextureMemoryBarrier &texture_memory_barrier : barriers.texture_memory_barriers)
             {
-                const NonnullRefPtr<VulkanTexture> texture = static_ptr_cast<VulkanTexture>(texture_memory_barrier.texture);
+                const RefPtr<VulkanTexture> texture = std::static_pointer_cast<VulkanTexture>(texture_memory_barrier.texture);
 
                 const VkPipelineStageFlags2 src_stage = VulkanCommandList::get_pipeline_stage_flags(texture_memory_barrier.stage_before);
                 const VkAccessFlags2 src_access = VulkanCommandList::get_access_flags(texture_memory_barrier.access_before);
@@ -532,7 +532,7 @@ namespace hyper_engine
         }
         else
         {
-            const NonnullRefPtr<Buffer> staging_buffer = graphics_device->create_buffer_internal(
+            const RefPtr<Buffer> staging_buffer = graphics_device->create_buffer_internal(
                 {
                     .label = fmt::format("{} Staging", buffer.label()),
                     .byte_size = static_cast<uint64_t>(size),
@@ -541,7 +541,7 @@ namespace hyper_engine
                 ResourceHandle(),
                 true);
 
-            const NonnullRefPtr<VulkanBuffer> vulkan_staging_buffer = static_ptr_cast<VulkanBuffer>(staging_buffer);
+            const RefPtr<VulkanBuffer> vulkan_staging_buffer = std::static_pointer_cast<VulkanBuffer>(staging_buffer);
 
             void *mapped_ptr = nullptr;
             vmaMapMemory(graphics_device->allocator(), vulkan_staging_buffer->allocation(), &mapped_ptr);
@@ -585,7 +585,7 @@ namespace hyper_engine
 
         const VulkanTexture &vulkan_texture = static_cast<const VulkanTexture &>(texture);
 
-        const NonnullRefPtr<Buffer> staging_buffer = graphics_device->create_buffer_internal(
+        const RefPtr<Buffer> staging_buffer = graphics_device->create_buffer_internal(
             {
                 .label = fmt::format("{} Staging", texture.label()),
                 .byte_size = static_cast<uint64_t>(data_size),
@@ -594,7 +594,7 @@ namespace hyper_engine
             ResourceHandle(),
             true);
 
-        const NonnullRefPtr<VulkanBuffer> vulkan_staging_buffer = static_ptr_cast<VulkanBuffer>(staging_buffer);
+        const RefPtr<VulkanBuffer> vulkan_staging_buffer = std::static_pointer_cast<VulkanBuffer>(staging_buffer);
 
         void *mapped_ptr = nullptr;
         vmaMapMemory(graphics_device->allocator(), vulkan_staging_buffer->allocation(), &mapped_ptr);
@@ -644,14 +644,14 @@ namespace hyper_engine
         HE_TRACE("Writing {} bytes to {} texture", data_size, texture.label().empty() ? "a" : fmt::format("the '{}'", texture.label()));
     }
 
-    NonnullRefPtr<ComputePass> VulkanCommandList::begin_compute_pass_platform(const ComputePassDescriptor &descriptor) const
+    RefPtr<ComputePass> VulkanCommandList::begin_compute_pass_platform(const ComputePassDescriptor &descriptor) const
     {
-        return make_ref_counted<VulkanComputePass>(descriptor, m_command_buffer);
+        return make_ref<VulkanComputePass>(descriptor, m_command_buffer);
     }
 
-    NonnullRefPtr<RenderPass> VulkanCommandList::begin_render_pass_platform(const RenderPassDescriptor &descriptor) const
+    RefPtr<RenderPass> VulkanCommandList::begin_render_pass_platform(const RenderPassDescriptor &descriptor) const
     {
-        return make_ref_counted<VulkanRenderPass>(descriptor, m_command_buffer);
+        return make_ref<VulkanRenderPass>(descriptor, m_command_buffer);
     }
 
     VkCommandBuffer VulkanCommandList::command_buffer() const

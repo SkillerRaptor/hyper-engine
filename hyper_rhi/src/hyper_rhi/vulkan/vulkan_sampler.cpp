@@ -15,7 +15,7 @@
 
 namespace hyper_engine
 {
-    NonnullRefPtr<Sampler> VulkanGraphicsDevice::create_sampler_platform(const SamplerDescriptor &descriptor, ResourceHandle handle) const
+    RefPtr<Sampler> VulkanGraphicsDevice::create_sampler_platform(const SamplerDescriptor &descriptor, ResourceHandle handle) const
     {
         const VkFilter mag_filter = VulkanSampler::get_filter(descriptor.mag_filter);
         const VkFilter min_filter = VulkanSampler::get_filter(descriptor.min_filter);
@@ -53,7 +53,7 @@ namespace hyper_engine
 
         set_object_name(sampler, ObjectType::Sampler, descriptor.label);
 
-        return make_ref_counted<VulkanSampler>(descriptor, handle, sampler);
+        return make_ref<VulkanSampler>(descriptor, handle, sampler);
     }
 
     VulkanSampler::VulkanSampler(const SamplerDescriptor &descriptor, const ResourceHandle handle, const VkSampler sampler)

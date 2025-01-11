@@ -24,7 +24,7 @@ namespace hyper_engine
         const OwnPtr<spdlog::logger> &internal_logger() const;
 
     private:
-        OwnPtr<spdlog::logger> m_internal_logger = nullptr;
+        OwnPtr<spdlog::logger> m_internal_logger;
     };
 } // namespace hyper_engine
 

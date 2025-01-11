@@ -24,7 +24,7 @@ namespace hyper_engine
         return m_label;
     }
 
-    NonnullRefPtr<Texture> TextureView::texture() const
+    RefPtr<Texture> TextureView::texture() const
     {
         return m_texture;
     }

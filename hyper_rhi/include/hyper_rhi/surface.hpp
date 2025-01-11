@@ -6,15 +6,14 @@
 
 #pragma once
 
-#include <hyper_core/ref_counted.hpp>
-#include <hyper_core/nonnull_ref_ptr.hpp>
+#include <hyper_core/ref_ptr.hpp>
 
 #include "hyper_rhi/format.hpp"
 #include "hyper_rhi/forward.hpp"
 
 namespace hyper_engine
 {
-    class Surface : public RefCounted<Surface>
+    class Surface
     {
     public:
         virtual ~Surface() = default;
@@ -30,8 +29,8 @@ namespace hyper_engine
 
         virtual Format format() const = 0;
 
-        virtual NonnullRefPtr<Texture> current_texture() const = 0;
-        virtual NonnullRefPtr<TextureView> current_texture_view() const = 0;
+        virtual RefPtr<Texture> current_texture() const = 0;
+        virtual RefPtr<TextureView> current_texture_view() const = 0;
 
     protected:
         bool m_resized = false;

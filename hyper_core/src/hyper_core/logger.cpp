@@ -29,7 +29,7 @@ namespace hyper_engine
             std::make_shared<spdlog::sinks::basic_file_sink_mt>("latest.log", true);
         file_sink->set_pattern("%Y-%m-%d%H:%M:%S.%f %l %s:%#: %v");
 
-        m_internal_logger = make<spdlog::logger>(
+        m_internal_logger = make_own<spdlog::logger>(
             "HyperEngine",
             spdlog::sinks_init_list{
                 stdout_sink,

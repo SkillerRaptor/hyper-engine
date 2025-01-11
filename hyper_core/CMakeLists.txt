@@ -9,32 +9,24 @@ set(SOURCES
         src/hyper_core/hyper_core.cpp
         src/hyper_core/job_system.cpp
         src/hyper_core/logger.cpp
-        src/hyper_core/ref_counted.cpp
         src/hyper_core/string.cpp)
 
 set(HEADERS
         include/hyper_core/assertion.hpp
         include/hyper_core/bit_flags.hpp
         include/hyper_core/bits.hpp
-        include/hyper_core/default_delete.hpp
         include/hyper_core/filesystem.hpp
-        include/hyper_core/forward.hpp
         include/hyper_core/global_environment.hpp
         include/hyper_core/hyper_core.hpp
         include/hyper_core/job_system.hpp
         include/hyper_core/logger.hpp
         include/hyper_core/math.hpp
         include/hyper_core/module.hpp
-        include/hyper_core/nonnull_own_ptr.hpp
-        include/hyper_core/nonnull_ref_ptr.hpp
         include/hyper_core/own_ptr.hpp
         include/hyper_core/prerequisites.hpp
-        include/hyper_core/ref_counted.hpp
         include/hyper_core/ref_ptr.hpp
         include/hyper_core/string.hpp
-        include/hyper_core/thread_safe_ring_buffer.hpp
-        include/hyper_core/weak_ptr.hpp
-        include/hyper_core/weakable.hpp)
+        include/hyper_core/thread_safe_ring_buffer.hpp)
 
 hyperengine_define_library(hyper_core)
 target_link_libraries(

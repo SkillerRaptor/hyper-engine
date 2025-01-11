@@ -8,7 +8,6 @@
 
 #include <unordered_map>
 
-#include <hyper_core/nonnull_ref_ptr.hpp>
 #include <hyper_core/own_ptr.hpp>
 #include <hyper_platform/forward.hpp>
 #include <hyper_rhi/forward.hpp>
@@ -44,34 +43,34 @@ namespace hyper_engine
         void on_mouse_scroll(const MouseScrollEvent &event);
 
     private:
-        NonnullRefPtr<Surface> m_surface;
+        RefPtr<Surface> m_surface;
         ShaderCompiler m_shader_compiler;
-        NonnullRefPtr<CommandList> m_command_list;
+        RefPtr<CommandList> m_command_list;
 
-        NonnullRefPtr<Texture> m_render_texture;
-        NonnullRefPtr<TextureView> m_render_texture_view;
-        NonnullRefPtr<Texture> m_depth_texture;
-        NonnullRefPtr<TextureView> m_depth_texture_view;
+        RefPtr<Texture> m_render_texture;
+        RefPtr<TextureView> m_render_texture_view;
+        RefPtr<Texture> m_depth_texture;
+        RefPtr<TextureView> m_depth_texture_view;
 
         Camera m_editor_camera;
-        NonnullRefPtr<Buffer> m_camera_buffer;
+        RefPtr<Buffer> m_camera_buffer;
 
-        NonnullRefPtr<Buffer> m_scene_buffer;
+        RefPtr<Buffer> m_scene_buffer;
 
-        NonnullRefPtr<Texture> m_white_texture;
-        NonnullRefPtr<TextureView> m_white_texture_view;
-        NonnullRefPtr<Texture> m_error_texture;
-        NonnullRefPtr<TextureView> m_error_texture_view;
-        NonnullRefPtr<Sampler> m_default_sampler_nearest;
-        NonnullRefPtr<Sampler> m_default_sampler_linear;
+        RefPtr<Texture> m_white_texture;
+        RefPtr<TextureView> m_white_texture_view;
+        RefPtr<Texture> m_error_texture;
+        RefPtr<TextureView> m_error_texture_view;
+        RefPtr<Sampler> m_default_sampler_nearest;
+        RefPtr<Sampler> m_default_sampler_linear;
 
         GltfMetallicRoughness m_metallic_roughness_material;
 
         DrawContext m_draw_context;
         std::unordered_map<std::string, RefPtr<LoadedGltf>> m_scenes;
 
-        OwnPtr<OpaquePass> m_opaque_pass = nullptr;
-        OwnPtr<GridPass> m_grid_pass = nullptr;
+        OwnPtr<OpaquePass> m_opaque_pass;
+        OwnPtr<GridPass> m_grid_pass;
 
         uint32_t m_frame_index = 1;
     };

@@ -17,9 +17,9 @@
 
 namespace hyper_engine
 {
-    NonnullRefPtr<RenderPipeline> VulkanGraphicsDevice::create_render_pipeline_platform(const RenderPipelineDescriptor &descriptor) const
+    RefPtr<RenderPipeline> VulkanGraphicsDevice::create_render_pipeline_platform(const RenderPipelineDescriptor &descriptor) const
     {
-        const NonnullRefPtr<VulkanShaderModule> vertex_shader_module = static_ptr_cast<VulkanShaderModule>(descriptor.vertex_shader);
+        const RefPtr<VulkanShaderModule> vertex_shader_module = std::static_pointer_cast<VulkanShaderModule>(descriptor.vertex_shader);
 
         const VkPipelineShaderStageCreateInfo vertex_shader_stage_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
@@ -31,7 +31,7 @@ namespace hyper_engine
             .pSpecializationInfo = nullptr,
         };
 
-        const NonnullRefPtr<VulkanShaderModule> fragment_shader_module = static_ptr_cast<VulkanShaderModule>(descriptor.fragment_shader);
+        const RefPtr<VulkanShaderModule> fragment_shader_module = std::static_pointer_cast<VulkanShaderModule>(descriptor.fragment_shader);
 
         const VkPipelineShaderStageCreateInfo fragment_shader_stage_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
@@ -208,7 +208,7 @@ namespace hyper_engine
             .stencilAttachmentFormat = VK_FORMAT_UNDEFINED,
         };
 
-        const NonnullRefPtr<VulkanPipelineLayout> layout = static_ptr_cast<VulkanPipelineLayout>(descriptor.layout);
+        const RefPtr<VulkanPipelineLayout> layout = std::static_pointer_cast<VulkanPipelineLayout>(descriptor.layout);
 
         const VkGraphicsPipelineCreateInfo graphics_pipeline_create_info = {
             .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -239,7 +239,7 @@ namespace hyper_engine
 
         set_object_name(pipeline, ObjectType::Pipeline, descriptor.label);
 
-        return make_ref_counted<VulkanRenderPipeline>(descriptor, pipeline);
+        return make_ref<VulkanRenderPipeline>(descriptor, pipeline);
     }
 
     VulkanRenderPipeline::VulkanRenderPipeline(const RenderPipelineDescriptor &descriptor, const VkPipeline pipeline)

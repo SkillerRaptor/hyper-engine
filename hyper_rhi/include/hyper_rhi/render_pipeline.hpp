@@ -10,8 +10,7 @@
 #include <vector>
 
 #include <hyper_core/bit_flags.hpp>
-#include <hyper_core/nonnull_ref_ptr.hpp>
-#include <hyper_core/ref_counted.hpp>
+#include <hyper_core/ref_ptr.hpp>
 
 #include "hyper_rhi/compare_operation.hpp"
 #include "hyper_rhi/format.hpp"
@@ -137,23 +136,23 @@ namespace hyper_engine
     struct RenderPipelineDescriptor
     {
         std::string label;
-        NonnullRefPtr<PipelineLayout> layout;
-        NonnullRefPtr<ShaderModule> vertex_shader;
-        NonnullRefPtr<ShaderModule> fragment_shader;
+        RefPtr<PipelineLayout> layout;
+        RefPtr<ShaderModule> vertex_shader;
+        RefPtr<ShaderModule> fragment_shader;
         std::vector<ColorAttachmentState> color_attachment_states;
         PrimitiveState primitive_state;
         DepthStencilState depth_stencil_state;
     };
 
-    class RenderPipeline : public RefCounted<RenderPipeline>
+    class RenderPipeline
     {
     public:
         virtual ~RenderPipeline() = default;
 
         std::string_view label() const;
-        NonnullRefPtr<PipelineLayout> layout() const;
-        NonnullRefPtr<ShaderModule> vertex_shader() const;
-        NonnullRefPtr<ShaderModule> fragment_shader() const;
+        RefPtr<PipelineLayout> layout() const;
+        RefPtr<ShaderModule> vertex_shader() const;
+        RefPtr<ShaderModule> fragment_shader() const;
         const std::vector<ColorAttachmentState> &color_attachment_states() const;
         PrimitiveState primitive_state() const;
         DepthStencilState depth_stencil_state() const;
@@ -163,9 +162,9 @@ namespace hyper_engine
 
     protected:
         std::string m_label;
-        NonnullRefPtr<PipelineLayout> m_layout;
-        NonnullRefPtr<ShaderModule> m_vertex_shader;
-        NonnullRefPtr<ShaderModule> m_fragment_shader;
+        RefPtr<PipelineLayout> m_layout;
+        RefPtr<ShaderModule> m_vertex_shader;
+        RefPtr<ShaderModule> m_fragment_shader;
         std::vector<ColorAttachmentState> m_color_attachment_states;
         PrimitiveState m_primitive_state;
         DepthStencilState m_depth_stencil_state;

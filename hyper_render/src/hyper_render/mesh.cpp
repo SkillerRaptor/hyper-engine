@@ -13,12 +13,12 @@ namespace hyper_engine
     Mesh::Mesh(
         std::string name,
         std::vector<GltfSurface> surfaces,
-        NonnullRefPtr<Buffer> positions_buffer,
-        NonnullRefPtr<Buffer> normals_buffer,
-        NonnullRefPtr<Buffer> colors_buffer,
-        NonnullRefPtr<Buffer> tex_coords_buffer,
-        NonnullRefPtr<Buffer> mesh_buffer,
-        NonnullRefPtr<Buffer> indices_buffer)
+        RefPtr<Buffer> positions_buffer,
+        RefPtr<Buffer> normals_buffer,
+        RefPtr<Buffer> colors_buffer,
+        RefPtr<Buffer> tex_coords_buffer,
+        RefPtr<Buffer> mesh_buffer,
+        RefPtr<Buffer> indices_buffer)
         : m_name(std::move(name))
         , m_surfaces(std::move(surfaces))
         , m_positions_buffer(std::move(positions_buffer))
@@ -40,32 +40,32 @@ namespace hyper_engine
         return m_surfaces;
     }
 
-    NonnullRefPtr<Buffer> Mesh::positions_buffer() const
+    RefPtr<Buffer> Mesh::positions_buffer() const
     {
         return m_positions_buffer;
     }
 
-    NonnullRefPtr<Buffer> Mesh::normals_buffer() const
+    RefPtr<Buffer> Mesh::normals_buffer() const
     {
         return m_normals_buffer;
     }
 
-    NonnullRefPtr<Buffer> Mesh::colors_buffer() const
+    RefPtr<Buffer> Mesh::colors_buffer() const
     {
         return m_colors_buffer;
     }
 
-    NonnullRefPtr<Buffer> Mesh::tex_coords_buffer() const
+    RefPtr<Buffer> Mesh::tex_coords_buffer() const
     {
         return m_tex_coords_buffer;
     }
 
-    NonnullRefPtr<Buffer> Mesh::mesh_buffer() const
+    RefPtr<Buffer> Mesh::mesh_buffer() const
     {
         return m_mesh_buffer;
     }
 
-    NonnullRefPtr<Buffer> Mesh::indices_buffer() const
+    RefPtr<Buffer> Mesh::indices_buffer() const
     {
         return m_indices_buffer;
     }

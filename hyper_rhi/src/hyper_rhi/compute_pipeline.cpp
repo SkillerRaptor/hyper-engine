@@ -23,12 +23,12 @@ namespace hyper_engine
         return m_label;
     }
 
-    NonnullRefPtr<PipelineLayout> ComputePipeline::layout() const
+    RefPtr<PipelineLayout> ComputePipeline::layout() const
     {
         return m_layout;
     }
 
-    NonnullRefPtr<ShaderModule> ComputePipeline::shader() const
+    RefPtr<ShaderModule> ComputePipeline::shader() const
     {
         return m_shader;
     }

@@ -9,8 +9,7 @@
 #include <vector>
 
 #include <hyper_core/bit_flags.hpp>
-#include <hyper_core/nonnull_ref_ptr.hpp>
-#include <hyper_core/ref_counted.hpp>
+#include <hyper_core/ref_ptr.hpp>
 
 #include "hyper_rhi/forward.hpp"
 #include "hyper_rhi/subresource_range.hpp"
@@ -60,7 +59,7 @@ namespace hyper_engine
         BitFlags<BarrierPipelineStage> stage_after = BarrierPipelineStage::None;
         BitFlags<BarrierAccess> access_before = BarrierAccess::None;
         BitFlags<BarrierAccess> access_after = BarrierAccess::None;
-        NonnullRefPtr<Buffer> buffer;
+        RefPtr<Buffer> buffer;
     };
 
     enum class BarrierTextureLayout
@@ -83,7 +82,7 @@ namespace hyper_engine
         BitFlags<BarrierAccess> access_after = BarrierAccess::None;
         BarrierTextureLayout layout_before = BarrierTextureLayout::Undefined;
         BarrierTextureLayout layout_after = BarrierTextureLayout::Undefined;
-        NonnullRefPtr<Texture> texture;
+        RefPtr<Texture> texture;
         SubresourceRange subresource_range;
     };
 
@@ -108,7 +107,7 @@ namespace hyper_engine
         int32_t z = 0;
     };
 
-    class CommandList : public RefCounted<CommandList>
+    class CommandList
     {
     public:
         virtual ~CommandList() = default;
@@ -160,11 +159,11 @@ namespace hyper_engine
             size_t data_size,
             uint64_t data_offset) = 0;
 
-        NonnullRefPtr<ComputePass> begin_compute_pass(const ComputePassDescriptor &descriptor) const;
-        NonnullRefPtr<RenderPass> begin_render_pass(const RenderPassDescriptor &descriptor) const;
+        RefPtr<ComputePass> begin_compute_pass(const ComputePassDescriptor &descriptor) const;
+        RefPtr<RenderPass> begin_render_pass(const RenderPassDescriptor &descriptor) const;
 
     protected:
-        virtual NonnullRefPtr<ComputePass> begin_compute_pass_platform(const ComputePassDescriptor &descriptor) const = 0;
-        virtual NonnullRefPtr<RenderPass> begin_render_pass_platform(const RenderPassDescriptor &descriptor) const = 0;
+        virtual RefPtr<ComputePass> begin_compute_pass_platform(const ComputePassDescriptor &descriptor) const = 0;
+        virtual RefPtr<RenderPass> begin_render_pass_platform(const RenderPassDescriptor &descriptor) const = 0;
     };
 } // namespace hyper_engine

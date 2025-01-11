@@ -41,6 +41,6 @@ namespace hyper_engine
     private:
         VkCommandBuffer m_command_buffer = VK_NULL_HANDLE;
 
-        RefPtr<RenderPipeline> m_pipeline = nullptr;
+        RefPtr<RenderPipeline> m_pipeline;
     };
 } // namespace hyper_engine

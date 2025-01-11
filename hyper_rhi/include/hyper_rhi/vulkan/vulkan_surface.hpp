@@ -27,8 +27,8 @@ namespace hyper_engine
 
         Format format() const override;
 
-        NonnullRefPtr<Texture> current_texture() const override;
-        NonnullRefPtr<TextureView> current_texture_view() const override;
+        RefPtr<Texture> current_texture() const override;
+        RefPtr<TextureView> current_texture_view() const override;
 
         void rebuild();
 
@@ -54,7 +54,7 @@ namespace hyper_engine
         VkFormat m_format = VK_FORMAT_UNDEFINED;
 
         uint32_t m_texture_index = 0;
-        std::vector<NonnullRefPtr<Texture>> m_textures;
-        std::vector<NonnullRefPtr<TextureView>> m_texture_views;
+        std::vector<RefPtr<Texture>> m_textures;
+        std::vector<RefPtr<TextureView>> m_texture_views;
     };
 } // namespace hyper_engine

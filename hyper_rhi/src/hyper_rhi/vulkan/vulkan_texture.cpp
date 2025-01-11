@@ -14,18 +14,18 @@
 
 namespace hyper_engine
 {
-    NonnullRefPtr<Texture> VulkanGraphicsDevice::create_texture_platform(const TextureDescriptor &descriptor) const
+    RefPtr<Texture> VulkanGraphicsDevice::create_texture_platform(const TextureDescriptor &descriptor) const
     {
         return create_texture_internal(descriptor, VK_NULL_HANDLE);
     }
 
-    NonnullRefPtr<Texture> VulkanGraphicsDevice::create_texture_internal(const TextureDescriptor &descriptor, const VkImage image) const
+    RefPtr<Texture> VulkanGraphicsDevice::create_texture_internal(const TextureDescriptor &descriptor, const VkImage image) const
     {
         if (image != VK_NULL_HANDLE)
         {
             set_object_name(image, ObjectType::Image, descriptor.label);
 
-            return make_ref_counted<VulkanTexture>(descriptor, image, VK_NULL_HANDLE);
+            return make_ref<VulkanTexture>(descriptor, image, VK_NULL_HANDLE);
         }
 
         const VkImageType image_type = VulkanTexture::get_image_type(descriptor.dimension);
@@ -74,7 +74,7 @@ namespace hyper_engine
 
         set_object_name(vk_image, ObjectType::Image, descriptor.label);
 
-        return make_ref_counted<VulkanTexture>(descriptor, vk_image, allocation);
+        return make_ref<VulkanTexture>(descriptor, vk_image, allocation);
     }
 
     VulkanTexture::VulkanTexture(const TextureDescriptor &descriptor, const VkImage image, const VmaAllocation allocation)

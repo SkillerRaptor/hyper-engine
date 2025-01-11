@@ -118,14 +118,14 @@ namespace hyper_engine
         vkDestroyInstance(m_instance, nullptr);
     }
 
-    NonnullRefPtr<Surface> VulkanGraphicsDevice::create_surface()
+    RefPtr<Surface> VulkanGraphicsDevice::create_surface()
     {
-        return make_ref_counted<VulkanSurface>();
+        return make_ref<VulkanSurface>();
     }
 
-    NonnullRefPtr<CommandList> VulkanGraphicsDevice::create_command_list()
+    RefPtr<CommandList> VulkanGraphicsDevice::create_command_list()
     {
-        return make_ref_counted<VulkanCommandList>();
+        return make_ref<VulkanCommandList>();
     }
 
     void VulkanGraphicsDevice::begin_marker(

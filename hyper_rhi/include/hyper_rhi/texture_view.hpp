@@ -8,8 +8,7 @@
 
 #include <string>
 
-#include <hyper_core/ref_counted.hpp>
-#include <hyper_core/nonnull_ref_ptr.hpp>
+#include <hyper_core/ref_ptr.hpp>
 
 #include "hyper_rhi/forward.hpp"
 #include "hyper_rhi/resource_handle.hpp"
@@ -39,18 +38,18 @@ namespace hyper_engine
     struct TextureViewDescriptor
     {
         std::string label;
-        NonnullRefPtr<Texture> texture;
+        RefPtr<Texture> texture;
         SubresourceRange subresource_range;
         ComponentMapping component_mapping;
     };
 
-    class TextureView : public RefCounted<TextureView>
+    class TextureView
     {
     public:
         virtual ~TextureView() = default;
 
         std::string_view label() const;
-        NonnullRefPtr<Texture> texture() const;
+        RefPtr<Texture> texture() const;
         SubresourceRange subresource_range() const;
         ComponentMapping component_mapping() const;
         ResourceHandle handle() const;
@@ -60,7 +59,7 @@ namespace hyper_engine
 
     protected:
         std::string m_label;
-        NonnullRefPtr<Texture> m_texture;
+        RefPtr<Texture> m_texture;
         SubresourceRange m_subresource_range;
         ComponentMapping m_component_mapping;
         ResourceHandle m_handle;

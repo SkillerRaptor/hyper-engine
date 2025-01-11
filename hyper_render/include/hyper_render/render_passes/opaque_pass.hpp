@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <hyper_core/nonnull_ref_ptr.hpp>
+#include <hyper_core/ref_ptr.hpp>
 #include <hyper_rhi/forward.hpp>
 
 namespace hyper_engine
@@ -17,15 +17,15 @@ namespace hyper_engine
     {
     public:
         OpaquePass(
-            const NonnullRefPtr<TextureView> &render_texture_view,
-            const NonnullRefPtr<TextureView> &depth_texture_view,
-            const NonnullRefPtr<Buffer> &scene_buffer);
+            const RefPtr<TextureView> &render_texture_view,
+            const RefPtr<TextureView> &depth_texture_view,
+            const RefPtr<Buffer> &scene_buffer);
 
-        void render(const NonnullRefPtr<CommandList> &command_list, const DrawContext &draw_context) const;
+        void render(const RefPtr<CommandList> &command_list, const DrawContext &draw_context) const;
 
     private:
-        const NonnullRefPtr<TextureView> &m_render_texture_view;
-        const NonnullRefPtr<TextureView> &m_depth_texture_view;
-        const NonnullRefPtr<Buffer> &m_scene_buffer;
+        const RefPtr<TextureView> &m_render_texture_view;
+        const RefPtr<TextureView> &m_depth_texture_view;
+        const RefPtr<Buffer> &m_scene_buffer;
     };
 } // namespace hyper_engine

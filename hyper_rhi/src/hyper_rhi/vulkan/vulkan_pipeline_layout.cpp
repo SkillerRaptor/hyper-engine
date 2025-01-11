@@ -14,7 +14,7 @@
 
 namespace hyper_engine
 {
-    NonnullRefPtr<PipelineLayout> VulkanGraphicsDevice::create_pipeline_layout_platform(const PipelineLayoutDescriptor &descriptor) const
+    RefPtr<PipelineLayout> VulkanGraphicsDevice::create_pipeline_layout_platform(const PipelineLayoutDescriptor &descriptor) const
     {
         const auto &descriptor_set_layouts = m_descriptor_manager->descriptor_set_layouts();
 
@@ -41,7 +41,7 @@ namespace hyper_engine
 
         set_object_name(pipeline_layout, ObjectType::PipelineLayout, descriptor.label);
 
-        return make_ref_counted<VulkanPipelineLayout>(descriptor, pipeline_layout);
+        return make_ref<VulkanPipelineLayout>(descriptor, pipeline_layout);
     }
 
     VulkanPipelineLayout::VulkanPipelineLayout(const PipelineLayoutDescriptor &descriptor, const VkPipelineLayout pipeline_layout)

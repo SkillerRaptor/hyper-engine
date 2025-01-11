@@ -63,8 +63,8 @@ namespace hyper_engine
             size_t data_size,
             uint64_t data_offset) override;
 
-        NonnullRefPtr<ComputePass> begin_compute_pass_platform(const ComputePassDescriptor &descriptor) const override;
-        NonnullRefPtr<RenderPass> begin_render_pass_platform(const RenderPassDescriptor &descriptor) const override;
+        RefPtr<ComputePass> begin_compute_pass_platform(const ComputePassDescriptor &descriptor) const override;
+        RefPtr<RenderPass> begin_render_pass_platform(const RenderPassDescriptor &descriptor) const override;
 
         VkCommandBuffer command_buffer() const;
 

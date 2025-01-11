@@ -16,10 +16,10 @@
 
 namespace hyper_engine
 {
-    NonnullRefPtr<TextureView>
+    RefPtr<TextureView>
         VulkanGraphicsDevice::create_texture_view_platform(const TextureViewDescriptor &descriptor, ResourceHandle handle) const
     {
-        const NonnullRefPtr<VulkanTexture> texture = static_ptr_cast<VulkanTexture>(descriptor.texture);
+        const RefPtr<VulkanTexture> texture = std::static_pointer_cast<VulkanTexture>(descriptor.texture);
 
         const VkImageViewType view_type = VulkanTextureView::get_image_view_type(texture->dimension());
 
@@ -63,7 +63,7 @@ namespace hyper_engine
 
         set_object_name(image_view, ObjectType::ImageView, descriptor.label);
 
-        return make_ref_counted<VulkanTextureView>(descriptor, handle, image_view);
+        return make_ref<VulkanTextureView>(descriptor, handle, image_view);
     }
 
     VulkanTextureView::VulkanTextureView(const TextureViewDescriptor &descriptor, const ResourceHandle handle, const VkImageView image_view)
