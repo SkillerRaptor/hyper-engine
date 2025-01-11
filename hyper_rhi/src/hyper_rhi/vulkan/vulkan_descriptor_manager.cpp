@@ -189,8 +189,6 @@ namespace hyper_engine
             const uint32_t descriptor_count = limit > GraphicsDevice::s_descriptor_limit ? GraphicsDevice::s_descriptor_limit : limit;
 
             m_descriptor_counts[index] = descriptor_count;
-
-            HE_TRACE("Found descriptor count for {} of {}", HE_VK_TYPE_TO_STRING(VkDescriptorType, descriptor_type), descriptor_count);
         }
     }
 
@@ -222,8 +220,6 @@ namespace hyper_engine
         HE_VK_CHECK(vkCreateDescriptorPool(m_graphics_device.device(), &descriptor_pool_create_info, nullptr, &m_descriptor_pool));
 
         HE_ASSERT(m_descriptor_pool != VK_NULL_HANDLE);
-
-        HE_TRACE("Created Descriptor Pool with {} sets", s_descriptor_types.size());
     }
 
     void VulkanDescriptorManager::create_descriptor_set_layouts()
@@ -264,8 +260,6 @@ namespace hyper_engine
                 m_graphics_device.device(), &descriptor_set_layout_create_info, nullptr, &m_descriptor_set_layouts[index]));
 
             HE_ASSERT(m_descriptor_set_layouts[index] != VK_NULL_HANDLE);
-
-            HE_TRACE("Created Descriptor Set Layout #{} for {}", index, HE_VK_TYPE_TO_STRING(VkDescriptorType, descriptor_type));
         }
     }
 
@@ -274,7 +268,6 @@ namespace hyper_engine
         for (size_t index = 0; index != m_descriptor_set_layouts.size(); ++index)
         {
             const VkDescriptorSetLayout &descriptor_set_layout = m_descriptor_set_layouts[index];
-            const VkDescriptorType &descriptor_type = s_descriptor_types[index];
             const uint32_t descriptor_count = m_descriptor_counts[index];
 
             VkDescriptorSetVariableDescriptorCountAllocateInfo descriptor_set_variable_descriptor_count_info = {
@@ -295,8 +288,6 @@ namespace hyper_engine
             HE_VK_CHECK(vkAllocateDescriptorSets(m_graphics_device.device(), &descriptor_set_allocate_info, &m_descriptor_sets[index]));
 
             HE_ASSERT(m_descriptor_sets[index] != VK_NULL_HANDLE);
-
-            HE_TRACE("Allocated Descriptor Set #{} for {}", index, HE_VK_TYPE_TO_STRING(VkDescriptorType, descriptor_type));
         }
     }
 } // namespace hyper_engine

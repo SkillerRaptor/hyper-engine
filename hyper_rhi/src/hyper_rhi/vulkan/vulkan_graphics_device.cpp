@@ -60,8 +60,6 @@ namespace hyper_engine
             if (VulkanGraphicsDevice::check_validation_layer_support())
             {
                 m_debug_validation = true;
-
-                HE_TRACE("Enabled Validation Layers");
             }
             else
             {
@@ -527,8 +525,6 @@ namespace hyper_engine
         HE_ASSERT(m_instance != VK_NULL_HANDLE);
 
         volkLoadInstance(m_instance);
-
-        HE_TRACE("Created Instance");
     }
 
     void VulkanGraphicsDevice::create_debug_messenger()
@@ -551,8 +547,6 @@ namespace hyper_engine
 
         HE_VK_CHECK(vkCreateDebugUtilsMessengerEXT(m_instance, &debug_create_info, nullptr, &m_debug_messenger));
         HE_ASSERT(m_debug_messenger != VK_NULL_HANDLE);
-
-        HE_TRACE("Created Debug Messenger");
     }
 
     void VulkanGraphicsDevice::choose_physical_device()
@@ -598,8 +592,6 @@ namespace hyper_engine
 
         // FIXME: Log queues, extensions and features
         // FIXME: Log missing criteria if no device was found
-
-        HE_TRACE("Selected Physical Device with the score of {}", possible_physical_devices.rbegin()->first);
 
         HE_INFO("Physical Device Info:");
         HE_INFO("  Name: {}", properties.deviceName);
@@ -777,8 +769,6 @@ namespace hyper_engine
 
         volkLoadDevice(m_device);
 
-        HE_TRACE("Created Logical Device with {} features enabled", feature_count);
-
         VkQueue queue = VK_NULL_HANDLE;
         vkGetDeviceQueue(m_device, queue_family.value(), 0, &queue);
 
@@ -836,8 +826,6 @@ namespace hyper_engine
 
         HE_VK_CHECK(vmaCreateAllocator(&allocator_create_info, &m_allocator));
         HE_ASSERT(m_allocator != VK_NULL_HANDLE);
-
-        HE_TRACE("Created Allocator");
     }
 
     void VulkanGraphicsDevice::create_frames()
@@ -856,8 +844,6 @@ namespace hyper_engine
 
             set_object_name(m_frames[index].command_pool, ObjectType::CommandPool, fmt::format("Frame #{}", index));
 
-            HE_TRACE("Created Frame Command Pool #{}", index);
-
             const VkCommandBufferAllocateInfo command_buffer_allocate_info = {
                 .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
                 .pNext = nullptr,
@@ -869,8 +855,6 @@ namespace hyper_engine
             HE_VK_CHECK(vkAllocateCommandBuffers(m_device, &command_buffer_allocate_info, &m_frames[index].command_buffer));
             HE_ASSERT(m_frames[index].command_buffer != VK_NULL_HANDLE);
 
-            HE_TRACE("Allocated Frame Command Buffer #{}", index);
-
             constexpr VkFenceCreateInfo fence_create_info = {
                 .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
                 .pNext = nullptr,
@@ -881,8 +865,6 @@ namespace hyper_engine
             HE_ASSERT(m_frames[index].render_fence != VK_NULL_HANDLE);
 
             set_object_name(m_frames[index].render_fence, ObjectType::Fence, fmt::format("Frame Render #{}", index));
-
-            HE_TRACE("Created Frame Render Semaphore #{}", index);
 
             VkSemaphoreTypeCreateInfo submit_semaphore_type_create_info = {
                 .sType = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO,
@@ -901,8 +883,6 @@ namespace hyper_engine
             HE_ASSERT(m_frames[index].submit_semaphore != VK_NULL_HANDLE);
 
             set_object_name(m_frames[index].submit_semaphore, ObjectType::Semaphore, fmt::format("Frame Submit #{}", index));
-
-            HE_TRACE("Created Frame Submit Semaphore #{}", index);
         }
     }
 

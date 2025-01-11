@@ -158,8 +158,6 @@ namespace hyper_engine
         const VulkanBuffer &vulkan_buffer = static_cast<const VulkanBuffer &>(buffer);
 
         vkCmdFillBuffer(m_command_buffer, vulkan_buffer.buffer(), offset, size, 0);
-
-        HE_TRACE("Clearing {} buffer", buffer.label().empty() ? "a" : fmt::format("the '{}'", buffer.label()));
     }
 
     void VulkanCommandList::clear_texture(const Texture &texture, const SubresourceRange subresource_range)
@@ -295,8 +293,6 @@ namespace hyper_engine
         default:
             HE_UNREACHABLE();
         }
-
-        HE_TRACE("Clearing {} texture", texture.label().empty() ? "a" : fmt::format("the '{}'", texture.label()));
     }
 
     void VulkanCommandList::copy_buffer_to_buffer(
@@ -327,11 +323,6 @@ namespace hyper_engine
         };
 
         vkCmdCopyBuffer2(m_command_buffer, &copy_buffer_info);
-
-        HE_TRACE(
-            "Copying {} buffer to {} buffer",
-            src.label().empty() ? "a" : fmt::format("the '{}'", src.label()),
-            dst.label().empty() ? "a" : fmt::format("the '{}'", dst.label()));
     }
 
     void VulkanCommandList::copy_buffer_to_texture(
@@ -385,11 +376,6 @@ namespace hyper_engine
         };
 
         vkCmdCopyBufferToImage2(m_command_buffer, &copy_buffer_to_image_info);
-
-        HE_TRACE(
-            "Copying {} buffer to {} texture",
-            src.label().empty() ? "a" : fmt::format("the '{}'", src.label()),
-            dst.label().empty() ? "a" : fmt::format("the '{}'", dst.label()));
     }
 
     void VulkanCommandList::copy_texture_to_buffer(
@@ -443,11 +429,6 @@ namespace hyper_engine
         };
 
         vkCmdCopyImageToBuffer2(m_command_buffer, &copy_image_to_buffer_info);
-
-        HE_TRACE(
-            "Copying {} texture to {} buffer",
-            src.label().empty() ? "a" : fmt::format("the '{}'", src.label()),
-            dst.label().empty() ? "a" : fmt::format("the '{}'", dst.label()));
     }
 
     void VulkanCommandList::copy_texture_to_texture(
@@ -513,11 +494,6 @@ namespace hyper_engine
         };
 
         vkCmdCopyImage2(m_command_buffer, &copy_image_info);
-
-        HE_TRACE(
-            "Copying {} texture to {} texture",
-            src.label().empty() ? "a" : fmt::format("the '{}'", src.label()),
-            dst.label().empty() ? "a" : fmt::format("the '{}'", dst.label()));
     }
 
     void VulkanCommandList::write_buffer(const Buffer &buffer, const void *data, const size_t size, const uint64_t offset)
@@ -567,8 +543,6 @@ namespace hyper_engine
 
             vkCmdCopyBuffer2(m_command_buffer, &copy_buffer_info);
         }
-
-        HE_TRACE("Writing {} bytes to {} buffer", size, buffer.label().empty() ? "a" : fmt::format("the '{}'", buffer.label()));
     }
 
     void VulkanCommandList::write_texture(
@@ -640,8 +614,6 @@ namespace hyper_engine
         };
 
         vkCmdCopyBufferToImage2(m_command_buffer, &copy_buffer_to_image_info);
-
-        HE_TRACE("Writing {} bytes to {} texture", data_size, texture.label().empty() ? "a" : fmt::format("the '{}'", texture.label()));
     }
 
     RefPtr<ComputePass> VulkanCommandList::begin_compute_pass_platform(const ComputePassDescriptor &descriptor) const

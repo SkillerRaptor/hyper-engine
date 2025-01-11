@@ -92,8 +92,6 @@ namespace hyper_engine
 
         HE_ASSERT(SDL_Vulkan_CreateSurface(g_env.window->native_window(), graphics_device->instance(), nullptr, &m_surface));
         HE_ASSERT(m_surface != VK_NULL_HANDLE);
-
-        HE_TRACE("Created Surface");
     }
 
     void VulkanSurface::create_swapchain()
