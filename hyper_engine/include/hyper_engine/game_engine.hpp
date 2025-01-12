@@ -19,5 +19,7 @@ namespace hyper_engine
         void fixed_update(float delta_time, float total_time) override;
         void update(float delta_time, float total_time) override;
         void render() override;
+
+        const Camera &camera() const override;
     };
 } // namespace hyper_engine

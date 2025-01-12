@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-#pragma once
+#include "hyper_engine/engine.hpp"
 
 namespace hyper_engine
 {
-    struct GltfMaterial;
-    class Mesh;
-
-    class Scene;
+    const Scene &Engine::scene() const
+    {
+        return m_scene;
+    }
 } // namespace hyper_engine

@@ -6,6 +6,8 @@
 
 #include "hyper_engine/engine_loop.hpp"
 
+#include "../../../hyper_ecs/include/hyper_ecs/hyper_ecs.hpp"
+
 #include <chrono>
 #include <exception>
 #include <ranges>
@@ -19,6 +21,7 @@
 #include <hyper_core/hyper_core.hpp>
 #include <hyper_core/logger.hpp>
 #include <hyper_core/prerequisites.hpp>
+#include <hyper_ecs/hyper_ecs.hpp>
 #include <hyper_event/event_bus.hpp>
 #include <hyper_event/hyper_event.hpp>
 #include <hyper_platform/hyper_platform.hpp>
@@ -120,6 +123,7 @@ namespace hyper_engine
 
         g_env.logger->set_level(level);
 
+        load_module(make_own<HyperEcs>());
         load_module(make_own<HyperEvent>());
         load_module(make_own<HyperPlatform>());
 
@@ -216,12 +220,23 @@ namespace hyper_engine
             }
 
             // Update
-            g_env.renderer->update(delta_time);
             m_engine->update(delta_time, total_time);
 
             // Render
-            g_env.renderer->render();
+            const Camera &camera = m_engine->camera();
+            g_env.renderer->begin_frame({
+                .position = camera.position(),
+                .view = camera.view_matrix(),
+                .projection = camera.projection_matrix(),
+                .near_plane = camera.near_plane(),
+                .far_plane = camera.far_plane(),
+            });
+
+            g_env.renderer->render_scene(m_engine->scene());
             m_engine->render();
+
+            g_env.renderer->end_frame();
+            g_env.renderer->present();
         }
     }
 

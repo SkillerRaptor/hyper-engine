@@ -6,6 +6,8 @@
 
 #include "hyper_engine/game_engine.hpp"
 
+#include <hyper_core/assertion.hpp>
+
 namespace hyper_engine
 {
     bool GameEngine::initialize()
@@ -18,15 +20,25 @@ namespace hyper_engine
     {
     }
 
-    void GameEngine::fixed_update(float delta_time, float total_time)
+    void GameEngine::fixed_update(const float delta_time, const float total_time)
     {
+        (void) delta_time;
+        (void) total_time;
     }
 
-    void GameEngine::update(float delta_time, float total_time)
+    void GameEngine::update(const float delta_time, const float total_time)
     {
+        (void) delta_time;
+        (void) total_time;
     }
 
     void GameEngine::render()
     {
+    }
+
+    const Camera &GameEngine::camera() const
+    {
+        // FIXME: Query camera from scene and entities
+        HE_PANIC();
     }
 } // namespace hyper_engine

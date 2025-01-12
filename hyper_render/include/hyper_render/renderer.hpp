@@ -29,18 +29,16 @@ namespace hyper_engine
         Renderer();
         ~Renderer();
 
-        // NOTE: This shouldn't be in the renderer
-        void update(float delta_time);
-        void render();
+        void begin_frame(const CameraData &camera);
+        void end_frame();
+        void present() const;
+
+        void render_scene(const Scene &scene);
 
     private:
         void create_textures(uint32_t width, uint32_t height);
 
-        void update_scene();
-
         void on_resize(const WindowResizeEvent &event);
-        void on_mouse_move(const MouseMoveEvent &event);
-        void on_mouse_scroll(const MouseScrollEvent &event);
 
     private:
         RefPtr<Surface> m_surface;
@@ -52,7 +50,6 @@ namespace hyper_engine
         RefPtr<Texture> m_depth_texture;
         RefPtr<TextureView> m_depth_texture_view;
 
-        Camera m_editor_camera;
         RefPtr<Buffer> m_camera_buffer;
 
         RefPtr<Buffer> m_scene_buffer;

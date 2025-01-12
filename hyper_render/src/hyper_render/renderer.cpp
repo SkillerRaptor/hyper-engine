@@ -11,9 +11,10 @@
 #include <hyper_core/global_environment.hpp>
 #include <hyper_core/logger.hpp>
 #include <hyper_core/prerequisites.hpp>
+#include <hyper_ecs/model_component.hpp>
+#include <hyper_ecs/transform_component.hpp>
 #include <hyper_event/event_bus.hpp>
 #include <hyper_platform/input.hpp>
-#include <hyper_platform/mouse_events.hpp>
 #include <hyper_platform/window_events.hpp>
 #include <hyper_rhi/buffer.hpp>
 #include <hyper_rhi/command_list.hpp>
@@ -25,6 +26,7 @@
 #include <hyper_rhi/texture_view.hpp>
 
 #include "hyper_render/material.hpp"
+#include "hyper_render/scene.hpp"
 #include "hyper_render/render_passes/grid_pass.hpp"
 #include "hyper_render/render_passes/opaque_pass.hpp"
 
@@ -34,7 +36,6 @@ namespace hyper_engine
 {
     Renderer::Renderer()
         : m_surface(g_env.graphics_device->create_surface())
-        , m_shader_compiler()
         , m_command_list(g_env.graphics_device->create_command_list())
         , m_render_texture(g_env.graphics_device->create_texture({
               .label = "Render",
@@ -94,7 +95,6 @@ namespace hyper_engine
                       .a = ComponentSwizzle::Identity,
                   },
           }))
-        , m_editor_camera(glm::vec3(0.0, 2.0, 0.0), -90.0, 0.0)
         , m_camera_buffer(g_env.graphics_device->create_buffer(
               {
                   .label = "Camera",
@@ -196,8 +196,6 @@ namespace hyper_engine
         , m_metallic_roughness_material(m_shader_compiler, m_render_texture, m_depth_texture)
     {
         g_env.event_bus->subscribe<WindowResizeEvent>(HE_BIND_FUNCTION(Renderer::on_resize));
-        g_env.event_bus->subscribe<MouseMoveEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_move));
-        g_env.event_bus->subscribe<MouseScrollEvent>(HE_BIND_FUNCTION(Renderer::on_mouse_scroll));
 
         const GltfMetallicRoughness::MaterialResources material_resources = {
             .color_factors = glm::vec4(1.0, 1.0, 1.0, 1.0),
@@ -320,6 +318,16 @@ namespace hyper_engine
             "./assets/models/DamagedHelmet.glb");
         m_scenes["DamagedHelmet"] = scene;
 
+        // FIXME: ShaderScene shouldn't be fixed and should actually contain meaningful data
+        constexpr ShaderScene shader_scene = {
+            .ambient_color = glm::vec4(0.1f),
+            .sunlight_direction = glm::vec4(0.0f, 1.0f, 0.5f, 1.0f),
+            .sunlight_color = glm::vec4(1.0f),
+            .padding_0 = glm::vec4(0.0f),
+        };
+
+        m_command_list->write_buffer(m_scene_buffer, &shader_scene, sizeof(ShaderScene), 0);
+
         m_command_list->end();
 
         g_env.graphics_device->execute(m_command_list);
@@ -334,40 +342,85 @@ namespace hyper_engine
         HE_INFO("Created Renderer");
     }
 
-    Renderer::~Renderer()
+    Renderer::~Renderer() = default;
+
+    void Renderer::begin_frame(const CameraData &camera)
     {
-    }
+        // NOTE: Preparing scene
+        m_command_list->begin();
 
-    void Renderer::update(const float delta_time)
-    {
-        if (g_env.input->is_key_pressed(KeyCode::W))
-        {
-            m_editor_camera.process_keyboard(Camera::Movement::Forward, delta_time);
-        }
+        const glm::mat4 view_matrix = camera.view;
+        const glm::mat4 projection_matrix = camera.projection;
+        const glm::mat4 view_projection_matrix = projection_matrix * view_matrix;
+        const ShaderCamera shader_camera = {
+            .position = glm::vec4(camera.position, 1.0),
+            .view = camera.view,
+            .inverse_view = glm::inverse(view_matrix),
+            .projection = projection_matrix,
+            .inverse_projection = glm::inverse(projection_matrix),
+            .view_projection = view_projection_matrix,
+            .inverse_view_projection = glm::inverse(view_projection_matrix),
+            .near_plane = camera.near_plane,
+            .far_plane = camera.far_plane,
+            .padding_0 = 0.0,
+            .padding_1 = 0.0,
+        };
 
-        if (g_env.input->is_key_pressed(KeyCode::S))
-        {
-            m_editor_camera.process_keyboard(Camera::Movement::Backward, delta_time);
-        }
+        m_command_list->write_buffer(m_camera_buffer, &shader_camera, sizeof(ShaderCamera), 0);
 
-        if (g_env.input->is_key_pressed(KeyCode::A))
-        {
-            m_editor_camera.process_keyboard(Camera::Movement::Left, delta_time);
-        }
+        m_command_list->end();
 
-        if (g_env.input->is_key_pressed(KeyCode::D))
-        {
-            m_editor_camera.process_keyboard(Camera::Movement::Right, delta_time);
-        }
-    }
-
-    void Renderer::render()
-    {
-        update_scene();
+        g_env.graphics_device->execute(m_command_list);
+        g_env.graphics_device->wait_for_idle();
 
         g_env.graphics_device->begin_frame(m_surface, m_frame_index);
 
         m_command_list->begin();
+    }
+
+    void Renderer::end_frame()
+    {
+        m_command_list->end();
+
+        g_env.graphics_device->end_frame();
+
+        m_frame_index += 1;
+    }
+
+    void Renderer::present() const
+    {
+        g_env.graphics_device->execute(m_command_list);
+        g_env.graphics_device->present(m_surface);
+    }
+
+    void Renderer::render_scene(const Scene &scene)
+    {
+        m_draw_context.opaque_surfaces.clear();
+        m_draw_context.transparent_surfaces.clear();
+
+        // NOTE: Here we are appending the current models to the render list
+        const auto view = scene.registry().view<const TransformComponent, const ModelComponent>();
+        view.each(
+            [this](const TransformComponent &transform, const ModelComponent &model)
+            {
+                glm::mat4 model_matrix = glm::mat4(1.0f);
+                model_matrix = glm::scale(model_matrix, transform.scale);
+                // FIXME: Add rotation
+                model_matrix = glm::translate(model_matrix, transform.translation);
+
+                // FIXME: Don't hardcode the model
+                m_scenes["DamagedHelmet"]->draw(model_matrix, m_draw_context);
+            });
+
+        // NOTE: The rendering should be in the order of
+        // 1. Opaque Pass
+        // 2. If there is debug draw data, then render those
+        // 3. If the editor enabled the grid, then do the grid pass
+        // 3. If the editor enabled the gui, then do the gui pass
+
+        // FIXME: Add automatic barriers
+        // FIXME: Add debug renderer
+        // FIXME: Toggle grid & ui
 
         // Transition render texture to color attachment and depth texture to depth stencil attachment
         m_command_list->insert_barriers({
@@ -556,15 +609,6 @@ namespace hyper_engine
                     },
                 },
         });
-
-        m_command_list->end();
-
-        g_env.graphics_device->end_frame();
-
-        g_env.graphics_device->execute(m_command_list);
-        g_env.graphics_device->present(m_surface);
-
-        m_frame_index += 1;
     }
 
     void Renderer::create_textures(const uint32_t width, const uint32_t height)
@@ -632,68 +676,10 @@ namespace hyper_engine
         });
     }
 
-    void Renderer::update_scene()
-    {
-        // Upload buffers
-        m_command_list->begin();
-
-        const glm::mat4 view_matrix = m_editor_camera.view_matrix();
-        const glm::mat4 projection_matrix = m_editor_camera.projection_matrix();
-        const glm::mat4 view_projection = projection_matrix * view_matrix;
-        const ShaderCamera shader_camera = {
-            .position = glm::vec4(m_editor_camera.position(), 1.0),
-            .view = view_matrix,
-            .inverse_view = glm::inverse(view_matrix),
-            .projection = projection_matrix,
-            .inverse_projection = glm::inverse(projection_matrix),
-            .view_projection = view_projection,
-            .inverse_view_projection = glm::inverse(view_projection),
-            .near_plane = m_editor_camera.near_plane(),
-            .far_plane = m_editor_camera.far_plane(),
-            .padding_0 = 0.0,
-            .padding_1 = 0.0,
-        };
-
-        m_command_list->write_buffer(m_camera_buffer, &shader_camera, sizeof(ShaderCamera), 0);
-
-        constexpr ShaderScene shader_scene = {
-            .ambient_color = glm::vec4(0.1f),
-            .sunlight_direction = glm::vec4(0.0f, 1.0f, 0.5f, 1.0f),
-            .sunlight_color = glm::vec4(1.0f),
-            .padding_0 = glm::vec4(0.0f),
-        };
-
-        m_command_list->write_buffer(m_scene_buffer, &shader_scene, sizeof(ShaderScene), 0);
-
-        m_command_list->end();
-
-        g_env.graphics_device->execute(m_command_list);
-        g_env.graphics_device->wait_for_idle();
-
-        // Draw meshes
-
-        m_draw_context.opaque_surfaces.clear();
-        m_draw_context.transparent_surfaces.clear();
-
-        m_scenes["DamagedHelmet"]->draw(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.5f, 0.0f)), m_draw_context);
-    }
-
     void Renderer::on_resize(const WindowResizeEvent &event)
     {
         m_surface->resize(event.width(), event.height());
 
-        m_editor_camera.set_aspect_ratio(static_cast<float>(event.width()) / static_cast<float>(event.height()));
-
         create_textures(event.width(), event.height());
-    }
-
-    void Renderer::on_mouse_move(const MouseMoveEvent &event)
-    {
-        m_editor_camera.process_mouse_movement(event.x(), event.y());
-    }
-
-    void Renderer::on_mouse_scroll(const MouseScrollEvent &event)
-    {
-        m_editor_camera.process_mouse_scroll(event.delta_y());
     }
 } // namespace hyper_engine

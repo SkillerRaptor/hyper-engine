@@ -6,10 +6,14 @@
 
 #pragma once
 
+#include <hyper_core/ref_ptr.hpp>
+
 namespace hyper_engine
 {
-    struct GltfMaterial;
-    class Mesh;
+    class Model;
 
-    class Scene;
+    struct ModelComponent
+    {
+        RefPtr<Model> model;
+    };
 } // namespace hyper_engine
