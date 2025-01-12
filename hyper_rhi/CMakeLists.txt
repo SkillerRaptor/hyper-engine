@@ -44,6 +44,7 @@ set(HEADERS
         include/hyper_rhi/compute_pipeline.hpp
         include/hyper_rhi/descriptor_manager.hpp
         include/hyper_rhi/dimension.hpp
+        include/hyper_rhi/forward.hpp
         include/hyper_rhi/format.hpp
         include/hyper_rhi/graphics_device.hpp
         include/hyper_rhi/hyper_rhi.hpp

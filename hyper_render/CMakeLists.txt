@@ -15,6 +15,7 @@ set(SOURCES
 
 set(HEADERS
         include/hyper_render/camera.hpp
+        include/hyper_render/forward.hpp
         include/hyper_render/hyper_render.hpp
         include/hyper_render/material.hpp
         include/hyper_render/mesh.hpp
