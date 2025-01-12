@@ -27,6 +27,26 @@ set_target_properties(
         FOLDER "third_party")
 
 #-------------------------------------------------------------------------------------------
+# entt
+#-------------------------------------------------------------------------------------------
+FetchContent_Declare(
+        entt
+        SYSTEM
+        GIT_REPOSITORY https://github.com/skypjack/entt.git
+        GIT_TAG 4a2d1a8541228a90e02a873dba6a980506c42c03)
+
+set(ENTT_USE_LIBCPP OFF CACHE INTERNAL "")
+set(ENTT_USE_SANITIZER OFF CACHE INTERNAL "")
+set(ENTT_USE_CLANG_TIDY OFF CACHE INTERNAL "")
+set(ENTT_INCLUDE_HEADERS OFF CACHE INTERNAL "")
+set(ENTT_INCLUDE_NATVIS OFF CACHE INTERNAL "")
+set(ENTT_BUILD_TESTING OFF CACHE INTERNAL "")
+set(ENTT_BUILD_TOOLS OFF CACHE INTERNAL "")
+set(ENTT_BUILD_DOCS OFF CACHE INTERNAL "")
+
+FetchContent_MakeAvailable(entt)
+
+#-------------------------------------------------------------------------------------------
 # D3D12MemoryAllocator
 #-------------------------------------------------------------------------------------------
 FetchContent_Declare(
@@ -276,6 +296,10 @@ FetchContent_MakeAvailable(sdl)
 
 set_target_properties(
         SDL3-static
+        PROPERTIES
+        FOLDER "third_party")
+set_target_properties(
+        SDL_uclibc
         PROPERTIES
         FOLDER "third_party")
 
