@@ -262,7 +262,7 @@ FetchContent_Declare(
         sdl
         SYSTEM
         GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-        GIT_TAG 95d44f11c7b45eab7dbd7e68a70a09185dc1407d)
+        GIT_TAG 95c1584386f6c564fa4e49643654c6e4679bfd02)
 
 set(SDL_SHARED OFF CACHE INTERNAL "")
 set(SDL_STATIC ON CACHE INTERNAL "")
