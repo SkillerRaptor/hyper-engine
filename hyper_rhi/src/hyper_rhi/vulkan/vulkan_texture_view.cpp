@@ -16,14 +16,13 @@
 
 namespace hyper_engine
 {
-    RefPtr<TextureView>
-        VulkanGraphicsDevice::create_texture_view_platform(const TextureViewDescriptor &descriptor, ResourceHandle handle) const
+    RefPtr<TextureView> VulkanGraphicsDevice::create_texture_view_platform(const TextureViewDescriptor &descriptor, ResourceHandle handle) const
     {
-        const RefPtr<VulkanTexture> texture = std::static_pointer_cast<VulkanTexture>(descriptor.texture);
+        const VulkanTexture &texture = static_cast<const VulkanTexture &>(*descriptor.texture);
 
-        const VkImageViewType view_type = VulkanTextureView::get_image_view_type(texture->dimension());
+        const VkImageViewType view_type = VulkanTextureView::get_image_view_type(texture.dimension());
 
-        const VkFormat format = VulkanTexture::get_format(texture->format());
+        const VkFormat format = VulkanTexture::get_format(texture.format());
 
         const VkComponentSwizzle r = VulkanTextureView::get_component_swizzle(descriptor.component_mapping.r);
         const VkComponentSwizzle g = VulkanTextureView::get_component_swizzle(descriptor.component_mapping.g);
@@ -36,7 +35,7 @@ namespace hyper_engine
             .a = a,
         };
 
-        const VkImageAspectFlags aspect_mask = VulkanTextureView::get_image_aspect_flags(texture->format());
+        const VkImageAspectFlags aspect_mask = VulkanTextureView::get_image_aspect_flags(texture.format());
         const VkImageSubresourceRange subresource_range = {
             .aspectMask = aspect_mask,
             .baseMipLevel = descriptor.subresource_range.base_mip_level,
@@ -49,7 +48,7 @@ namespace hyper_engine
             .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
-            .image = texture->image(),
+            .image = texture.image(),
             .viewType = view_type,
             .format = format,
             .components = component_mapping,

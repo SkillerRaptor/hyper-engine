@@ -19,27 +19,27 @@ namespace hyper_engine
 {
     RefPtr<RenderPipeline> VulkanGraphicsDevice::create_render_pipeline_platform(const RenderPipelineDescriptor &descriptor) const
     {
-        const RefPtr<VulkanShaderModule> vertex_shader_module = std::static_pointer_cast<VulkanShaderModule>(descriptor.vertex_shader);
+        const VulkanShaderModule &vertex_shader_module = static_cast<const VulkanShaderModule &>(*descriptor.vertex_shader);
 
         const VkPipelineShaderStageCreateInfo vertex_shader_stage_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
             .stage = VK_SHADER_STAGE_VERTEX_BIT,
-            .module = vertex_shader_module->shader_module(),
-            .pName = vertex_shader_module->entry_name().data(),
+            .module = vertex_shader_module.shader_module(),
+            .pName = vertex_shader_module.entry_name().data(),
             .pSpecializationInfo = nullptr,
         };
 
-        const RefPtr<VulkanShaderModule> fragment_shader_module = std::static_pointer_cast<VulkanShaderModule>(descriptor.fragment_shader);
+        const VulkanShaderModule &fragment_shader_module = static_cast<const VulkanShaderModule &>(*descriptor.fragment_shader);
 
         const VkPipelineShaderStageCreateInfo fragment_shader_stage_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
             .stage = VK_SHADER_STAGE_FRAGMENT_BIT,
-            .module = fragment_shader_module->shader_module(),
-            .pName = fragment_shader_module->entry_name().data(),
+            .module = fragment_shader_module.shader_module(),
+            .pName = fragment_shader_module.entry_name().data(),
             .pSpecializationInfo = nullptr,
         };
 
@@ -208,7 +208,7 @@ namespace hyper_engine
             .stencilAttachmentFormat = VK_FORMAT_UNDEFINED,
         };
 
-        const RefPtr<VulkanPipelineLayout> layout = std::static_pointer_cast<VulkanPipelineLayout>(descriptor.layout);
+        const VulkanPipelineLayout &layout = static_cast<const VulkanPipelineLayout &>(*descriptor.layout);
 
         const VkGraphicsPipelineCreateInfo graphics_pipeline_create_info = {
             .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -225,7 +225,7 @@ namespace hyper_engine
             .pDepthStencilState = &depth_stencil_state_create_info,
             .pColorBlendState = &color_blend_state_create_info,
             .pDynamicState = &dynamic_state_create_info,
-            .layout = layout->pipeline_layout(),
+            .layout = layout.pipeline_layout(),
             .renderPass = VK_NULL_HANDLE,
             .subpass = 0,
             .basePipelineHandle = VK_NULL_HANDLE,

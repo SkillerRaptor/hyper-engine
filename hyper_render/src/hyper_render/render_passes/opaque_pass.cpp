@@ -64,7 +64,7 @@ namespace hyper_engine
         {
             render_pass->set_pipeline(render_object.material->pipeline);
 
-            render_pass->set_index_buffer(*render_object.index_buffer);
+            render_pass->set_index_buffer(render_object.index_buffer);
 
             const ObjectPushConstants mesh_push_constants = {
                 .scene = m_scene_buffer->handle(),
@@ -82,7 +82,7 @@ namespace hyper_engine
         {
             render_pass->set_pipeline(render_object.material->pipeline);
 
-            render_pass->set_index_buffer(*render_object.index_buffer);
+            render_pass->set_index_buffer(render_object.index_buffer);
 
             const ObjectPushConstants mesh_push_constants = {
                 .scene = m_scene_buffer->handle(),

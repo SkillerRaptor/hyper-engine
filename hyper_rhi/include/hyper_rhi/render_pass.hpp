@@ -65,7 +65,7 @@ namespace hyper_engine
         virtual void set_pipeline(const RefPtr<RenderPipeline> &pipeline) = 0;
         virtual void set_push_constants(const void *data, size_t data_size) const = 0;
 
-        virtual void set_index_buffer(const Buffer &buffer) const = 0;
+        virtual void set_index_buffer(const RefPtr<Buffer> &buffer) const = 0;
 
         virtual void set_scissor(int32_t x, int32_t y, uint32_t width, uint32_t height) const = 0;
         virtual void set_viewport(float x, float y, float width, float height, float min_depth, float max_depth) const = 0;

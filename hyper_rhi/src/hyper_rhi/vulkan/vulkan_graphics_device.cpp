@@ -288,9 +288,9 @@ namespace hyper_engine
         m_resource_queue.texture_views.clear();
     }
 
-    void VulkanGraphicsDevice::begin_frame(Surface &surface, const uint32_t frame_index)
+    void VulkanGraphicsDevice::begin_frame(RefPtr<Surface> &surface, const uint32_t frame_index)
     {
-        VulkanSurface &vulkan_surface = static_cast<VulkanSurface &>(surface);
+        VulkanSurface &vulkan_surface = static_cast<VulkanSurface &>(*surface);
 
         m_current_frame_index = frame_index;
 
@@ -330,11 +330,11 @@ namespace hyper_engine
         HE_VK_CHECK(vkResetFences(m_device, 1, &current_frame().render_fence));
     }
 
-    void VulkanGraphicsDevice::execute(const CommandList &command_list)
+    void VulkanGraphicsDevice::execute(const RefPtr<CommandList> &command_list)
     {
         m_frames[m_current_frame_index % GraphicsDevice::s_frame_count].semaphore_counter += 1;
 
-        const VulkanCommandList &vulkan_command_list = static_cast<const VulkanCommandList &>(command_list);
+        const VulkanCommandList &vulkan_command_list = static_cast<const VulkanCommandList &>(*command_list);
 
         const VkCommandBufferSubmitInfo command_buffer_submit_info = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
@@ -367,9 +367,9 @@ namespace hyper_engine
         HE_VK_CHECK(vkQueueSubmit2(m_queue, 1, &submit_info, VK_NULL_HANDLE));
     }
 
-    void VulkanGraphicsDevice::present(const Surface &surface) const
+    void VulkanGraphicsDevice::present(const RefPtr<Surface> &surface) const
     {
-        const VulkanSurface &vulkan_surface = static_cast<const VulkanSurface &>(surface);
+        const VulkanSurface &vulkan_surface = static_cast<const VulkanSurface &>(*surface);
 
         const VkSemaphoreWaitInfo semaphore_wait_info = {
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,

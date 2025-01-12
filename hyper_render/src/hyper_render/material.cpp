@@ -164,7 +164,7 @@ namespace hyper_engine
             .padding_3 = 0,
         };
 
-        command_list->write_buffer(*buffer, &shader_material, sizeof(ShaderMaterial), 0);
+        command_list->write_buffer(buffer, &shader_material, sizeof(ShaderMaterial), 0);
 
         const RefPtr<RenderPipeline> pipeline = [&]()
         {

@@ -35,9 +35,9 @@ namespace hyper_engine
         vkDestroyDescriptorPool(m_graphics_device.device(), m_descriptor_pool, nullptr);
     }
 
-    void VulkanDescriptorManager::set_buffer(const Buffer &buffer, const ResourceHandle handle) const
+    void VulkanDescriptorManager::set_buffer(const RefPtr<Buffer> &buffer, const ResourceHandle handle) const
     {
-        const VulkanBuffer &vulkan_buffer = static_cast<const VulkanBuffer &>(buffer);
+        const VulkanBuffer &vulkan_buffer = static_cast<const VulkanBuffer &>(*buffer);
 
         const VkDescriptorBufferInfo buffer_info = {
             .buffer = vulkan_buffer.buffer(),
@@ -61,9 +61,9 @@ namespace hyper_engine
         vkUpdateDescriptorSets(m_graphics_device.device(), 1, &descriptor_write, 0, nullptr);
     }
 
-    void VulkanDescriptorManager::set_storage_image(const TextureView &texture_view, const ResourceHandle handle) const
+    void VulkanDescriptorManager::set_storage_image(const RefPtr<TextureView> &texture_view, const ResourceHandle handle) const
     {
-        const VulkanTextureView &vulkan_texture_view = static_cast<const VulkanTextureView &>(texture_view);
+        const VulkanTextureView &vulkan_texture_view = static_cast<const VulkanTextureView &>(*texture_view);
 
         const VkDescriptorImageInfo image_info = {
             .sampler = VK_NULL_HANDLE,
@@ -87,9 +87,9 @@ namespace hyper_engine
         vkUpdateDescriptorSets(m_graphics_device.device(), 1, &descriptor_write, 0, nullptr);
     }
 
-    void VulkanDescriptorManager::set_sampled_image(const TextureView &texture_view, const ResourceHandle handle) const
+    void VulkanDescriptorManager::set_sampled_image(const RefPtr<TextureView> &texture_view, const ResourceHandle handle) const
     {
-        const VulkanTextureView &vulkan_texture_view = static_cast<const VulkanTextureView &>(texture_view);
+        const VulkanTextureView &vulkan_texture_view = static_cast<const VulkanTextureView &>(*texture_view);
 
         const VkDescriptorImageInfo image_info = {
             .sampler = VK_NULL_HANDLE,
@@ -113,9 +113,9 @@ namespace hyper_engine
         vkUpdateDescriptorSets(m_graphics_device.device(), 1, &descriptor_write, 0, nullptr);
     }
 
-    void VulkanDescriptorManager::set_sampler(const Sampler &sampler, const ResourceHandle handle) const
+    void VulkanDescriptorManager::set_sampler(const RefPtr<Sampler> &sampler, const ResourceHandle handle) const
     {
-        const VulkanSampler &vulkan_sampler = static_cast<const VulkanSampler &>(sampler);
+        const VulkanSampler &vulkan_sampler = static_cast<const VulkanSampler &>(*sampler);
 
         const VkDescriptorImageInfo image_info = {
             .sampler = vulkan_sampler.sampler(),

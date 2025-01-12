@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include <hyper_core/own_ptr.hpp>
 #include <hyper_core/ref_ptr.hpp>
 
 #include "hyper_rhi/forward.hpp"
@@ -60,10 +59,10 @@ namespace hyper_engine
         RefPtr<TextureView> create_texture_view(const TextureViewDescriptor &descriptor);
         RefPtr<TextureView> create_texture_view(const TextureViewDescriptor &descriptor, ResourceHandle handle);
 
-        virtual void begin_frame(Surface &surface, uint32_t frame_index) = 0;
+        virtual void begin_frame(RefPtr<Surface> &surface, uint32_t frame_index) = 0;
         virtual void end_frame() const = 0;
-        virtual void execute(const CommandList &command_list) = 0;
-        virtual void present(const Surface &surface) const = 0;
+        virtual void execute(const RefPtr<CommandList> &command_list) = 0;
+        virtual void present(const RefPtr<Surface> &surface) const = 0;
 
         virtual void wait_for_idle() const = 0;
 

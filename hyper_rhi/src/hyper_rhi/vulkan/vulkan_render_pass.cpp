@@ -59,12 +59,12 @@ namespace hyper_engine
         std::vector<VkRenderingAttachmentInfo> color_attachments = {};
         for (const ColorAttachment &color_attachment : m_color_attachments)
         {
-            const RefPtr<VulkanTextureView> color_attachment_view = std::static_pointer_cast<VulkanTextureView>(color_attachment.view);
+            const VulkanTextureView &color_attachment_view = static_cast<const VulkanTextureView &>(*color_attachment.view);
 
             const VkRenderingAttachmentInfo color_attachment_info = {
                 .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
                 .pNext = nullptr,
-                .imageView = color_attachment_view->image_view(),
+                .imageView = color_attachment_view.image_view(),
                 .imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
                 .resolveMode = VK_RESOLVE_MODE_NONE,
                 .resolveImageView = VK_NULL_HANDLE,
@@ -85,13 +85,14 @@ namespace hyper_engine
                 },
         };
 
-        const RefPtr<VulkanTextureView> &depth_attachment_view =
-            m_depth_stencil_attachment.view == nullptr ? nullptr : std::static_pointer_cast<VulkanTextureView>(m_depth_stencil_attachment.view);
+        const VkImageView depth_attachment_view = m_depth_stencil_attachment.view == nullptr
+                                                      ? VK_NULL_HANDLE
+                                                      : static_cast<const VulkanTextureView &>(*m_depth_stencil_attachment.view).image_view();
 
         const VkRenderingAttachmentInfo depth_attachment_info = {
             .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
             .pNext = nullptr,
-            .imageView = depth_attachment_view == nullptr ? VK_NULL_HANDLE : depth_attachment_view->image_view(),
+            .imageView = depth_attachment_view,
             .imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
             .resolveMode = VK_RESOLVE_MODE_NONE,
             .resolveImageView = VK_NULL_HANDLE,
@@ -150,8 +151,8 @@ namespace hyper_engine
     {
         m_pipeline = pipeline;
 
-        const RefPtr<VulkanRenderPipeline> vulkan_pipeline = std::static_pointer_cast<VulkanRenderPipeline>(m_pipeline);
-        const RefPtr<VulkanPipelineLayout> layout = std::static_pointer_cast<VulkanPipelineLayout>(m_pipeline->layout());
+        const VulkanRenderPipeline &vulkan_pipeline = static_cast<const VulkanRenderPipeline &>(*m_pipeline);
+        const VulkanPipelineLayout &layout = static_cast<const VulkanPipelineLayout &>(*m_pipeline->layout());
 
         VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
         const VulkanDescriptorManager &descriptor_manager = static_cast<VulkanDescriptorManager &>(graphics_device->descriptor_manager());
@@ -160,19 +161,19 @@ namespace hyper_engine
         vkCmdBindDescriptorSets(
             m_command_buffer,
             VK_PIPELINE_BIND_POINT_GRAPHICS,
-            layout->pipeline_layout(),
+            layout.pipeline_layout(),
             0,
             static_cast<uint32_t>(descriptor_sets.size()),
             descriptor_sets.data(),
             0,
             nullptr);
 
-        vkCmdBindPipeline(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkan_pipeline->pipeline());
+        vkCmdBindPipeline(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkan_pipeline.pipeline());
     }
 
-    void VulkanRenderPass::set_index_buffer(const Buffer &buffer) const
+    void VulkanRenderPass::set_index_buffer(const RefPtr<Buffer> &buffer) const
     {
-        const VulkanBuffer &vulkan_buffer = static_cast<const VulkanBuffer &>(buffer);
+        const VulkanBuffer &vulkan_buffer = static_cast<const VulkanBuffer &>(*buffer);
 
         vkCmdBindIndexBuffer(m_command_buffer, vulkan_buffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
     }
@@ -219,9 +220,9 @@ namespace hyper_engine
 
     void VulkanRenderPass::set_push_constants(const void *data, const size_t data_size) const
     {
-        const RefPtr<VulkanPipelineLayout> layout = std::static_pointer_cast<VulkanPipelineLayout>(m_pipeline->layout());
+        const VulkanPipelineLayout &layout = static_cast<const VulkanPipelineLayout &>(*m_pipeline->layout());
 
-        vkCmdPushConstants(m_command_buffer, layout->pipeline_layout(), VK_SHADER_STAGE_ALL, 0, static_cast<uint32_t>(data_size), data);
+        vkCmdPushConstants(m_command_buffer, layout.pipeline_layout(), VK_SHADER_STAGE_ALL, 0, static_cast<uint32_t>(data_size), data);
     }
 
     void VulkanRenderPass::draw(

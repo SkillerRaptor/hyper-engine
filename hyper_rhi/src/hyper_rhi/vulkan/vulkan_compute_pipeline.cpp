@@ -17,16 +17,16 @@ namespace hyper_engine
 {
     RefPtr<ComputePipeline> VulkanGraphicsDevice::create_compute_pipeline_platform(const ComputePipelineDescriptor &descriptor) const
     {
-        const RefPtr<VulkanPipelineLayout> layout = std::static_pointer_cast<VulkanPipelineLayout>(descriptor.layout);
-        const RefPtr<VulkanShaderModule> shader_module = std::static_pointer_cast<VulkanShaderModule>(descriptor.shader);
+        const VulkanPipelineLayout &layout = static_cast<const VulkanPipelineLayout &>(*descriptor.layout);
+        const VulkanShaderModule &shader_module = static_cast<const VulkanShaderModule &>(*descriptor.shader);
 
         const VkPipelineShaderStageCreateInfo shader_stage_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
             .stage = VK_SHADER_STAGE_COMPUTE_BIT,
-            .module = shader_module->shader_module(),
-            .pName = shader_module->entry_name().data(),
+            .module = shader_module.shader_module(),
+            .pName = shader_module.entry_name().data(),
             .pSpecializationInfo = nullptr,
         };
 
@@ -35,7 +35,7 @@ namespace hyper_engine
             .pNext = nullptr,
             .flags = 0,
             .stage = shader_stage_create_info,
-            .layout = layout->pipeline_layout(),
+            .layout = layout.pipeline_layout(),
             .basePipelineHandle = VK_NULL_HANDLE,
             .basePipelineIndex = -1,
         };

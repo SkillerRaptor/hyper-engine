@@ -24,7 +24,7 @@ namespace hyper_engine
         void set_pipeline(const RefPtr<RenderPipeline> &pipeline) override;
         void set_push_constants(const void *data, size_t data_size) const override;
 
-        void set_index_buffer(const Buffer &buffer) const override;
+        void set_index_buffer(const RefPtr<Buffer> &buffer) const override;
 
         void set_scissor(int32_t x, int32_t y, uint32_t width, uint32_t height) const override;
         void set_viewport(float x, float y, float width, float height, float min_depth, float max_depth) const override;

@@ -111,10 +111,10 @@ namespace hyper_engine
         void set_object_name(const void *handle, ObjectType type, std::string_view name) const;
         void destroy_resources();
 
-        void begin_frame(Surface &surface, uint32_t frame_index) override;
+        void begin_frame(RefPtr<Surface> &surface, uint32_t frame_index) override;
         void end_frame() const override;
-        void execute(const CommandList &command_list) override;
-        void present(const Surface &surface) const override;
+        void execute(const RefPtr<CommandList> &command_list) override;
+        void present(const RefPtr<Surface> &surface) const override;
 
         void wait_for_idle() const override;
 

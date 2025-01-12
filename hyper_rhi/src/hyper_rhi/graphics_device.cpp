@@ -74,7 +74,7 @@ namespace hyper_engine
         // FIXME: Could this be written cleaner?
         if (descriptor.usage & BufferUsage::ShaderResource)
         {
-            descriptor_manager().set_buffer(*buffer, handle);
+            descriptor_manager().set_buffer(buffer, handle);
         }
 
         return buffer;
@@ -138,7 +138,7 @@ namespace hyper_engine
         const RefPtr<Sampler> sampler = create_sampler_platform(descriptor, handle);
 
         // FIXME: Could this be written cleaner?
-        descriptor_manager().set_sampler(*sampler, handle);
+        descriptor_manager().set_sampler(sampler, handle);
 
         return sampler;
     }
@@ -183,11 +183,11 @@ namespace hyper_engine
         {
             if (descriptor.texture->usage() & TextureUsage::Storage)
             {
-                descriptor_manager().set_storage_image(*texture_view, handle);
+                descriptor_manager().set_storage_image(texture_view, handle);
             }
             else
             {
-                descriptor_manager().set_sampled_image(*texture_view, handle);
+                descriptor_manager().set_sampled_image(texture_view, handle);
             }
         }
 
