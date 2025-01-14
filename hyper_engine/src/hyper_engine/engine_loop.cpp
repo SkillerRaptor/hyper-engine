@@ -36,6 +36,13 @@ namespace hyper_engine
 
     EngineLoop::~EngineLoop()
     {
+        delete Renderer::get();
+        delete GraphicsDevice::get();
+        delete Window::get();
+        delete Input::get();
+        delete EventBus::get();
+        delete JobSystem::get();
+        delete Logger::get();
     }
 
     bool EngineLoop::pre_initialize(const int32_t argc, const char **argv)
