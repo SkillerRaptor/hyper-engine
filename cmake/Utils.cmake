@@ -4,16 +4,16 @@
 # SPDX-License-Identifier: MIT
 #-------------------------------------------------------------------------------------------
 
-macro(hyperengine_group_source SOURCE)
+function(hyperengine_group_source SOURCE)
     foreach (item IN ITEMS ${SOURCE})
         get_filename_component(src_path "${item}" PATH)
         string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" group_path "${src_path}")
         string(REPLACE ".." "\\" group_path "${group_path}")
         source_group("${group_path}" FILES "${item}")
     endforeach ()
-endmacro()
+endfunction()
 
-macro(hyperengine_define_executable target)
+function(hyperengine_define_executable target)
     hyperengine_group_source(${SOURCES})
     if (HEADERS)
         hyperengine_group_source(${HEADERS})
@@ -34,9 +34,14 @@ macro(hyperengine_define_executable target)
     else ()
         target_compile_definitions(${target} PUBLIC HE_LINUX=1)
     endif ()
-endmacro()
+endfunction()
 
-macro(hyperengine_define_library target)
+function(hyperengine_define_library target)
+    if (NOT SOURCES)
+        hyperengine_define_interface_library(${target})
+        return()
+    endif ()
+
     hyperengine_group_source(${SOURCES})
     if (HEADERS)
         hyperengine_group_source(${HEADERS})
@@ -57,7 +62,27 @@ macro(hyperengine_define_library target)
     else ()
         target_compile_definitions(${target} PUBLIC HE_LINUX=1)
     endif ()
-endmacro()
+endfunction()
+
+function(hyperengine_define_interface_library target)
+    hyperengine_group_source(${HEADERS})
+
+    add_library(${target} INTERFACE ${SOURCES} ${HEADERS})
+    target_link_libraries(${target} INTERFACE ProjectOptions ProjectWarnings)
+    target_include_directories(${target} INTERFACE include)
+
+    if (WIN32)
+        target_compile_definitions(
+                ${target}
+                INTERFACE
+                HE_WINDOWS=1
+                _CRT_SECURE_NO_WARNINGS
+                NOMINMAX
+                WIN32_LEAN_AND_MEAN)
+    else ()
+        target_compile_definitions(${target} INTERFACE HE_LINUX=1)
+    endif ()
+endfunction()
 
 function(hyperengine_download_and_extract URL DESTINATION FOLDER_NAME)
     if (NOT EXISTS ${CMAKE_BINARY_DIR}/download/${FOLDER_NAME}.zip)

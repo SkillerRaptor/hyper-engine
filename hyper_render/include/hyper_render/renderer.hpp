@@ -35,6 +35,8 @@ namespace hyper_engine
 
         void render_scene(const Scene &scene);
 
+        static Renderer *&get();
+
     private:
         void create_textures(uint32_t width, uint32_t height);
 

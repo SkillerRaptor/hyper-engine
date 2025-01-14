@@ -29,6 +29,8 @@ namespace hyper_engine
 
         glm::vec2 mouse_position() const;
 
+        static Input *&get();
+
     private:
         void on_mouse_move(const MouseMoveEvent &event);
         void on_mouse_button_press(const MouseButtonPressEvent &event);

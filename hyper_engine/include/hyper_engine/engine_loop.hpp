@@ -6,15 +6,12 @@
 
 #pragma once
 
-#include <stack>
-
 #include <hyper_core/own_ptr.hpp>
 #include <hyper_platform/forward.hpp>
 
 namespace hyper_engine
 {
     class Engine;
-    class Module;
 
     class EngineLoop
     {
@@ -28,14 +25,9 @@ namespace hyper_engine
         void run();
 
     private:
-        void load_module(OwnPtr<Module> module);
-        void unload_modules();
-
         void on_close(const WindowCloseEvent &event);
 
     private:
-        std::stack<OwnPtr<Module>> m_modules;
-
         bool m_editor_enabled = false;
         OwnPtr<Engine> m_engine;
         bool m_exit_requested = false;

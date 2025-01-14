@@ -8,7 +8,6 @@
 
 #include <hyper_core/assertion.hpp>
 #include <hyper_core/filesystem.hpp>
-#include <hyper_core/global_environment.hpp>
 #include <hyper_rhi/buffer.hpp>
 #include <hyper_rhi/command_list.hpp>
 #include <hyper_rhi/graphics_device.hpp>
@@ -29,7 +28,7 @@ namespace hyper_engine
         const RefPtr<Texture> &render_texture,
         const RefPtr<Texture> &depth_texture)
     {
-        const RefPtr<ShaderModule> vertex_shader = g_env.graphics_device->create_shader_module({
+        const RefPtr<ShaderModule> vertex_shader = GraphicsDevice::get()->create_shader_module({
             .label = "Mesh",
             .type = ShaderType::Vertex,
             .entry_name = "vs_main",
@@ -42,7 +41,7 @@ namespace hyper_engine
                          .spirv,
         });
 
-        const RefPtr<ShaderModule> fragment_shader = g_env.graphics_device->create_shader_module({
+        const RefPtr<ShaderModule> fragment_shader = GraphicsDevice::get()->create_shader_module({
             .label = "Mesh",
             .type = ShaderType::Fragment,
             .entry_name = "fs_main",
@@ -55,12 +54,12 @@ namespace hyper_engine
                          .spirv,
         });
 
-        const RefPtr<PipelineLayout> pipeline_layout = g_env.graphics_device->create_pipeline_layout({
+        const RefPtr<PipelineLayout> pipeline_layout = GraphicsDevice::get()->create_pipeline_layout({
             .label = "Mesh",
             .push_constant_size = sizeof(ObjectPushConstants),
         });
 
-        m_opaque_pipeline = g_env.graphics_device->create_render_pipeline({
+        m_opaque_pipeline = GraphicsDevice::get()->create_render_pipeline({
             .label = "Opaque",
             .layout = pipeline_layout,
             .vertex_shader = vertex_shader,
@@ -99,7 +98,7 @@ namespace hyper_engine
                 },
         });
 
-        m_transparent_pipeline = g_env.graphics_device->create_render_pipeline({
+        m_transparent_pipeline = GraphicsDevice::get()->create_render_pipeline({
             .label = "Transparent",
             .layout = pipeline_layout,
             .vertex_shader = vertex_shader,
@@ -145,7 +144,7 @@ namespace hyper_engine
         const MaterialPassType pass_type,
         const MaterialResources &resources) const
     {
-        const RefPtr<Buffer> buffer = g_env.graphics_device->create_buffer({
+        const RefPtr<Buffer> buffer = GraphicsDevice::get()->create_buffer({
             .label = "Material",
             .byte_size = sizeof(ShaderMaterial),
             .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},

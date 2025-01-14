@@ -7,7 +7,6 @@
 #include "hyper_rhi/vulkan/vulkan_buffer.hpp"
 
 #include <hyper_core/assertion.hpp>
-#include <hyper_core/global_environment.hpp>
 
 #include "hyper_rhi/vulkan/vulkan_descriptor_manager.hpp"
 #include "hyper_rhi/vulkan/vulkan_graphics_device.hpp"
@@ -86,7 +85,7 @@ namespace hyper_engine
 
     VulkanBuffer::~VulkanBuffer()
     {
-        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(GraphicsDevice::get());
         graphics_device->resource_queue().buffers.emplace_back(m_buffer, m_allocation, m_handle);
     }
 

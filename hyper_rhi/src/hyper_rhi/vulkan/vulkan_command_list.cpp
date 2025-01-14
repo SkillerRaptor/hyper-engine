@@ -20,7 +20,7 @@ namespace hyper_engine
 {
     void VulkanCommandList::begin()
     {
-        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(GraphicsDevice::get());
 
         m_command_buffer = graphics_device->current_frame().command_buffer;
 
@@ -498,7 +498,7 @@ namespace hyper_engine
 
     void VulkanCommandList::write_buffer(const RefPtr<Buffer> &buffer, const void *data, const size_t size, const uint64_t offset)
     {
-        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(GraphicsDevice::get());
 
         const VulkanBuffer &vulkan_buffer = static_cast<const VulkanBuffer &>(*buffer);
 
@@ -555,7 +555,7 @@ namespace hyper_engine
         const size_t data_size,
         const uint64_t data_offset)
     {
-        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(GraphicsDevice::get());
 
         const VulkanTexture &vulkan_texture = static_cast<const VulkanTexture &>(*texture);
 

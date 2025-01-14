@@ -6,7 +6,6 @@
 
 #include "hyper_engine/editor_engine.hpp"
 
-#include <hyper_core/global_environment.hpp>
 #include <hyper_core/prerequisites.hpp>
 #include <hyper_ecs/model_component.hpp>
 #include <hyper_ecs/transform_component.hpp>
@@ -19,9 +18,9 @@ namespace hyper_engine
 {
     bool EditorEngine::initialize()
     {
-        g_env.event_bus->subscribe<WindowResizeEvent>(HE_BIND_FUNCTION(EditorEngine::on_resize));
-        g_env.event_bus->subscribe<MouseMoveEvent>(HE_BIND_FUNCTION(EditorEngine::on_mouse_move));
-        g_env.event_bus->subscribe<MouseScrollEvent>(HE_BIND_FUNCTION(EditorEngine::on_mouse_scroll));
+        EventBus::get()->subscribe<WindowResizeEvent>(HE_BIND_FUNCTION(EditorEngine::on_resize));
+        EventBus::get()->subscribe<MouseMoveEvent>(HE_BIND_FUNCTION(EditorEngine::on_mouse_move));
+        EventBus::get()->subscribe<MouseScrollEvent>(HE_BIND_FUNCTION(EditorEngine::on_mouse_scroll));
 
         // FIXME: The editor shouldn't create entities on its own. Replace this after implementing project files
         entt::registry &registry = m_scene.registry();
@@ -61,22 +60,22 @@ namespace hyper_engine
         (void) total_time;
 
         // FIXME: Add editor camera
-        if (g_env.input->is_key_pressed(KeyCode::W))
+        if (Input::get()->is_key_pressed(KeyCode::W))
         {
             m_camera.process_keyboard(Camera::Movement::Forward, delta_time);
         }
 
-        if (g_env.input->is_key_pressed(KeyCode::S))
+        if (Input::get()->is_key_pressed(KeyCode::S))
         {
             m_camera.process_keyboard(Camera::Movement::Backward, delta_time);
         }
 
-        if (g_env.input->is_key_pressed(KeyCode::A))
+        if (Input::get()->is_key_pressed(KeyCode::A))
         {
             m_camera.process_keyboard(Camera::Movement::Left, delta_time);
         }
 
-        if (g_env.input->is_key_pressed(KeyCode::D))
+        if (Input::get()->is_key_pressed(KeyCode::D))
         {
             m_camera.process_keyboard(Camera::Movement::Right, delta_time);
         }

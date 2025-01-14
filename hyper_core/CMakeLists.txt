@@ -5,8 +5,6 @@
 #-------------------------------------------------------------------------------------------
 set(SOURCES
         src/hyper_core/filesystem.cpp
-        src/hyper_core/global_environment.cpp
-        src/hyper_core/hyper_core.cpp
         src/hyper_core/job_system.cpp
         src/hyper_core/logger.cpp
         src/hyper_core/string.cpp)
@@ -15,13 +13,11 @@ set(HEADERS
         include/hyper_core/assertion.hpp
         include/hyper_core/bit_flags.hpp
         include/hyper_core/bits.hpp
+        include/hyper_core/context.hpp
         include/hyper_core/filesystem.hpp
-        include/hyper_core/global_environment.hpp
-        include/hyper_core/hyper_core.hpp
         include/hyper_core/job_system.hpp
         include/hyper_core/logger.hpp
         include/hyper_core/math.hpp
-        include/hyper_core/module.hpp
         include/hyper_core/own_ptr.hpp
         include/hyper_core/prerequisites.hpp
         include/hyper_core/ref_ptr.hpp

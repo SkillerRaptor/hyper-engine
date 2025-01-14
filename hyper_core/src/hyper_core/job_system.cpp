@@ -109,4 +109,10 @@ namespace hyper_engine
             std::this_thread::yield();
         }
     }
+
+    JobSystem *&JobSystem::get()
+    {
+        static JobSystem *job_system = nullptr;
+        return job_system;
+    }
 } // namespace hyper_engine

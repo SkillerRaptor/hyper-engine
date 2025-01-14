@@ -8,6 +8,7 @@
 
 namespace hyper_engine
 {
+    class Input;
     class KeyPressEvent;
     class KeyReleaseEvent;
     class MouseButtonPressEvent;

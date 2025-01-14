@@ -193,4 +193,10 @@ namespace hyper_engine
 
         return texture_view;
     }
+
+    GraphicsDevice *&GraphicsDevice::get()
+    {
+        static GraphicsDevice *graphics_device = nullptr;
+        return graphics_device;
+    }
 } // namespace hyper_engine

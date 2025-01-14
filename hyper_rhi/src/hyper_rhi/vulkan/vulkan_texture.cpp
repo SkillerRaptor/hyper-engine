@@ -86,7 +86,7 @@ namespace hyper_engine
 
     VulkanTexture::~VulkanTexture()
     {
-        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(GraphicsDevice::get());
         graphics_device->resource_queue().textures.emplace_back(m_image, m_allocation);
     }
 

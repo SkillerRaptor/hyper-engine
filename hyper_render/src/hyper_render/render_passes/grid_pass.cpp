@@ -7,7 +7,6 @@
 #include "hyper_render/render_passes/grid_pass.hpp"
 
 #include <hyper_core/filesystem.hpp>
-#include <hyper_core/global_environment.hpp>
 #include <hyper_rhi/command_list.hpp>
 #include <hyper_rhi/graphics_device.hpp>
 #include <hyper_rhi/pipeline_layout.hpp>
@@ -31,72 +30,76 @@ namespace hyper_engine
         , m_render_texture_view(render_texture_view)
         , m_depth_texture(depth_texture)
         , m_depth_texture_view(depth_texture_view)
-        , m_pipeline_layout(g_env.graphics_device->create_pipeline_layout({
-              .label = "Grid",
-              .push_constant_size = 0,
-          }))
-        , m_vertex_shader(g_env.graphics_device->create_shader_module({
-              .label = "Grid",
-              .type = ShaderType::Vertex,
-              .entry_name = "vs_main",
-              .bytes = shader_compiler
-                           .compile({
-                               .type = ShaderType::Vertex,
-                               .entry_name = "vs_main",
-                               .data = filesystem::read_file("./assets/shaders/grid_shader.hlsl"),
-                           })
-                           .spirv,
-          }))
-        , m_fragment_shader(g_env.graphics_device->create_shader_module({
-              .label = "Grid",
-              .type = ShaderType::Fragment,
-              .entry_name = "fs_main",
-              .bytes = shader_compiler
-                           .compile({
-                               .type = ShaderType::Fragment,
-                               .entry_name = "fs_main",
-                               .data = filesystem::read_file("./assets/shaders/grid_shader.hlsl"),
-                           })
-                           .spirv,
-          }))
-        , m_pipeline(g_env.graphics_device->create_render_pipeline({
-              .label = "Grid",
-              .layout = m_pipeline_layout,
-              .vertex_shader = m_vertex_shader,
-              .fragment_shader = m_fragment_shader,
-              .color_attachment_states =
-                  {
+        , m_pipeline_layout(
+              GraphicsDevice::get()->create_pipeline_layout({
+                  .label = "Grid",
+                  .push_constant_size = 0,
+              }))
+        , m_vertex_shader(
+              GraphicsDevice::get()->create_shader_module({
+                  .label = "Grid",
+                  .type = ShaderType::Vertex,
+                  .entry_name = "vs_main",
+                  .bytes = shader_compiler
+                               .compile({
+                                   .type = ShaderType::Vertex,
+                                   .entry_name = "vs_main",
+                                   .data = filesystem::read_file("./assets/shaders/grid_shader.hlsl"),
+                               })
+                               .spirv,
+              }))
+        , m_fragment_shader(
+              GraphicsDevice::get()->create_shader_module({
+                  .label = "Grid",
+                  .type = ShaderType::Fragment,
+                  .entry_name = "fs_main",
+                  .bytes = shader_compiler
+                               .compile({
+                                   .type = ShaderType::Fragment,
+                                   .entry_name = "fs_main",
+                                   .data = filesystem::read_file("./assets/shaders/grid_shader.hlsl"),
+                               })
+                               .spirv,
+              }))
+        , m_pipeline(
+              GraphicsDevice::get()->create_render_pipeline({
+                  .label = "Grid",
+                  .layout = m_pipeline_layout,
+                  .vertex_shader = m_vertex_shader,
+                  .fragment_shader = m_fragment_shader,
+                  .color_attachment_states =
                       {
-                          .format = m_render_texture->format(),
-                          .blend_state =
-                              {
-                                  .blend_enable = true,
-                                  .src_blend_factor = BlendFactor::SrcAlpha,
-                                  .dst_blend_factor = BlendFactor::One,
-                                  .operation = BlendOperation::Add,
-                                  .alpha_src_blend_factor = BlendFactor::One,
-                                  .alpha_dst_blend_factor = BlendFactor::Zero,
-                                  .alpha_operation = BlendOperation::Add,
-                                  .color_writes = ColorWrites::All,
-                              },
+                          {
+                              .format = m_render_texture->format(),
+                              .blend_state =
+                                  {
+                                      .blend_enable = true,
+                                      .src_blend_factor = BlendFactor::SrcAlpha,
+                                      .dst_blend_factor = BlendFactor::One,
+                                      .operation = BlendOperation::Add,
+                                      .alpha_src_blend_factor = BlendFactor::One,
+                                      .alpha_dst_blend_factor = BlendFactor::Zero,
+                                      .alpha_operation = BlendOperation::Add,
+                                      .color_writes = ColorWrites::All,
+                                  },
+                          },
                       },
-                  },
-              .primitive_state =
-                  {
-                      .topology = PrimitiveTopology::TriangleList,
-                      .front_face = FrontFace::CounterClockwise,
-                      .cull_mode = Face::None,
-                      .polygon_mode = PolygonMode::Fill,
-                  },
-              .depth_stencil_state =
-                  {
-                      .depth_test_enable = true,
-                      .depth_write_enable = true,
-                      .depth_format = m_depth_texture->format(),
-                      .depth_compare_operation = CompareOperation::Less,
-                      .depth_bias_state = {},
-                  },
-          }))
+                  .primitive_state =
+                      {
+                          .topology = PrimitiveTopology::TriangleList,
+                          .front_face = FrontFace::CounterClockwise,
+                          .cull_mode = Face::None,
+                          .polygon_mode = PolygonMode::Fill,
+                      },
+                  .depth_stencil_state =
+                      {
+                          .depth_test_enable = true,
+                          .depth_write_enable = true,
+                          .depth_format = m_depth_texture->format(),
+                          .depth_compare_operation = CompareOperation::Less,
+                          .depth_bias_state = {},
+                      },
+              }))
     {
     }
 

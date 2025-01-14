@@ -8,7 +8,6 @@
 
 #include <array>
 
-#include <hyper_core/global_environment.hpp>
 #include <hyper_core/logger.hpp>
 #include <hyper_core/prerequisites.hpp>
 #include <hyper_ecs/model_component.hpp>
@@ -35,167 +34,179 @@
 namespace hyper_engine
 {
     Renderer::Renderer()
-        : m_surface(g_env.graphics_device->create_surface())
-        , m_command_list(g_env.graphics_device->create_command_list())
-        , m_render_texture(g_env.graphics_device->create_texture({
-              .label = "Render",
-              .width = m_surface->width(),
-              .height = m_surface->height(),
-              .depth = 1,
-              .array_size = 1,
-              .mip_levels = 1,
-              .format = Format::Bgra8Unorm,
-              .dimension = Dimension::Texture2D,
-              .usage = TextureUsage::RenderAttachment,
-          }))
-        , m_render_texture_view(g_env.graphics_device->create_texture_view({
-              .label = "Render",
-              .texture = m_render_texture,
-              .subresource_range =
+        : m_surface(GraphicsDevice::get()->create_surface())
+        , m_command_list(GraphicsDevice::get()->create_command_list())
+        , m_render_texture(
+              GraphicsDevice::get()->create_texture({
+                  .label = "Render",
+                  .width = m_surface->width(),
+                  .height = m_surface->height(),
+                  .depth = 1,
+                  .array_size = 1,
+                  .mip_levels = 1,
+                  .format = Format::Bgra8Unorm,
+                  .dimension = Dimension::Texture2D,
+                  .usage = TextureUsage::RenderAttachment,
+              }))
+        , m_render_texture_view(
+              GraphicsDevice::get()->create_texture_view({
+                  .label = "Render",
+                  .texture = m_render_texture,
+                  .subresource_range =
+                      {
+                          .base_mip_level = 0,
+                          .mip_level_count = 1,
+                          .base_array_level = 0,
+                          .array_layer_count = 1,
+                      },
+                  .component_mapping =
+                      {
+                          .r = ComponentSwizzle::Identity,
+                          .g = ComponentSwizzle::Identity,
+                          .b = ComponentSwizzle::Identity,
+                          .a = ComponentSwizzle::Identity,
+                      },
+              }))
+        , m_depth_texture(
+              GraphicsDevice::get()->create_texture({
+                  .label = "Depth",
+                  .width = m_surface->width(),
+                  .height = m_surface->height(),
+                  .depth = 1,
+                  .array_size = 1,
+                  .mip_levels = 1,
+                  .format = Format::D32Sfloat,
+                  .dimension = Dimension::Texture2D,
+                  .usage = TextureUsage::RenderAttachment,
+              }))
+        , m_depth_texture_view(
+              GraphicsDevice::get()->create_texture_view({
+                  .label = "Depth",
+                  .texture = m_depth_texture,
+                  .subresource_range =
+                      {
+                          .base_mip_level = 0,
+                          .mip_level_count = 1,
+                          .base_array_level = 0,
+                          .array_layer_count = 1,
+                      },
+                  .component_mapping =
+                      {
+                          .r = ComponentSwizzle::Identity,
+                          .g = ComponentSwizzle::Identity,
+                          .b = ComponentSwizzle::Identity,
+                          .a = ComponentSwizzle::Identity,
+                      },
+              }))
+        , m_camera_buffer(
+              GraphicsDevice::get()->create_buffer(
                   {
-                      .base_mip_level = 0,
-                      .mip_level_count = 1,
-                      .base_array_level = 0,
-                      .array_layer_count = 1,
+                      .label = "Camera",
+                      .byte_size = sizeof(ShaderCamera),
+                      .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
                   },
-              .component_mapping =
-                  {
-                      .r = ComponentSwizzle::Identity,
-                      .g = ComponentSwizzle::Identity,
-                      .b = ComponentSwizzle::Identity,
-                      .a = ComponentSwizzle::Identity,
-                  },
-          }))
-        , m_depth_texture(g_env.graphics_device->create_texture({
-              .label = "Depth",
-              .width = m_surface->width(),
-              .height = m_surface->height(),
-              .depth = 1,
-              .array_size = 1,
-              .mip_levels = 1,
-              .format = Format::D32Sfloat,
-              .dimension = Dimension::Texture2D,
-              .usage = TextureUsage::RenderAttachment,
-          }))
-        , m_depth_texture_view(g_env.graphics_device->create_texture_view({
-              .label = "Depth",
-              .texture = m_depth_texture,
-              .subresource_range =
-                  {
-                      .base_mip_level = 0,
-                      .mip_level_count = 1,
-                      .base_array_level = 0,
-                      .array_layer_count = 1,
-                  },
-              .component_mapping =
-                  {
-                      .r = ComponentSwizzle::Identity,
-                      .g = ComponentSwizzle::Identity,
-                      .b = ComponentSwizzle::Identity,
-                      .a = ComponentSwizzle::Identity,
-                  },
-          }))
-        , m_camera_buffer(g_env.graphics_device->create_buffer(
-              {
-                  .label = "Camera",
-                  .byte_size = sizeof(ShaderCamera),
+                  ResourceHandle(HE_DESCRIPTOR_SET_SLOT_CAMERA)))
+        , m_scene_buffer(
+              GraphicsDevice::get()->create_buffer({
+                  .label = "Scene",
+                  .byte_size = sizeof(ShaderScene),
                   .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
-              },
-              ResourceHandle(HE_DESCRIPTOR_SET_SLOT_CAMERA)))
-        , m_scene_buffer(g_env.graphics_device->create_buffer({
-              .label = "Scene",
-              .byte_size = sizeof(ShaderScene),
-              .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
-          }))
-        , m_white_texture(g_env.graphics_device->create_texture({
-              .label = "White",
-              .width = 1,
-              .height = 1,
-              .depth = 1,
-              .array_size = 1,
-              .mip_levels = 1,
-              .format = Format::Rgba8Unorm,
-              .dimension = Dimension::Texture2D,
-              .usage = TextureUsage::ShaderResource,
-          }))
-        , m_white_texture_view(g_env.graphics_device->create_texture_view({
-              .label = "White",
-              .texture = m_white_texture,
-              .subresource_range =
-                  {
-                      .base_mip_level = 0,
-                      .mip_level_count = 1,
-                      .base_array_level = 0,
-                      .array_layer_count = 1,
-                  },
-              .component_mapping =
-                  {
-                      .r = ComponentSwizzle::Identity,
-                      .g = ComponentSwizzle::Identity,
-                      .b = ComponentSwizzle::Identity,
-                      .a = ComponentSwizzle::Identity,
-                  },
-          }))
-        , m_error_texture(g_env.graphics_device->create_texture({
-              .label = "Error",
-              .width = 16,
-              .height = 16,
-              .depth = 1,
-              .array_size = 1,
-              .mip_levels = 1,
-              .format = Format::Rgba8Unorm,
-              .dimension = Dimension::Texture2D,
-              .usage = TextureUsage::ShaderResource,
-          }))
-        , m_error_texture_view(g_env.graphics_device->create_texture_view({
-              .label = "Error",
-              .texture = m_error_texture,
-              .subresource_range =
-                  {
-                      .base_mip_level = 0,
-                      .mip_level_count = 1,
-                      .base_array_level = 0,
-                      .array_layer_count = 1,
-                  },
-              .component_mapping =
-                  {
-                      .r = ComponentSwizzle::Identity,
-                      .g = ComponentSwizzle::Identity,
-                      .b = ComponentSwizzle::Identity,
-                      .a = ComponentSwizzle::Identity,
-                  },
-          }))
-        , m_default_sampler_nearest(g_env.graphics_device->create_sampler({
-              .label = "Default Nearest",
-              .mag_filter = Filter::Nearest,
-              .min_filter = Filter::Nearest,
-              .mipmap_filter = Filter::Nearest,
-              .address_mode_u = AddressMode::Repeat,
-              .address_mode_v = AddressMode::Repeat,
-              .address_mode_w = AddressMode::Repeat,
-              .mip_lod_bias = 0.0,
-              .compare_operation = CompareOperation::Never,
-              .min_lod = 0.0,
-              .max_lod = 1.0,
-              .border_color = BorderColor::TransparentBlack,
-          }))
-        , m_default_sampler_linear(g_env.graphics_device->create_sampler({
-              .label = "Default Linear",
-              .mag_filter = Filter::Linear,
-              .min_filter = Filter::Linear,
-              .mipmap_filter = Filter::Nearest,
-              .address_mode_u = AddressMode::Repeat,
-              .address_mode_v = AddressMode::Repeat,
-              .address_mode_w = AddressMode::Repeat,
-              .mip_lod_bias = 0.0,
-              .compare_operation = CompareOperation::Never,
-              .min_lod = 0.0,
-              .max_lod = 1.0,
-              .border_color = BorderColor::TransparentBlack,
-          }))
+              }))
+        , m_white_texture(
+              GraphicsDevice::get()->create_texture({
+                  .label = "White",
+                  .width = 1,
+                  .height = 1,
+                  .depth = 1,
+                  .array_size = 1,
+                  .mip_levels = 1,
+                  .format = Format::Rgba8Unorm,
+                  .dimension = Dimension::Texture2D,
+                  .usage = TextureUsage::ShaderResource,
+              }))
+        , m_white_texture_view(
+              GraphicsDevice::get()->create_texture_view({
+                  .label = "White",
+                  .texture = m_white_texture,
+                  .subresource_range =
+                      {
+                          .base_mip_level = 0,
+                          .mip_level_count = 1,
+                          .base_array_level = 0,
+                          .array_layer_count = 1,
+                      },
+                  .component_mapping =
+                      {
+                          .r = ComponentSwizzle::Identity,
+                          .g = ComponentSwizzle::Identity,
+                          .b = ComponentSwizzle::Identity,
+                          .a = ComponentSwizzle::Identity,
+                      },
+              }))
+        , m_error_texture(
+              GraphicsDevice::get()->create_texture({
+                  .label = "Error",
+                  .width = 16,
+                  .height = 16,
+                  .depth = 1,
+                  .array_size = 1,
+                  .mip_levels = 1,
+                  .format = Format::Rgba8Unorm,
+                  .dimension = Dimension::Texture2D,
+                  .usage = TextureUsage::ShaderResource,
+              }))
+        , m_error_texture_view(
+              GraphicsDevice::get()->create_texture_view({
+                  .label = "Error",
+                  .texture = m_error_texture,
+                  .subresource_range =
+                      {
+                          .base_mip_level = 0,
+                          .mip_level_count = 1,
+                          .base_array_level = 0,
+                          .array_layer_count = 1,
+                      },
+                  .component_mapping =
+                      {
+                          .r = ComponentSwizzle::Identity,
+                          .g = ComponentSwizzle::Identity,
+                          .b = ComponentSwizzle::Identity,
+                          .a = ComponentSwizzle::Identity,
+                      },
+              }))
+        , m_default_sampler_nearest(
+              GraphicsDevice::get()->create_sampler({
+                  .label = "Default Nearest",
+                  .mag_filter = Filter::Nearest,
+                  .min_filter = Filter::Nearest,
+                  .mipmap_filter = Filter::Nearest,
+                  .address_mode_u = AddressMode::Repeat,
+                  .address_mode_v = AddressMode::Repeat,
+                  .address_mode_w = AddressMode::Repeat,
+                  .mip_lod_bias = 0.0,
+                  .compare_operation = CompareOperation::Never,
+                  .min_lod = 0.0,
+                  .max_lod = 1.0,
+                  .border_color = BorderColor::TransparentBlack,
+              }))
+        , m_default_sampler_linear(
+              GraphicsDevice::get()->create_sampler({
+                  .label = "Default Linear",
+                  .mag_filter = Filter::Linear,
+                  .min_filter = Filter::Linear,
+                  .mipmap_filter = Filter::Nearest,
+                  .address_mode_u = AddressMode::Repeat,
+                  .address_mode_v = AddressMode::Repeat,
+                  .address_mode_w = AddressMode::Repeat,
+                  .mip_lod_bias = 0.0,
+                  .compare_operation = CompareOperation::Never,
+                  .min_lod = 0.0,
+                  .max_lod = 1.0,
+                  .border_color = BorderColor::TransparentBlack,
+              }))
         , m_metallic_roughness_material(m_shader_compiler, m_render_texture, m_depth_texture)
     {
-        g_env.event_bus->subscribe<WindowResizeEvent>(HE_BIND_FUNCTION(Renderer::on_resize));
+        EventBus::get()->subscribe<WindowResizeEvent>(HE_BIND_FUNCTION(Renderer::on_resize));
 
         const GltfMetallicRoughness::MaterialResources material_resources = {
             .color_factors = glm::vec4(1.0, 1.0, 1.0, 1.0),
@@ -330,8 +341,8 @@ namespace hyper_engine
 
         m_command_list->end();
 
-        g_env.graphics_device->execute(m_command_list);
-        g_env.graphics_device->wait_for_idle();
+        GraphicsDevice::get()->execute(m_command_list);
+        GraphicsDevice::get()->wait_for_idle();
 
         m_opaque_pass = make_own<OpaquePass>(m_render_texture_view, m_depth_texture_view, m_scene_buffer);
 
@@ -370,10 +381,10 @@ namespace hyper_engine
 
         m_command_list->end();
 
-        g_env.graphics_device->execute(m_command_list);
-        g_env.graphics_device->wait_for_idle();
+        GraphicsDevice::get()->execute(m_command_list);
+        GraphicsDevice::get()->wait_for_idle();
 
-        g_env.graphics_device->begin_frame(m_surface, m_frame_index);
+        GraphicsDevice::get()->begin_frame(m_surface, m_frame_index);
 
         m_command_list->begin();
     }
@@ -382,15 +393,15 @@ namespace hyper_engine
     {
         m_command_list->end();
 
-        g_env.graphics_device->end_frame();
+        GraphicsDevice::get()->end_frame();
 
         m_frame_index += 1;
     }
 
     void Renderer::present() const
     {
-        g_env.graphics_device->execute(m_command_list);
-        g_env.graphics_device->present(m_surface);
+        GraphicsDevice::get()->execute(m_command_list);
+        GraphicsDevice::get()->present(m_surface);
     }
 
     void Renderer::render_scene(const Scene &scene)
@@ -611,9 +622,15 @@ namespace hyper_engine
         });
     }
 
+    Renderer *&Renderer::get()
+    {
+        static Renderer *renderer = nullptr;
+        return renderer;
+    }
+
     void Renderer::create_textures(const uint32_t width, const uint32_t height)
     {
-        m_render_texture = g_env.graphics_device->create_texture({
+        m_render_texture = GraphicsDevice::get()->create_texture({
             .label = "Render",
             .width = width,
             .height = height,
@@ -625,7 +642,7 @@ namespace hyper_engine
             .usage = TextureUsage::RenderAttachment,
         });
 
-        m_render_texture_view = g_env.graphics_device->create_texture_view({
+        m_render_texture_view = GraphicsDevice::get()->create_texture_view({
             .label = "Render",
             .texture = m_render_texture,
             .subresource_range =
@@ -644,7 +661,7 @@ namespace hyper_engine
                 },
         });
 
-        m_depth_texture = g_env.graphics_device->create_texture({
+        m_depth_texture = GraphicsDevice::get()->create_texture({
             .label = "Depth",
             .width = width,
             .height = height,
@@ -656,7 +673,7 @@ namespace hyper_engine
             .usage = TextureUsage::RenderAttachment,
         });
 
-        m_depth_texture_view = g_env.graphics_device->create_texture_view({
+        m_depth_texture_view = GraphicsDevice::get()->create_texture_view({
             .label = "Depth",
             .texture = m_depth_texture,
             .subresource_range =

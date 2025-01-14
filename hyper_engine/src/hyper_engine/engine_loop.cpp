@@ -6,8 +6,6 @@
 
 #include "hyper_engine/engine_loop.hpp"
 
-#include "../../../hyper_ecs/include/hyper_ecs/hyper_ecs.hpp"
-
 #include <chrono>
 #include <exception>
 #include <ranges>
@@ -17,23 +15,18 @@
 #include <argparse/argparse.hpp>
 
 #include <hyper_core/assertion.hpp>
-#include <hyper_core/global_environment.hpp>
-#include <hyper_core/hyper_core.hpp>
+#include <hyper_core/job_system.hpp>
 #include <hyper_core/logger.hpp>
 #include <hyper_core/prerequisites.hpp>
-#include <hyper_ecs/hyper_ecs.hpp>
 #include <hyper_event/event_bus.hpp>
-#include <hyper_event/hyper_event.hpp>
-#include <hyper_platform/hyper_platform.hpp>
+#include <hyper_platform/input.hpp>
 #include <hyper_platform/window_events.hpp>
 #include <hyper_platform/window.hpp>
-#include <hyper_render/hyper_render.hpp>
 #include <hyper_render/renderer.hpp>
 #include <hyper_rhi/graphics_device.hpp>
 
 #include "hyper_engine/editor_engine.hpp"
 #include "hyper_engine/game_engine.hpp"
-#include "hyper_rhi/hyper_rhi.hpp"
 
 namespace hyper_engine
 {
@@ -43,14 +36,14 @@ namespace hyper_engine
 
     EngineLoop::~EngineLoop()
     {
-        unload_modules();
     }
 
     bool EngineLoop::pre_initialize(const int32_t argc, const char **argv)
     {
         const std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
 
-        load_module(make_own<HyperCore>());
+        Logger::get() = new Logger();
+        JobSystem::get() = new JobSystem();
 
         const std::vector<std::string> arguments(argv, argv + argc);
 
@@ -121,11 +114,15 @@ namespace hyper_engine
             HE_UNREACHABLE();
         }();
 
-        g_env.logger->set_level(level);
+        Logger::get()->set_level(level);
 
-        load_module(make_own<HyperEcs>());
-        load_module(make_own<HyperEvent>());
-        load_module(make_own<HyperPlatform>());
+        EventBus::get() = new EventBus();
+        Input::get() = new Input();
+        Window::get() = new Window({
+            .title = "HyperEngine",
+            .width = 1280,
+            .height = 720,
+        });
 
         const GraphicsApi graphics_api = [renderer]()
         {
@@ -142,16 +139,16 @@ namespace hyper_engine
             HE_UNREACHABLE();
         }();
 
-        load_module(
-            make_own<HyperRhi>(HyperRhiDescriptor{
-                .graphics_api = graphics_api,
-                .debug_validation_enabled = debug_validation_enabled,
-                .debug_label_enabled = debug_label_enabled,
-                .debug_marker_enabled = debug_marker_enabled,
-            }));
-        load_module(make_own<HyperRender>());
+        GraphicsDevice::get() = GraphicsDevice::create({
+            .graphics_api = graphics_api,
+            .debug_validation = debug_validation_enabled,
+            .debug_label = debug_label_enabled,
+            .debug_marker = debug_marker_enabled,
+        });
 
-        g_env.event_bus->subscribe<WindowCloseEvent>(HE_BIND_FUNCTION(EngineLoop::on_close));
+        Renderer::get() = new Renderer();
+
+        EventBus::get()->subscribe<WindowCloseEvent>(HE_BIND_FUNCTION(EngineLoop::on_close));
 
         const std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
         const std::chrono::duration<double> elapsed_seconds = end_time - start_time;
@@ -172,7 +169,6 @@ namespace hyper_engine
         {
             m_engine = make_own<GameEngine>();
         }
-        HE_ASSERT(m_engine);
 
         if (!m_engine->initialize())
         {
@@ -204,10 +200,10 @@ namespace hyper_engine
             accumulator += frame_time;
 
             // Handle Events
-            g_env.window->process_events();
-            while (g_env.window->width() == 0 || g_env.window->height() == 0)
+            Window::get()->process_events();
+            while (Window::get()->width() == 0 || Window::get()->height() == 0)
             {
-                g_env.window->wait_events();
+                Window::wait_events();
             }
 
             while (accumulator >= delta_time)
@@ -224,7 +220,7 @@ namespace hyper_engine
 
             // Render
             const Camera &camera = m_engine->camera();
-            g_env.renderer->begin_frame({
+            Renderer::get()->begin_frame({
                 .position = camera.position(),
                 .view = camera.view_matrix(),
                 .projection = camera.projection_matrix(),
@@ -232,24 +228,11 @@ namespace hyper_engine
                 .far_plane = camera.far_plane(),
             });
 
-            g_env.renderer->render_scene(m_engine->scene());
+            Renderer::get()->render_scene(m_engine->scene());
             m_engine->render();
 
-            g_env.renderer->end_frame();
-            g_env.renderer->present();
-        }
-    }
-
-    void EngineLoop::load_module(OwnPtr<Module> module)
-    {
-        m_modules.push(std::move(module));
-    }
-
-    void EngineLoop::unload_modules()
-    {
-        while (!m_modules.empty())
-        {
-            m_modules.pop();
+            Renderer::get()->end_frame();
+            Renderer::get()->present();
         }
     }
 

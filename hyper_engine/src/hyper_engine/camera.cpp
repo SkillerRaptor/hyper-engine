@@ -7,7 +7,6 @@
 #include "hyper_engine/camera.hpp"
 
 #include <hyper_core/assertion.hpp>
-#include <hyper_core/global_environment.hpp>
 #include <hyper_platform/input.hpp>
 #include <hyper_platform/mouse_codes.hpp>
 
@@ -58,7 +57,7 @@ namespace hyper_engine
         m_last_x = x_position;
         m_last_y = y_position;
 
-        if (!g_env.input->is_mouse_button_pressed(MouseCode::ButtonMiddle))
+        if (!Input::get()->is_mouse_button_pressed(MouseCode::ButtonMiddle))
         {
             return;
         }

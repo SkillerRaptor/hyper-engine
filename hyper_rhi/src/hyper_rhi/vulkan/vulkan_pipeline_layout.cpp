@@ -52,7 +52,7 @@ namespace hyper_engine
 
     VulkanPipelineLayout::~VulkanPipelineLayout()
     {
-        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(GraphicsDevice::get());
         graphics_device->resource_queue().pipeline_layouts.emplace_back(m_pipeline_layout);
     }
 

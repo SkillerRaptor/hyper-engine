@@ -48,6 +48,12 @@ namespace hyper_engine
             event_handler->subscribe(callback);
         }
 
+        static EventBus *&get()
+        {
+            static EventBus *event_bus = nullptr;
+            return event_bus;
+        }
+
     private:
         std::unordered_map<size_t, OwnPtr<EventHandler>> m_handlers;
     };

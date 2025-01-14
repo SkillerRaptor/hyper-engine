@@ -250,7 +250,7 @@ namespace hyper_engine
 
     VulkanRenderPipeline::~VulkanRenderPipeline()
     {
-        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(GraphicsDevice::get());
         graphics_device->resource_queue().graphics_pipelines.emplace_back(m_pipeline);
     }
 

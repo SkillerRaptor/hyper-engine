@@ -73,7 +73,7 @@ namespace hyper_engine
 
     VulkanTextureView::~VulkanTextureView()
     {
-        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(GraphicsDevice::get());
         graphics_device->resource_queue().texture_views.emplace_back(m_image_view, m_handle);
     }
 

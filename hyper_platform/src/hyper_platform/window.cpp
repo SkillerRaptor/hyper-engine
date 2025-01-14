@@ -9,7 +9,6 @@
 #include <SDL3/SDL.h>
 
 #include <hyper_core/assertion.hpp>
-#include <hyper_core/global_environment.hpp>
 #include <hyper_core/logger.hpp>
 #include <hyper_event/event_bus.hpp>
 
@@ -46,39 +45,39 @@ namespace hyper_engine
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
-            g_env.event_bus->dispatch<SdlEvent>(&event);
+            EventBus::get()->dispatch<SdlEvent>(&event);
 
             switch (event.type)
             {
                 // NOTE: Window Events
             case SDL_EVENT_QUIT:
-                g_env.event_bus->dispatch<WindowCloseEvent>();
+                EventBus::get()->dispatch<WindowCloseEvent>();
                 break;
             case SDL_EVENT_WINDOW_MOVED:
-                g_env.event_bus->dispatch<WindowMoveEvent>(event.window.data1, event.window.data2);
+                EventBus::get()->dispatch<WindowMoveEvent>(event.window.data1, event.window.data2);
                 break;
             case SDL_EVENT_WINDOW_RESIZED:
-                g_env.event_bus->dispatch<WindowResizeEvent>(event.window.data1, event.window.data2);
+                EventBus::get()->dispatch<WindowResizeEvent>(event.window.data1, event.window.data2);
                 break;
                 // NOTE: Key Events
             case SDL_EVENT_KEY_DOWN:
-                g_env.event_bus->dispatch<KeyPressEvent>(static_cast<KeyCode>(event.key.key));
+                EventBus::get()->dispatch<KeyPressEvent>(static_cast<KeyCode>(event.key.key));
                 break;
             case SDL_EVENT_KEY_UP:
-                g_env.event_bus->dispatch<KeyReleaseEvent>(static_cast<KeyCode>(event.key.key));
+                EventBus::get()->dispatch<KeyReleaseEvent>(static_cast<KeyCode>(event.key.key));
                 break;
                 // NOTE: Mouse Events
             case SDL_EVENT_MOUSE_MOTION:
-                g_env.event_bus->dispatch<MouseMoveEvent>(event.motion.x, event.motion.y);
+                EventBus::get()->dispatch<MouseMoveEvent>(event.motion.x, event.motion.y);
                 break;
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                g_env.event_bus->dispatch<MouseButtonPressEvent>(static_cast<MouseCode>(event.button.button));
+                EventBus::get()->dispatch<MouseButtonPressEvent>(static_cast<MouseCode>(event.button.button));
                 break;
             case SDL_EVENT_MOUSE_BUTTON_UP:
-                g_env.event_bus->dispatch<MouseButtonReleaseEvent>(static_cast<MouseCode>(event.button.button));
+                EventBus::get()->dispatch<MouseButtonReleaseEvent>(static_cast<MouseCode>(event.button.button));
                 break;
             case SDL_EVENT_MOUSE_WHEEL:
-                g_env.event_bus->dispatch<MouseScrollEvent>(event.wheel.x, event.wheel.y);
+                EventBus::get()->dispatch<MouseScrollEvent>(event.wheel.x, event.wheel.y);
                 break;
             default:
                 break;
@@ -108,5 +107,11 @@ namespace hyper_engine
     SDL_Window *Window::native_window() const
     {
         return m_native_window;
+    }
+
+    Window *&Window::get()
+    {
+        static Window *window = nullptr;
+        return window;
     }
 } // namespace hyper_engine

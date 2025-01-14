@@ -154,7 +154,7 @@ namespace hyper_engine
             const Filter min_filter = extract_filter(sampler.minFilter.value_or(fastgltf::Filter::Nearest));
             const Filter mipmap_filter = extract_filter(sampler.minFilter.value_or(fastgltf::Filter::Nearest));
 
-            samplers.push_back(g_env.graphics_device->create_sampler({
+            samplers.push_back(GraphicsDevice::get()->create_sampler({
                 .label = sampler.name.empty() ? file_name : std::string(sampler.name),
                 .mag_filter = mag_filter,
                 .min_filter = min_filter,
@@ -232,7 +232,7 @@ namespace hyper_engine
 
             if (image_data)
             {
-                RefPtr<Texture> texture = g_env.graphics_device->create_texture({
+                RefPtr<Texture> texture = GraphicsDevice::get()->create_texture({
                     .label = image.name.empty() ? file_name : std::string(image.name),
                     .width = static_cast<uint32_t>(width),
                     .height = static_cast<uint32_t>(height),
@@ -244,7 +244,7 @@ namespace hyper_engine
                     .usage = TextureUsage::ShaderResource,
                 });
 
-                RefPtr<TextureView> texture_view = g_env.graphics_device->create_texture_view({
+                RefPtr<TextureView> texture_view = GraphicsDevice::get()->create_texture_view({
                     .label = image.name.empty() ? file_name : std::string(image.name),
                     .texture = texture,
                     .subresource_range =
@@ -459,35 +459,35 @@ namespace hyper_engine
                 surfaces.push_back(surface);
             }
 
-            const RefPtr<Buffer> positions_buffer = g_env.graphics_device->create_buffer({
+            const RefPtr<Buffer> positions_buffer = GraphicsDevice::get()->create_buffer({
                 .label = fmt::format("{} Positions", mesh.name),
                 .byte_size = positions.size() * sizeof(glm::vec4),
                 .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
             });
             command_list->write_buffer(positions_buffer, positions.data(), positions.size() * sizeof(glm::vec4), 0);
 
-            const RefPtr<Buffer> normals_buffer = g_env.graphics_device->create_buffer({
+            const RefPtr<Buffer> normals_buffer = GraphicsDevice::get()->create_buffer({
                 .label = fmt::format("{} Normals", mesh.name),
                 .byte_size = normals.size() * sizeof(glm::vec4),
                 .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
             });
             command_list->write_buffer(normals_buffer, normals.data(), normals.size() * sizeof(glm::vec4), 0);
 
-            const RefPtr<Buffer> colors_buffer = g_env.graphics_device->create_buffer({
+            const RefPtr<Buffer> colors_buffer = GraphicsDevice::get()->create_buffer({
                 .label = fmt::format("{} Colors", mesh.name),
                 .byte_size = colors.size() * sizeof(glm::vec4),
                 .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
             });
             command_list->write_buffer(colors_buffer, colors.data(), colors.size() * sizeof(glm::vec4), 0);
 
-            const RefPtr<Buffer> tex_coords_buffer = g_env.graphics_device->create_buffer({
+            const RefPtr<Buffer> tex_coords_buffer = GraphicsDevice::get()->create_buffer({
                 .label = fmt::format("{} Tex Coords", mesh.name),
                 .byte_size = tex_coords.size() * sizeof(glm::vec4),
                 .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
             });
             command_list->write_buffer(tex_coords_buffer, tex_coords.data(), tex_coords.size() * sizeof(glm::vec4), 0);
 
-            const RefPtr<Buffer> mesh_buffer = g_env.graphics_device->create_buffer({
+            const RefPtr<Buffer> mesh_buffer = GraphicsDevice::get()->create_buffer({
                 .label = fmt::format("{} Mesh Data", mesh.name),
                 .byte_size = sizeof(ShaderMesh),
                 .usage = {BufferUsage::Storage, BufferUsage::ShaderResource},
@@ -502,7 +502,7 @@ namespace hyper_engine
 
             command_list->write_buffer(mesh_buffer, &shader_mesh, sizeof(ShaderMesh), 0);
 
-            const RefPtr<Buffer> indices_buffer = g_env.graphics_device->create_buffer({
+            const RefPtr<Buffer> indices_buffer = GraphicsDevice::get()->create_buffer({
                 .label = fmt::format("{} Indices", mesh.name),
                 .byte_size = indices.size() * sizeof(uint32_t),
                 .usage = BufferUsage::Index,

@@ -71,6 +71,8 @@ namespace hyper_engine
         virtual bool debug_label() const = 0;
         virtual bool debug_marker() const = 0;
 
+        static GraphicsDevice *&get();
+
     protected:
         virtual RefPtr<Buffer> create_buffer_platform(const BufferDescriptor &descriptor, ResourceHandle handle) const = 0;
 

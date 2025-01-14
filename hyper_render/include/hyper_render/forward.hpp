@@ -11,5 +11,7 @@ namespace hyper_engine
     struct GltfMaterial;
     class Mesh;
 
+    class Renderer;
+
     class Scene;
 } // namespace hyper_engine

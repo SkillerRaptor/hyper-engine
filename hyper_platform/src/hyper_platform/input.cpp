@@ -6,9 +6,6 @@
 
 #include "hyper_platform/input.hpp"
 
-#include <SDL3/SDL.h>
-
-#include <hyper_core/global_environment.hpp>
 #include <hyper_core/prerequisites.hpp>
 #include <hyper_event/event_bus.hpp>
 
@@ -19,11 +16,11 @@ namespace hyper_engine
 {
     Input::Input()
     {
-        g_env.event_bus->subscribe<MouseMoveEvent>(HE_BIND_FUNCTION(Input::on_mouse_move));
-        g_env.event_bus->subscribe<MouseButtonPressEvent>(HE_BIND_FUNCTION(Input::on_mouse_button_press));
-        g_env.event_bus->subscribe<MouseButtonReleaseEvent>(HE_BIND_FUNCTION(Input::on_mouse_button_release));
-        g_env.event_bus->subscribe<KeyPressEvent>(HE_BIND_FUNCTION(Input::on_key_press));
-        g_env.event_bus->subscribe<KeyReleaseEvent>(HE_BIND_FUNCTION(Input::on_key_release));
+        EventBus::get()->subscribe<MouseMoveEvent>(HE_BIND_FUNCTION(Input::on_mouse_move));
+        EventBus::get()->subscribe<MouseButtonPressEvent>(HE_BIND_FUNCTION(Input::on_mouse_button_press));
+        EventBus::get()->subscribe<MouseButtonReleaseEvent>(HE_BIND_FUNCTION(Input::on_mouse_button_release));
+        EventBus::get()->subscribe<KeyPressEvent>(HE_BIND_FUNCTION(Input::on_key_press));
+        EventBus::get()->subscribe<KeyReleaseEvent>(HE_BIND_FUNCTION(Input::on_key_release));
     }
 
     bool Input::is_key_pressed(const KeyCode key_code) const
@@ -39,6 +36,12 @@ namespace hyper_engine
     glm::vec2 Input::mouse_position() const
     {
         return m_mouse_position;
+    }
+
+    Input *&Input::get()
+    {
+        static Input *input = nullptr;
+        return input;
     }
 
     void Input::on_mouse_move(const MouseMoveEvent &event)

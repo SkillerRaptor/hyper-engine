@@ -10,7 +10,6 @@ set(SOURCES
         src/hyper_rhi/compute_pipeline.cpp
         src/hyper_rhi/descriptor_manager.cpp
         src/hyper_rhi/graphics_device.cpp
-        src/hyper_rhi/hyper_rhi.cpp
         src/hyper_rhi/pipeline_layout.cpp
         src/hyper_rhi/render_pass.cpp
         src/hyper_rhi/render_pipeline.cpp
@@ -47,7 +46,6 @@ set(HEADERS
         include/hyper_rhi/forward.hpp
         include/hyper_rhi/format.hpp
         include/hyper_rhi/graphics_device.hpp
-        include/hyper_rhi/hyper_rhi.hpp
         include/hyper_rhi/pipeline_layout.hpp
         include/hyper_rhi/render_pass.hpp
         include/hyper_rhi/render_pipeline.hpp

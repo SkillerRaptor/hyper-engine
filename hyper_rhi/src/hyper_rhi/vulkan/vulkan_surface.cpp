@@ -11,7 +11,6 @@
 #include <SDL3/SDL_vulkan.h>
 
 #include <hyper_core/assertion.hpp>
-#include <hyper_core/global_environment.hpp>
 #include <hyper_core/logger.hpp>
 #include <hyper_platform/window.hpp>
 
@@ -32,7 +31,7 @@ namespace hyper_engine
     {
         destroy();
 
-        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(GraphicsDevice::get());
         vkDestroySurfaceKHR(graphics_device->instance(), m_surface, nullptr);
     }
 
@@ -88,15 +87,15 @@ namespace hyper_engine
 
     void VulkanSurface::create_surface()
     {
-        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(GraphicsDevice::get());
 
-        HE_ASSERT(SDL_Vulkan_CreateSurface(g_env.window->native_window(), graphics_device->instance(), nullptr, &m_surface));
+        HE_ASSERT(SDL_Vulkan_CreateSurface(Window::get()->native_window(), graphics_device->instance(), nullptr, &m_surface));
         HE_ASSERT(m_surface != VK_NULL_HANDLE);
     }
 
     void VulkanSurface::create_swapchain()
     {
-        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(GraphicsDevice::get());
 
         VkSurfaceCapabilitiesKHR surface_capabilities = {};
         HE_VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(graphics_device->physical_device(), m_surface, &surface_capabilities));
@@ -158,7 +157,7 @@ namespace hyper_engine
 
     void VulkanSurface::create_textures()
     {
-        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(GraphicsDevice::get());
 
         uint32_t image_count = 0;
         vkGetSwapchainImagesKHR(graphics_device->device(), m_swapchain, &image_count, nullptr);
@@ -208,7 +207,7 @@ namespace hyper_engine
 
     void VulkanSurface::destroy()
     {
-        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        const VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(GraphicsDevice::get());
 
         m_texture_views.clear();
         m_textures.clear();

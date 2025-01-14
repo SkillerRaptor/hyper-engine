@@ -26,11 +26,13 @@ namespace hyper_engine
         ~Window();
 
         void process_events();
-        void wait_events();
+        static void wait_events();
 
         uint32_t width() const;
         uint32_t height() const;
         SDL_Window *native_window() const;
+
+        static Window *&get();
 
     private:
         SDL_Window *m_native_window = nullptr;

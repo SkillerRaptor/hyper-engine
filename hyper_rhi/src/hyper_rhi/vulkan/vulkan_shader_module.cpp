@@ -41,7 +41,7 @@ namespace hyper_engine
 
     VulkanShaderModule::~VulkanShaderModule()
     {
-        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(GraphicsDevice::get());
         graphics_device->resource_queue().shader_modules.emplace_back(m_shader_module);
     }
 

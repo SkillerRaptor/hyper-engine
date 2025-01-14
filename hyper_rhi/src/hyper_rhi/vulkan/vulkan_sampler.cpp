@@ -64,7 +64,7 @@ namespace hyper_engine
 
     VulkanSampler::~VulkanSampler()
     {
-        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(g_env.graphics_device);
+        VulkanGraphicsDevice *graphics_device = static_cast<VulkanGraphicsDevice *>(GraphicsDevice::get());
         graphics_device->resource_queue().samplers.emplace_back(m_sampler);
     }
 
