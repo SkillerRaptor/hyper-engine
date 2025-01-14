@@ -13,7 +13,6 @@ set(HEADERS
         include/hyper_core/assertion.hpp
         include/hyper_core/bit_flags.hpp
         include/hyper_core/bits.hpp
-        include/hyper_core/context.hpp
         include/hyper_core/filesystem.hpp
         include/hyper_core/job_system.hpp
         include/hyper_core/logger.hpp
